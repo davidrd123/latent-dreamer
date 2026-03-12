@@ -1,0 +1,62 @@
+This is a useful check. Let me work through your specific flags and then address the larger question of whether we're foreclosing anything.
+
+## Claims vs. Concepts
+
+This is the most important thing in the report for your vault. Right now your atom schema has `kind: concept | method | question | person | reference | event`. The report argues that the fundamental unit of knowledge isn't the concept — it's the **claim**. A concept is "highlights and hides." A claim is "asking an LLM what a framing foregrounds and conceals is a form of epistemic literacy." The difference: a claim has a position. It can be supported, opposed, refined, superseded. A concept just sits there.
+
+Your vault is oriented toward *writing*. Writers don't assemble concepts — they assemble arguments. When you sit at the table and advocates argue for sequence, they're arguing about what the reader needs to believe before the next claim can land. Not what the reader needs to *know* (concept) but what the reader needs to *accept* (claim).
+
+This doesn't mean every atom should be a claim. Some atoms genuinely are concepts, people, methods. But `claim` should be a `kind:` value, and it's probably the most creatively generative kind you'll have. When a frame-read produces a reflection, the most interesting observations it makes are claims about your material. When a séance produces writing, the good sentences are claims.
+
+The fix is tiny: add `claim` to the `kind:` enum. But the downstream implication is significant — tend should notice when an atom that's typed as a `concept` is actually functioning as a `claim` and suggest the reclassification, because the difference affects how the table, the séance, and frame-read treat it.
+
+## PARA
+
+PARA maps onto your vault almost exactly, just with different names:
+
+| PARA | Your Vault |
+|---|---|
+| Projects | `_projects/` |
+| Areas | `_frames/` (ongoing concerns, no end date) |
+| Resources | `_atoms/` |
+| Archive | Completed projects + composted material |
+
+You're not missing anything from PARA. The one subtle difference is that PARA treats Areas as maintenance-oriented (health, finances, career) while your frames are perspective-oriented (writing practice, systems thinking). Yours is better for creative work. PARA was designed for productivity, not ideation.
+
+## Bidirectionality
+
+You're right not to care about it the way the report does. The report is obsessed with the unsolved problem of real-time sync between prose and graph. That matters for research infrastructure where many people need to co-edit both views. Your vault doesn't have that problem because you solved it differently: the human writes prose, the agent maintains the graph, and they're loosely coupled by design. You don't *want* automatic propagation from your draft edits into the atomic layer — that's what tend does deliberately, with judgment.
+
+The report's bidirectionality is an engineering problem for multi-user research platforms. Your architecture's asymmetry — prose flows one way, structure flows the other, the agent bridges them — is actually more aligned with how a single creative practitioner works.
+
+## Knowledge Synthesis Graphs
+
+KSGs are interesting because they do something close to what your atomize skill does: extract micro-ideas from prose, link them to structured nodes, assign epistemic relations. The difference is they're doing it for collaborative student discourse against course readings. You're doing it for your own creative journal against your own accumulated thinking.
+
+The part worth attending to: **epistemic relations**. KSGs don't just link micro-ideas to synthesis nodes — they type the relationship. "This micro-idea *supports* this synthesis node." "This micro-idea *challenges* this synthesis node." Right now your atoms link to each other with untyped wikilinks. We discussed this earlier and deferred edge typing as future complexity. But the KSG model suggests a middle path: you don't need a full edge-typing system, but when tend creates a link between atoms, it could annotate *in the atom's prose* what the relationship is. Not in frontmatter, not as formal metadata — just a sentence: "This connects to [[highlights-and-hides]] because it's a specific instance of the general method." The relationship is captured in natural language, readable by the human, parseable by a future graph DB, and it costs nothing structurally.
+
+## What the Report Confirms You're Already Doing Right
+
+Three of the report's five convergences map directly onto your vault's existing principles:
+
+**Provenance as first-class primitive** — this is "the trail is the treasure." You're ahead of most systems described in the report because provenance isn't bolted on, it's the whole point.
+
+**Graphs over trees** — your flat atom pool with wikilinks is inherently a graph, not a hierarchy. Frames provide multiple perspectives on the same graph. This is exactly what the report says humanities knowledge needs.
+
+**LLMs as bridge technology** — your entire collaboration model is the LLM bridging prose (your writing) and structure (the atomic layer). You just don't frame it in those terms.
+
+## What You Might Be Foreclosing
+
+One thing: **typed relations between atoms.** Not the full bidirectional sync the report wants, but the ability for a future graph DB to understand that the link between atom A and atom B is "supports" vs "contradicts" vs "is an instance of." Right now all your links are untyped wikilinks. Adding formal edge types now would be overengineering. But if tend starts writing relationship descriptions in natural language within atom bodies (as I suggested above), a future Graphiti integration could parse those descriptions into typed edges. You preserve the option without building the infrastructure.
+
+One more thing, smaller: **the discourse grammar parser idea** — prose that gets automatically parsed into formal relations. You've deliberately chosen *not* to do this, and I think that's right for now. But note that the KSG approach of having the LLM assign epistemic relations during extraction (your atomize step) is something you could add to atomize's procedure without changing any structure. When atomize creates an atom from a stream entry, it could note in the atom's prose: "This claim emerged as a challenge to [[existing-atom]]." That's not automatic bidirectional sync. It's just richer atomization.
+
+## Suggested Changes
+
+Small ones. Nothing structural:
+
+1. Add `claim` to the atom `kind:` enum
+2. Add a note to atomize and tend that when creating or enriching links between atoms, the relationship should be described in natural language in the atom body — not just a bare wikilink but a sentence explaining *how* the atoms relate
+3. Add `claim` awareness to the table experiment — when annotating fragments, the agent should identify which atoms are functioning as claims (positioned, arguable) vs concepts (descriptive, stable), because this affects sequence logic
+
+Want me to add these to the implementation notes?
