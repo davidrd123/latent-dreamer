@@ -729,6 +729,71 @@ In the morning, the most productive conversation with teammates:
     the gap is too narrow, it feels like an illustrated audiobook. Where's
     the sweet spot?
 
+## Dual Streams: Two GPUs, Two Interpretations
+
+If two GPU processes are available (multi-GPU setup), the architecture
+already supports dual simultaneous rendering without modification. Both
+processes consume the same `dreamer` block. Each renders differently.
+
+### What Each Stream Could Be
+
+The two streams don't have a fixed assignment. What's on each is driven by
+the Dreamer's state:
+
+**One situation dominates:**
+- Stream A: the dominant situation, Director-interpreted
+- Stream B: what the mind is drifting away from — the decaying previous
+  scene, or a low-activation situation pulling weakly
+- Crossfade is lopsided. You're mostly in one place but the ghost of the
+  other is visible.
+
+**Two situations compete (hold state):**
+- Both streams active at full strength. Two situations, two Director
+  interpretations, composited.
+- The audience sees the mind torn between them.
+
+**Counterfactual fires:**
+- Stream A continues the current scene
+- Stream B suddenly shows the counterfactual version — same situation,
+  Director goes wild
+- Hard cut on stream B while stream A continues
+- Reality and "what if" visible simultaneously
+
+**Goal type shifts on the same situation:**
+- Stream A: the rehearsal version of the harbor
+- Stream B crossfades to the revenge version of the harbor
+- Same place, different cognitive posture, different Director treatment
+- You see the mind change *how* it's thinking about the same thing
+
+### The Gap Made Visible
+
+With dual streams, the Dreamer/Director gap isn't just tunable — it's
+*visible*. One stream can render at narrow conceptual distance (literal,
+grounded). The other at wide conceptual distance (wild, surrealist). The
+audience sees the distance between the two in real time.
+
+When the streams are similar: the dreaming is mild, the mind is close to
+the world. When they're wildly different: the mind is far from reality.
+That legibility is powerful because it doesn't need narration to
+communicate — the visual difference *is* the communication.
+
+The prompt engineering framework already supports this. Two prompts from
+the same Dreamer state, constructed at different conceptual distances
+using the attention budget rules (Strategy 2). Not a new problem — the
+existing pipeline run twice with different distance parameters.
+
+### The APC Mini as Dual-Stream Instrument
+
+The crossfader maps to the Dreamer's activation dynamics:
+- High activation on one situation → that stream dominates
+- Competing activation → both streams present
+- The fader is both automated (from dreamer block values) and manually
+  overridable
+
+This makes the APC Mini a genuine instrument for conducting the dream.
+Not just switching scenes — controlling the *relationship* between two
+simultaneous rendering interpretations of the same emotional content.
+
 ## How to Continue This Track
 
 This is not a spec. It's a living exploration. The way forward is:
@@ -743,3 +808,6 @@ This is not a spec. It's a living exploration. The way forward is:
 - **Talk to the team about Director style guides.** Bring the Dreamer +
   Director framing and the goal-type-to-cinematography mapping table. See
   what they think, what existing work applies, what they'd want to build.
+- **Explore dual-stream rendering.** If multi-GPU is available, test
+  simultaneous literal + interpreted streams and see if the visible gap
+  communicates what the system is doing without explanation.
