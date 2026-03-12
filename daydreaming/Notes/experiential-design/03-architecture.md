@@ -21,7 +21,8 @@ still works at the previous phase's level if a hypothesis fails.
 | **Director lens competition** (multiple competing interpretive agents) | Low-Medium | Interesting idea. Untested. Depends on whether single-Director output already feels dreamlike or needs more register variation. |
 | **Bidirectional feedback** (Director output feeds back into Dreamer) | Speculative | The most exciting and most uncertain part. Could produce beautiful self-mutating dreams. Could produce noise or runaway instability. Phase 3 tests this specifically. |
 | **Three voice channels** (Dreamer whisper + Director monologue + imagery) | Speculative | Two TTS streams competing with Lyria music could be overwhelming. Mixing is a major creative challenge. Needs stage testing. |
-| **Stage** (Scope + Lyria + narration) | High | Already built (rounds 1-2). |
+| **Stage: Scope + Lyria** (video + music) | High | Already built (rounds 1-2). |
+| **Stage: Narration** (captions, TTS voices) | Low-Medium | Captions are straightforward. Single TTS voice is Phase 2+. Dual TTS (Dreamer + Director) is Phase 4+, aspirational. |
 
 **The key implication:** The v0 spike should not silently commit to palette
 lookup as imagination, single-director architecture, no feedback loop, or
@@ -363,7 +364,23 @@ The DreamNode schema grows as phases prove out. The stable core is the
 `dreamer` block — that's the interface the v0 spike produces. Everything
 else accretes as later phases succeed.
 
-### Phase 1 DreamNode (v0 spike — what Codex builds now)
+### Phase 1: Scheduler Output (internal — what the Dreamer produces)
+
+This is the scheduler's internal payload, **not** a stage-ready DreamNode.
+It uses `dreamer` (the scheduler's own vocabulary) rather than the
+contract's `mind`/`world`/`audio` fields. A translation step maps this
+to the canonical DreamNode schema defined in `daydream-to-stage-contract.md`
+before anything hits the stage.
+
+The field differences from the contract are intentional:
+
+| This doc (scheduler internal) | Contract (`daydream-to-stage-contract.md`) | Why |
+|---|---|---|
+| `dreamer` | `mind` | Scheduler thinks in its own terms; `mind` is the stage-facing subset |
+| `ref` | `ref` | Same — palette cell reference |
+| `transition_in` | `transition` | Contract uses `transition` with `kind` field |
+| (no `world` block) | `world` | Contract carries `present_compatible`, `situation_ids`; scheduler has these in `dreamer` |
+| (no `audio` block) | `audio` | Contract carries music prompt/config; in v0 these come from palette, not scheduler |
 
 ```json
 {
@@ -399,10 +416,11 @@ else accretes as later phases succeed.
 }
 ```
 
-This node uses palette cell lookup. The `dreamer` block is the stable
-seam — it carries the full scheduler state regardless of what renders it.
-The `ref` block is a v0 rendering strategy that will be replaced or
-augmented by the Director layer in later phases.
+The `dreamer` block is the stable seam — it carries the full scheduler
+state regardless of what renders it. In v0, a thin translator maps
+`dreamer` fields to the contract's `mind`/`world` fields and fills
+`audio` from the palette cell. In later phases, the Director replaces
+that translator entirely.
 
 ### Full-Vision DreamNode (Phase 4+ — if Director + feedback + lenses prove out)
 

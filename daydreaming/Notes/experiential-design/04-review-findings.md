@@ -219,6 +219,80 @@ because the content demands it — they switch because the mind's
 interpretive stance drifts. Weight randomness and decay much higher in
 lens competition than in goal competition.
 
+## Additional Observations (from the conversation that produced these reviews)
+
+### The Dreamer is not swappable the way the Director is
+
+The synthesis of the three reviews concluded that "the architecture is good
+because of where it draws the lines, not because of what's on either side."
+That's half right. The seam design is good — the `dreamer` block as stable
+interface means the Director can be swapped, replaced, or removed without
+touching the scheduler. But the reverse is not true. Mueller's specific
+scheduling dynamics — coincidence retrieval, competing goal types, decay,
+the performance/daydreaming oscillation — are what make the traversal feel
+like a mind rather than a random walk or a playlist. You could swap in a
+different Director (or no Director). You cannot casually swap the Dreamer
+without losing the core phenomenology.
+
+The architecture is asymmetric: the rendering layer is a swappable
+hypothesis, but the emotional scheduler is a structural commitment.
+
+### Performance/daydreaming as a conductor question
+
+None of the three reviews engaged with the APC Mini fader between
+immersion and introspection as a live performance instrument. The
+MR_IMS reviewer noted the IMS isomorphism (Dreamer = sensor, Director =
+mapping, Stage = output, APC Mini = conductor) but didn't follow through
+on what it means.
+
+The performance/daydreaming toggle is not just a mixing parameter. It's
+the performer's primary creative decision: when does the audience see
+the mind versus when are they just inside the dream? That decision is
+real-time, musical, responsive to what's happening on stage. It's what
+makes this a performed piece rather than a screensaver. The APC Mini
+doesn't just control volume levels — it controls the phenomenological
+mode of the whole system.
+
+This deserves explicit design attention: what does the fader actually
+control? Narration density? Interior-state visualization opacity? The
+balance between palette-literal and Director-wild imagery? Probably all
+of these, mapped to a single physical gesture, with the details tuned
+by ear during rehearsal.
+
+### Mueller's mutation complements the Director — it doesn't just fall back
+
+The architecture doc frames Mueller's structural mutation (`dd_mutation.cl`)
+as "v0 fallback only," replaced by the Director's imaginative mutations.
+That undersells it. The Director produces associative, aesthetic mutations
+— a wall becomes a breathing membrane, a harbor becomes a flooded
+cathedral. Mueller's mutation produces structural mutations — swap the
+character, swap the place, swap the action type. These are different
+operations that complement each other.
+
+When the Director is running, it's the primary source of novelty. But
+the Director can get stuck too — LLMs have their own attractors and
+comfortable patterns. Mueller's mechanical mutation (try a different
+situation, a different place) can break the Director out of a rut the
+same way it breaks the Dreamer out of one. Worth keeping as a real
+mechanism, not just a legacy fallback.
+
+### The offline/online split is a deliberate departure from Mueller
+
+Mueller's DAYDREAMER doesn't have a "prep" phase and a "play" phase.
+It has one loop that alternates between performance and daydreaming.
+The current architecture's split — offline graph generation, then
+real-time traversal — is closer to how a film score works (compose it,
+then perform it). Mueller is more like jazz (the composition is the
+performance).
+
+Both are valid, but they produce different phenomenology. The offline
+graph gives control and reliability. A live Mueller-like loop gives
+emergent switching and surprise. Eventually the system probably wants
+both: an offline graph as the base score, with a live Mueller-like
+loop that can deviate from it during performance. That's a Phase 5+
+question, but worth naming now so the architecture doesn't accidentally
+close the door on it.
+
 ## Consolidated Design Recommendations
 
 These are concrete enough to inform implementation. Ordered by when they
