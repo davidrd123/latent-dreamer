@@ -111,9 +111,10 @@
   - cycle 9: n09_tear_the_set
   - cycle 10: n10_honest_ring
 
-  The leaf choice for REVERSAL is still fixture-driven here, but the branch
-  creation itself is real and goes through `goal_families/reversal-sprout-alternative`."
-  [{:keys [old-context-id old-top-level-goal-id reversal-goal-id]}]
+  The leaf choice now goes through kernel discovery (`reverse-leafs` style
+  candidate selection), while the counterfactual input facts are still
+  fixture-driven."
+  [{:keys [reversal-goal-id]}]
   [{:timestamp "2026-03-12T12:00:08Z"
     :active-indices [:edge :void :backstage :stored_scenery :consequence :darkness]
     :retrievals [{:node-id "n05_peel_the_wall"
@@ -142,8 +143,7 @@
                                                        :performance
                                                        :anger]}]
                        :notes "Stored scenery reads as apparatus and turns dread into anger at the set."}
-    :reversal-branch {:old-context-id old-context-id
-                      :old-top-level-goal-id old-top-level-goal-id
+    :reversal-branch {:discover-leaf? true
                       :new-top-level-goal-id reversal-goal-id
                       :ordering 0.61
                       :input-facts [{:fact/type :counterfactual

@@ -25,6 +25,9 @@
   [goal-type]
   (contains? supported-families goal-type))
 
+(def ^:private reversal-leaf-policy
+  :emotion_then_depth)
+
 (defn- fact-type?
   [fact expected]
   (and (map? fact) (= (:fact/type fact) expected)))
@@ -72,6 +75,71 @@
         (:target-id fact)]
        (remove nil?)
        set))
+
+(defn- goal-status
+  [fact]
+  (:status fact))
+
+(defn- local-failed-goal-facts
+  [world context-id]
+  (->> (get-in world [:contexts context-id :add-obs] #{})
+       (filter goal-fact?)
+       (filter #(= :failed (goal-status %)))
+       (sort-by pr-str)
+       vec))
+
+(defn- emotion-pressure
+  [world context-id]
+  (->> (cx/visible-facts world context-id)
+       (filter emotion-fact?)
+       (map #(double (or (:strength %) 0.0)))
+       (reduce max 0.0)))
+
+(defn- leaf-context?
+  [world context-id]
+  (empty? (cx/children world context-id)))
+
+(defn reversal-leaf-candidates
+  "Find candidate failure leaf contexts for REVERSAL.
+
+  Candidate discovery is intentionally conservative for this first pass:
+  - the context must be a leaf in the planning tree
+  - it must locally assert at least one failed goal fact
+
+  Ranking is provisional until realism metadata exists. For now, candidates are
+  ordered by strongest visible emotion, then by context depth, then by failure
+  count."
+  [world]
+  (->> (keys (:contexts world))
+       (keep (fn [context-id]
+               (let [failed-goals (local-failed-goal-facts world context-id)]
+                 (when (and (seq failed-goals)
+                            (leaf-context? world context-id))
+                   (let [primary-goal (first failed-goals)
+                         depth (count (cx/ancestors world context-id))
+                         pressure (emotion-pressure world context-id)
+                         reasons (cond-> [:failed_leaf]
+                                   (pos? pressure) (conj :negative_emotion)
+                                   (pos? depth) (conj :deep_context)
+                                   (> (count failed-goals) 1) (conj :multiple_failures))]
+                     {:old-context-id context-id
+                      :old-top-level-goal-id (top-level-owner primary-goal)
+                      :failed-goal-id (fact-id primary-goal)
+                      :context-depth depth
+                      :emotion-pressure pressure
+                      :failure-count (count failed-goals)
+                      :selection-reasons reasons
+                      :selection-policy reversal-leaf-policy})))))
+       (sort-by (juxt (comp - :emotion-pressure)
+                      (comp - :context-depth)
+                      (comp - :failure-count)
+                      (comp str :old-context-id)))
+       vec))
+
+(defn select-reversal-leaf
+  "Choose the strongest candidate failure leaf for REVERSAL."
+  [world]
+  (first (reversal-leaf-candidates world)))
 
 (defn- retract-facts
   [world context-id facts]

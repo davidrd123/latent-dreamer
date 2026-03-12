@@ -93,6 +93,24 @@
                       facts)]
     [world old-context-id old-top-level-goal-id old-subgoal-id other-subgoal-id]))
 
+(defn seed-failed-leaf
+  [world parent-id {:keys [goal-id emotion-id emotion-strength]
+                    :or {emotion-strength 0.0}}]
+  (let [[world context-id] (cx/sprout world parent-id)
+        facts [{:fact/type :goal
+                :goal-id goal-id
+                :top-level-goal goal-id
+                :status :failed
+                :activation-context context-id}
+               {:fact/type :emotion
+                :emotion-id emotion-id
+                :strength emotion-strength}]
+        world (reduce (fn [current-world fact]
+                        (cx/assert-fact current-world context-id fact))
+                      world
+                      facts)]
+    [world context-id]))
+
 (deftest gc-emotions-removes-emotions-and-dependencies
   (let [[world root-id] (world-with-root)
         [world old-context-id old-top-level-goal-id _ _]
@@ -211,3 +229,32 @@
              :target-context sprouted-context-id
              :input-facts [counterfactual-fact]}]
            (:mutation-events world)))))
+
+(deftest reversal-leaf-candidates-discover-and-rank-failed-leafs
+  (let [[world root-id] (world-with-root)
+        [world shallow-id] (seed-failed-leaf world root-id
+                                             {:goal-id :g-shallow
+                                              :emotion-id :e-shallow
+                                              :emotion-strength 0.4})
+        [world branch-id] (cx/sprout world root-id)
+        [world deep-id] (seed-failed-leaf world branch-id
+                                          {:goal-id :g-deep
+                                           :emotion-id :e-deep
+                                           :emotion-strength 0.8})
+        [world non-leaf-id] (seed-failed-leaf world root-id
+                                              {:goal-id :g-non-leaf
+                                               :emotion-id :e-parent
+                                               :emotion-strength 0.9})
+        [world _] (cx/sprout world non-leaf-id)
+        candidates (families/reversal-leaf-candidates world)]
+    (testing "only failed leaf contexts are returned"
+      (is (= [deep-id shallow-id]
+             (mapv :old-context-id candidates)))
+      (is (not-any? #(= non-leaf-id (:old-context-id %)) candidates)))
+    (testing "ranking prefers stronger emotion, then depth"
+      (is (= :g-deep (:failed-goal-id (first candidates))))
+      (is (= 2 (:context-depth (first candidates))))
+      (is (= 0.8 (:emotion-pressure (first candidates)))))
+    (testing "selection returns the top-ranked candidate"
+      (is (= (first candidates)
+             (families/select-reversal-leaf world))))))

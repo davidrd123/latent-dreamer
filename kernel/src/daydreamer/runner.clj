@@ -81,11 +81,30 @@
       (trace/merge-latest-cycle world {:sprouted merged-sprouts}))
     world))
 
+(defn- resolve-reversal-branch
+  [world reversal-spec]
+  (cond
+    (nil? reversal-spec)
+    nil
+
+    (or (:discover-leaf? reversal-spec)
+        (nil? (:old-context-id reversal-spec)))
+    (let [selected-leaf (families/select-reversal-leaf world)]
+      (when-not selected-leaf
+        (throw (ex-info "No reversal leaf candidates available"
+                        {:reversal-spec reversal-spec})))
+      (merge selected-leaf
+             (dissoc reversal-spec :discover-leaf?)))
+
+    :else
+    reversal-spec))
+
 (defn- apply-scripted-reversal
   [world selected-goal-id reversal-spec]
   (if-not reversal-spec
     [world nil]
-    (let [new-top-level-goal-id (or (:new-top-level-goal-id reversal-spec)
+    (let [reversal-spec (resolve-reversal-branch world reversal-spec)
+          new-top-level-goal-id (or (:new-top-level-goal-id reversal-spec)
                                     selected-goal-id)
           new-context-id (or (:new-context-id reversal-spec)
                              (goal-context world new-top-level-goal-id))]
@@ -106,7 +125,13 @@
                    {:mutations (:mutation-events world)
                     :selection {:goal_family :reversal
                                 :family_goal_id new-top-level-goal-id
+                                :reversal_leaf_policy (or (:selection-policy reversal-spec)
+                                                          :fixture_selected)
                                 :reversal_source_context (:old-context-id reversal-spec)
+                                :reversal_leaf_goal (:failed-goal-id reversal-spec)
+                                :reversal_leaf_depth (:context-depth reversal-spec)
+                                :reversal_leaf_emotion_pressure (:emotion-pressure reversal-spec)
+                                :reversal_leaf_reasons (:selection-reasons reversal-spec)
                                 :reversal_branch_context sprouted-context-id}})]
         [world sprouted-context-id]))))
 
@@ -147,7 +172,7 @@
     `:selection`, `:feedback-applied`, `:serendipity-bias`, `:situations`
     -> merged into the cycle trace
   - `:reversal-branch` -> invoke the real REVERSAL branch primitive with a
-    fixture-selected old context / old top-level goal
+    fixture-selected or kernel-discovered failed leaf
   - `:sprouts` -> vector of child context specs, each with optional
     `:ordering` / `:timeout`
   - `:goal-status` -> applied to the selected goal before `run-goal-step`

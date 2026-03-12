@@ -20,6 +20,12 @@
       (is (some? (:reversal-goal-id benchmark-state)))
       (is (= 1 (count (get-in world [:trace 0 :sprouted]))))
       (is (= "reversal" (get-in cycles [0 "mutations" 0 "family"])))
+      (is (= (name (:old-context-id benchmark-state))
+             (get-in cycles [0 "selection" "reversal_source_context"])))
+      (is (= (name (:old-top-level-goal-id benchmark-state))
+             (get-in cycles [0 "selection" "reversal_leaf_goal"])))
+      (is (= "emotion_then_depth"
+             (get-in cycles [0 "selection" "reversal_leaf_policy"])))
       (let [reversal-branch-id (first (get-in world [:trace 0 :sprouted]))]
         (is (= true (get-in world [:contexts reversal-branch-id :alternative-past?])))
         (is (= true (get-in world [:contexts reversal-branch-id :pseudo-sprout?])))))

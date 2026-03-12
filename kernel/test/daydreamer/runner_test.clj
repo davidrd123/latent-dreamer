@@ -160,3 +160,45 @@
       (is (= :reversal
              (get-in (-> world :trace first :selection)
                      [:goal_family]))))))
+
+(deftest run-scripted-cycle-can-discover-reversal-leaf
+  (let [[world goal-ids]
+        (runner/activate-goals
+         (runner/initial-world)
+         :cx-1
+         [{:goal-type :reversal
+           :planning-type :imaginary
+           :strength 0.9
+           :main-motiv :e-1
+           :situation-id :s1_seeing_through}])
+        [world old-context-id] (cx/sprout world :cx-1)
+        old-top-level-goal-id :g-old
+        world (-> world
+                  (cx/assert-fact old-context-id {:fact/type :situation
+                                                  :fact/id :s1_seeing_through})
+                  (cx/assert-fact old-context-id {:fact/type :emotion
+                                                  :emotion-id :e-fear
+                                                  :strength 0.7})
+                  (cx/assert-fact old-context-id {:fact/type :goal
+                                                  :goal-id old-top-level-goal-id
+                                                  :top-level-goal old-top-level-goal-id
+                                                  :status :failed
+                                                  :activation-context old-context-id}))
+        [world selected-goal-id]
+        (runner/run-scripted-cycle
+         world
+         {:timestamp "2026-03-12T12:00:00Z"
+          :active-indices [:s1_seeing_through :reversal]
+          :reversal-branch {:discover-leaf? true
+                            :ordering 0.9
+                            :input-facts [{:fact/type :counterfactual
+                                           :fact/id :wall_was_open}]}
+          :situations {:s1_seeing_through {:activation 0.95
+                                           :ripeness 0.8}}})]
+    (is (= (first goal-ids) selected-goal-id))
+    (is (= old-context-id
+           (get-in world [:trace 0 :selection :reversal_source_context])))
+    (is (= old-top-level-goal-id
+           (get-in world [:trace 0 :selection :reversal_leaf_goal])))
+    (is (= :emotion_then_depth
+           (get-in world [:trace 0 :selection :reversal_leaf_policy])))))
