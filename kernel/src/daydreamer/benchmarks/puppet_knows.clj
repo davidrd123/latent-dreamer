@@ -6,7 +6,8 @@
   window the parallel-track spec cares about: the cycle 9 -> 10 transition
   from revenge in s1 to rehearsal in s4, with cycle 8 included as the causal
   bridge from apparatus-dread into anger at the set."
-  (:require [daydreamer.runner :as runner]))
+  (:require [daydreamer.context :as cx]
+            [daydreamer.runner :as runner]))
 
 (def fixture-relative-paths
   "Paths to the shared Puppet Knows assets, relative to the `scope-drd` repo."
@@ -30,6 +31,11 @@
     :strength 0.86
     :main-motiv :e-apparatus-dread
     :situation-id :s3_the_edge}
+   {:goal-type :reversal
+    :planning-type :imaginary
+    :strength 0.18
+    :main-motiv :e-counterfactual-pressure
+    :situation-id :s1_seeing_through}
    {:goal-type :revenge
     :planning-type :imaginary
     :strength 0.82
@@ -41,12 +47,73 @@
     :main-motiv :e-honest-performance
     :situation-id :s4_the_ring}])
 
-(def cycle-scripts
+(defn- assert-facts
+  [world context-id facts]
+  (reduce (fn [current-world fact]
+            (cx/assert-fact current-world context-id fact))
+          world
+          facts))
+
+(defn- seed-reversal-setup
+  [world root-id]
+  (let [[world old-context-id] (cx/sprout world root-id)
+        old-top-level-goal-id :g_fixture_old_failure
+        old-leaf-goal-id :g_fixture_old_leaf
+        other-goal-id :g_fixture_other_plan
+        facts [{:fact/type :situation
+                :fact/id :s1_seeing_through}
+               {:fact/type :situation
+                :fact/id :s3_the_edge}
+               {:fact/type :emotion
+                :emotion-id :e_fixture_apparatus_dread
+                :strength 0.74}
+               {:fact/type :dependency
+                :from-id :e_fixture_apparatus_dread
+                :to-id old-top-level-goal-id}
+               {:fact/type :goal
+                :goal-id old-top-level-goal-id
+                :top-level-goal old-top-level-goal-id
+                :status :failed
+                :activation-context old-context-id}
+               {:fact/type :goal
+                :goal-id old-leaf-goal-id
+                :top-level-goal old-top-level-goal-id
+                :status :runable
+                :activation-context old-context-id}
+               {:fact/type :goal
+                :goal-id other-goal-id
+                :top-level-goal other-goal-id
+                :status :runable
+                :activation-context old-context-id}
+               {:fact/type :intends
+                :from-goal-id old-top-level-goal-id
+                :to-goal-id old-leaf-goal-id
+                :top-level-goal old-top-level-goal-id}
+               {:fact/type :intends
+                :from-goal-id other-goal-id
+                :to-goal-id :g_fixture_other_leaf
+                :top-level-goal other-goal-id}]
+        world (assert-facts world old-context-id facts)]
+    [world {:old-context-id old-context-id
+            :old-top-level-goal-id old-top-level-goal-id}]))
+
+(defn- benchmark-goal-ids
+  [goal-ids]
+  {:repercussions-goal-id (nth goal-ids 0)
+   :reversal-goal-id (nth goal-ids 1)
+   :revenge-goal-id (nth goal-ids 2)
+   :rehearsal-goal-id (nth goal-ids 3)})
+
+(defn cycle-scripts
   "Three-cycle benchmark bridge:
 
   - cycle 8: n08_inventory_dominos
   - cycle 9: n09_tear_the_set
-  - cycle 10: n10_honest_ring"
+  - cycle 10: n10_honest_ring
+
+  The leaf choice for REVERSAL is still fixture-driven here, but the branch
+  creation itself is real and goes through `goal_families/reversal-sprout-alternative`."
+  [{:keys [old-context-id old-top-level-goal-id reversal-goal-id]}]
   [{:timestamp "2026-03-12T12:00:08Z"
     :active-indices [:edge :void :backstage :stored_scenery :consequence :darkness]
     :retrievals [{:node-id "n05_peel_the_wall"
@@ -75,6 +142,14 @@
                                                        :performance
                                                        :anger]}]
                        :notes "Stored scenery reads as apparatus and turns dread into anger at the set."}
+    :reversal-branch {:old-context-id old-context-id
+                      :old-top-level-goal-id old-top-level-goal-id
+                      :new-top-level-goal-id reversal-goal-id
+                      :ordering 0.61
+                      :input-facts [{:fact/type :counterfactual
+                                     :fact/id :performance_is_admitted}
+                                    {:fact/type :situation
+                                     :fact/id :s4_the_ring}]}
     :serendipity-bias 0.04
     :situations {:s1_seeing_through {:activation 0.48
                                      :ripeness 0.72
@@ -96,7 +171,6 @@
                                :anger 0.17
                                :hope 0.40
                                :threat 0.22}}
-    :sprouts [{:ordering 0.7} {:ordering 0.2}]
     :terminate {:status :succeeded}}
    {:timestamp "2026-03-12T12:00:09Z"
     :active-indices [:ritual :combat :honesty :crowd :seam :anger :performance]
@@ -135,7 +209,6 @@
                                :anger 0.21
                                :hope 0.52
                                :threat 0.20}}
-    :sprouts [{:ordering 0.8}]
     :terminate {:status :succeeded}}
    {:timestamp "2026-03-12T12:00:10Z"
     :active-indices [:ritual :honesty :crowd :performance :sincerity :non_directed_light]
@@ -191,11 +264,16 @@
   `{:world final-world :log reporter-log}`."
   ([] (run-benchmark {}))
   ([metadata-overrides]
-   (let [[world _] (runner/activate-goals
-                    (benchmark-world)
-                    :cx-1
-                    goal-specs)]
-     (runner/run-scripted-session
-      world
-      cycle-scripts
-      (benchmark-metadata metadata-overrides)))))
+   (let [root-id :cx-1
+         [world reversal-setup] (seed-reversal-setup (benchmark-world) root-id)
+         [world goal-ids] (runner/activate-goals world root-id goal-specs)
+         benchmark-state (merge reversal-setup
+                                (benchmark-goal-ids goal-ids))
+         {:keys [world log]}
+         (runner/run-scripted-session
+          world
+          (cycle-scripts benchmark-state)
+          (benchmark-metadata metadata-overrides))]
+     {:world world
+      :log log
+      :benchmark-state benchmark-state})))

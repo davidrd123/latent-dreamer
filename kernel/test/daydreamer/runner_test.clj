@@ -1,5 +1,6 @@
 (ns daydreamer.runner-test
   (:require [clojure.test :refer [deftest is testing]]
+            [daydreamer.context :as cx]
             [daydreamer.runner :as runner]))
 
 (deftest initial-world-test
@@ -110,3 +111,52 @@
       (is (= "n10_the_ring" (get-in log ["cycles" 1 "chosen_node_id"]))))
     (testing "termination enriches the later trace"
       (is (= :succeeded (get-in world [:trace 1 :terminations 0 :status]))))))
+
+(deftest run-scripted-cycle-can-invoke-real-reversal-branch
+  (let [[world goal-ids]
+        (runner/activate-goals
+         (runner/initial-world)
+         :cx-1
+         [{:goal-type :reversal
+           :planning-type :imaginary
+           :strength 0.9
+           :main-motiv :e-1
+           :situation-id :s1_seeing_through}])
+        [world old-context-id] (cx/sprout world :cx-1)
+        old-top-level-goal-id :g-old
+        world (-> world
+                  (cx/assert-fact old-context-id {:fact/type :situation
+                                                  :fact/id :s1_seeing_through})
+                  (cx/assert-fact old-context-id {:fact/type :emotion
+                                                  :emotion-id :e-fear
+                                                  :strength 0.7})
+                  (cx/assert-fact old-context-id {:fact/type :dependency
+                                                  :from-id :e-fear
+                                                  :to-id old-top-level-goal-id})
+                  (cx/assert-fact old-context-id {:fact/type :goal
+                                                  :goal-id old-top-level-goal-id
+                                                  :top-level-goal old-top-level-goal-id
+                                                  :status :failed
+                                                  :activation-context old-context-id}))
+        [world selected-goal-id]
+        (runner/run-scripted-cycle
+         world
+         {:timestamp "2026-03-12T12:00:00Z"
+          :active-indices [:s1_seeing_through :reversal]
+          :reversal-branch {:old-context-id old-context-id
+                            :old-top-level-goal-id old-top-level-goal-id
+                            :ordering 0.9
+                            :input-facts [{:fact/type :counterfactual
+                                           :fact/id :wall_was_open}]}
+          :situations {:s1_seeing_through {:activation 0.95
+                                           :ripeness 0.8}}})]
+    (is (= (first goal-ids) selected-goal-id))
+    (is (= 1 (count (:trace world))))
+    (is (= 1 (count (get-in world [:trace 0 :sprouted]))))
+    (is (= :reversal (get-in world [:trace 0 :mutations 0 :family])))
+    (let [sprouted-context-id (first (get-in world [:trace 0 :sprouted]))]
+      (is (= true (get-in world [:contexts sprouted-context-id :alternative-past?])))
+      (is (= true (get-in world [:contexts sprouted-context-id :pseudo-sprout?])))
+      (is (= :reversal
+             (get-in (-> world :trace first :selection)
+                     [:goal_family]))))))

@@ -201,6 +201,8 @@
                      (:retrievals snapshot))
    "chosen_node_id" (or (:chosen-node-id snapshot) "n/a")
    "selection" (json-value (:selection snapshot))
+   "sprouted_contexts" (json-value (:sprouted snapshot))
+   "mutations" (json-value (:mutations snapshot))
    "feedback_applied" (json-value (:feedback-applied snapshot))
    "serendipity_bias" (:serendipity-bias snapshot)
    "situations" (json-value (:situations snapshot))})

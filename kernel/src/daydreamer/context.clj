@@ -170,9 +170,18 @@
        children))))
 
 (defn copy-context
-  "Copy a context's visible contents into a fresh sprout of another parent."
+  "Copy a context's visible contents into a fresh sprout of another parent.
+
+  When `target-parent-id` is nil, create a fresh root context copy. This
+  matches Mueller's `cx$copy` use inside REVERSAL, where copied contexts are
+  later pseudo-sprouted under a new planning branch."
   [world source-id target-parent-id]
-  (let [[world new-cx-id] (sprout world target-parent-id)
+  (let [[world new-cx-id]
+        (if target-parent-id
+          (sprout world target-parent-id)
+          (let [[world new-cx-id] (next-context-id world)
+                new-context (assoc (create-context) :id new-cx-id)]
+            [(assoc-in world [:contexts new-cx-id] new-context) new-cx-id]))
         world (reduce
                (fn [current-world fact]
                  (assert-fact current-world new-cx-id fact))

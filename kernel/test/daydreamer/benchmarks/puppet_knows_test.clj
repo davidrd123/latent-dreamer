@@ -11,11 +11,18 @@
     (is (= "abc123" (:git_commit metadata)))))
 
 (deftest run-benchmark-emits-explicit-8-to-10-window
-  (let [{:keys [world log]} (puppet/run-benchmark {:git_commit "abc123"})
+  (let [{:keys [world log benchmark-state]} (puppet/run-benchmark {:git_commit "abc123"})
         cycles (get log "cycles")]
     (testing "the benchmark is the intended three-cycle bridge"
       (is (= [8 9 10] (mapv #(get % "cycle") cycles)))
       (is (= 3 (count (:trace world)))))
+    (testing "cycle 8 includes a real reversal branch"
+      (is (some? (:reversal-goal-id benchmark-state)))
+      (is (= 1 (count (get-in world [:trace 0 :sprouted]))))
+      (is (= "reversal" (get-in cycles [0 "mutations" 0 "family"])))
+      (let [reversal-branch-id (first (get-in world [:trace 0 :sprouted]))]
+        (is (= true (get-in world [:contexts reversal-branch-id :alternative-past?])))
+        (is (= true (get-in world [:contexts reversal-branch-id :pseudo-sprout?])))))
     (testing "the key transition is revenge into ring rehearsal"
       (is (= "repercussions" (get-in cycles [0 "selected_goal" "goal_type"])))
       (is (= "revenge" (get-in cycles [1 "selected_goal" "goal_type"])))

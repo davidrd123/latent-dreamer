@@ -8,9 +8,11 @@
   - activate top-level goals
   - run control cycles
   - apply scripted planner/retrieval outcomes
+  - invoke goal-family primitives from scripted fixtures
   - export a reporter-shaped log through `daydreamer.trace`"
   (:require [daydreamer.context :as cx]
             [daydreamer.control :as control]
+            [daydreamer.goal-families :as families]
             [daydreamer.goals :as goals]
             [daydreamer.trace :as trace]))
 
@@ -68,6 +70,46 @@
           [world []]
           sprout-specs))
 
+(defn- append-sprouted-contexts
+  [world sprout-ids]
+  (if (seq sprout-ids)
+    (let [existing-sprouts (or (get-in world [:trace (dec (count (:trace world))) :sprouted])
+                               [])
+          merged-sprouts (->> (concat existing-sprouts sprout-ids)
+                              distinct
+                              vec)]
+      (trace/merge-latest-cycle world {:sprouted merged-sprouts}))
+    world))
+
+(defn- apply-scripted-reversal
+  [world selected-goal-id reversal-spec]
+  (if-not reversal-spec
+    [world nil]
+    (let [new-top-level-goal-id (or (:new-top-level-goal-id reversal-spec)
+                                    selected-goal-id)
+          new-context-id (or (:new-context-id reversal-spec)
+                             (goal-context world new-top-level-goal-id))]
+      (when-not new-context-id
+        (throw (ex-info "Scripted reversal branch needs a target planning context"
+                        {:selected-goal-id selected-goal-id
+                         :new-top-level-goal-id new-top-level-goal-id
+                         :reversal-spec reversal-spec})))
+      (let [[world sprouted-context-id]
+            (families/reversal-sprout-alternative
+             world
+             (assoc reversal-spec
+                    :new-top-level-goal-id new-top-level-goal-id
+                    :new-context-id new-context-id))
+            world (append-sprouted-contexts world [sprouted-context-id])
+            world (trace/merge-latest-cycle
+                   world
+                   {:mutations (:mutation-events world)
+                    :selection {:goal_family :reversal
+                                :family_goal_id new-top-level-goal-id
+                                :reversal_source_context (:old-context-id reversal-spec)
+                                :reversal_branch_context sprouted-context-id}})]
+        [world sprouted-context-id]))))
+
 (defn- enrich-latest-trace
   [world script]
   (trace/merge-latest-cycle
@@ -104,6 +146,8 @@
   - `:timestamp`, `:active-indices`, `:retrievals`, `:chosen-node-id`,
     `:selection`, `:feedback-applied`, `:serendipity-bias`, `:situations`
     -> merged into the cycle trace
+  - `:reversal-branch` -> invoke the real REVERSAL branch primitive with a
+    fixture-selected old context / old top-level goal
   - `:sprouts` -> vector of child context specs, each with optional
     `:ordering` / `:timeout`
   - `:goal-status` -> applied to the selected goal before `run-goal-step`
@@ -114,11 +158,12 @@
         world (enrich-latest-trace world script)]
     (if-not selected-goal-id
       [world nil]
-      (let [[world sprout-ids]
+      (let [[world _] (apply-scripted-reversal world
+                                               selected-goal-id
+                                               (:reversal-branch script))
+            [world sprout-ids]
             (create-scripted-sprouts world selected-goal-id (:sprouts script []))
-            world (if (seq sprout-ids)
-                    (trace/merge-latest-cycle world {:sprouted sprout-ids})
-                    world)
+            world (append-sprouted-contexts world sprout-ids)
             world (if-let [goal-status (:goal-status script)]
                     (goals/change-status world selected-goal-id goal-status)
                     world)

@@ -121,3 +121,14 @@
            (cx/visible-facts world copied-id)))
     (is (= #{rehearsal-fact}
            (get-in world [:contexts copied-id :add-obs])))))
+
+(deftest copy-context-with-nil-parent-creates-a-root-clone
+  (let [[world root-id] (world-with-root [betrayal-fact anger-fact])
+        [world copied-id] (cx/copy-context world root-id nil)
+        copied (get-in world [:contexts copied-id])]
+    (is (= nil (:parent-id copied)))
+    (is (= [] (:ancestors copied)))
+    (is (= #{betrayal-fact anger-fact}
+           (cx/visible-facts world copied-id)))
+    (is (= #{betrayal-fact anger-fact}
+           (get-in world [:contexts copied-id :add-obs])))))
