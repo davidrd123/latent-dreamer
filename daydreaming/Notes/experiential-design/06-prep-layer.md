@@ -323,6 +323,18 @@ the output — the agent drafts, the human directs.
 This is not on the critical path. It's the scaling answer for after you
 know what good material looks like.
 
+## Quality Gate: The Capstone Diagnostic
+
+The capstone templates are the best test of whether a concept is strong
+enough to drive a Director. Write all seven (one per goal type). If they
+all sound like the brief's voice — distinct from each other but
+recognizably from the same thematic world — the concept works. If some
+goal types produce forced or generic sentences, the concept is too narrow.
+This was discovered empirically across three briefs (Puppet Knows, Zone
+Knows, Ship Becomes): the same cognitive posture (REVERSAL, REHEARSAL,
+etc.) should read completely differently through each thematic lens. If
+it doesn't, the lens isn't refracting enough.
+
 ## Open Questions
 
 1. **How much of the brief does the Director actually use?** Start small
