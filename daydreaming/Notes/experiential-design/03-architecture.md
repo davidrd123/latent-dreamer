@@ -1,10 +1,34 @@
 # Architecture: Conducted Daydreaming
 
-This is the system we're actually building. It draws from Mueller's
+This is the system we think we're building. It draws from Mueller's
 DAYDREAMER but is not a port of it. The key departure is the Director layer
 — an interpretive agent that sits between the emotional scheduler and the
 stage, producing rich visual mutations that feed back into the dreaming
 process.
+
+This document describes the full vision. The build sequence (at the bottom)
+is designed so that each phase tests a specific hypothesis, and the system
+still works at the previous phase's level if a hypothesis fails.
+
+## What's Decided vs. What's Under Investigation
+
+| Layer | Confidence | Status |
+|---|---|---|
+| **World State** (situations, ripeness, activation, canon) | High | Decided. Stable across all versions. |
+| **Dreamer** (Mueller-derived scheduler, goal types, coincidence retrieval, decay) | High | Decided. Can be built now. The v0 spike tests whether the scheduler produces interesting traversal. |
+| **Dreamer state → DreamNode interface** | High | The stable seam. Everything the Dreamer outputs (goal_type, situation, emotion, tension, energy, active_indices, retrieved_episodes) is solid regardless of what interprets it. Everything above this seam can be built now. Everything below is under creative investigation. |
+| **Director** (single LLM interpreter with style guide) | Medium | Strong hypothesis. The Dreamer + Director split solves the fundamental problem (Mueller is psychologically interesting but visually flat). Needs empirical test: does the Director's interpretation actually look good on stage? |
+| **Director lens competition** (multiple competing interpretive agents) | Low-Medium | Interesting idea. Untested. Depends on whether single-Director output already feels dreamlike or needs more register variation. |
+| **Bidirectional feedback** (Director output feeds back into Dreamer) | Speculative | The most exciting and most uncertain part. Could produce beautiful self-mutating dreams. Could produce noise or runaway instability. Phase 3 tests this specifically. |
+| **Three voice channels** (Dreamer whisper + Director monologue + imagery) | Speculative | Two TTS streams competing with Lyria music could be overwhelming. Mixing is a major creative challenge. Needs stage testing. |
+| **Stage** (Scope + Lyria + narration) | High | Already built (rounds 1-2). |
+
+**The key implication:** The v0 spike should not silently commit to palette
+lookup as imagination, single-director architecture, no feedback loop, or
+narration as fixed inner monologue. It should prove scheduler behavior only.
+If the full Director vision fails, the system still works as a
+Mueller-scheduler driving palette cells. If the feedback loop fails, the
+system still works as a one-way Dreamer → Director → Stage pipeline.
 
 ## The System at a Glance
 
@@ -318,9 +342,54 @@ Mixing could be:
 - Manual (APC Mini faders)
 - Both (automatic baseline with manual override)
 
-## The DreamNode (Updated)
+## The DreamNode (Two Versions)
 
-With the Director layer, the DreamNode carries full provenance:
+The DreamNode schema grows as phases prove out. The stable core is the
+`dreamer` block — that's the interface the v0 spike produces. Everything
+else accretes as later phases succeed.
+
+### Phase 1 DreamNode (v0 spike — what Codex builds now)
+
+```json
+{
+  "id": "n_007",
+  "timestamp": "2026-03-13T02:14:33Z",
+  "dwell_s": 5.0,
+
+  "dreamer": {
+    "situation_id": "s1_escape",
+    "goal_type": "reversal",
+    "tension": 0.8,
+    "energy": 0.5,
+    "emotion": {"valence": -0.6, "arousal": 0.7},
+    "retrieved_episodes": ["ep_harbor_01", "ep_wall_03"],
+    "active_indices": ["entrapment", "wall", "night", "neg_emotion"]
+  },
+
+  "ref": {
+    "palette_id": "escape_new_york",
+    "row": 2,
+    "col": 5
+  },
+
+  "narration": {
+    "text": "What if I hadn't gone through that door?",
+    "mode": "caption"
+  },
+
+  "stage": {
+    "transition_in": {"kind": "soft_cut", "chunks": 4},
+    "scope_params": {}
+  }
+}
+```
+
+This node uses palette cell lookup. The `dreamer` block is the stable
+seam — it carries the full scheduler state regardless of what renders it.
+The `ref` block is a v0 rendering strategy that will be replaced or
+augmented by the Director layer in later phases.
+
+### Full-Vision DreamNode (Phase 4+ — if Director + feedback + lenses prove out)
 
 ```json
 {
@@ -369,6 +438,9 @@ With the Director layer, the DreamNode carries full provenance:
 }
 ```
 
+Note: the `dreamer` block is identical in both versions. That's the point.
+The stable seam doesn't change. What changes is what interprets it.
+
 ## What Comes From Where
 
 | Component | Source | Status |
@@ -392,6 +464,11 @@ With the Director layer, the DreamNode carries full provenance:
 
 ## Build Sequence
 
+Each phase tests a specific hypothesis. If a phase fails, the system still
+works at the previous phase's level. The architecture is designed to
+degrade gracefully — each layer is additive, not load-bearing for the
+layers below it.
+
 ### Phase 1: Dreamer v0 (no LLM, no Director)
 
 Codex can build this now, in parallel with creative exploration.
@@ -400,44 +477,87 @@ Codex can build this now, in parallel with creative exploration.
 - Palette cells as episodes
 - Coincidence retrieval with threshold
 - Goal-type selection with decay
-- DreamNode emission referencing palette cells
+- DreamNode emission referencing palette cells (v0 schema)
 - Template narration
 - Outputs to stdout/file (no live stage connection yet)
 
-This proves: does the scheduler produce interesting traversal patterns?
+**Hypothesis:** The Mueller-derived scheduler produces interesting traversal
+patterns — obsessive return, drift, switching, hold.
+
+**Success looks like:** Reading the session log and saying "yes, this feels
+like a mind circling, returning, drifting, getting stuck and unstuck."
+
+**If it fails:** The scheduler alone isn't enough. But the `dreamer` block
+interface is still valid — we just need a different or richer decision layer
+on top of it. The spike still did its job by producing readable logs.
+
+**What this phase is NOT allowed to decide:** That palette lookup is the
+final rendering strategy. That narration is fixed templates. That the
+DreamNode schema is complete. The v0 `ref` block (palette cell) is
+explicitly a placeholder for the Director.
 
 ### Phase 2: Director v0 (single lens, single LLM call)
 
 Add one Director with one style guide.
 
-- Takes Dreamer state, produces a Scope prompt
+- Takes Dreamer state (`dreamer` block), produces a Scope prompt
 - Uses team's prompt engineering rules
 - Generates Dreamer narration (inner monologue)
-- No feedback loop yet — pipeline only
+- No feedback loop yet — pipeline only (Dreamer → Director → Stage)
 
-This proves: does the Director's interpretation look good on the stage?
+**Hypothesis:** An LLM interpreting the Dreamer's emotional state through
+a style guide produces more visually interesting output than palette lookup,
+and the gap between Dreamer logic and Director imagery feels dreamlike
+rather than disconnected.
+
+**Success looks like:** The Director's prompts render well on Scope, and
+the combination of Dreamer narration + Director imagery feels like being
+inside a mind — not like an illustrated audiobook.
+
+**If it fails:** Palette lookup works fine. The Dreamer is still the right
+scheduling layer. We just drive the stage more directly.
 
 ### Phase 3: Feedback loop
 
 Wire the Director's output back into the Dreamer.
 
 - Extract novel concepts from Director output
-- Feed back as active indices
+- Feed back as active indices in coincidence retrieval
 - Shift Dreamer emotional state from Director's output valence
 - Check for latent situation activation
+- Apply Mueller-derived decay as damping
 
-This proves: does the feedback loop produce interesting dream mutation?
+**Hypothesis:** The bidirectional feedback produces interesting dream
+mutation — the dream evolves through its own rendering in ways that
+surprise and feel organic.
+
+**Success looks like:** The system produces sequences where the Director's
+interpretation visibly shifts what the Dreamer obsesses about next, and
+those shifts feel like how dreams actually mutate.
+
+**If it fails:** The one-way pipeline (Dreamer → Director → Stage) still
+works. The Director still interprets. The feedback just doesn't add enough
+value to justify the complexity and instability risk. The system is still
+interesting without it.
 
 ### Phase 4: Multiple lenses + Director voice
 
 Add competing Director lenses with Mueller-like dynamics.
 
-- Multiple style guides active
+- Multiple style guides active simultaneously
 - Lens strength, decay, competition
-- Director's own narration channel
+- Director's own narration channel (the "artistic process" voice)
 - Channel mixing (performance ↔ daydreaming modes)
 
-This proves: does lens switching feel dreamlike?
+**Hypothesis:** Switching between interpretive frames (mythic → paranoid →
+tender) itself feels dreamlike, and the Director's own voice adds a layer
+of meaning.
+
+**Success looks like:** The audience can feel the register shifts, and
+they contribute to the dream feeling rather than feeling like glitches.
+
+**If it fails:** Single-Director is enough. One consistent interpretive
+voice is simpler and may be more coherent.
 
 ### Phase 5: Live stage integration
 
@@ -448,12 +568,18 @@ Connect to actual Scope + Lyria + TTS.
 - Narration → TTS pipeline
 - APC Mini integration for manual mode/mix control
 
+**Hypothesis:** The system works as a live instrument, not just a log
+generator. The APC Mini can meaningfully conduct the dream.
+
 ### Phase 6: World authoring + event system
 
 - Authored world bibles (from existing fiction or original)
 - Event candidates, repeated approach, explicit commitment
 - Post-event graph repair
 - Cross-session persistence
+
+**Hypothesis:** The dream accumulates meaning across sessions. Events
+matter. The world changes.
 
 ## What This Architecture Is Not
 
@@ -473,3 +599,10 @@ Connect to actual Scope + Lyria + TTS.
   It's interpreting emotional state into visual language, constrained by
   a style guide and achievability rules. Its output is structured prompts,
   not prose.
+
+- **Not final.** This document describes the full vision. The build
+  sequence is designed so that each phase can fail and the system still
+  works at the previous phase's level. The Dreamer layer is decided. The
+  Director layer is a strong hypothesis. The feedback loop is speculative.
+  The competing lenses are aspirational. Confidence levels are stated
+  explicitly in the table at the top.
