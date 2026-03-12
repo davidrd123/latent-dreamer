@@ -1,0 +1,3 @@
+[submodule "daydreamer"]
+	path = daydreamer
+	url = https://github.com/eriktmueller/daydreamer.git
