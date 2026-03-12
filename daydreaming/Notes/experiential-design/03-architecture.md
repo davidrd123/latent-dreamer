@@ -554,6 +554,9 @@ scheduling layer. We just drive the stage more directly.
 
 Wire the Director's output back into the Dreamer.
 
+Authoritative metric and logging spec:
+`daydreaming/Notes/experiential-design/05-phase3-tuning.md`
+
 - Extract novel concepts from Director output
 - Feed back as active indices in coincidence retrieval
 - Shift Dreamer emotional state from Director's output valence

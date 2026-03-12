@@ -52,12 +52,37 @@ model-friendly terms.
 ### What to log
 
 - `interpretive_distance_target` — the gap width the Director was asked for
+- `observed_interpretive_distance` — the gap width the Director actually
+  produced, scored after the fact from the emitted interpretation
 - Whether the feedback actually shifted what the Dreamer obsesses about
   (did it change goal type, activate a new situation, or just reinforce
   the current state?)
 - If feedback only reinforces: gap is too narrow (Director is illustrating)
 - If feedback produces nothing the Dreamer recognizes: gap is too wide
   (Director has departed entirely)
+
+### How to estimate observed distance
+
+This does not need to be philosophically perfect. It needs to be stable
+enough to compare runs.
+
+Treat `observed_interpretive_distance` as a scalar in `[0, 1]`:
+
+- `0.0` = almost literal restatement of situation / retrieved material
+- `0.5` = emotional reinterpretation with visible ties to source material
+- `1.0` = highly associative transformation where only the emotional core
+  remains legible
+
+Score it from the Director output using a simple rubric:
+
+- overlap with grounded Dreamer indices and retrieved episodes pushes the
+  score down
+- presence of transformed setting/object metaphors pushes the score up
+- presence of source-place or source-object anchors pushes the score down
+- count only interpretive departure, not render difficulty
+
+The point is not exactness. The point is being able to compare
+`interpretive_distance_target` against what the system actually produced.
 
 ## 2. Contradiction Handling
 
@@ -83,9 +108,22 @@ winding down:
   forgiveness imagery lands differently when you're exhausted from the
   obsession. This is the resolution phase.
 
-Implementation: compare current activation to peak activation for that
-goal. `current / peak > threshold` → resist. `current / peak < threshold`
-→ allow.
+Implementation: compare current activation to a recent peak for the
+current `(situation_id, goal_type)` pair, not to a single all-time
+session maximum.
+
+- `peak_activation_recent` should be maintained as a slowly decaying peak,
+  so the system tracks whether the current obsession is still near its
+  recent high-water mark
+- `current / peak_activation_recent > threshold` → resist contradiction
+- `current / peak_activation_recent < threshold` → allow contradiction to
+  redirect or soften the state
+
+Using a per-`(situation_id, goal_type)` recent peak avoids two failure
+modes:
+
+- one early spike dominating the whole session forever
+- unrelated situations borrowing each other's peak history
 
 This matches how real emotional processing works in dreams. You don't
 resolve anger in the first dream about it. You obsess, cycle, build
@@ -112,12 +150,25 @@ support or oppose the Dreamer's current cognitive posture?
 | RATIONALIZATION | Reframing, minimizing, justifying | Confronting the failure directly |
 | REPERCUSSIONS | Consequences cascading outward | Containment, nothing-changes |
 
+Treat `goal_congruence` as a scalar in `[-1, 1]`:
+
+- `+1.0` = strongly supports the current Dreamer posture
+- `0.0` = orthogonal / ambiguous / hard to classify
+- `-1.0` = strongly opposes the current Dreamer posture
+
+Start with a lightweight rubric or classifier over the Director's
+`interpretation_note`, extracted concepts, and narration. This does not
+need a perfect semantic judge in Phase 3. It needs a stable enough score
+to correlate with downstream state changes.
+
 ### What to log
 
 - `goal_congruence` — does the Director's output align with or oppose
   the Dreamer's current posture?
+- `goal_congruence_method` — how that score was produced
 - `obsession_phase` — rising, peaked, or falling (derived from
-  `current_activation / peak_activation`)
+  `current_activation / peak_activation_recent`)
+- `peak_scope` — should be `situation_goal` unless deliberately changed
 - Whether contradictory feedback during falling phase actually shifts
   the Dreamer's goal type or situation focus
 - Whether contradictory feedback during rising phase produces surprise
@@ -161,6 +212,37 @@ This gives you drift without letting the Director hijack the memory
 system. The Director can introduce novel associations, but only the
 Dreamer can authorize them as retrieval-relevant.
 
+### Make the anchor rule a scoring rule
+
+Do not treat `director_concept` as a normal index with the same weight as
+grounded Dreamer cues.
+
+Use a retrieval score shaped like:
+
+```text
+retrieval_score =
+  grounded_hits
+  + min(director_hits * director_weight, director_cap)
+```
+
+with the extra rule:
+
+```text
+if grounded_hits == 0:
+  director_term = 0
+```
+
+This gives three important properties:
+
+- grounded Dreamer cues remain the primary driver of retrieval
+- Director concepts can enrich a retrieval hit but cannot create one alone
+- the Director contribution can be tuned separately (`director_weight`,
+  `director_cap`) without disturbing the rest of the index system
+
+Initial default: keep `director_weight` clearly below grounded index
+weight, and cap Director contribution so multiple Director concepts do not
+outvote one strong situation-aligned hit.
+
 ### Return time is the metric
 
 The right thing to measure isn't "how far did concepts drift" — it's
@@ -173,6 +255,9 @@ after a Director-induced excursion.**
   interesting (the dream goes on a journey)
 - Return takes 20+ cycles: drift has escaped the Dreamer's gravity.
   The system is wandering, not dreaming.
+
+These are starting heuristics, not fixed theory. Recalibrate them once
+real traces exist from Phase 3.
 
 ### If drift goes too far
 
@@ -190,6 +275,11 @@ indices.
   on a situation-aligned node
 - `cycles_to_return` — after a Director-induced excursion, how many
   cycles until the system returns to a situation-aligned node
+- `grounded_hits` — number of grounded Dreamer indices contributing to the
+  current retrieval candidate
+- `director_hits` — number of Director-concept indices contributing
+- `director_score_contribution` — how much score the Director concepts
+  added after weighting/capping
 - Which Director concepts survive in the FIFO-6 over time (do they
   persist or get pushed out quickly?)
 - Whether surviving Director concepts ever contribute to retrieval
@@ -207,18 +297,24 @@ From day one of feedback loop work, every cycle should log:
 
   // Gap width
   "interpretive_distance_target": 0.7,
+  "observed_interpretive_distance": 0.55,
 
   // Contradiction
   "goal_congruence": -0.3,
+  "goal_congruence_method": "rubric_v1",
   "obsession_phase": "falling",
   "current_activation": 0.45,
-  "peak_activation": 0.82,
+  "peak_activation_recent": 0.82,
+  "peak_scope": "situation_goal",
 
   // Semantic drift
   "director_concepts": ["membrane", "breath"],
   "director_concepts_in_fifo": 2,
   "cycles_off_axis": 3,
   "grounded_indices_active": ["s1_escape", "neg_emotion"],
+  "grounded_hits": 2,
+  "director_hits": 1,
+  "director_score_contribution": 0.25,
 
   // Feedback effects
   "feedback_shifted_goal_type": false,

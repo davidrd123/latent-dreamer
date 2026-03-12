@@ -36,6 +36,10 @@ should *do* once it's running, without blocking it from being built.
 - `05-phase3-tuning.md` — The three hardest open questions (gap width,
   contradiction handling, semantic drift) resolved into measurable
   control parameters with specific logging requirements for Phase 3.
+- `06-prep-layer.md` — Offline creative generation: prep agents with
+  creative personality produce creative briefs, world material, and
+  style extensions that the live system runs from. Scalability answer
+  for thematic content generation.
 
 ## Key Connections to Other Work
 
