@@ -30,6 +30,9 @@ should *do* once it's running, without blocking it from being built.
   Not a Mueller port — a new architecture that uses Mueller for the emotional
   scheduler and adds the Director layer, feedback loop, competing lenses,
   three-voice narration, and the team's prompt engineering toolkit.
+- `04-review-findings.md` — Consolidated feedback from three external Opus
+  reads (PCE, MR_IMS, VC). Convergent findings, unique contributions,
+  and 11 concrete design recommendations ordered by build phase.
 
 ## Key Connections to Other Work
 
