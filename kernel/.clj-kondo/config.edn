@@ -1,0 +1,5 @@
+{:output {:exclude-files []}
+ :linters {:unused-namespace {:level :warning}
+           :unused-referred-var {:level :warning}
+           :unresolved-symbol {:level :error}
+           :missing-else-branch {:level :off}}}

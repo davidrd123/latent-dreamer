@@ -1,0 +1,11 @@
+{:tasks
+ {format {:doc "Format all source files"
+          :task (shell "clojure -M:cljfmt fix src test dev")}
+  lint {:doc "Lint with clj-kondo"
+        :task (shell "clj-kondo --lint src test dev")}
+  test {:doc "Run all tests"
+        :task (shell "clojure -M:test")}
+  check {:doc "Format, lint, and test"
+         :depends [format lint test]}
+  nrepl {:doc "Start nREPL on port 7888"
+         :task (clojure "-M:nrepl")}}}

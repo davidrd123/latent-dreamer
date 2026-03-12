@@ -1,0 +1,216 @@
+(ns daydreamer.control-test
+  (:require [clojure.test :refer [deftest is testing]]
+            [daydreamer.context :as cx]
+            [daydreamer.control :as control]
+            [daydreamer.goals :as goals]))
+
+(defn world-with-root
+  []
+  (let [root (cx/create-context)
+        root-id (:id root)]
+    [{:contexts {root-id root}
+      :goals {}
+      :episodes {}
+      :emotions {}
+      :mode :daydreaming
+      :cycle 0
+      :trace []
+      :termination-events []
+      :reality-context root-id
+      :reality-lookahead root-id
+      :id-counter 1}
+     root-id]))
+
+(deftest state-helpers-test
+  (let [[world _] (world-with-root)
+        performance-world (control/set-state world :performance)
+        daydreaming-world (control/set-state world :daydreaming)]
+    (is (control/performance-mode? performance-world))
+    (is (not (control/daydreaming-mode? performance-world)))
+    (is (control/daydreaming-mode? daydreaming-world))))
+
+(deftest need-decay-test
+  (let [[world _] (world-with-root)
+        world (assoc world :needs {:n-1 {:id :n-1 :strength 1.0}})
+        world (control/need-decay world)]
+    (is (= 0.98 (get-in world [:needs :n-1 :strength])))))
+
+(deftest emotion-decay-test
+  (let [[world root-id] (world-with-root)
+        world (assoc world
+                     :emotions {:e-1 {:id :e-1 :strength 1.0}
+                                :e-2 {:id :e-2 :strength 0.1}})
+        [world _] (goals/activate-top-level-goal
+                   world
+                   root-id
+                   {:goal-type :reversal
+                    :strength 0.7
+                    :main-motiv :e-1})
+        world (control/emotion-decay world)]
+    (testing "motivating emotions are exempt from decay"
+      (is (= 1.0 (get-in world [:emotions :e-1 :strength]))))
+    (testing "weak non-motivating emotions decay below threshold and are removed"
+      (is (= nil (get-in world [:emotions :e-2]))))))
+
+(deftest run-cycle-selects-strongest-goal
+  (let [[world root-id] (world-with-root)
+        [world g1] (goals/activate-top-level-goal
+                    world
+                    root-id
+                    {:goal-type :reversal
+                     :planning-type :imaginary
+                     :strength 0.9
+                     :main-motiv :e-1})
+        [world _] (goals/activate-top-level-goal
+                   world
+                   root-id
+                   {:goal-type :roving
+                    :strength 0.4
+                    :main-motiv :e-2})
+        [world selected-goal] (control/run-cycle world)]
+    (is (= g1 selected-goal))
+    (is (= 1 (:cycle world)))))
+
+(deftest run-cycle-switches-to-daydreaming-when-performance-has-no-goals
+  (let [[world _] (world-with-root)
+        [world selected-goal] (control/run-cycle
+                               (assoc world :mode :performance))]
+    (is (= nil selected-goal))
+    (is (= :daydreaming (:mode world)))
+    (is (= 1 (:cycle world)))))
+
+(deftest run-cycle-wakes-waiting-real-goals
+  (let [[world root-id] (world-with-root)
+        [world goal-id] (goals/activate-top-level-goal
+                         world
+                         root-id
+                         {:goal-type :rehearsal
+                          :planning-type :real
+                          :status :waiting
+                          :strength 0.5
+                          :main-motiv :e-1})
+        [world selected-goal] (control/run-cycle world)]
+    (is (= nil selected-goal))
+    (is (= :performance (:mode world)))
+    (is (= :runable (get-in world [:goals goal-id :status])))))
+
+(deftest prune-possibilities-orders-and-filters
+  (let [[world root-id] (world-with-root)
+        [world child-a] (cx/sprout world root-id)
+        [world child-b] (cx/sprout world root-id)
+        [world child-c] (cx/sprout world root-id)
+        world (-> world
+                  (assoc-in [:contexts child-a :ordering] 0.2)
+                  (assoc-in [:contexts child-b :ordering] 0.9)
+                  (assoc-in [:contexts child-c :ordering] 0.5)
+                  (assoc-in [:contexts child-c :rules-run?] true))]
+    (is (= [child-b child-a]
+           (control/prune-possibilities world [child-a child-b child-c])))))
+
+(deftest run-goal-step-selects-best-sprout
+  (let [[world root-id] (world-with-root)
+        [world goal-id] (goals/activate-top-level-goal
+                         world
+                         root-id
+                         {:goal-type :reversal
+                          :planning-type :imaginary
+                          :strength 0.8
+                          :main-motiv :e-1})
+        current-cx (goals/get-next-context world goal-id)
+        [world child-a] (cx/sprout world current-cx)
+        [world child-b] (cx/sprout world current-cx)
+        world (-> world
+                  (assoc-in [:contexts child-a :ordering] 0.4)
+                  (assoc-in [:contexts child-b :ordering] 0.9))
+        [world next-cx] (control/run-goal-step world goal-id)]
+    (is (= child-b next-cx))
+    (is (= child-b (goals/get-next-context world goal-id)))
+    (is (= true (get-in world [:contexts current-cx :rules-run?])))))
+
+(deftest backtrack-top-level-goal-walks-to-surviving-sibling
+  (let [[world root-id] (world-with-root)
+        [world goal-id] (goals/activate-top-level-goal
+                         world
+                         root-id
+                         {:goal-type :reversal
+                          :planning-type :imaginary
+                          :strength 0.8
+                          :main-motiv :e-1})
+        wall (goals/get-backtrack-wall world goal-id)
+        [world branch-a] (cx/sprout world wall)
+        [world branch-b] (cx/sprout world wall)
+        world (-> world
+                  (goals/set-next-context goal-id branch-a)
+                  (assoc-in [:contexts branch-a :rules-run?] true)
+                  (assoc-in [:contexts branch-a :ordering] 0.1)
+                  (assoc-in [:contexts branch-b :ordering] 0.9))
+        [world next-cx] (control/backtrack-top-level-goal world goal-id branch-a)]
+    (is (= branch-b next-cx))
+    (is (= branch-b (goals/get-next-context world goal-id)))))
+
+(deftest run-goal-step-times-out-into-backtracking
+  (let [[world root-id] (world-with-root)
+        [world goal-id] (goals/activate-top-level-goal
+                         world
+                         root-id
+                         {:goal-type :reversal
+                          :planning-type :imaginary
+                          :strength 0.8
+                          :main-motiv :e-1})
+        wall (goals/get-backtrack-wall world goal-id)
+        [world timeout-cx] (cx/sprout world wall)
+        [world sibling-cx] (cx/sprout world wall)
+        world (-> world
+                  (goals/set-next-context goal-id timeout-cx)
+                  (assoc-in [:contexts timeout-cx :timeout] 0)
+                  (assoc-in [:contexts timeout-cx :rules-run?] true)
+                  (assoc-in [:contexts sibling-cx :ordering] 0.8))
+        [world next-cx] (control/run-goal-step world goal-id)]
+    (is (= sibling-cx next-cx))
+    (is (= sibling-cx (goals/get-next-context world goal-id)))))
+
+(deftest terminate-top-level-goal-records-and-stabilizes
+  (let [[world root-id] (world-with-root)
+        [world goal-id] (goals/activate-top-level-goal
+                         world
+                         root-id
+                         {:goal-type :reversal
+                          :planning-type :imaginary
+                          :strength 0.8
+                          :main-motiv :e-1})
+        result-fact {:fact/type :goal-outcome
+                     :goal-id goal-id
+                     :status :succeeded}
+        old-reality (:reality-context world)
+        world (control/terminate-top-level-goal world
+                                                goal-id
+                                                root-id
+                                                {:status :succeeded
+                                                 :result-fact result-fact})]
+    (is (= :succeeded (get-in world [:goals goal-id :status])))
+    (is (= root-id (get-in world [:goals goal-id :termination-cx])))
+    (is (= result-fact
+           (first (filter #(= (:goal-id %) goal-id)
+                          (cx/visible-facts world old-reality)))))
+    (is (not= old-reality (:reality-context world)))
+    (is (= (:reality-context world) (:reality-lookahead world)))
+    (is (= [{:goal-id goal-id
+             :status :succeeded
+             :resolution-cx root-id
+             :planning-type :imaginary}]
+           (:termination-events world)))))
+
+(deftest all-possibilities-failed-terminates-at-backtrack-wall
+  (let [[world root-id] (world-with-root)
+        [world goal-id] (goals/activate-top-level-goal
+                         world
+                         root-id
+                         {:goal-type :reversal
+                          :planning-type :imaginary
+                          :strength 0.8
+                          :main-motiv :e-1})
+        wall (goals/get-backtrack-wall world goal-id)
+        [world result] (control/backtrack-top-level-goal world goal-id wall)]
+    (is (= nil result))
+    (is (= :failed (get-in world [:goals goal-id :status])))
+    (is (= wall (get-in world [:goals goal-id :termination-cx])))))
