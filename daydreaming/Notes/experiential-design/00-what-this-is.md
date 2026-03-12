@@ -36,10 +36,14 @@ should *do* once it's running, without blocking it from being built.
 - `05-phase3-tuning.md` — The three hardest open questions (gap width,
   contradiction handling, semantic drift) resolved into measurable
   control parameters with specific logging requirements for Phase 3.
-- `06-prep-layer.md` — Offline creative generation: prep agents with
-  creative personality produce creative briefs, world material, and
-  style extensions that the live system runs from. Scalability answer
-  for thematic content generation.
+- `06-prep-layer.md` — Creative brief format and prototype ("The Puppet
+  Knows"). What a brief contains, how it flows through the architecture,
+  example situations with distinct index signatures. Prep agent scaling
+  deferred to Phase 5+.
+- `07-dream-sequence-01.md` — Hand-composed 12-cycle dream sequence using
+  the Puppet Knows brief. Tests drift, return, obsession, goal-type
+  variation, Director-driven situation activation, and surprise arrival
+  via coincidence.
 
 ## Key Connections to Other Work
 
