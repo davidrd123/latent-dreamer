@@ -60,16 +60,22 @@
                     {:goal-type :reversal
                      :planning-type :imaginary
                      :strength 0.9
-                     :main-motiv :e-1})
+                     :main-motiv :e-1
+                     :situation-id :s1_seeing_through})
         [world _] (goals/activate-top-level-goal
                    world
                    root-id
                    {:goal-type :roving
                     :strength 0.4
-                    :main-motiv :e-2})
+                    :main-motiv :e-2
+                    :situation-id :s2_the_puppet})
         [world selected-goal] (control/run-cycle world)]
     (is (= g1 selected-goal))
-    (is (= 1 (:cycle world)))))
+    (is (= 1 (:cycle world)))
+    (is (= 1 (count (:trace world))))
+    (is (= g1 (get-in world [:trace 0 :selected-goal :id])))
+    (is (= [g1] (mapv :id (get-in world [:trace 0 :top-candidates]))))
+    (is (= :highest_strength (get-in world [:trace 0 :goal-selection])))))
 
 (deftest run-cycle-switches-to-daydreaming-when-performance-has-no-goals
   (let [[world _] (world-with-root)
@@ -77,7 +83,9 @@
                                (assoc world :mode :performance))]
     (is (= nil selected-goal))
     (is (= :daydreaming (:mode world)))
-    (is (= 1 (:cycle world)))))
+    (is (= 1 (:cycle world)))
+    (is (= :no_candidates (get-in world [:trace 0 :goal-selection])))
+    (is (= :daydreaming (get-in world [:trace 0 :selection :mode-switch])))))
 
 (deftest run-cycle-wakes-waiting-real-goals
   (let [[world root-id] (world-with-root)
@@ -92,7 +100,8 @@
         [world selected-goal] (control/run-cycle world)]
     (is (= nil selected-goal))
     (is (= :performance (:mode world)))
-    (is (= :runable (get-in world [:goals goal-id :status])))))
+    (is (= :runable (get-in world [:goals goal-id :status])))
+    (is (= :performance (get-in world [:trace 0 :selection :mode-switch])))))
 
 (deftest prune-possibilities-orders-and-filters
   (let [[world root-id] (world-with-root)
@@ -116,6 +125,7 @@
                           :planning-type :imaginary
                           :strength 0.8
                           :main-motiv :e-1})
+        [world _] (control/run-cycle world)
         current-cx (goals/get-next-context world goal-id)
         [world child-a] (cx/sprout world current-cx)
         [world child-b] (cx/sprout world current-cx)
@@ -125,7 +135,10 @@
         [world next-cx] (control/run-goal-step world goal-id)]
     (is (= child-b next-cx))
     (is (= child-b (goals/get-next-context world goal-id)))
-    (is (= true (get-in world [:contexts current-cx :rules-run?])))))
+    (is (= true (get-in world [:contexts current-cx :rules-run?])))
+    (is (= current-cx (get-in world [:trace 0 :context-id])))
+    (is (= [child-b child-a] (get-in world [:trace 0 :sprouted])))
+    (is (= child-b (get-in world [:trace 0 :selection :next-context])))))
 
 (deftest backtrack-top-level-goal-walks-to-surviving-sibling
   (let [[world root-id] (world-with-root)
@@ -136,6 +149,7 @@
                           :planning-type :imaginary
                           :strength 0.8
                           :main-motiv :e-1})
+        [world _] (control/run-cycle world)
         wall (goals/get-backtrack-wall world goal-id)
         [world branch-a] (cx/sprout world wall)
         [world branch-b] (cx/sprout world wall)
@@ -146,7 +160,13 @@
                   (assoc-in [:contexts branch-b :ordering] 0.9))
         [world next-cx] (control/backtrack-top-level-goal world goal-id branch-a)]
     (is (= branch-b next-cx))
-    (is (= branch-b (goals/get-next-context world goal-id)))))
+    (is (= branch-b (goals/get-next-context world goal-id)))
+    (is (= [{:goal-id goal-id
+             :from branch-a
+             :to branch-b
+             :reason :exhausted
+             :wall wall}]
+           (get-in world [:trace 0 :backtrack-events])))))
 
 (deftest run-goal-step-times-out-into-backtracking
   (let [[world root-id] (world-with-root)
@@ -157,6 +177,7 @@
                           :planning-type :imaginary
                           :strength 0.8
                           :main-motiv :e-1})
+        [world _] (control/run-cycle world)
         wall (goals/get-backtrack-wall world goal-id)
         [world timeout-cx] (cx/sprout world wall)
         [world sibling-cx] (cx/sprout world wall)
@@ -167,7 +188,8 @@
                   (assoc-in [:contexts sibling-cx :ordering] 0.8))
         [world next-cx] (control/run-goal-step world goal-id)]
     (is (= sibling-cx next-cx))
-    (is (= sibling-cx (goals/get-next-context world goal-id)))))
+    (is (= sibling-cx (goals/get-next-context world goal-id)))
+    (is (= :timeout (get-in world [:trace 0 :backtrack-events 0 :reason])))))
 
 (deftest terminate-top-level-goal-records-and-stabilizes
   (let [[world root-id] (world-with-root)
@@ -178,6 +200,7 @@
                           :planning-type :imaginary
                           :strength 0.8
                           :main-motiv :e-1})
+        [world _] (control/run-cycle world)
         result-fact {:fact/type :goal-outcome
                      :goal-id goal-id
                      :status :succeeded}
@@ -198,7 +221,9 @@
              :status :succeeded
              :resolution-cx root-id
              :planning-type :imaginary}]
-           (:termination-events world)))))
+           (:termination-events world)))
+    (is (= (:termination-events world)
+           (get-in world [:trace 0 :terminations])))))
 
 (deftest all-possibilities-failed-terminates-at-backtrack-wall
   (let [[world root-id] (world-with-root)
@@ -209,8 +234,10 @@
                           :planning-type :imaginary
                           :strength 0.8
                           :main-motiv :e-1})
+        [world _] (control/run-cycle world)
         wall (goals/get-backtrack-wall world goal-id)
         [world result] (control/backtrack-top-level-goal world goal-id wall)]
     (is (= nil result))
     (is (= :failed (get-in world [:goals goal-id :status])))
-    (is (= wall (get-in world [:goals goal-id :termination-cx])))))
+    (is (= wall (get-in world [:goals goal-id :termination-cx])))
+    (is (= :failed (get-in world [:trace 0 :terminations 0 :status])))))

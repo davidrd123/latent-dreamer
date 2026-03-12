@@ -153,6 +153,28 @@
   [world snapshot-opts]
   (update world :trace (fnil conj []) (cycle-snapshot world snapshot-opts)))
 
+(defn- merge-snapshot-fields
+  [snapshot snapshot-fields]
+  (merge-with (fn [left right]
+                (if (and (map? left) (map? right))
+                  (merge left right)
+                  right))
+              snapshot
+              snapshot-fields))
+
+(defn merge-latest-cycle
+  "Merge additional fields into the latest trace snapshot. If no snapshot
+  exists yet, append a new one instead."
+  [world snapshot-fields]
+  (if (seq (:trace world))
+    (update world :trace
+            (fn [trace]
+              (let [last-idx (dec (count trace))]
+                (update trace last-idx
+                        (fn [snapshot]
+                          (merge-snapshot-fields snapshot snapshot-fields))))))
+    (append-cycle world snapshot-fields)))
+
 (defn reporter-cycle
   "Project an internal snapshot into the cycle shape expected by the existing
   Python HTML reporter."
