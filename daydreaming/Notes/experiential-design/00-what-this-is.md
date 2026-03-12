@@ -44,6 +44,23 @@ should *do* once it's running, without blocking it from being built.
   the Puppet Knows brief. Tests drift, return, obsession, goal-type
   variation, Director-driven situation activation, and surprise arrival
   via coincidence.
+- `08-brief-stalker-zone.md` — Creative brief: "The Zone Knows What You
+  Want." Stalker/Tarkovsky palette. The Zone reads the traveler's desire
+  — landscape as handwriting, traps as gifts. Five situations. Tests the
+  format against a spiritual-contemplative register.
+- `09-brief-arctic-expedition.md` — Creative brief: "The Ship Becomes the
+  Place." Arctic expedition palette. Stasis by force — the ship frozen in
+  ice becomes the most interesting place in the world. Five situations
+  with deliberate s2/s5 `pressure` overlap for coincidence retrieval
+  testing.
+- `10-daydreamer-parallel-track.md` — Source-grounded spec for the bounded
+  Clojure DAYDREAMER resurrection track. Defines what to recover from the
+  original architecture, what to defer, and how the sidecar should relate to
+  the production Python engine.
+- `11-source-inventory.md` — Deliverable #0 for the resurrection track.
+  Maps Mueller source files and functions to sidecar modules, implementation
+  waves, benchmark fixtures, and the specific mechanisms still absent from the
+  Python engine.
 
 ## Key Connections to Other Work
 
