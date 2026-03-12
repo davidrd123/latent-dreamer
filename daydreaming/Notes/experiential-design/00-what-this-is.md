@@ -33,6 +33,9 @@ should *do* once it's running, without blocking it from being built.
 - `04-review-findings.md` — Consolidated feedback from three external Opus
   reads (PCE, MR_IMS, VC). Convergent findings, unique contributions,
   and 11 concrete design recommendations ordered by build phase.
+- `05-phase3-tuning.md` — The three hardest open questions (gap width,
+  contradiction handling, semantic drift) resolved into measurable
+  control parameters with specific logging requirements for Phase 3.
 
 ## Key Connections to Other Work
 
