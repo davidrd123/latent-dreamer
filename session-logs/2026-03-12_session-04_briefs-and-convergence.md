@@ -67,7 +67,7 @@ The format generalizes. Same fields produce coherent briefs across three very di
 - System returns to s1 with different posture (reversal)
 - s3/s4 stay dormant (correct — they need Director feedback to wake up)
 
-**Next Codex step:** Phase 2 feedback injection — a minimal stub that feeds Director-style concepts (void, non_directed_light, honesty) into active indices to test whether s3/s4 wake at the hand-composed moments.
+**Next Codex step (completed during session):** Phase 2 feedback injection stub built. Sidecar file `director_feedback.json` keyed by node_id injects Director-style concepts into active indices. The feedback pathway is mechanically real — `director:void` / `director:darkness` enter active indices, affect retrieval scoring, and s3 wakes hard. Remaining problem: goal selection under feedback. s1 × reversal overrides the s3 switch because continuity/reversal dynamics overpower it. The other Opus diagnosed the fix: exhaustion curve needs to dampen s1 enough after 5-6 visits for ROVING to fire, and ROVING's candidate scoring should prefer low-activation situations (which lets s3 win). Cycles 6→7 and 9→10 from 07 are the specific transitions to tune against.
 
 ---
 
@@ -96,7 +96,7 @@ The v2 taxonomy (present_compatible, anticipated_future, alternative_past, alter
 - **Test style vocabulary against model/LoRA** — do "visible clay seams," "ink-brush strokes," "brass fittings dulled by frost" actually render?
 
 ### Codex
-- **Phase 2 feedback injection stub** — feed concepts into active indices, test s3/s4 wake-up
+- **Tune goal selection under feedback** — exhaustion curve vs continuity bonus, ROVING as escape valve, target cycles 6→7 and 9→10 from 07
 - **Stage adapter** — emit DreamNodes to Scope prompt changes + Lyria
 - **Log viewer** — show goal switches, returns, drift, activation over time
 
@@ -123,7 +123,7 @@ e7c1ffb Add confidence levels, hypothesis framing, and graceful degradation
 befb405 Initial commit: design exploration + Conducted Daydreaming architecture
 ```
 
-Codex's scheduler work is in scope-drd (separate repo, commit 05f26bb+).
+Codex's scheduler work is in scope-drd (separate repo). Key files: `tools/daydream_engine.py` (scheduler + feedback stub), `content/daydream/world.yaml` + `dream_graph.json` (Puppet Knows fixture), `content/daydream/director_feedback.json` (Phase 2 sidecar).
 
 ---
 
