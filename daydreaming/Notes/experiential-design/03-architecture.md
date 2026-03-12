@@ -317,16 +317,22 @@ new.
 
 ### Stage
 
-The existing Scope + Lyria + narration infrastructure. Receives DreamNodes
-and translates them to media output. This layer is already built.
+Scope (video) and Lyria (music) already exist from rounds 1-2. Narration
+is new: captions are straightforward, TTS voice integration is not yet
+built. Two-voice TTS (Dreamer + Director) is aspirational — it depends on
+Phase 4 proving that the Director's voice adds value.
 
-**Three output channels with independent mixing:**
+The canonical runtime contract for stage integration is
+`daydream-to-stage-contract.md`, not this document. This document
+describes the speculative target. The contract describes what's buildable
+now.
 
-1. **Video** (Scope) — Director's visual prompt rendered in real-time
-2. **Music** (Lyria) — Director's music prompt with layered
-   identity/instruments/production
-3. **Narration** — two TTS voices (Dreamer whisper + Director command)
-   plus optional text captions
+**Three output channels (at different readiness levels):**
+
+1. **Video** (Scope) — exists, REST API ready
+2. **Music** (Lyria) — exists, command queue ready
+3. **Narration** — captions (straightforward), single TTS voice (Phase 2+),
+   dual TTS voices (Phase 4+, aspirational)
 
 **Channel mixing is a performance parameter:**
 
@@ -343,6 +349,15 @@ Mixing could be:
 - Both (automatic baseline with manual override)
 
 ## The DreamNode (Two Versions)
+
+**Schema relationship:** The canonical v0 DreamNode contract is in
+`daydream-to-stage-contract.md`. That document defines the buildable
+seam: `ref` (palette cell), `mind`, `world`, `stage`, `audio`,
+`narration`. The schemas below show how the DreamNode *could* evolve
+as later phases prove out, but they do not replace the stable contract.
+The `dreamer` block shown here is an internal scheduler interface —
+it feeds whatever rendering strategy is active (palette lookup in v0,
+Director in v1+).
 
 The DreamNode schema grows as phases prove out. The stable core is the
 `dreamer` block — that's the interface the v0 spike produces. Everything
