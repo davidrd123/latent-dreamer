@@ -20,6 +20,80 @@ This document defines the minimal shared interface between:
 - Keep narration optional and orthogonal (caption or voice).
 - Allow starting from existing tuned material (palettes) or authored worlds.
 
+## Runtime Picture Right Now
+
+There are now three distinct ways to steer the same visual stage in
+`scope-drd`:
+
+1. **Direct prompt / REST / CLI control**
+   One-off prompt changes sent straight to Scope. Good for isolated visual
+   experiments.
+
+2. **`apc_mini_bridge.py` live performance mode**
+   The APC Mini MK2 is the current fully integrated instrument:
+   - pad press -> Scope prompt / transition
+   - same gesture -> local Lyria prompt update
+   - faders -> Scope parameters + Lyria config
+
+3. **`daydream_engine.py` scheduler mode**
+   The daydream engine can run in two ways:
+   - **offline**: emit `DreamNode` JSON + session log only
+   - **live**: emit `DreamNode`s and apply them directly to Scope and local
+     Lyria through a thin adapter
+
+The important distinction is that the engine does **not** route through the
+APC bridge. The APC bridge and the daydream engine are parallel controllers
+that can both target the same stage layer.
+
+Practical rule: do not run the APC bridge and the live daydream engine against
+the same active Scope session unless you intentionally want competing control
+signals.
+
+## How To Run It
+
+### Offline scheduler / trace mode
+
+```bash
+uv run python tools/daydream_engine.py \
+  --world content/daydreams/puppet_knows/world.yaml \
+  --graph content/daydreams/puppet_knows/dream_graph.json \
+  --cycles 18 \
+  --log-file /tmp/puppet_knows.json
+```
+
+### Live daydream engine -> Scope (+ optional Lyria)
+
+Scope must already be running, and there must already be an active WebRTC
+session for the realtime REST endpoints to target.
+
+```bash
+uv run python tools/daydream_engine.py \
+  --world content/daydreams/puppet_knows/world.yaml \
+  --graph content/daydreams/puppet_knows/dream_graph.json \
+  --cycles 18 \
+  --live-stage \
+  --scope-base-url http://localhost:8000 \
+  --interval-s 0 \
+  --lyria
+```
+
+Notes:
+
+- In live mode, if `--interval-s` is left at `0`, the engine uses each emitted
+  node's `dwell_s` as the pacing clock.
+- `--lyria` drives Lyria locally from the engine process. Audio is still not
+  routed through Scope/WebRTC.
+- `--no-stdout` is still available if you want live control without JSONL on
+  stdout.
+
+### APC live instrument mode
+
+```bash
+uv run python tools/apc_mini_bridge.py \
+  --palette content/palettes/escape_new_york.v2-layered.palette.yaml \
+  --lyria
+```
+
 ## Core Objects
 
 ### `DreamNode`

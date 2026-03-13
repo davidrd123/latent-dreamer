@@ -68,6 +68,18 @@ Round 02 already built a real, working stage layer in `scope-drd`:
 This round's work should not rebuild the renderer. It should emit a dream graph
 and/or timeline in a form the stage layer can consume.
 
+Current runtime picture:
+
+- `tools/apc_mini_bridge.py` is the current live performance instrument.
+- `tools/daydream_engine.py` is the scheduler and trace engine.
+- `tools/daydream_engine.py --live-stage` now provides the missing direct
+  engine-to-stage adapter, so the engine can drive Scope and local Lyria
+  without routing through the APC bridge.
+
+The contract and run modes for those three paths are captured in:
+
+- `daydreaming/Notes/daydream-to-stage-contract.md`
+
 The most relevant "single sources of truth" in `scope-drd` are:
 
 - `/Users/daviddickinson/Projects/Lora/scope-drd/notes/daydream/self_docs/project_page_v2/2026-02-23-draft.md`

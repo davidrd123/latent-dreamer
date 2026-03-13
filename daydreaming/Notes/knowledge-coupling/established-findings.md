@@ -2,10 +2,11 @@
 
 What we know about bidirectional knowledge-text coupling — from the
 deep research, the generative conversation that produced it, the
-cross-model critique, and the vault agent's response. This document
-carries the reasoning, not just the conclusions.
+cross-model critique, the vault agent's response, six deep research
+threads pressure-testing John's track, and a GPT 5 Pro architecture
+review. This document carries the reasoning, not just the conclusions.
 
-Last updated: 2026-03-12
+Last updated: 2026-03-12 (post-5-Pro review)
 
 Sources:
 - `../DeepResearch/2026-03-11/bidirectional_knowledge_text_coupling.md`
@@ -19,6 +20,9 @@ Sources:
 - `../DeepResearch/2026-03-12/john/replies/query03.md` — graph intersection for learning
 - `../DeepResearch/2026-03-12/john/replies/query04.md` — temporal knowledge graphs
 - `../DeepResearch/2026-03-12/john/replies/queries_01-04.md` — local synthesis calibration
+- `../DeepResearch/2026-03-12/john/replies/query05/query05_integrated_answer.md` — learner modeling without explicit assessment
+- `../DeepResearch/2026-03-12/john/replies/query06.md` — strategic architecture: file-first vs compiled vs graph-first
+- `../DeepResearch/2026-03-12/john/replies/project_file_org.md` — GPT 5 Pro architecture review of the briefing
 
 ---
 
@@ -688,16 +692,16 @@ None offer argument maps or discourse graphs navigable while composing.
 
 ## Deep Research Replies — Pressure-Testing John's Track
 
-Four queries sent to deep research (2026-03-12), targeting John's Graphiti/
-docking/learning thesis. Raw replies in `../DeepResearch/2026-03-12/john/
-replies/`. A separate local-only synthesis (`queries_01-04.md`) ran the
-same queries against the repo's own corpus as calibration — separating
-what was already implied locally from what the external research added.
+Initial deep research run: four web-facing queries (2026-03-12),
+targeting John's Graphiti/docking/learning thesis. Raw replies in
+`../DeepResearch/2026-03-12/john/replies/`. A separate local-only
+synthesis (`queries_01-04.md`) ran the same prompt set against the
+repo's own corpus as calibration — separating what was already implied
+locally from what the external research added.
 
-Threads 5 (temporal KGs for learning specifically) and 6 (literary vs.
-infrastructure architectures — the strategic decision thread) were not
-returned. Thread 6 was flagged as high priority. That gap means the
-strategic framing question is still unanswered.
+The initial batch returned queries 01-04. Two follow-up threads
+(`query05` and `query06`) came back after the first integration pass
+and are covered below, so the full six-thread agenda is now represented.
 
 ### Docking Landscape (Query 01)
 
@@ -712,8 +716,8 @@ the repo's "files are primary, semantic matching at inference time" stance
 as state of the art, not as a workaround.
 
 **Obsidian MCP servers — fragmented, no winner:**
-- bitbonsai/mcpvault (~700 stars, active Mar 2026) — best alive general
-  bridge, but no published releases
+- bitbonsai/mcp-obsidian (~700 stars, active Mar 2026; marketed as
+  "mcpvault") — best alive general bridge, but no published releases
 - MarkusPfundstein/mcp-obsidian (~3k stars) — highest adoption, stale
   commits (Apr 2025), maintenance risk
 - Piotr1215/mcp-obsidian (16 stars) — most philosophically aligned with
@@ -790,10 +794,11 @@ questions where chronology matters. The vault does not currently meet
 these conditions.
 
 **Bottom line:** "If the job is 'help an LLM read my Obsidian vault,'
-Graphiti is usually too much." Graphiti is off the table for now — not
-permanently, but until flat files fail in concrete, repeatable ways.
-The SNT compiler pattern (Markdown → SQLite with typed edges) is the
-lighter middle ground the comparison set points toward.
+Graphiti is usually too much." Graphiti is not the next move — not
+permanently ruled out, but not justified until flat files fail in
+concrete, repeatable ways. The SNT compiler pattern (Markdown → SQLite
+with typed edges) is the lighter middle ground the comparison set
+points toward.
 
 ### Graph Intersection for Learning (Query 03)
 
@@ -903,11 +908,124 @@ the local material is flat markdown, semantic traversal at inference
 time, strict provenance, and delayed commitment to persistent graph
 infrastructure until scale or task structure forces it.
 
-### What This Changes
+### Learner Modeling Without Explicit Assessment (Query 05)
 
-Three things crystallize from the replies:
+Can vault artifacts (journals, drafts, atoms) serve as a passive mastery
+signal, without formal quizzes or self-ratings?
 
-**1. The infrastructure bet shifts.** Graphiti is off the table for now.
+**Where artifact-based modeling works:** When artifacts are structured
+enough or the environment is instrumented enough. Revised explanations,
+concept maps, instrumented process traces (keystrokes, time on task,
+revision patterns) all produce usable learning evidence. The strongest
+cases all start from explicit diagnostic data or explicit learner
+signals, not silent inference from note topology.
+
+**Where it doesn't:** Passive PKM-as-mastery-graph is still under-
+validated. No deployed system infers evolving understanding by watching
+KG topology changes alone. The ones that get closest use quiz
+performance, explicit learner signals, and diagnostics.
+
+**Useful event types the research suggests tracking:**
+- `asserted claim` — writer makes a new position
+- `revised claim` — writer changes an existing position
+- `added support` — new evidence for an existing claim
+- `noted contradiction` — writer flags a tension
+- `linked concepts` — writer makes an explicit conceptual bridge
+- `returned after delay` — spaced repetition signal
+- `successfully recalled` — active retrieval evidence
+- `failed recall` — gap signal
+- `abandoned thread` — line of thought goes dormant or gets dropped
+- `explicitly marked confusion/confidence/uncertainty` — self-rating
+
+**Key reframe:** The vault should be treated as an **evidence stream**,
+not a self-certifying mastery graph. Note presence is not mastery
+evidence. Low-friction explicit signals (self-ratings, confidence marks,
+"I don't understand this yet" flags) matter more than hoping silent
+inference from note topology is good enough.
+
+### Strategic Architecture — File-First vs. Graph-First (Query 06)
+
+The strongest thread. This is the one that answers the breakpoint
+question directly.
+
+**The core finding:** Do not jump from file-first to full graph-first.
+The evidence supports a narrower move: stay file-first now, and when
+you upgrade, upgrade first to a one-way compiled layer where Markdown
+remains the source of truth and the compiled structure is rebuildable,
+disposable, and query-oriented.
+
+**What graph structure actually buys (from controlled comparisons):**
+- Plain RAG does better on single-hop and detail-heavy questions
+- Community-GraphRAG (Local) does better on multi-hop/reasoning questions
+- Graph construction is lossy: ~65% entity coverage in tested benchmarks
+- For summarization, integration is often only comparable to RAG
+- GraphRAG's strongest win is global sensemaking over large corpora
+  (~1M tokens), not general-purpose knowledge work
+
+**Long context is not a silver bullet either:**
+- Lost in the Middle: models degrade with relevant info buried in middle
+- RULER: only half of tested models maintained performance at 32K tokens
+- OP-RAG: answer quality follows an inverted-U with more retrieved chunks
+- No clean "huge context window makes flat files enough forever" result
+
+**The ecosystem is drifting toward hybrids:**
+- Microsoft's GraphRAG local search combines graph structure with raw
+  text chunks at query time
+- LazyGraphRAG: 0.1% of full GraphRAG indexing cost, comparable quality,
+  defers expensive structure to query time
+- LlamaIndex PropertyGraphIndex: per-chunk entity/relation extraction,
+  persistable, source text included at query
+- CAG: for constrained corpora, preload and cache instead of retrieving
+- Even Microsoft's own docs now read as internal critique of full eager
+  graphing — static global search called "expensive and inefficient"
+
+**The breakpoint rule:**
+
+> Flat-file inference-time assembly stops being enough when the cost of
+> repeatedly re-deriving structure exceeds the cost of maintaining a
+> compiled artifact. Not before.
+
+The breakpoint is NOT raw vault size. It is query type + reuse
+frequency + whether typed operations pay rent in live work.
+
+**Stay file-first (Architecture A) when:**
+- Most questions are local, detail-heavy, frame-based, or exploratory
+- Main pain is surfacing/cohabitation, not recall
+- Ontology is still unstable
+- You want Drift/Membrane/Compost/Table behaviors that rely on soft
+  semantic movement and productive ambiguity
+
+**Move to compiled layer (Architecture A+) when:**
+- Typed questions recur that are annoying to recover from raw files
+  ("what supports this?" "what contradicts?" "what changed?" "trace the
+  dependency path")
+- Same working set reused across ~10+ interaction turns (adjacent
+  evidence: at ~100k tokens, persistent memory becomes cheaper after
+  ~10 turns)
+- Substrate is boring enough to compile (claims/questions/evidence, not
+  vibes)
+
+**Move to full graph-first only when:**
+- Multi-hop/global reasoning is a core workload, not occasional
+- The graph itself becomes a user-facing surface
+- You're willing to own extraction quality, rebuilds, staleness,
+  pruning, entity resolution, and cost
+
+**Creative/exploratory evidence is thin.** No benchmark covers
+Drift/Membrane/Table-style creative work on live PKM vaults. The best
+targeted benchmark (GraphRAG-Bench) reports GraphRAG advantages on
+harder reasoning/summarization but plain RAG wins fact retrieval, and
+on novel datasets RAG is stronger on small-corpus creative generation.
+
+**Still missing:** No controlled benchmark compares file-first / compiled
+index / full graph on the same live PKM vault with creative tasks and
+real editing churn.
+
+### What This Changes (Queries 01-06)
+
+Four things crystallize from the full set of replies:
+
+**1. The infrastructure bet shifts.** Graphiti is not the next move.
 The SNT compiler pattern (Markdown → SQLite with typed edges + MCP
 server) becomes the reference architecture for docking. It's lighter
 than Graphiti, already working, and the external research validates it
@@ -926,6 +1044,206 @@ questions/evidence not concepts, the path planning should be mastery-
 aware not shortest-path, and the learner graph should be an overlay not
 a parallel authority.
 
+**4. The breakpoint is now concrete.** Query 06 provides a falsifiable
+rule: the trigger for moving from A to A+ is repeated typed-query
+failure + repeated reuse, not "graphs seem smarter." The trigger for
+moving from A+ to B is persistent agent-memory failure after A+ exists.
+The whole ecosystem is drifting toward hybrids that defer structure to
+query time.
+
+---
+
+## GPT 5 Pro Architecture Review (2026-03-12)
+
+The briefing-for-review.md was sent to GPT 5 Pro for architecture sanity
+check, with all six query replies, the research package, memo, and
+established findings as supporting material. The review confirmed the
+broad direction and sharpened the model in five ways.
+
+### 1. Missing Layer: Salience / Surfacing / Collaboration
+
+The four-layer decomposition (authoring, docking, agent memory, learner
+overlay) is incomplete. The review identifies a missing layer — or
+cross-cutting concern — for **salience, surfacing, and collaboration
+surface.**
+
+This is not a new finding in this document (see "The Salience
+Requirement" section above, from the GPT 5.4 critique). But it got lost
+in the architecture decomposition. The briefing proposed four backend
+layers without making salience explicit. The review says: the
+architecture is not complete until this is explicit. This is the layer
+that makes the graph pay rent.
+
+The vault's own docs confirm this: DESIGN_CRITIQUE.md names cohabitation
+as the big failure; THE_MEMBRANE.md defines the missing surface;
+convergence-map.md ties the core problem to feedback and salience.
+
+**Updated decomposition:**
+1. Human authoring substrate (vault) — file-first, permissive
+2. Docking / query substrate (compiled layer + MCP) — A+ lives here
+3. Salience / surfacing / collaboration surface — **the real unsolved
+   problem**; what decides what the writing surface should see right now
+4. Agent memory / planning substrate — separate system if needed later
+5. Learner model / curriculum overlay — future branch
+
+### 2. Layer 3 Was Conflated
+
+The original "Agent memory / planning / execution substrate" bundled
+three different things in one box. The review says: agent memory
+(tracking recurring entities, changing facts) is different from agent
+execution/planning (skills, task state, traces, protocols).
+
+Split them conceptually even if you don't build two systems yet. The
+briefing itself admitted execution was bundled "for now"; the review
+says make the split explicit now. Nothing in the external evidence shows
+that Graphiti/Cognee-class memory automatically solves planning or
+execution.
+
+### 3. The Ladder Is Not Linear
+
+The briefing presented A → A+ → B → C as a straight progression. The
+review corrects this: **C does not depend on B.**
+
+The actual architecture graph is:
+- A → A+ (the one justified move)
+- Then branch: B if agent memory becomes a real failure
+- Or branch: C if learner overlay becomes a real product need
+- B and C are independent paths, not sequential steps
+
+This matters because it means learner overlay work (mapping vault
+concepts onto curriculum graphs, logging learning events) can proceed
+without first building a Graphiti/Cognee agent-memory layer.
+
+### 4. Product Stance: Writing Tool With a Graph
+
+The review answers open question #7 directly: **this should be a writing
+tool with a graph, not a graph tool that produces writing.**
+
+Evidence: the vault's own design docs (DESIGN_CRITIQUE.md, THE_MEMBRANE,
+THE_DRIFT, THE_SEANCE, THE_TABLE) all point toward a writing-centered
+system whose value appears during work, not in a separate graph console.
+The discourse-graph literature, ARTIST, Tana, and Query 06 all support
+prose-first or outline-first interaction.
+
+Once that stance is settled, the next design question sharpens: **what
+salience mechanism decides what the writing surface should see right
+now?**
+
+### 5. Start Boring, Not Poetic
+
+The briefing proposed creative-domain status types (`committed/exploring/
+tension/dormant/composted`) and edge types (`resonatesWith/tensionWith/
+sourceOf/developedFrom/complicates`). The review says: **too invented to
+be the first compiler schema.**
+
+The external evidence supports starting with boring primary atoms and
+keeping richer interpretation as overlays. The discourse-graph research
+is strong for argumentative writing, weaker for free-form ideation.
+"Resonance" as a primary core type becomes a vibes machine.
+
+**The concrete A+ build spec (from the review):**
+1. Add `claim` as an atom kind, but do not migrate all atoms
+2. Define a compilable subset only: explicit Questions, Claims,
+   Evidence, Sources, plus provenance spans and revision events
+3. Compile that subset one-way into SQLite
+4. Keep the edge grammar tiny: `supports`, `opposes`, `informs`,
+   `sourceOf`, `revises`
+5. Expose only a few MCP operations: scoped search, trace support,
+   trace conflict, what changed, what shifts if X changes
+6. Do not ship a graph editor — surface results in a prose-adjacent
+   sidebar/margin/backlink surface
+7. Instrument everything: correction rate, acceptance/dismissal rate,
+   time-to-answer, whether a surfaced item changed the draft, and
+   whether users voluntarily reopen the compiled view
+
+### 6. Stop Using Graphiti as the Straw Antagonist
+
+The review notes the corpus is slightly overfit to "not Graphiti." The
+negative conclusion is mostly right, but it's no longer the real design
+center. The briefing, memo, and research package all spend substantial
+energy rebutting the Graphiti pitch when the real choice is product
+stance and minimal compiled structure.
+
+Also: B-layer alternatives (Cognee, GraphMD, skills.md→KG, Jim White's
+text2kg direction) are only named, not evaluated. If B matters later,
+the next research pass should compare those directly rather than
+continuing to orbit Graphiti.
+
+### 7. Breakpoint Criteria (Concrete)
+
+**A → A+ (move when 3 of 5 are true over 2-4 weeks):**
+1. Support/contradiction/change/path questions recur weekly
+2. Same note subset reread across ~10+ interactions
+3. Answers to typed questions are slow/unstable because structure is
+   re-derived each time
+4. Minimal schema has stopped changing every few days
+5. Users asking impact questions ("what shifts if...?") often enough
+   to justify compiled traces
+
+**A+ → B (move only when all hold after A+ exists):**
+- Weekly re-resolution of same people/projects/facts across sessions
+- Repeated need for temporal invalidation or change history not authored
+  in the vault
+- Visible cost from re-grounding the same agent context
+- If the failures are still about authored support/contradiction, stay
+  at A+
+
+**A+ → C (move only when all four hold; B is not required):**
+1. A stable external curriculum/domain graph exists
+2. The vault can map some claim/concept subset onto it
+3. Explicit learner events are being logged
+4. There is an actual decision use case ("what should I learn next?")
+   not just "it would be neat to model mastery"
+
+### 8. Research Gaps Identified by the Review
+
+- No same-corpus benchmark for A vs A+ vs B on live creative-vault work
+- B-layer alternatives under-researched (Cognee, GraphMD, text2kg)
+- Compiler schema for creative work under-evidenced — start boring
+- Salience layer conceptually present, mechanically absent — "what
+  should surface, when, and why?" is the design question, not "more
+  structure?"
+- SNT transfer claim needs direct testing on creative material
+- Learner overlay remains a future research track, not a build track
+
+---
+
+## Current Working Position (Post-Review)
+
+As of 2026-03-12, after six deep research threads and one external
+architecture review, the working position is:
+
+1. **Keep the vault file-first.** Markdown stays source of truth. The
+   authoring substrate must preserve productive contradiction, low-
+   friction capture, and the writer's voice.
+
+2. **Build a narrow A+ compiled layer over a boring subset only.** Do
+   not compile the whole vault. Target explicit Questions, Claims,
+   Evidence, Sources with provenance. Tiny edge grammar. Few MCP
+   operations. Instrument everything.
+
+3. **Make salience/surfacing the real product problem.** The missing
+   thing is not backend choice — it's what decides what the writing
+   surface should see right now. The Membrane, the Drift, and the
+   Séance are all experiments in this space. The compiled layer's value
+   is measured by whether it makes surfacing better.
+
+4. **This is a writing tool with a graph.** Not a graph tool that
+   produces writing. Prose-first UI. No graph editor. Results surface
+   in margins, backlinks, annotations — not a separate console.
+
+5. **Treat agent memory and learner overlay as later branches, not the
+   next step.** B (agent memory) is justified only when cross-session
+   entity/state memory fails repeatedly after A+ exists. C (learner
+   overlay) is justified only when an external curriculum graph exists
+   and explicit learning events are being logged. They are independent
+   branches, not sequential. Planning/execution traces stay lightweight
+   until they prove they need their own substrate.
+
+6. **Stop arguing about Graphiti.** The negative conclusion is right
+   and no longer interesting. The design center is product stance and
+   minimal compiled structure.
+
 ---
 
 ## Open Design Questions
@@ -937,53 +1255,64 @@ a parallel authority.
    what's the migration path from concept-notes? What do you gain
    (argumentation, typed relations, falsifiability) vs. what do you lose
    (simplicity, low-friction capture, the current atom's openness)?
+   **Update:** The 5 Pro review says add `claim` alongside concepts, do
+   not migrate all atoms. The compiler targets the claim-bearing subset
+   only.
 
 2. **Can the SNT compiler pattern generalize?**
    Markdown → SQLite with typed edges works for legal research. Could the
-   same pattern apply to an Obsidian vault with atoms and frames? The
-   vault's `atomize` skill already extracts structure — a compiler that
-   builds a queryable index from that structure would give the vault an
-   MCP-dockable graph without requiring Graphiti or Neo4j. What changes
-   in the schema when the domain shifts from legal to creative?
+   same pattern apply to an Obsidian vault with atoms and frames?
+   **Update:** The review says the plumbing transfers (one-way compiler +
+   MCP is domain-agnostic). The epistemology doesn't (creative work needs
+   different status types and edge types). Start with a boring subset and
+   test on 50 vault atoms before committing to a schema.
 
 3. **What does "intentional ambiguity" look like in a claim-based vault?**
    Legal claims resolve to proven/provisional/open. Creative writing
    deliberately maintains productive contradictions. A fourth status —
    "deliberately unresolved" — might be needed, but that changes the
-   epistemology: the graph isn't converging toward truth, it's holding
-   tension. How does that interact with typed edges like `supports` and
-   `opposes`? Can a claim simultaneously support AND oppose another
-   claim without the graph treating it as incoherent?
+   epistemology. Still open. Not addressed by the review.
 
 4. **Where does inference-time matching break down?**
-   The current approach (LLM reads flat files, no persistent graph) works
-   at SNT scale. At what vault size or query complexity does it fail?
-   This determines whether a compiled graph is a nice-to-have or a
-   necessity. The Graphiti reply (Query 02) says the crossover is when
-   entities recur across many episodes + facts change over time + you
-   need multi-hop entity-centric queries where chronology matters. The
-   vault doesn't meet these conditions yet. Rough guess from the reply:
-   100 nodes no, 10K maybe, 100K only if core infrastructure. But Graphiti
-   itself doesn't publish the benchmark — these are indirect signals.
+   **Sharpened by Query 06 and the review.** The breakpoint is not vault
+   size — it's query type + reuse frequency + rent-paying. Concrete
+   criteria: 3 of 5 signals over 2-4 weeks (see breakpoint criteria
+   in the 5 Pro review section above). The vault probably doesn't meet
+   these conditions yet.
 
 5. **What's the right feedback surface between graph and prose?**
-   The SNT source cards show curated feedback — compiler output informing
-   source documentation. The Symbiotic Vault's Membrane aspires to a
-   richer surface. The Dreamer↔Director loop is lossy by design. What's
-   the right granularity for creative work — per-session, per-claim,
-   per-atom?
+   The SNT source cards show curated feedback. The Membrane aspires to
+   contextual surfacing. Still open. **Sharpened:** The real question is
+   now "what salience mechanism decides what the writing surface should
+   see right now?" — not just granularity of feedback.
 
 6. **How should the learner overlay graph work?**
-   Query 03 establishes that the learner graph should be an overlay on
-   an authoritative curriculum graph, not a parallel authority. But what
-   does "overlay" mean concretely for a vault? Which signals count as
-   evidence of mastery beyond note presence? How does the vault's claim
-   status (proven/provisional/open) map to learning states? Can the SNT
-   evidence-chain pattern adapt to track learning rather than legal proof?
+   Query 03 establishes overlay framing. Query 05 says passive PKM-as-
+   mastery-graph is under-validated — vault should be evidence stream,
+   not self-certifying mastery graph. **Update:** C does not depend on B.
+   Near-term learner work is event logging only: track `asserted claim`,
+   `revised claim`, `added support`, `noted contradiction`, `linked
+   concepts`, `returned after delay`, `successfully recalled`, `failed
+   recall`, `abandoned thread`, confidence/confusion/uncertainty marks.
 
-7. **Literary vs. infrastructure architectures (unanswered).**
-   Thread 6 from the original asks was not returned. Is this a writing
-   tool that happens to have a graph, or a graph tool that happens to
-   produce writing? The answer shapes everything: UI priorities, what
-   gets compiled, what stays prose, where the Membrane sits. Still needs
-   external research or a decision memo.
+7. **Literary vs. infrastructure architectures (answered).**
+   ~~Thread 6 from the original asks was not returned.~~ Thread 6 came
+   back and the 5 Pro review answered the question: **this is a writing
+   tool with a graph.** Not a graph tool that produces writing. Prose-
+   first UI. No graph editor. The next question: what salience mechanism
+   decides what the writing surface should see right now?
+
+8. **What should the salience mechanism actually be?**
+   (New, from 5 Pro review.) The vault's design docs identify salience
+   as the actual unsolved problem. The Membrane, the Drift, and the
+   convergence-map all point at it. The 5 Pro review makes it explicit
+   as the missing architectural layer. No one in this thread has proposed
+   a concrete salience algorithm. Research should shift from "more
+   structure?" to "what should surface, when, and why?"
+
+9. **Is the proposed creative-domain schema grounded or speculative?**
+   (Carried from briefing.) The proposed status types (`committed/
+   exploring/tension/dormant/composted`) and edge types (`resonatesWith/
+   tensionWith/sourceOf/developedFrom/complicates`) were critiqued by the
+   review as too invented for v1. Start boring. Validate with 3-5
+   creative vault users or prototype on a small subset before adopting.

@@ -62,6 +62,12 @@ should *do* once it's running, without blocking it from being built.
   waves, benchmark fixtures, and the specific mechanisms still absent from the
   Python engine.
 
+- `12-director-prompt-spec.md` — Phase 2 proper Director spec. Defines
+  what the LLM Director receives (trimmed DreamNode + brief + style
+  extensions), what it produces (structured feedback echo), the full
+  prompt template, a worked n08 example (hardest case: anger episode
+  discovery), and a three-step calibration strategy.
+
 ## Key Connections to Other Work
 
 The Director's Toolkit section references the team's prompt engineering work:
