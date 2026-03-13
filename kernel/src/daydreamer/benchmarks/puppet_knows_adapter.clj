@@ -28,6 +28,8 @@
 (def ^:private honest-ring-overlap
   [:honesty :performance :ritual])
 
+(declare branch-derived-state)
+
 (defn- latest-trace-index
   [world]
   (dec (count (:trace world))))
@@ -126,40 +128,56 @@
   counterfactual admission plus `s4_the_ring` should move the cycle toward the
   honest-ring arrival."
   [world selected-goal-id _script]
-  (if-let [context-id (branch-context-id world)]
-    (let [fact-ids (branch-fact-ids world context-id)
-          situations (apply-situation-deltas (previous-cycle-situations world)
-                                             fact-ids)
-          situation-id (derived-situation-id fact-ids situations)
-          active-indices (derived-active-indices fact-ids)
-          retrievals (derived-retrievals situation-id active-indices)
-          chosen-node-id (some-> retrievals first :node-id)
-          selection-updates {:adapter_policy :branch_visible_facts
-                             :adapter_branch_context context-id
-                             :adapter_visible_fact_ids (->> fact-ids
-                                                            (map name)
-                                                            sort
-                                                            vec)
-                             :adapter_selected_situation situation-id
-                             :adapter_active_indices active-indices}
-          selection-updates (cond-> selection-updates
-                              chosen-node-id
-                              (assoc :edge_kind :counterfactual_bridge
-                                     :benchmark_step :cycle_10_branch_arrival))]
-      (trace/merge-latest-cycle
-       world
-       (cond-> {:selection selection-updates
+  (trace/merge-latest-cycle
+   world
+   (if-let [derived-state (branch-derived-state world)]
+     (let [{:keys [selection situations active-indices retrievals chosen-node-id
+                   selected-situation-id]} derived-state]
+       (cond-> {:selection selection
                 :situations situations
                 :active-indices active-indices}
-         situation-id
+         selected-situation-id
          (assoc :selected-goal {:id selected-goal-id
-                                :situation-id situation-id})
+                                :situation-id selected-situation-id})
 
          (seq retrievals)
          (assoc :retrievals retrievals
-                :chosen-node-id chosen-node-id))))
-    (trace/merge-latest-cycle
-     world
+                :chosen-node-id chosen-node-id)))
      {:selection {:adapter_policy :no_branch_context
                   :adapter_selected_situation nil
                   :adapter_active_indices []}})))
+
+(defn branch-derived-state
+  "Return benchmark-specific situation/index consequences of the current branch.
+
+  When `situations` is omitted, the previous cycle's situation state is used,
+  matching the scripted benchmark behavior. Autonomous runs can pass the current
+  situation map explicitly."
+  ([world]
+   (branch-derived-state world (previous-cycle-situations world)))
+  ([world situations]
+   (when-let [context-id (branch-context-id world)]
+     (let [fact-ids (branch-fact-ids world context-id)
+           situations (apply-situation-deltas situations fact-ids)
+           situation-id (derived-situation-id fact-ids situations)
+           active-indices (derived-active-indices fact-ids)
+           retrievals (derived-retrievals situation-id active-indices)
+           chosen-node-id (some-> retrievals first :node-id)
+           selection-updates {:adapter_policy :branch_visible_facts
+                              :adapter_branch_context context-id
+                              :adapter_visible_fact_ids (->> fact-ids
+                                                             (map name)
+                                                             sort
+                                                             vec)
+                              :adapter_selected_situation situation-id
+                              :adapter_active_indices active-indices}
+           selection-updates (cond-> selection-updates
+                               chosen-node-id
+                               (assoc :edge_kind :counterfactual_bridge
+                                      :benchmark_step :cycle_10_branch_arrival))]
+       {:selection selection-updates
+        :situations situations
+        :active-indices active-indices
+        :retrievals retrievals
+        :chosen-node-id chosen-node-id
+        :selected-situation-id situation-id}))))

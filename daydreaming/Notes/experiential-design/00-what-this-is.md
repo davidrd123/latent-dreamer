@@ -67,6 +67,10 @@ should *do* once it's running, without blocking it from being built.
   extensions), what it produces (structured feedback echo), the full
   prompt template, a worked n08 example (hardest case: anger episode
   discovery), and a three-step calibration strategy.
+- `13-project-state.md` — Project state map for David. System diagram,
+  maturity map, evaluation ladder, decision dashboard, falsification
+  criteria. Written to enable questioning the direction, not just
+  executing it.
 
 ## Key Connections to Other Work
 

@@ -331,6 +331,20 @@
   []
   (assoc (runner/initial-world) :cycle 7))
 
+(defn build-autonomous-world
+  "Return a seeded Puppet Knows kernel world for fixture-driven autonomous runs.
+
+  This keeps the benchmark-specific reversal facts and pleasant roving episodes
+  at the adapter edge while leaving the pure kernel unchanged."
+  []
+  (let [root-id :cx-1
+        [world reversal-setup] (seed-reversal-setup (benchmark-world) root-id)
+        [world roving-setup] (seed-roving-episodes world)]
+    {:world world
+     :seed-state (merge reversal-setup
+                        roving-setup
+                        {:root-id root-id})}))
+
 (defn semi-unscripted-cycle-scripts
   []
   [{:timestamp "2026-03-12T12:00:08Z"
