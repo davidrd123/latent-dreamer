@@ -28,6 +28,9 @@
 (def ^:private reversal-leaf-policy
   :emotion_then_depth)
 
+(def ^:private reversal-cause-policy
+  :stored_priority)
+
 (defn- fact-type?
   [fact expected]
   (and (map? fact) (= (:fact/type fact) expected)))
@@ -48,12 +51,19 @@
   [fact]
   (fact-type? fact :intends))
 
+(defn- failure-cause-fact?
+  [fact]
+  (fact-type? fact :failure-cause))
+
 (defn- fact-id
   [fact]
-  (or (:goal-id fact)
-      (:emotion-id fact)
-      (:id fact)
-      (:fact/id fact)))
+  (cond
+    (goal-fact? fact) (:goal-id fact)
+    (emotion-fact? fact) (:emotion-id fact)
+    :else (or (:fact/id fact)
+              (:id fact)
+              (:goal-id fact)
+              (:emotion-id fact))))
 
 (defn- top-level-owner
   [fact]
@@ -140,6 +150,67 @@
   "Choose the strongest candidate failure leaf for REVERSAL."
   [world]
   (first (reversal-leaf-candidates world)))
+
+(defn- selected-goal-ids
+  [{:keys [failed-goal-id old-top-level-goal-id]}]
+  (->> [failed-goal-id old-top-level-goal-id]
+       (remove nil?)
+       set))
+
+(defn- failure-cause-matches-leaf?
+  [fact reversal-leaf]
+  (let [goal-ids (selected-goal-ids reversal-leaf)
+        fact-goal-ids (->> [(:goal-id fact)
+                            (:failed-goal-id fact)
+                            (:top-level-goal fact)]
+                           (remove nil?)
+                           set)]
+    (seq (set/intersection goal-ids fact-goal-ids))))
+
+(defn reverse-undo-cause-candidates
+  "Find stored causal explanations for a selected failed leaf.
+
+  This first pass is intentionally narrow: it does not infer new causes.
+  Instead it looks for explicit `:failure-cause` facts visible from the failed
+  leaf and ranks them by stored priority, then by how many counterfactual facts
+  they provide."
+  [world {:keys [old-context-id] :as reversal-leaf}]
+  (->> (cx/visible-facts world old-context-id)
+       (filter failure-cause-fact?)
+       (filter #(failure-cause-matches-leaf? % reversal-leaf))
+       (keep (fn [fact]
+               (let [counterfactual-facts (vec (:counterfactual-facts fact []))]
+                 (when (seq counterfactual-facts)
+                   {:cause-id (fact-id fact)
+                    :goal-id (or (:failed-goal-id fact)
+                                 (:goal-id fact)
+                                 (:top-level-goal fact))
+                    :priority (double (or (:priority fact) 0.0))
+                    :counterfactual-count (count counterfactual-facts)
+                    :counterfactual-facts counterfactual-facts
+                    :selection-policy reversal-cause-policy
+                    :selection-reasons (cond-> [:stored_failure_cause
+                                                :matching_failed_goal]
+                                         (> (count counterfactual-facts) 1)
+                                         (conj :multi_fact_counterfactual))}))))
+       (sort-by (juxt (comp - :priority)
+                      (comp - :counterfactual-count)
+                      (comp str :cause-id)))
+       vec))
+
+(defn reverse-undo-causes
+  "Choose stored counterfactual input facts for a selected failed leaf.
+
+  Returns nil when the kernel has no explicit causal explanation for the leaf.
+  The runner decides whether that absence is acceptable for a given benchmark."
+  [world reversal-leaf]
+  (when-let [cause (first (reverse-undo-cause-candidates world reversal-leaf))]
+    {:input-facts (:counterfactual-facts cause)
+     :counterfactual-fact-ids (mapv fact-id (:counterfactual-facts cause))
+     :counterfactual-cause-id (:cause-id cause)
+     :counterfactual-goal-id (:goal-id cause)
+     :counterfactual-policy (:selection-policy cause)
+     :counterfactual-reasons (:selection-reasons cause)}))
 
 (defn- retract-facts
   [world context-id facts]

@@ -99,11 +99,28 @@
     :else
     reversal-spec))
 
+(defn- resolve-reversal-counterfactuals
+  [world reversal-spec]
+  (cond
+    (nil? reversal-spec)
+    nil
+
+    (:derive-counterfactuals? reversal-spec)
+    (if-let [derived-cause (families/reverse-undo-causes world reversal-spec)]
+      (merge (dissoc reversal-spec :derive-counterfactuals?)
+             derived-cause)
+      (throw (ex-info "No reversal counterfactual causes available"
+                      {:reversal-spec reversal-spec})))
+
+    :else
+    reversal-spec))
+
 (defn- apply-scripted-reversal
   [world selected-goal-id reversal-spec]
   (if-not reversal-spec
     [world nil]
     (let [reversal-spec (resolve-reversal-branch world reversal-spec)
+          reversal-spec (resolve-reversal-counterfactuals world reversal-spec)
           new-top-level-goal-id (or (:new-top-level-goal-id reversal-spec)
                                     selected-goal-id)
           new-context-id (or (:new-context-id reversal-spec)
@@ -132,6 +149,11 @@
                                 :reversal_leaf_depth (:context-depth reversal-spec)
                                 :reversal_leaf_emotion_pressure (:emotion-pressure reversal-spec)
                                 :reversal_leaf_reasons (:selection-reasons reversal-spec)
+                                :reversal_counterfactual_policy (:counterfactual-policy reversal-spec)
+                                :reversal_counterfactual_source (:counterfactual-cause-id reversal-spec)
+                                :reversal_counterfactual_goal (:counterfactual-goal-id reversal-spec)
+                                :reversal_counterfactual_reasons (:counterfactual-reasons reversal-spec)
+                                :reversal_counterfactual_fact_ids (:counterfactual-fact-ids reversal-spec)
                                 :reversal_branch_context sprouted-context-id}})]
         [world sprouted-context-id]))))
 
@@ -172,7 +194,9 @@
     `:selection`, `:feedback-applied`, `:serendipity-bias`, `:situations`
     -> merged into the cycle trace
   - `:reversal-branch` -> invoke the real REVERSAL branch primitive with a
-    fixture-selected or kernel-discovered failed leaf
+    fixture-selected or kernel-discovered failed leaf. Optional
+    `:derive-counterfactuals? true` asks the kernel to choose input facts from
+    stored failure-cause facts instead of taking fixture-supplied input facts.
   - `:sprouts` -> vector of child context specs, each with optional
     `:ordering` / `:timeout`
   - `:goal-status` -> applied to the selected goal before `run-goal-step`

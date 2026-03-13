@@ -60,6 +60,7 @@
         old-top-level-goal-id :g_fixture_old_failure
         old-leaf-goal-id :g_fixture_old_leaf
         other-goal-id :g_fixture_other_plan
+        preferred-cause-id :fc_admit_performance
         facts [{:fact/type :situation
                 :fact/id :s1_seeing_through}
                {:fact/type :situation
@@ -92,10 +93,29 @@
                {:fact/type :intends
                 :from-goal-id other-goal-id
                 :to-goal-id :g_fixture_other_leaf
-                :top-level-goal other-goal-id}]
+                :top-level-goal other-goal-id}
+               {:fact/type :failure-cause
+                :fact/id preferred-cause-id
+                :goal-id old-top-level-goal-id
+                :priority 0.91
+                :counterfactual-facts [{:fact/type :counterfactual
+                                        :fact/id :performance_is_admitted}
+                                       {:fact/type :situation
+                                        :fact/id :s4_the_ring}]}
+               {:fact/type :failure-cause
+                :fact/id :fc_hide_in_backstage
+                :goal-id old-top-level-goal-id
+                :priority 0.22
+                :counterfactual-facts [{:fact/type :counterfactual
+                                        :fact/id :stay_backstage}]}]
         world (assert-facts world old-context-id facts)]
     [world {:old-context-id old-context-id
-            :old-top-level-goal-id old-top-level-goal-id}]))
+            :old-top-level-goal-id old-top-level-goal-id
+            :preferred-cause-id preferred-cause-id
+            :expected-counterfactual-facts [{:fact/type :counterfactual
+                                             :fact/id :performance_is_admitted}
+                                            {:fact/type :situation
+                                             :fact/id :s4_the_ring}]}]))
 
 (defn- benchmark-goal-ids
   [goal-ids]
@@ -112,8 +132,8 @@
   - cycle 10: n10_honest_ring
 
   The leaf choice now goes through kernel discovery (`reverse-leafs` style
-  candidate selection), while the counterfactual input facts are still
-  fixture-driven."
+  candidate selection), and the counterfactual input facts are derived from
+  stored failure-cause facts on that leaf."
   [{:keys [reversal-goal-id]}]
   [{:timestamp "2026-03-12T12:00:08Z"
     :active-indices [:edge :void :backstage :stored_scenery :consequence :darkness]
@@ -144,12 +164,9 @@
                                                        :anger]}]
                        :notes "Stored scenery reads as apparatus and turns dread into anger at the set."}
     :reversal-branch {:discover-leaf? true
+                      :derive-counterfactuals? true
                       :new-top-level-goal-id reversal-goal-id
-                      :ordering 0.61
-                      :input-facts [{:fact/type :counterfactual
-                                     :fact/id :performance_is_admitted}
-                                    {:fact/type :situation
-                                     :fact/id :s4_the_ring}]}
+                      :ordering 0.61}
     :serendipity-bias 0.04
     :situations {:s1_seeing_through {:activation 0.48
                                      :ripeness 0.72

@@ -26,6 +26,15 @@
              (get-in cycles [0 "selection" "reversal_leaf_goal"])))
       (is (= "emotion_then_depth"
              (get-in cycles [0 "selection" "reversal_leaf_policy"])))
+      (is (= (name (:preferred-cause-id benchmark-state))
+             (get-in cycles [0 "selection" "reversal_counterfactual_source"])))
+      (is (= "stored_priority"
+             (get-in cycles [0 "selection" "reversal_counterfactual_policy"])))
+      (is (= ["performance_is_admitted" "s4_the_ring"]
+             (get-in cycles [0 "selection" "reversal_counterfactual_fact_ids"])))
+      (is (= ["performance_is_admitted" "s4_the_ring"]
+             (mapv #(get % "id")
+                   (get-in cycles [0 "mutations" 0 "input-facts"]))))
       (let [reversal-branch-id (first (get-in world [:trace 0 :sprouted]))]
         (is (= true (get-in world [:contexts reversal-branch-id :alternative-past?])))
         (is (= true (get-in world [:contexts reversal-branch-id :pseudo-sprout?])))))

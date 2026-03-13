@@ -202,3 +202,56 @@
            (get-in world [:trace 0 :selection :reversal_leaf_goal])))
     (is (= :emotion_then_depth
            (get-in world [:trace 0 :selection :reversal_leaf_policy])))))
+
+(deftest run-scripted-cycle-can-derive-reversal-counterfactuals
+  (let [[world goal-ids]
+        (runner/activate-goals
+         (runner/initial-world)
+         :cx-1
+         [{:goal-type :reversal
+           :planning-type :imaginary
+           :strength 0.9
+           :main-motiv :e-1
+           :situation-id :s1_seeing_through}])
+        [world old-context-id] (cx/sprout world :cx-1)
+        old-top-level-goal-id :g-old
+        cause-id :fc-admit-performance
+        expected-input-facts [{:fact/type :counterfactual
+                               :fact/id :performance_is_admitted}
+                              {:fact/type :situation
+                               :fact/id :s4_the_ring}]
+        world (-> world
+                  (cx/assert-fact old-context-id {:fact/type :situation
+                                                  :fact/id :s1_seeing_through})
+                  (cx/assert-fact old-context-id {:fact/type :emotion
+                                                  :emotion-id :e-fear
+                                                  :strength 0.7})
+                  (cx/assert-fact old-context-id {:fact/type :goal
+                                                  :goal-id old-top-level-goal-id
+                                                  :top-level-goal old-top-level-goal-id
+                                                  :status :failed
+                                                  :activation-context old-context-id})
+                  (cx/assert-fact old-context-id {:fact/type :failure-cause
+                                                  :fact/id cause-id
+                                                  :goal-id old-top-level-goal-id
+                                                  :priority 0.9
+                                                  :counterfactual-facts expected-input-facts}))
+        [world selected-goal-id]
+        (runner/run-scripted-cycle
+         world
+         {:timestamp "2026-03-12T12:00:00Z"
+          :active-indices [:s1_seeing_through :reversal]
+          :reversal-branch {:discover-leaf? true
+                            :derive-counterfactuals? true
+                            :ordering 0.9}
+          :situations {:s1_seeing_through {:activation 0.95
+                                           :ripeness 0.8}}})]
+    (is (= (first goal-ids) selected-goal-id))
+    (is (= expected-input-facts
+           (get-in world [:trace 0 :mutations 0 :input-facts])))
+    (is (= cause-id
+           (get-in world [:trace 0 :selection :reversal_counterfactual_source])))
+    (is (= :stored_priority
+           (get-in world [:trace 0 :selection :reversal_counterfactual_policy])))
+    (is (= [:performance_is_admitted :s4_the_ring]
+           (get-in world [:trace 0 :selection :reversal_counterfactual_fact_ids])))))

@@ -43,6 +43,14 @@
    :to-goal-id to-goal-id
    :top-level-goal top-level-goal})
 
+(defn failure-cause-fact
+  [fact-id goal-id priority counterfactual-facts]
+  {:fact/type :failure-cause
+   :fact/id fact-id
+   :goal-id goal-id
+   :priority priority
+   :counterfactual-facts counterfactual-facts})
+
 (defn world-with-root
   []
   (let [root (cx/create-context)
@@ -258,3 +266,43 @@
     (testing "selection returns the top-ranked candidate"
       (is (= (first candidates)
              (families/select-reversal-leaf world))))))
+
+(deftest reverse-undo-cause-candidates-rank-stored-counterfactuals
+  (let [[world root-id] (world-with-root)
+        [world old-context-id old-top-level-goal-id _ _]
+        (seed-old-plan-context world root-id)
+        high-priority-fact (failure-cause-fact
+                            :fc-open-wall
+                            old-top-level-goal-id
+                            0.9
+                            [counterfactual-fact state-fact])
+        low-priority-fact (failure-cause-fact
+                           :fc-stay-hidden
+                           old-top-level-goal-id
+                           0.2
+                           [{:fact/type :counterfactual
+                             :fact/id :stay_hidden}])
+        world (-> world
+                  (cx/assert-fact old-context-id high-priority-fact)
+                  (cx/assert-fact old-context-id low-priority-fact))
+        reversal-leaf {:old-context-id old-context-id
+                       :old-top-level-goal-id old-top-level-goal-id
+                       :failed-goal-id old-top-level-goal-id}
+        candidates (families/reverse-undo-cause-candidates world reversal-leaf)
+        selected-cause (families/reverse-undo-causes world reversal-leaf)]
+    (testing "only matching failure-cause facts are returned"
+      (is (= [:fc-open-wall :fc-stay-hidden]
+             (mapv :cause-id candidates))))
+    (testing "ranking prefers higher-priority causes with richer counterfactuals"
+      (is (= 0.9 (:priority (first candidates))))
+      (is (= [counterfactual-fact state-fact]
+             (:counterfactual-facts (first candidates)))))
+    (testing "selected counterfactuals expose the input-fact payload"
+      (is (= [counterfactual-fact state-fact]
+             (:input-facts selected-cause)))
+      (is (= [:wall_was_open :s1_seeing_through]
+             (:counterfactual-fact-ids selected-cause)))
+      (is (= :fc-open-wall
+             (:counterfactual-cause-id selected-cause)))
+      (is (= :stored_priority
+             (:counterfactual-policy selected-cause))))))
