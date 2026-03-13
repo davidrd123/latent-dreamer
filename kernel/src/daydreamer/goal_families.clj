@@ -194,7 +194,7 @@
          seen #{}]
     (if-let [goal-id (peek frontier)]
       (let [frontier (pop frontier)]
-      (if (contains? seen goal-id)
+        (if (contains? seen goal-id)
           (recur frontier seen)
           (recur (into frontier (get children-by-goal goal-id []))
                  (conj seen goal-id))))
@@ -458,8 +458,7 @@
   - `:input-facts` -> state facts asserted into the alternative past
   - `:retract-facts` -> shaky leaf assumptions removed from the branch"
   [world {:keys [old-context-id ordering input-facts]
-          :or {input-facts []
-               retract-facts []}
+          :or {input-facts []}
           :as opts}]
   (let [retraction-facts (vec (:retract-facts opts []))
         [world sprouted-context-id] (sprout-alternative-past world opts)

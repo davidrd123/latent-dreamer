@@ -50,8 +50,10 @@ No defensive copying needed.
 
 ## Data Shapes
 
-These are the core map shapes. All keys are unqualified keywords for wave 1.
-Namespace-qualified keys may come later if schema tooling warrants it.
+These are the core map shapes. Structural kernel maps (`world`, `context`,
+top-level `goal`, `episode`) use unqualified keys by default. Heterogeneous fact
+payloads may use namespaced discriminator keys such as `:fact/type` and
+`:fact/id` so mixed fact sets stay readable.
 
 ### Context
 
@@ -66,9 +68,11 @@ Source: `gate_cx.cl` — `cx$sprout`, `cx$pseudo-sprout-of`
  :add-obs         #{}          ; facts added in this context
  :remove-obs      #{}          ; facts removed from inherited set
  :pseudo-sprout?  false        ; true = child of parent but doesn't inherit content
+ :alternative-past? false      ; true when REVERSAL copies an old branch here
  :mutations-tried? false       ; set true after mutation attempt
  :timeout         10           ; decremented each sprout; skip when <= 0
  :ordering        0            ; priority for sprout selection during backtracking
+ :generation-switches nil      ; optional tense overrides for generated text
  :touched-facts   #{}}         ; facts modified in this context (for inference chaining)
 ```
 
@@ -95,6 +99,19 @@ Source: `dd_cntrl.cl` — slots documented at lines 629–653
  :top-level-goal   :g-1}        ; self-ref for top-level, parent-ref for subgoals
 ```
 
+Wave 2 planning facts inside contexts may also carry:
+
+```clojure
+{:fact/type       :goal
+ :goal-id         :g-1
+ :top-level-goal  :g-1
+ :status          :runable
+ :activation-context :cx-3
+ :strength        0.3                ; optional weak-leaf scoring
+ :objective-fact  {:fact/type :assumption
+                   :fact/id :wall_is_open}}
+```
+
 ### Episode
 
 Source: `dd_epis.cl` — `make-episode`, `epmem-store`
@@ -114,6 +131,30 @@ Source: `dd_epis.cl` — `make-episode`, `epmem-store`
 ```
 
 **Note:** marks are transient per retrieval pass, not stored on the episode.
+
+### Fact Conventions
+
+Facts live inside `:all-obs`, `:add-obs`, and `:remove-obs`. They are plain
+maps tagged by `:fact/type`.
+
+Common examples:
+
+```clojure
+{:fact/type :situation
+ :fact/id   :s1_seeing_through}
+
+{:fact/type :counterfactual
+ :fact/id   :performance_is_admitted}
+
+{:fact/type :failure-cause
+ :fact/id   :fc_admit_performance
+ :goal-id   :g_fixture_old_failure
+ :priority  0.91
+ :counterfactual-facts [{:fact/type :counterfactual
+                         :fact/id   :performance_is_admitted}
+                        {:fact/type :situation
+                         :fact/id   :s4_the_ring}]}
+```
 
 ### Cycle Snapshot (Trace)
 
