@@ -6,7 +6,8 @@
   window the parallel-track spec cares about: the cycle 9 -> 10 transition
   from revenge in s1 to rehearsal in s4, with cycle 8 included as the causal
   bridge from apparatus-dread into anger at the set."
-  (:require [daydreamer.context :as cx]
+  (:require [daydreamer.benchmarks.puppet-knows-adapter :as adapter]
+            [daydreamer.context :as cx]
             [daydreamer.episodic-memory :as episodic]
             [daydreamer.runner :as runner]))
 
@@ -392,28 +393,8 @@
     :terminate {:status :succeeded}}
    {:timestamp "2026-03-12T12:00:10Z"
     :auto-family-plans? true
-    :active-indices [:ritual :honesty :crowd :performance :sincerity :non_directed_light]
+    :cycle-adapter adapter/apply-branch-derived-state
     :serendipity-bias 0.08
-    :situations {:s1_seeing_through {:activation 0.34
-                                     :ripeness 0.70
-                                     :anger 0.18
-                                     :hope 0.22
-                                     :threat 0.28}
-                 :s2_the_mission {:activation 0.36
-                                  :ripeness 0.55
-                                  :anger 0.10
-                                  :hope 0.68
-                                  :threat 0.30}
-                 :s3_the_edge {:activation 0.22
-                               :ripeness 0.37
-                               :anger 0.11
-                               :hope 0.16
-                               :threat 0.42}
-                 :s4_the_ring {:activation 0.33
-                               :ripeness 0.47
-                               :anger 0.16
-                               :hope 0.61
-                               :threat 0.14}}
     :terminate {:status :succeeded}}])
 
 (defn run-benchmark

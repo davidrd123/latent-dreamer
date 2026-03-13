@@ -88,7 +88,21 @@
       (is (= ["performance_stays_hidden"]
              (get-in cycles [2 "selection" "reversal_leaf_retracted_facts"])))
       (is (= (name (:preferred-cause-id benchmark-state))
-             (get-in cycles [2 "selection" "reversal_counterfactual_source"]))))
-    (testing "the benchmark diverges from the scripted handoff in an explicit, traceable way"
+             (get-in cycles [2 "selection" "reversal_counterfactual_source"])))
+      (is (= "branch_visible_facts"
+             (get-in cycles [2 "selection" "adapter_policy"])))
+      (is (= "s4_the_ring"
+             (get-in cycles [2 "selection" "adapter_selected_situation"]))))
+    (testing "the benchmark now reaches the ring through reversal-driven branch facts"
       (is (= "revenge" (get-in cycles [1 "selected_goal" "goal_type"])))
-      (is (not= "rehearsal" (get-in cycles [2 "selected_goal" "goal_type"]))))))
+      (is (= "reversal" (get-in cycles [2 "selected_goal" "goal_type"])))
+      (is (= "s4_the_ring"
+             (get-in cycles [2 "selected_goal" "situation_id"])))
+      (is (= "n10_honest_ring"
+             (get-in cycles [2 "chosen_node_id"])))
+      (is (= "counterfactual_bridge"
+             (get-in cycles [2 "selection" "edge_kind"])))
+      (is (= ["ritual" "sincerity" "non_directed_light" "performance" "honesty"]
+             (get-in cycles [2 "active_indices"])))
+      (is (= ["honesty" "performance" "ritual"]
+             (get-in cycles [2 "retrieved" 0 "overlap"]))))))

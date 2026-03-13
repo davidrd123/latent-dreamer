@@ -324,3 +324,25 @@
            (get-in world [:trace 0 :selection :roving_reminded_episodes])))
     (is (= :pleasant_episode_seed
            (get-in world [:trace 0 :selection :roving_selection_policy])))))
+
+(deftest run-scripted-cycle-can-apply-cycle-adapter
+  (let [[world goal-ids]
+        (runner/activate-goals
+         (runner/initial-world)
+         :cx-1
+         [{:goal-type :reversal
+           :planning-type :imaginary
+           :strength 0.9
+           :main-motiv :e-1
+           :situation-id :s1_seeing_through}])
+        [world selected-goal-id]
+        (runner/run-scripted-cycle
+         world
+         {:timestamp "2026-03-12T12:00:00Z"
+          :cycle-adapter (fn [current-world _selected-goal-id _script]
+                           (assoc-in current-world
+                                     [:trace 0 :chosen-node-id]
+                                     "n10_honest_ring"))})]
+    (is (= (first goal-ids) selected-goal-id))
+    (is (= "n10_honest_ring"
+           (get-in world [:trace 0 :chosen-node-id])))))

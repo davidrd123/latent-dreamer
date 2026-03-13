@@ -266,6 +266,12 @@
      (:situations script)
      (assoc :situations (:situations script)))))
 
+(defn- apply-cycle-adapter
+  [world selected-goal-id script]
+  (if-let [cycle-adapter (:cycle-adapter script)]
+    (cycle-adapter world selected-goal-id script)
+    world))
+
 (defn run-scripted-cycle
   "Run one scripted control cycle.
 
@@ -279,6 +285,8 @@
     stored failure-cause facts instead of taking fixture-supplied input facts.
   - `:roving-branch` -> invoke the real ROVING plan body, optionally seeding a
     specific pleasant episode via `:episode-id`
+  - `:cycle-adapter` -> pure function `(fn [world selected-goal-id script])`
+    that can derive additional trace state from the mutated branch
   - `:sprouts` -> vector of child context specs, each with optional
     `:ordering` / `:timeout`
   - `:goal-status` -> applied to the selected goal before `run-goal-step`
@@ -301,6 +309,7 @@
                         (apply-automatic-family-plan world
                                                      selected-goal-id
                                                      script))
+            world (apply-cycle-adapter world selected-goal-id script)
             [world sprout-ids]
             (create-scripted-sprouts world selected-goal-id (:sprouts script []))
             world (append-sprouted-contexts world sprout-ids)
