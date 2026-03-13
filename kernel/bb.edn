@@ -8,7 +8,14 @@
   check {:doc "Format, lint, and test"
          :depends [format lint test]}
   puppet-knows-trace
-  {:doc "Write the scripted Puppet Knows benchmark trace as reporter JSON"
-   :task (shell "clojure -M:trace -m daydreamer.export-trace --out out/puppet_knows_benchmark.json")}
+  {:doc "Write the scripted Puppet Knows benchmark trace as reporter JSON and HTML"
+   :task (shell "clojure -M:trace -m daydreamer.export-trace --benchmark scripted --out out/puppet_knows_benchmark.json --render-html --html-out out/puppet_knows_benchmark.html")}
+  puppet-knows-semi-trace
+  {:doc "Write the semi-unscripted Puppet Knows benchmark trace as reporter JSON and HTML"
+   :task (shell "clojure -M:trace -m daydreamer.export-trace --benchmark semi-unscripted --out out/puppet_knows_semi_unscripted.json --render-html --html-out out/puppet_knows_semi_unscripted.html")}
+  puppet-knows-compare
+  {:doc "Render scripted vs semi-unscripted Puppet Knows in one comparison HTML report"
+   :depends [puppet-knows-trace puppet-knows-semi-trace]
+   :task (shell "python3 ../../scope-drd/tools/daydream_trace_report.py ../out/puppet_knows_benchmark.json ../out/puppet_knows_semi_unscripted.json --label scripted --label semi-unscripted --title 'Puppet Knows: Scripted vs Semi-Unscripted' --out ../out/puppet_knows_compare.html")}
   nrepl {:doc "Start nREPL on port 7888"
          :task (clojure "-M:nrepl")}}}
