@@ -1,6 +1,7 @@
 (ns daydreamer.goal-families-test
   (:require [clojure.test :refer [deftest is testing]]
             [daydreamer.context :as cx]
+            [daydreamer.episodic-memory :as episodic]
             [daydreamer.goal-families :as families]
             [daydreamer.goals :as goals]))
 
@@ -69,11 +70,15 @@
     [{:contexts {root-id root}
       :goals {}
       :episodes {}
+      :episode-index {}
       :emotions {}
       :mode :daydreaming
       :cycle 0
       :trace []
+      :recent-indices []
+      :recent-episodes []
       :mutation-events []
+      :roving-episodes []
       :id-counter 1}
      root-id]))
 
@@ -318,6 +323,87 @@
              (:counterfactual-cause-id selected-cause)))
       (is (= :stored_priority
              (:counterfactual-policy selected-cause))))))
+
+(deftest roving-activation-candidates-detect-failed-goal-negative-emotion
+  (let [[world root-id] (world-with-root)
+        [world context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-shame
+        world (-> world
+                  (cx/assert-fact context-id {:fact/type :goal
+                                              :goal-id failed-goal-id
+                                              :top-level-goal failed-goal-id
+                                              :status :failed
+                                              :activation-context context-id})
+                  (cx/assert-fact context-id {:fact/type :emotion
+                                              :emotion-id emotion-id
+                                              :strength 0.25
+                                              :valence :negative})
+                  (cx/assert-fact context-id {:fact/type :dependency
+                                              :from-id emotion-id
+                                              :to-id failed-goal-id}))
+        candidates (families/roving-activation-candidates world)]
+    (is (= [{:context-id context-id
+             :failed-goal-id failed-goal-id
+             :emotion-id emotion-id
+             :emotion-strength 0.25
+             :selection-policy :failed_goal_negative_emotion
+             :selection-reasons [:failed_goal
+                                 :negative_emotion
+                                 :dependency_link]}]
+           candidates))
+    (is (= (first candidates)
+           (families/select-roving-trigger world)))))
+
+(deftest roving-plan-sprouts-and-runs-reminding-cascade
+  (let [[world root-id] (world-with-root)
+        [world pleasant-episode-id]
+        (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :calm {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :sunlight {:reminding? true}))
+        [world linked-episode-id]
+        (episodic/add-episode world {:rule :follow-on-memory})
+        world (-> world
+                  (episodic/store-episode linked-episode-id :calm {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])
+        [world {:keys [sprouted-context-id episode-id reminded-episode-ids
+                       active-indices selection-policy]}]
+        (families/roving-plan world {:goal-id roving-goal-id
+                                     :context-id context-id})]
+    (testing "roving chooses the pleasant episode seed and sprouts once"
+      (is (= pleasant-episode-id episode-id))
+      (is (= context-id
+             (get-in world [:contexts sprouted-context-id :parent-id])))
+      (is (= 1.0
+             (get-in world [:contexts sprouted-context-id :ordering]))))
+    (testing "reminding cascade activates shared indices and linked episodes"
+      (is (= [linked-episode-id] reminded-episode-ids))
+      (is (= [pleasant-episode-id linked-episode-id]
+             (:recent-episodes world)))
+      (is (= #{:calm :sunlight}
+             (set active-indices))))
+    (testing "roving records a trivial success intention and mutation event"
+      (is (some #(and (= :intends (:fact/type %))
+                      (= roving-goal-id (:from-goal-id %))
+                      (= :rtrue (:to-goal-id %)))
+                (cx/visible-facts world sprouted-context-id)))
+      (is (= :pleasant_episode_seed selection-policy))
+      (is (= [{:family :roving
+               :source-context context-id
+               :target-context sprouted-context-id
+               :seed-episode-id pleasant-episode-id
+               :reminded-episode-ids [linked-episode-id]}]
+             (:mutation-events world))))))
 
 (deftest reverse-leafs-follow-intends-and-retract-weak-leaf-objectives
   (let [[world root-id] (world-with-root)

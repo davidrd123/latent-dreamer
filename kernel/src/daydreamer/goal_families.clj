@@ -11,6 +11,7 @@
   primitive that later goal-family plans can call."
   (:require [clojure.set :as set]
             [daydreamer.context :as cx]
+            [daydreamer.episodic-memory :as episodic]
             [daydreamer.goals :as goals]))
 
 (def ^:private supported-families
@@ -37,6 +38,12 @@
 (def ^:private reverse-leaf-threshold
   0.5)
 
+(def ^:private roving-emotion-threshold
+  0.04)
+
+(def ^:private roving-plan-policy
+  :pleasant_episode_seed)
+
 (declare reversal-sprout-alternative)
 
 (defn- fact-type?
@@ -62,6 +69,13 @@
 (defn- failure-cause-fact?
   [fact]
   (fact-type? fact :failure-cause))
+
+(defn- negative-emotion-fact?
+  [fact]
+  (and (emotion-fact? fact)
+       (or (= :negative (:valence fact))
+           (= :negative (:polarity fact))
+           (= true (:negative? fact)))))
 
 (defn- fact-id
   [fact]
@@ -299,6 +313,98 @@
      :counterfactual-goal-id (:goal-id cause)
      :counterfactual-policy (:selection-policy cause)
      :counterfactual-reasons (:selection-reasons cause)}))
+
+(defn roving-activation-candidates
+  "Find failed-goal / negative-emotion pairs that can activate ROVING."
+  [world]
+  (->> (keys (:contexts world))
+       (mapcat (fn [context-id]
+                 (let [facts (cx/visible-facts world context-id)
+                       failed-goals (local-failed-goal-facts world context-id)
+                       negative-emotions (->> facts
+                                              (filter negative-emotion-fact?)
+                                              (filter #(> (double (or (:strength %) 0.0))
+                                                          roving-emotion-threshold))
+                                              (sort-by (juxt (comp - :strength)
+                                                             (comp str fact-id))))
+                       dependencies (filter dependency-fact? facts)]
+                   (for [goal-fact failed-goals
+                         emotion-fact negative-emotions
+                         :when (some (fn [dependency-fact]
+                                       (let [ref-ids (fact-ref-ids dependency-fact)]
+                                         (and (contains? ref-ids (fact-id goal-fact))
+                                              (contains? ref-ids (fact-id emotion-fact)))))
+                                     dependencies)]
+                     {:context-id context-id
+                      :failed-goal-id (fact-id goal-fact)
+                      :emotion-id (fact-id emotion-fact)
+                      :emotion-strength (double (or (:strength emotion-fact) 0.0))
+                      :selection-policy :failed_goal_negative_emotion
+                      :selection-reasons [:failed_goal
+                                          :negative_emotion
+                                          :dependency_link]}))))
+       (sort-by (juxt (comp - :emotion-strength)
+                      (comp str :context-id)
+                      (comp str :failed-goal-id)
+                      (comp str :emotion-id)))
+       vec))
+
+(defn select-roving-trigger
+  "Choose the strongest failed-goal / negative-emotion trigger for ROVING."
+  [world]
+  (first (roving-activation-candidates world)))
+
+(defn- choose-roving-episode-id
+  [world {:keys [episode-id episode-ids]}]
+  (cond
+    episode-id
+    episode-id
+
+    (seq episode-ids)
+    (first episode-ids)
+
+    (seq (:roving-episodes world))
+    (first (:roving-episodes world))
+
+    :else
+    nil))
+
+(defn roving-plan
+  "Sprout a side-channel context and seed it with a pleasant episode reminder.
+
+  The episode reminding cascade is the heavy lifter here; this plan mostly
+  creates a fresh branch, invokes episodic memory, and records the result."
+  [world {:keys [goal-id context-id ordering]
+          :or {ordering 1.0}
+          :as opts}]
+  (let [episode-id (or (choose-roving-episode-id world opts)
+                       (throw (ex-info "ROVING needs a pleasant episode"
+                                       {:opts opts})))
+        [world sprouted-context-id] (cx/sprout world context-id)
+        success-intends {:fact/type :intends
+                         :from-goal-id goal-id
+                         :to-goal-id :rtrue
+                         :top-level-goal goal-id
+                         :status :succeeded
+                         :rule :roving-plan1}
+        world (cx/assert-fact world sprouted-context-id success-intends)
+        [world reminded-episode-ids] (episodic/episode-reminding world episode-id)
+        world (assoc-in world [:contexts sprouted-context-id :ordering] ordering)
+        world (if (contains? (:goals world) goal-id)
+                (goals/set-next-context world goal-id sprouted-context-id)
+                world)
+        world (update world :mutation-events
+                      (fnil conj [])
+                      {:family :roving
+                       :source-context context-id
+                       :target-context sprouted-context-id
+                       :seed-episode-id episode-id
+                       :reminded-episode-ids (vec reminded-episode-ids)})]
+    [world {:sprouted-context-id sprouted-context-id
+            :episode-id episode-id
+            :reminded-episode-ids (vec reminded-episode-ids)
+            :active-indices (vec (:recent-indices world))
+            :selection-policy roving-plan-policy}]))
 
 (defn reverse-leafs
   "Sprout one alternative-past branch per weak leaf under the selected failed

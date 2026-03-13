@@ -36,6 +36,7 @@
      :backtrack-events []
      :mutation-events []
      :termination-events []
+     :roving-episodes []
      :reality-context root-id
      :reality-lookahead root-id
      :id-counter 1}))
@@ -180,6 +181,32 @@
                                 :reversal_branch_context (:sprouted-context-id primary-branch)}})]
         [world (:sprouted-context-id primary-branch)]))))
 
+(defn- apply-scripted-roving
+  [world selected-goal-id roving-spec]
+  (if-not roving-spec
+    [world nil]
+    (let [context-id (or (:context-id roving-spec)
+                         (goal-context world selected-goal-id)
+                         (:reality-lookahead world)
+                         (:reality-context world))
+          [world roving-result]
+          (families/roving-plan world
+                                (assoc roving-spec
+                                       :goal-id selected-goal-id
+                                       :context-id context-id))
+          world (append-sprouted-contexts world [(:sprouted-context-id roving-result)])
+          world (trace/merge-latest-cycle
+                 world
+                 {:mutations (:mutation-events world)
+                  :selection {:goal_family :roving
+                              :family_goal_id selected-goal-id
+                              :roving_selection_policy (:selection-policy roving-result)
+                              :roving_seed_episode (:episode-id roving-result)
+                              :roving_reminded_episodes (:reminded-episode-ids roving-result)
+                              :roving_active_indices (:active-indices roving-result)
+                              :roving_branch_context (:sprouted-context-id roving-result)}})]
+      [world (:sprouted-context-id roving-result)])))
+
 (defn- enrich-latest-trace
   [world script]
   (trace/merge-latest-cycle
@@ -220,6 +247,8 @@
     fixture-selected or kernel-discovered failed leaf. Optional
     `:derive-counterfactuals? true` asks the kernel to choose input facts from
     stored failure-cause facts instead of taking fixture-supplied input facts.
+  - `:roving-branch` -> invoke the real ROVING plan body, optionally seeding a
+    specific pleasant episode via `:episode-id`
   - `:sprouts` -> vector of child context specs, each with optional
     `:ordering` / `:timeout`
   - `:goal-status` -> applied to the selected goal before `run-goal-step`
@@ -233,6 +262,9 @@
       (let [[world _] (apply-scripted-reversal world
                                                selected-goal-id
                                                (:reversal-branch script))
+            [world _] (apply-scripted-roving world
+                                             selected-goal-id
+                                             (:roving-branch script))
             [world sprout-ids]
             (create-scripted-sprouts world selected-goal-id (:sprouts script []))
             world (append-sprouted-contexts world sprout-ids)

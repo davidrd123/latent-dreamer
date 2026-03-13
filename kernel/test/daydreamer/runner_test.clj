@@ -1,6 +1,7 @@
 (ns daydreamer.runner-test
   (:require [clojure.test :refer [deftest is testing]]
             [daydreamer.context :as cx]
+            [daydreamer.episodic-memory :as episodic]
             [daydreamer.runner :as runner]))
 
 (defn seed-reversal-target
@@ -285,3 +286,41 @@
       (is (not (cx/fact-true? world sprouted-context-id leaf-objective-fact))))
     (is (= [:performance_is_admitted :s4_the_ring]
            (get-in world [:trace 0 :selection :reversal_counterfactual_fact_ids])))))
+
+(deftest run-scripted-cycle-can-invoke-real-roving-branch
+  (let [[world goal-ids]
+        (runner/activate-goals
+         (runner/initial-world)
+         :cx-1
+         [{:goal-type :roving
+           :planning-type :imaginary
+           :strength 0.7
+           :main-motiv :e-relief
+           :situation-id :s2_the_mission}])
+        [world pleasant-episode-id]
+        (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :warmth {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :crowd {:reminding? true}))
+        [world linked-episode-id]
+        (episodic/add-episode world {:rule :linked-memory})
+        world (-> world
+                  (episodic/store-episode linked-episode-id :warmth {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world selected-goal-id]
+        (runner/run-scripted-cycle
+         world
+         {:timestamp "2026-03-12T12:00:00Z"
+          :active-indices [:s2_the_mission :roving]
+          :roving-branch {}
+          :situations {:s2_the_mission {:activation 0.72
+                                        :ripeness 0.66}}})]
+    (is (= (first goal-ids) selected-goal-id))
+    (is (= 1 (count (get-in world [:trace 0 :sprouted]))))
+    (is (= :roving (get-in world [:trace 0 :mutations 0 :family])))
+    (is (= pleasant-episode-id
+           (get-in world [:trace 0 :selection :roving_seed_episode])))
+    (is (= [linked-episode-id]
+           (get-in world [:trace 0 :selection :roving_reminded_episodes])))
+    (is (= :pleasant_episode_seed
+           (get-in world [:trace 0 :selection :roving_selection_policy])))))
