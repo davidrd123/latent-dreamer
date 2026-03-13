@@ -17,5 +17,15 @@
   {:doc "Render scripted vs semi-unscripted Puppet Knows in one comparison HTML report"
    :depends [puppet-knows-trace puppet-knows-semi-trace]
    :task (shell "python3 ../../scope-drd/tools/daydream_trace_report.py ../out/puppet_knows_benchmark.json ../out/puppet_knows_semi_unscripted.json --label scripted --label semi-unscripted --title 'Puppet Knows: Scripted vs Semi-Unscripted' --out ../out/puppet_knows_compare.html")}
+  arctic-trace
+  {:doc "Write the scripted Arctic Expedition benchmark trace as reporter JSON and HTML"
+   :task (shell "clojure -M:trace -m daydreamer.export-trace --benchmark arctic-scripted --out out/arctic_expedition_benchmark.json --render-html --html-out out/arctic_expedition_benchmark.html")}
+  arctic-semi-trace
+  {:doc "Write the semi-unscripted Arctic Expedition benchmark trace as reporter JSON and HTML"
+   :task (shell "clojure -M:trace -m daydreamer.export-trace --benchmark arctic-semi-unscripted --out out/arctic_expedition_semi_unscripted.json --render-html --html-out out/arctic_expedition_semi_unscripted.html")}
+  arctic-compare
+  {:doc "Render scripted vs semi-unscripted Arctic Expedition in one comparison HTML report"
+   :depends [arctic-trace arctic-semi-trace]
+   :task (shell "python3 ../../scope-drd/tools/daydream_trace_report.py ../out/arctic_expedition_benchmark.json ../out/arctic_expedition_semi_unscripted.json --label scripted --label semi-unscripted --title 'Arctic Expedition: Scripted vs Semi-Unscripted' --out ../out/arctic_expedition_compare.html")}
   nrepl {:doc "Start nREPL on port 7888"
          :task (clojure "-M:nrepl")}}}

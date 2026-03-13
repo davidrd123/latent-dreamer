@@ -4,19 +4,33 @@
             [clojure.java.io :as io]
             [clojure.java.shell :as sh]
             [clojure.string :as str]
+            [daydreamer.benchmarks.arctic-expedition :as arctic]
             [daydreamer.benchmarks.puppet-knows :as puppet]))
 
+(declare build-puppet-knows-log)
+(declare build-arctic-expedition-log)
+
 (def ^:private benchmark-specs
-  {:scripted {:run-benchmark puppet/run-benchmark
+  {:scripted {:builder :puppet-knows
               :default-output-path "out/puppet_knows_benchmark.json"
               :default-html-path "out/puppet_knows_benchmark.html"
               :default-title "Puppet Knows Benchmark: Scripted"
               :label "scripted"}
-   :semi-unscripted {:run-benchmark puppet/run-semi-unscripted-benchmark
+   :semi-unscripted {:builder :puppet-knows
                      :default-output-path "out/puppet_knows_semi_unscripted.json"
                      :default-html-path "out/puppet_knows_semi_unscripted.html"
                      :default-title "Puppet Knows Benchmark: Semi-Unscripted"
-                     :label "semi-unscripted"}})
+                     :label "semi-unscripted"}
+   :arctic-scripted {:builder :arctic-expedition
+                     :default-output-path "out/arctic_expedition_benchmark.json"
+                     :default-html-path "out/arctic_expedition_benchmark.html"
+                     :default-title "Arctic Expedition Benchmark: Scripted"
+                     :label "scripted"}
+   :arctic-semi-unscripted {:builder :arctic-expedition
+                            :default-output-path "out/arctic_expedition_semi_unscripted.json"
+                            :default-html-path "out/arctic_expedition_semi_unscripted.html"
+                            :default-title "Arctic Expedition Benchmark: Semi-Unscripted"
+                            :label "semi-unscripted"}})
 
 (defn- cwd-file
   []
@@ -64,6 +78,9 @@
       :scripted :scripted
       :semi :semi-unscripted
       :semi-unscripted :semi-unscripted
+      :arctic-scripted :arctic-scripted
+      :arctic-semi :arctic-semi-unscripted
+      :arctic-semi-unscripted :arctic-semi-unscripted
       (throw (ex-info "Unknown benchmark variant"
                       {:benchmark value
                        :supported (sort (map name (keys benchmark-specs)))})))))
@@ -119,6 +136,15 @@
   [benchmark]
   (:default-title (benchmark-spec benchmark)))
 
+(defn- build-log
+  [benchmark options]
+  (case (:builder (benchmark-spec benchmark))
+    :puppet-knows (build-puppet-knows-log options)
+    :arctic-expedition (build-arctic-expedition-log options)
+    (throw (ex-info "Unknown benchmark log builder"
+                    {:benchmark benchmark
+                     :builder (:builder (benchmark-spec benchmark))}))))
+
 (defn build-puppet-knows-log
   "Return the reporter-shaped Puppet Knows benchmark log with resolved fixture
   metadata."
@@ -126,7 +152,11 @@
   ([{:keys [benchmark scope-root git-commit]}]
    (let [benchmark (parse-benchmark benchmark)
          scope-root (or scope-root (default-scope-root))
-         {:keys [run-benchmark]} (benchmark-spec benchmark)
+         run-benchmark (case benchmark
+                         :scripted puppet/run-benchmark
+                         :semi-unscripted puppet/run-semi-unscripted-benchmark
+                         (throw (ex-info "Unsupported Puppet Knows benchmark variant"
+                                         {:benchmark benchmark})))
          {:keys [world-path graph-path feedback-path reporter-path]}
          (fixture-paths scope-root)]
      (:log (run-benchmark
@@ -138,6 +168,19 @@
                                     (repo-commit (latent-root)))
                     :reporter_path reporter-path}
                    (graph-counts graph-path)))))))
+
+(defn build-arctic-expedition-log
+  "Return the reporter-shaped Arctic Expedition benchmark log."
+  ([] (build-arctic-expedition-log {}))
+  ([{:keys [benchmark git-commit]}]
+   (let [benchmark (parse-benchmark benchmark)
+         run-benchmark (case benchmark
+                         :arctic-scripted arctic/run-benchmark
+                         :arctic-semi-unscripted arctic/run-semi-unscripted-benchmark
+                         (throw (ex-info "Unsupported Arctic benchmark variant"
+                                         {:benchmark benchmark})))]
+     (:log (run-benchmark {:git_commit (or git-commit
+                                           (repo-commit (latent-root)))})))))
 
 (defn- render-report!
   [{:keys [json-path html-path scope-root title label]}]
@@ -171,31 +214,32 @@
                        :html-path (.getCanonicalPath html-file)})))
     (.getCanonicalPath html-file)))
 
-(defn write-puppet-knows-log!
-  "Write the reporter-shaped Puppet Knows benchmark log to disk and return the
-  absolute output path."
-  ([] (write-puppet-knows-log! {}))
+(defn write-benchmark-log!
+  "Write a reporter-shaped benchmark log to disk and return the absolute output
+  path."
+  ([] (write-benchmark-log! {}))
   ([{:keys [benchmark out-path scope-root git-commit]}]
    (let [benchmark (parse-benchmark benchmark)
          out-path (or out-path (default-output-path benchmark))
          output-file (io/file (latent-root) out-path)
-         payload (build-puppet-knows-log {:benchmark benchmark
-                                          :scope-root scope-root
-                                          :git-commit git-commit})]
+         payload (build-log benchmark
+                            {:benchmark benchmark
+                             :scope-root scope-root
+                             :git-commit git-commit})]
      (.mkdirs (.getParentFile output-file))
      (spit output-file (json/write-str payload :escape-unicode false))
      (.getCanonicalPath output-file))))
 
-(defn write-puppet-knows-report!
-  "Write reporter JSON, and optionally HTML, for a Puppet Knows benchmark
+(defn write-benchmark-report!
+  "Write reporter JSON, and optionally HTML, for any supported benchmark
   variant. Returns the written paths."
-  ([] (write-puppet-knows-report! {}))
+  ([] (write-benchmark-report! {}))
   ([{:keys [benchmark out-path html-out scope-root git-commit render-html? title]}]
    (let [benchmark (parse-benchmark benchmark)
-         json-path (write-puppet-knows-log! {:benchmark benchmark
-                                             :out-path out-path
-                                             :scope-root scope-root
-                                             :git-commit git-commit})
+         json-path (write-benchmark-log! {:benchmark benchmark
+                                          :out-path out-path
+                                          :scope-root scope-root
+                                          :git-commit git-commit})
          html-path (when render-html?
                      (render-report! {:json-path json-path
                                       :html-path (or html-out
@@ -207,18 +251,30 @@
      {:json-path json-path
       :html-path html-path})))
 
+(defn write-puppet-knows-log!
+  "Backward-compatible alias for `write-benchmark-log!`."
+  ([] (write-benchmark-log! {}))
+  ([opts]
+   (write-benchmark-log! opts)))
+
+(defn write-puppet-knows-report!
+  "Backward-compatible alias for `write-benchmark-report!`."
+  ([] (write-benchmark-report! {}))
+  ([opts]
+   (write-benchmark-report! opts)))
+
 (defn -main
   [& args]
   (try
     (let [{:keys [benchmark out-path html-out render-html? scope-root title]}
           (parse-args args)
           {:keys [json-path html-path]}
-          (write-puppet-knows-report! {:benchmark benchmark
-                                       :out-path out-path
-                                       :html-out html-out
-                                       :render-html? render-html?
-                                       :scope-root scope-root
-                                       :title title})]
+          (write-benchmark-report! {:benchmark benchmark
+                                    :out-path out-path
+                                    :html-out html-out
+                                    :render-html? render-html?
+                                    :scope-root scope-root
+                                    :title title})]
       (println json-path)
       (when html-path
         (println html-path)))
