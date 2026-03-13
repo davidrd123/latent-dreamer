@@ -93,8 +93,7 @@
       (when-not selected-leaf
         (throw (ex-info "No reversal leaf candidates available"
                         {:reversal-spec reversal-spec})))
-      (merge selected-leaf
-             (dissoc reversal-spec :discover-leaf?)))
+      (merge selected-leaf reversal-spec))
 
     :else
     reversal-spec))
@@ -130,32 +129,56 @@
                         {:selected-goal-id selected-goal-id
                          :new-top-level-goal-id new-top-level-goal-id
                          :reversal-spec reversal-spec})))
-      (let [[world sprouted-context-id]
-            (families/reversal-sprout-alternative
-             world
-             (assoc reversal-spec
-                    :new-top-level-goal-id new-top-level-goal-id
-                    :new-context-id new-context-id))
-            world (append-sprouted-contexts world [sprouted-context-id])
+      (let [[world branch-results]
+            (if (:discover-leaf? reversal-spec)
+              (families/reverse-leafs
+               world
+               (assoc reversal-spec
+                      :new-top-level-goal-id new-top-level-goal-id
+                      :new-context-id new-context-id))
+              (let [[next-world sprouted-context-id]
+                    (families/reversal-sprout-alternative
+                     world
+                     (assoc reversal-spec
+                            :new-top-level-goal-id new-top-level-goal-id
+                            :new-context-id new-context-id))]
+                [next-world
+                 [{:sprouted-context-id sprouted-context-id
+                   :old-context-id (:old-context-id reversal-spec)
+                   :leaf-goal-id (:failed-goal-id reversal-spec)
+                   :selection-policy :fixture_selected
+                   :selection-reasons [:fixture_selected]
+                   :retracted-fact-ids []}]]))
+            primary-branch (or (first branch-results)
+                               (throw (ex-info "No weak reversal leaf branches available"
+                                               {:reversal-spec reversal-spec})))
+            sprouted-context-ids (mapv :sprouted-context-id branch-results)
+            world (append-sprouted-contexts world sprouted-context-ids)
             world (trace/merge-latest-cycle
                    world
                    {:mutations (:mutation-events world)
                     :selection {:goal_family :reversal
                                 :family_goal_id new-top-level-goal-id
-                                :reversal_leaf_policy (or (:selection-policy reversal-spec)
-                                                          :fixture_selected)
-                                :reversal_source_context (:old-context-id reversal-spec)
-                                :reversal_leaf_goal (:failed-goal-id reversal-spec)
+                                :reversal_target_policy (or (:selection-policy reversal-spec)
+                                                            :fixture_selected)
+                                :reversal_target_goal (:old-top-level-goal-id reversal-spec)
+                                :reversal_source_context (:old-context-id primary-branch)
+                                :reversal_leaf_policy (:selection-policy primary-branch)
+                                :reversal_leaf_goal (:leaf-goal-id primary-branch)
+                                :reversal_leaf_strength (:leaf-strength primary-branch)
                                 :reversal_leaf_depth (:context-depth reversal-spec)
                                 :reversal_leaf_emotion_pressure (:emotion-pressure reversal-spec)
-                                :reversal_leaf_reasons (:selection-reasons reversal-spec)
+                                :reversal_leaf_reasons (:selection-reasons primary-branch)
+                                :reversal_leaf_retracted_facts (:retracted-fact-ids primary-branch)
+                                :reversal_branch_count (count branch-results)
+                                :reversal_branch_contexts sprouted-context-ids
                                 :reversal_counterfactual_policy (:counterfactual-policy reversal-spec)
                                 :reversal_counterfactual_source (:counterfactual-cause-id reversal-spec)
                                 :reversal_counterfactual_goal (:counterfactual-goal-id reversal-spec)
                                 :reversal_counterfactual_reasons (:counterfactual-reasons reversal-spec)
                                 :reversal_counterfactual_fact_ids (:counterfactual-fact-ids reversal-spec)
-                                :reversal_branch_context sprouted-context-id}})]
-        [world sprouted-context-id]))))
+                                :reversal_branch_context (:sprouted-context-id primary-branch)}})]
+        [world (:sprouted-context-id primary-branch)]))))
 
 (defn- enrich-latest-trace
   [world script]

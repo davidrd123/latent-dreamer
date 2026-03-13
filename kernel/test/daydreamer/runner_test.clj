@@ -3,6 +3,41 @@
             [daydreamer.context :as cx]
             [daydreamer.runner :as runner]))
 
+(defn seed-reversal-target
+  [world]
+  (let [[world old-context-id] (cx/sprout world :cx-1)
+        old-top-level-goal-id :g-old
+        old-leaf-goal-id :g-old-leaf
+        leaf-objective-fact {:fact/type :assumption
+                             :fact/id :admission_stays_hidden}
+        world (-> world
+                  (cx/assert-fact old-context-id {:fact/type :situation
+                                                  :fact/id :s1_seeing_through})
+                  (cx/assert-fact old-context-id leaf-objective-fact)
+                  (cx/assert-fact old-context-id {:fact/type :emotion
+                                                  :emotion-id :e-fear
+                                                  :strength 0.7})
+                  (cx/assert-fact old-context-id {:fact/type :goal
+                                                  :goal-id old-top-level-goal-id
+                                                  :top-level-goal old-top-level-goal-id
+                                                  :status :failed
+                                                  :activation-context old-context-id})
+                  (cx/assert-fact old-context-id {:fact/type :goal
+                                                  :goal-id old-leaf-goal-id
+                                                  :top-level-goal old-top-level-goal-id
+                                                  :status :runable
+                                                  :activation-context old-context-id
+                                                  :strength 0.3
+                                                  :objective-fact leaf-objective-fact})
+                  (cx/assert-fact old-context-id {:fact/type :intends
+                                                  :from-goal-id old-top-level-goal-id
+                                                  :to-goal-id old-leaf-goal-id
+                                                  :top-level-goal old-top-level-goal-id}))]
+    [world {:old-context-id old-context-id
+            :old-top-level-goal-id old-top-level-goal-id
+            :old-leaf-goal-id old-leaf-goal-id
+            :leaf-objective-fact leaf-objective-fact}]))
+
 (deftest initial-world-test
   (let [world (runner/initial-world)]
     (is (= :daydreaming (:mode world)))
@@ -171,19 +206,9 @@
            :strength 0.9
            :main-motiv :e-1
            :situation-id :s1_seeing_through}])
-        [world old-context-id] (cx/sprout world :cx-1)
-        old-top-level-goal-id :g-old
-        world (-> world
-                  (cx/assert-fact old-context-id {:fact/type :situation
-                                                  :fact/id :s1_seeing_through})
-                  (cx/assert-fact old-context-id {:fact/type :emotion
-                                                  :emotion-id :e-fear
-                                                  :strength 0.7})
-                  (cx/assert-fact old-context-id {:fact/type :goal
-                                                  :goal-id old-top-level-goal-id
-                                                  :top-level-goal old-top-level-goal-id
-                                                  :status :failed
-                                                  :activation-context old-context-id}))
+        [world {:keys [old-context-id old-top-level-goal-id old-leaf-goal-id
+                       leaf-objective-fact]}]
+        (seed-reversal-target world)
         [world selected-goal-id]
         (runner/run-scripted-cycle
          world
@@ -199,9 +224,19 @@
     (is (= old-context-id
            (get-in world [:trace 0 :selection :reversal_source_context])))
     (is (= old-top-level-goal-id
+           (get-in world [:trace 0 :selection :reversal_target_goal])))
+    (is (= old-leaf-goal-id
            (get-in world [:trace 0 :selection :reversal_leaf_goal])))
+    (is (= :intends_weak_leaf
+           (get-in world [:trace 0 :selection :reversal_leaf_policy])))
     (is (= :emotion_then_depth
-           (get-in world [:trace 0 :selection :reversal_leaf_policy])))))
+           (get-in world [:trace 0 :selection :reversal_target_policy])))
+    (is (= [:admission_stays_hidden]
+           (get-in world [:trace 0 :selection :reversal_leaf_retracted_facts])))
+    (is (= 1
+           (get-in world [:trace 0 :selection :reversal_branch_count])))
+    (let [sprouted-context-id (first (get-in world [:trace 0 :sprouted]))]
+      (is (not (cx/fact-true? world sprouted-context-id leaf-objective-fact))))))
 
 (deftest run-scripted-cycle-can-derive-reversal-counterfactuals
   (let [[world goal-ids]
@@ -213,29 +248,20 @@
            :strength 0.9
            :main-motiv :e-1
            :situation-id :s1_seeing_through}])
-        [world old-context-id] (cx/sprout world :cx-1)
-        old-top-level-goal-id :g-old
+        [world {:keys [old-context-id old-top-level-goal-id old-leaf-goal-id
+                       leaf-objective-fact]}]
+        (seed-reversal-target world)
         cause-id :fc-admit-performance
         expected-input-facts [{:fact/type :counterfactual
                                :fact/id :performance_is_admitted}
                               {:fact/type :situation
                                :fact/id :s4_the_ring}]
-        world (-> world
-                  (cx/assert-fact old-context-id {:fact/type :situation
-                                                  :fact/id :s1_seeing_through})
-                  (cx/assert-fact old-context-id {:fact/type :emotion
-                                                  :emotion-id :e-fear
-                                                  :strength 0.7})
-                  (cx/assert-fact old-context-id {:fact/type :goal
-                                                  :goal-id old-top-level-goal-id
-                                                  :top-level-goal old-top-level-goal-id
-                                                  :status :failed
-                                                  :activation-context old-context-id})
-                  (cx/assert-fact old-context-id {:fact/type :failure-cause
-                                                  :fact/id cause-id
-                                                  :goal-id old-top-level-goal-id
-                                                  :priority 0.9
-                                                  :counterfactual-facts expected-input-facts}))
+        world (cx/assert-fact world old-context-id
+                              {:fact/type :failure-cause
+                               :fact/id cause-id
+                               :goal-id old-top-level-goal-id
+                               :priority 0.9
+                               :counterfactual-facts expected-input-facts})
         [world selected-goal-id]
         (runner/run-scripted-cycle
          world
@@ -253,5 +279,9 @@
            (get-in world [:trace 0 :selection :reversal_counterfactual_source])))
     (is (= :stored_priority
            (get-in world [:trace 0 :selection :reversal_counterfactual_policy])))
+    (is (= old-leaf-goal-id
+           (get-in world [:trace 0 :selection :reversal_leaf_goal])))
+    (let [sprouted-context-id (first (get-in world [:trace 0 :sprouted]))]
+      (is (not (cx/fact-true? world sprouted-context-id leaf-objective-fact))))
     (is (= [:performance_is_admitted :s4_the_ring]
            (get-in world [:trace 0 :selection :reversal_counterfactual_fact_ids])))))

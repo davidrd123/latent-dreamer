@@ -31,6 +31,14 @@
 (def ^:private reversal-cause-policy
   :stored_priority)
 
+(def ^:private reverse-leaf-policy
+  :intends_weak_leaf)
+
+(def ^:private reverse-leaf-threshold
+  0.5)
+
+(declare reversal-sprout-alternative)
+
 (defn- fact-type?
   [fact expected]
   (and (map? fact) (= (:fact/type fact) expected)))
@@ -151,6 +159,86 @@
   [world]
   (first (reversal-leaf-candidates world)))
 
+(defn- goal-strength
+  [world goal-fact]
+  (double (or (:strength goal-fact)
+              (get-in world [:goals (fact-id goal-fact) :strength])
+              1.0)))
+
+(defn- goal-objective-facts
+  [goal-fact]
+  (vec (or (:objective-facts goal-fact)
+           (when-let [objective-fact (:objective-fact goal-fact)]
+             [objective-fact])
+           [])))
+
+(defn- plan-goal-facts
+  [world context-id top-level-goal-id]
+  (->> (cx/visible-facts world context-id)
+       (filter goal-fact?)
+       (filter #(= top-level-goal-id (top-level-owner %)))
+       (sort-by (comp str fact-id))
+       vec))
+
+(defn- plan-intends-facts
+  [world context-id top-level-goal-id]
+  (->> (cx/visible-facts world context-id)
+       (filter intends-fact?)
+       (filter #(= top-level-goal-id (top-level-owner %)))
+       (sort-by pr-str)
+       vec))
+
+(defn- reachable-goal-ids
+  [children-by-goal root-goal-id]
+  (loop [frontier (conj clojure.lang.PersistentQueue/EMPTY root-goal-id)
+         seen #{}]
+    (if-let [goal-id (peek frontier)]
+      (let [frontier (pop frontier)]
+      (if (contains? seen goal-id)
+          (recur frontier seen)
+          (recur (into frontier (get children-by-goal goal-id []))
+                 (conj seen goal-id))))
+      seen)))
+
+(defn reverse-leaf-branches
+  "Find weak planning leafs reachable from the selected failed top-level goal.
+
+  This corrects the earlier shortcut of scanning the entire context tree. The
+  search is scoped to the selected failed goal's `:intends` structure, and it
+  returns one candidate per weak leaf, ordered by inverse strength."
+  [world {:keys [old-context-id old-top-level-goal-id]}]
+  (let [goal-facts (plan-goal-facts world old-context-id old-top-level-goal-id)
+        goal-facts-by-id (into {} (map (juxt fact-id identity)) goal-facts)
+        children-by-goal (reduce (fn [acc {:keys [from-goal-id to-goal-id]}]
+                                   (update acc from-goal-id (fnil conj []) to-goal-id))
+                                 {}
+                                 (plan-intends-facts world
+                                                     old-context-id
+                                                     old-top-level-goal-id))
+        reachable-ids (reachable-goal-ids children-by-goal old-top-level-goal-id)]
+    (->> reachable-ids
+         (keep goal-facts-by-id)
+         (filter (fn [goal-fact]
+                   (empty? (get children-by-goal (fact-id goal-fact) []))))
+         (keep (fn [goal-fact]
+                 (let [strength (goal-strength world goal-fact)]
+                   (when (< strength reverse-leaf-threshold)
+                     {:old-context-id (or (:activation-context goal-fact)
+                                          old-context-id)
+                      :old-top-level-goal-id old-top-level-goal-id
+                      :leaf-goal-id (fact-id goal-fact)
+                      :leaf-strength strength
+                      :ordering (/ 1.0 (max strength 1.0e-9))
+                      :objective-facts (goal-objective-facts goal-fact)
+                      :selection-policy reverse-leaf-policy
+                      :selection-reasons (cond-> [:intends_leaf
+                                                  :weak_assumption]
+                                           (seq (goal-objective-facts goal-fact))
+                                           (conj :objective_retraction))}))))
+         (sort-by (juxt (comp - :ordering)
+                        (comp str :leaf-goal-id)))
+         vec)))
+
 (defn- selected-goal-ids
   [{:keys [failed-goal-id old-top-level-goal-id]}]
   (->> [failed-goal-id old-top-level-goal-id]
@@ -211,6 +299,32 @@
      :counterfactual-goal-id (:goal-id cause)
      :counterfactual-policy (:selection-policy cause)
      :counterfactual-reasons (:selection-reasons cause)}))
+
+(defn reverse-leafs
+  "Sprout one alternative-past branch per weak leaf under the selected failed
+  top-level goal, retracting the leaf objective in each branch to force
+  replanning."
+  [world {:keys [input-facts]
+          :or {input-facts []}
+          :as reversal-target}]
+  (reduce (fn [[current-world branch-results] branch]
+            (let [[next-world sprouted-context-id]
+                  (reversal-sprout-alternative
+                   current-world
+                   {:old-context-id (:old-context-id branch)
+                    :old-top-level-goal-id (:old-top-level-goal-id reversal-target)
+                    :new-context-id (:new-context-id reversal-target)
+                    :new-top-level-goal-id (:new-top-level-goal-id reversal-target)
+                    :ordering (:ordering branch)
+                    :input-facts input-facts
+                    :retract-facts (:objective-facts branch)})]
+              [next-world
+               (conj branch-results
+                     (assoc branch
+                            :sprouted-context-id sprouted-context-id
+                            :retracted-fact-ids (mapv fact-id (:objective-facts branch))))]))
+          [world []]
+          (reverse-leaf-branches world reversal-target)))
 
 (defn- retract-facts
   [world context-id facts]
@@ -341,11 +455,14 @@
 
   Optional keys:
   - `:ordering` -> branch ordering used by backtracking
-  - `:input-facts` -> state facts asserted into the alternative past"
+  - `:input-facts` -> state facts asserted into the alternative past
+  - `:retract-facts` -> shaky leaf assumptions removed from the branch"
   [world {:keys [old-context-id ordering input-facts]
-          :or {input-facts []}
+          :or {input-facts []
+               retract-facts []}
           :as opts}]
-  (let [[world sprouted-context-id] (sprout-alternative-past world opts)
+  (let [retraction-facts (vec (:retract-facts opts []))
+        [world sprouted-context-id] (sprout-alternative-past world opts)
         world (cond-> world
                 (some? ordering)
                 (assoc-in [:contexts sprouted-context-id :ordering] ordering))
@@ -353,10 +470,15 @@
                         (cx/assert-fact current-world sprouted-context-id fact))
                       world
                       input-facts)
+        world (reduce (fn [current-world fact]
+                        (cx/retract-fact current-world sprouted-context-id fact))
+                      world
+                      retraction-facts)
         world (update world :mutation-events
                       (fnil conj [])
                       {:family :reversal
                        :source-context old-context-id
                        :target-context sprouted-context-id
-                       :input-facts (vec input-facts)})]
+                       :input-facts (vec input-facts)
+                       :retracted-facts retraction-facts})]
     [world sprouted-context-id]))

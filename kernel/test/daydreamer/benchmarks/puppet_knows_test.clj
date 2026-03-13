@@ -23,9 +23,15 @@
       (is (= (name (:old-context-id benchmark-state))
              (get-in cycles [0 "selection" "reversal_source_context"])))
       (is (= (name (:old-top-level-goal-id benchmark-state))
+             (get-in cycles [0 "selection" "reversal_target_goal"])))
+      (is (= (name (:old-leaf-goal-id benchmark-state))
              (get-in cycles [0 "selection" "reversal_leaf_goal"])))
       (is (= "emotion_then_depth"
+             (get-in cycles [0 "selection" "reversal_target_policy"])))
+      (is (= "intends_weak_leaf"
              (get-in cycles [0 "selection" "reversal_leaf_policy"])))
+      (is (= ["performance_stays_hidden"]
+             (get-in cycles [0 "selection" "reversal_leaf_retracted_facts"])))
       (is (= (name (:preferred-cause-id benchmark-state))
              (get-in cycles [0 "selection" "reversal_counterfactual_source"])))
       (is (= "stored_priority"
@@ -35,9 +41,14 @@
       (is (= ["performance_is_admitted" "s4_the_ring"]
              (mapv #(get % "id")
                    (get-in cycles [0 "mutations" 0 "input-facts"]))))
+      (is (= ["performance_stays_hidden"]
+             (mapv #(get % "id")
+                   (get-in cycles [0 "mutations" 0 "retracted-facts"]))))
       (let [reversal-branch-id (first (get-in world [:trace 0 :sprouted]))]
         (is (= true (get-in world [:contexts reversal-branch-id :alternative-past?])))
-        (is (= true (get-in world [:contexts reversal-branch-id :pseudo-sprout?])))))
+        (is (= true (get-in world [:contexts reversal-branch-id :pseudo-sprout?])))
+        (is (not (contains? (get-in world [:contexts reversal-branch-id :all-obs])
+                            (:leaf-objective-fact benchmark-state))))))
     (testing "the key transition is revenge into ring rehearsal"
       (is (= "repercussions" (get-in cycles [0 "selected_goal" "goal_type"])))
       (is (= "revenge" (get-in cycles [1 "selected_goal" "goal_type"])))

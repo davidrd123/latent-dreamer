@@ -61,10 +61,13 @@
         old-leaf-goal-id :g_fixture_old_leaf
         other-goal-id :g_fixture_other_plan
         preferred-cause-id :fc_admit_performance
+        leaf-objective-fact {:fact/type :assumption
+                             :fact/id :performance_stays_hidden}
         facts [{:fact/type :situation
                 :fact/id :s1_seeing_through}
                {:fact/type :situation
                 :fact/id :s3_the_edge}
+               leaf-objective-fact
                {:fact/type :emotion
                 :emotion-id :e_fixture_apparatus_dread
                 :strength 0.74}
@@ -80,7 +83,9 @@
                 :goal-id old-leaf-goal-id
                 :top-level-goal old-top-level-goal-id
                 :status :runable
-                :activation-context old-context-id}
+                :activation-context old-context-id
+                :strength 0.32
+                :objective-fact leaf-objective-fact}
                {:fact/type :goal
                 :goal-id other-goal-id
                 :top-level-goal other-goal-id
@@ -111,6 +116,8 @@
         world (assert-facts world old-context-id facts)]
     [world {:old-context-id old-context-id
             :old-top-level-goal-id old-top-level-goal-id
+            :old-leaf-goal-id old-leaf-goal-id
+            :leaf-objective-fact leaf-objective-fact
             :preferred-cause-id preferred-cause-id
             :expected-counterfactual-facts [{:fact/type :counterfactual
                                              :fact/id :performance_is_admitted}

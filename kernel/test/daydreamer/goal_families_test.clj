@@ -16,6 +16,14 @@
   {:fact/type :counterfactual
    :fact/id :wall_was_open})
 
+(def leaf-objective-a
+  {:fact/type :assumption
+   :fact/id :wall_is_open})
+
+(def leaf-objective-b
+  {:fact/type :assumption
+   :fact/id :lights_stay_low})
+
 (defn emotion-fact
   [emotion-id]
   {:fact/type :emotion
@@ -29,12 +37,15 @@
    :to-id to-id})
 
 (defn goal-fact
-  [goal-id top-level-goal status activation-context]
-  {:fact/type :goal
-   :goal-id goal-id
-   :top-level-goal top-level-goal
-   :status status
-   :activation-context activation-context})
+  ([goal-id top-level-goal status activation-context]
+   (goal-fact goal-id top-level-goal status activation-context {}))
+  ([goal-id top-level-goal status activation-context extras]
+   (merge {:fact/type :goal
+           :goal-id goal-id
+           :top-level-goal top-level-goal
+           :status status
+           :activation-context activation-context}
+          extras)))
 
 (defn intends-fact
   [from-goal-id to-goal-id top-level-goal]
@@ -235,7 +246,8 @@
     (is (= [{:family :reversal
              :source-context old-context-id
              :target-context sprouted-context-id
-             :input-facts [counterfactual-fact]}]
+             :input-facts [counterfactual-fact]
+             :retracted-facts []}]
            (:mutation-events world)))))
 
 (deftest reversal-leaf-candidates-discover-and-rank-failed-leafs
@@ -306,3 +318,77 @@
              (:counterfactual-cause-id selected-cause)))
       (is (= :stored_priority
              (:counterfactual-policy selected-cause))))))
+
+(deftest reverse-leafs-follow-intends-and-retract-weak-leaf-objectives
+  (let [[world root-id] (world-with-root)
+        [world old-context-id] (cx/sprout world root-id)
+        old-top-level-goal-id :g-old
+        weak-leaf-a-id :g-old-leaf-a
+        weak-leaf-b-id :g-old-leaf-b
+        strong-leaf-id :g-old-strong
+        facts [leaf-objective-a
+               leaf-objective-b
+               mission-fact
+               (goal-fact old-top-level-goal-id
+                          old-top-level-goal-id
+                          :failed
+                          old-context-id)
+               (goal-fact weak-leaf-a-id
+                          old-top-level-goal-id
+                          :runable
+                          old-context-id
+                          {:strength 0.3
+                           :objective-fact leaf-objective-a})
+               (goal-fact weak-leaf-b-id
+                          old-top-level-goal-id
+                          :runable
+                          old-context-id
+                          {:strength 0.4
+                           :objective-fact leaf-objective-b})
+               (goal-fact strong-leaf-id
+                          old-top-level-goal-id
+                          :runable
+                          old-context-id
+                          {:strength 0.8
+                           :objective-fact mission-fact})
+               (intends-fact old-top-level-goal-id weak-leaf-a-id old-top-level-goal-id)
+               (intends-fact old-top-level-goal-id weak-leaf-b-id old-top-level-goal-id)
+               (intends-fact old-top-level-goal-id strong-leaf-id old-top-level-goal-id)]
+        world (reduce (fn [current-world fact]
+                        (cx/assert-fact current-world old-context-id fact))
+                      world
+                      facts)
+        [world new-top-level-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.9
+          :main-motiv :e-new})
+        reversal-target {:old-context-id old-context-id
+                         :old-top-level-goal-id old-top-level-goal-id
+                         :new-context-id (get-in world [:goals new-top-level-goal-id :next-cx])
+                         :new-top-level-goal-id new-top-level-goal-id
+                         :input-facts [counterfactual-fact]}
+        leaf-branches (families/reverse-leaf-branches world reversal-target)
+        [world branch-results] (families/reverse-leafs world reversal-target)]
+    (testing "only weak leaf goals under the failed top-level goal qualify"
+      (is (= [weak-leaf-a-id weak-leaf-b-id]
+             (mapv :leaf-goal-id leaf-branches)))
+      (is (= [weak-leaf-a-id weak-leaf-b-id]
+             (mapv :leaf-goal-id branch-results))))
+    (testing "ordering is inverse strength"
+      (is (= [(/ 1.0 0.3) (/ 1.0 0.4)]
+             (mapv :ordering leaf-branches))))
+    (testing "each sprouted branch retracts its own leaf objective and keeps counterfactual input"
+      (is (= 2 (count branch-results)))
+      (doseq [{:keys [sprouted-context-id objective-facts retracted-fact-ids]} branch-results]
+        (is (cx/fact-true? world sprouted-context-id counterfactual-fact))
+        (is (= (mapv :fact/id objective-facts) retracted-fact-ids))
+        (doseq [objective-fact objective-facts]
+          (is (not (cx/fact-true? world sprouted-context-id objective-fact))))))
+    (testing "mutation events capture the retracted weak assumptions"
+      (is (= 2 (count (:mutation-events world))))
+      (is (= [[leaf-objective-a] [leaf-objective-b]]
+             (mapv :retracted-facts (:mutation-events world)))))))
