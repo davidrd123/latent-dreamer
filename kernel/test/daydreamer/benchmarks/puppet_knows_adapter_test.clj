@@ -66,3 +66,46 @@
            (get-in latest [:selection :adapter_policy])))
     (is (= []
            (get-in latest [:selection :adapter_active_indices])))))
+
+(deftest apply-branch-derived-state-projects-rationalization-facts
+  (let [[world branch-id] (cx/sprout (runner/initial-world) :cx-1)
+        world (-> world
+                  (cx/assert-fact branch-id {:fact/type :rationalization
+                                             :fact/id :seam_is_honesty})
+                  (assoc :trace [{:cycle-num 1
+                                  :selection {}
+                                  :situations {:s1_seeing_through {:activation 0.31
+                                                                   :ripeness 0.62
+                                                                   :hope 0.18
+                                                                   :threat 0.41}
+                                               :s4_the_ring {:activation 0.22
+                                                             :ripeness 0.48
+                                                             :hope 0.38
+                                                             :threat 0.14}}}
+                                 {:cycle-num 2
+                                  :selected-goal {:id :g-2
+                                                  :goal-type :rationalization
+                                                  :situation-id :s1_seeing_through}
+                                  :selection {:rationalization_branch_context branch-id}
+                                  :situations {}
+                                  :active-indices []
+                                  :retrievals []}]))
+        world (adapter/apply-branch-derived-state world :g-2 {})
+        latest (peek (:trace world))]
+    (testing "adapter-visible facts include rationalization branch facts"
+      (is (= ["seam_is_honesty"]
+             (get-in latest [:selection :adapter_visible_fact_ids]))))
+    (testing "rationalization branch facts lift hope and keep focus on the seam"
+      (is (= :branch_visible_facts
+             (get-in latest [:selection :adapter_policy])))
+      (is (= :s1_seeing_through
+             (get-in latest [:selection :adapter_selected_situation])))
+      (is (= :s1_seeing_through
+             (get-in latest [:selected-goal :situation-id])))
+      (is (= [:honesty :clarity]
+             (:active-indices latest)))
+      (is (> (get-in latest [:situations :s1_seeing_through :hope])
+             0.18))
+      (is (< (get-in latest [:situations :s1_seeing_through :threat])
+             0.41))
+      (is (nil? (:chosen-node-id latest))))))

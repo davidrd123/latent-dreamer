@@ -496,7 +496,8 @@
                     :priority (double (or (:priority fact) 0.0))
                     :reframe-fact-count (count reframe-facts)
                     :reframe-facts reframe-facts
-                    :situation-id (rationalization-frame-situation-id reframe-facts)
+                    :situation-id (or (:situation-id fact)
+                                      (rationalization-frame-situation-id reframe-facts))
                     :selection-policy rationalization-frame-policy
                     :selection-reasons (cond-> [:stored_rationalization_frame
                                                 :matching_failed_goal]
@@ -721,7 +722,8 @@
                        :source-context context-id
                        :target-context sprouted-context-id
                        :seed-episode-id episode-id
-                       :reminded-episode-ids (vec reminded-episode-ids)})]
+                       :reminded-episode-ids (vec reminded-episode-ids)
+                       :active-indices (vec (:recent-indices world))})]
     [world {:sprouted-context-id sprouted-context-id
             :episode-id episode-id
             :reminded-episode-ids (vec reminded-episode-ids)

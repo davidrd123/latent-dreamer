@@ -159,6 +159,26 @@
             "ripeness" 0.8}
            (get-in exported ["situations" "s1_seeing_through"])))))
 
+(deftest reporter-cycle-emits-roving-episodic-branch-payload
+  (let [snapshot {:cycle-num 7
+                  :selected-goal {:id :g-7
+                                  :goal-type :roving
+                                  :strength 0.61
+                                  :situation-id :s3_the_wait}
+                  :mutations [{:family :roving
+                               :source-context :cx-3
+                               :target-context :cx-4
+                               :seed-episode-id :ep-8
+                               :reminded-episode-ids [:ep-9]
+                               :active-indices [:aurora :light :horizon :wonder]}]}
+        exported (trace/reporter-cycle snapshot)]
+    (is (= "roving" (get-in exported ["branch_events" 0 "family"])))
+    (is (= [] (get-in exported ["branch_events" 0 "fact_ids"])))
+    (is (= ["ep-8" "ep-9"]
+           (get-in exported ["branch_events" 0 "episode_ids"])))
+    (is (= #{"aurora" "light" "horizon" "wonder"}
+           (set (get-in exported ["branch_events" 0 "active_indices"]))))))
+
 (deftest reporter-log-emits-top-level-schema
   (let [[world root-id] (world-with-root)
         [world goal-id] (goals/activate-top-level-goal

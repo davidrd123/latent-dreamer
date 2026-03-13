@@ -11,6 +11,7 @@
             [clojure.string :as str]
             [daydreamer.benchmarks.puppet-knows :as puppet]
             [daydreamer.benchmarks.puppet-knows-adapter :as adapter]
+            [daydreamer.context :as cx]
             [daydreamer.control :as control]
             [daydreamer.episodic-memory :as episodic]
             [daydreamer.goal-families :as families]
@@ -31,6 +32,14 @@
 
 (def ^:private autonomous-started-at
   "2026-03-12T12:30:00Z")
+
+(def ^:private autonomous-rationalization-frames
+  {:s1_seeing_through {:priority 0.78
+                       :reframe-facts [{:fact/type :rationalization
+                                        :fact/id :seam_is_honesty}]}
+   :s4_the_ring {:priority 0.88
+                 :reframe-facts [{:fact/type :rationalization
+                                  :fact/id :ring_is_honest_stage}]}})
 
 (defn- cwd-file
   []
@@ -592,6 +601,56 @@
     :repercussions {:threat 0.08 :grief 0.03}
     {}))
 
+(defn- autonomous-rationalization-frame
+  [situation-id]
+  (or (get autonomous-rationalization-frames situation-id)
+      {:priority 0.72
+       :reframe-facts [{:fact/type :rationalization
+                        :fact/id :present_is_reframed}]}))
+
+(defn- autonomous-cycle-id
+  [world situation-id suffix]
+  (keyword (str (name situation-id) "-" suffix "-" (:cycle world))))
+
+(defn- seed-autonomous-rationalization-bridge
+  [world goal-id context-id]
+  (let [goal (get-in world [:goals goal-id])
+        situation-id (:situation-id goal)
+        situation (get-in world [:situations-state situation-id] {})
+        {:keys [priority reframe-facts]} (autonomous-rationalization-frame situation-id)
+        failed-goal-id (autonomous-cycle-id world situation-id "autonomous-failure")
+        emotion-id (autonomous-cycle-id world situation-id "autonomous-dread")
+        frame-id (autonomous-cycle-id world situation-id "autonomous-reframe")
+        trigger-strength (max 0.12 (negative-pressure situation))
+        facts [{:fact/type :goal
+                :goal-id failed-goal-id
+                :top-level-goal failed-goal-id
+                :status :failed
+                :activation-context context-id}
+               {:fact/type :emotion
+                :emotion-id emotion-id
+                :strength trigger-strength
+                :valence :negative
+                :affect :dread
+                :situation-id situation-id}
+               {:fact/type :dependency
+                :from-id emotion-id
+                :to-id failed-goal-id}
+               {:fact/type :rationalization-frame
+                :fact/id frame-id
+                :goal-id failed-goal-id
+                :priority priority
+                :situation-id situation-id
+                :reframe-facts reframe-facts}]
+        world (reduce (fn [current-world fact]
+                        (cx/assert-fact current-world context-id fact))
+                      world
+                      facts)]
+    [world {:trigger-context-id context-id
+            :failed-goal-id failed-goal-id
+            :frame-id frame-id
+            :priority priority}]))
+
 (defn- decay-situation
   [situation]
   (-> situation
@@ -721,6 +780,42 @@
                                 :roving_active_indices (:active-indices roving-result)
                                 :roving_branch_context (:sprouted-context-id roving-result)}})]
         [world :roving])
+
+      :rationalization
+      (let [context-id (or (goals/get-next-context world goal-id)
+                           (:reality-lookahead world)
+                           (:reality-context world))
+            [world rationalization-spec]
+            (seed-autonomous-rationalization-bridge world goal-id context-id)
+            [world rationalization-result]
+            (families/rationalization-plan world
+                                           {:goal-id goal-id
+                                            :context-id context-id
+                                            :trigger-context-id (:trigger-context-id rationalization-spec)
+                                            :failed-goal-id (:failed-goal-id rationalization-spec)
+                                            :frame-id (:frame-id rationalization-spec)
+                                            :ordering 0.72})
+            world (trace/merge-latest-cycle
+                   world
+                   {:sprouted [(:sprouted-context-id rationalization-result)]
+                    :mutations (:mutation-events world)
+                    :emotion-shifts (:emotion-shifts rationalization-result)
+                    :emotional-state (:emotional-state rationalization-result)
+                    :selection {:goal_family :rationalization
+                                :rationalization_selection_policy (:selection-policy rationalization-result)
+                                :rationalization_frame_id (:frame-id rationalization-result)
+                                :rationalization_frame_goal (:frame-goal-id rationalization-result)
+                                :rationalization_frame_reasons (:selection-reasons rationalization-result)
+                                :rationalization_reframe_fact_ids (:reframe-fact-ids rationalization-result)
+                                :rationalization_branch_context (:sprouted-context-id rationalization-result)
+                                :rationalization_diversion_policy (:diversion-policy rationalization-result)
+                                :rationalization_trigger_emotion_id (:trigger-emotion-id rationalization-result)
+                                :rationalization_trigger_emotion_before (:trigger-emotion-before rationalization-result)
+                                :rationalization_trigger_emotion_after (:trigger-emotion-after rationalization-result)
+                                :rationalization_hope_emotion_id (:hope-emotion-id rationalization-result)
+                                :rationalization_hope_strength (:hope-strength rationalization-result)
+                                :rationalization_hope_situation (:hope-situation-id rationalization-result)}})]
+        [world :rationalization])
 
       [world nil])))
 

@@ -25,3 +25,36 @@
     (testing "the run is not stuck in one situation"
       (is (> (count (set selected-situations))
              1)))))
+
+(deftest run-benchmark-emits-rationalization-emotion-payloads
+  (let [{:keys [log]} (autonomous/run-benchmark {:cycles 2})
+        cycles (get log "cycles")
+        first-cycle (first cycles)
+        second-cycle (second cycles)]
+    (testing "the opening autonomous cycles execute rationalization rather than flat wins"
+      (is (= "rationalization"
+             (get-in first-cycle ["selected_goal" "goal_type"])))
+      (is (= "rationalization"
+             (get-in second-cycle ["selected_goal" "goal_type"])))
+      (is (= "branch_visible_facts"
+             (get-in first-cycle ["selection" "adapter_policy"])))
+      (is (= "s1_seeing_through"
+             (get-in first-cycle ["selection" "adapter_selected_situation"]))))
+    (testing "rationalization now exports real emotional change at the cycle level"
+      (is (= 2 (count (get first-cycle "emotion_shifts"))))
+      (is (= 2 (count (get first-cycle "emotional_state"))))
+      (is (= "s1_seeing_through-autonomous-dread-1"
+             (get-in first-cycle ["emotion_shifts" 0 "emotion_id"])))
+      (is (= "s1_seeing_through-autonomous-reframe-1-hope"
+             (get-in first-cycle ["emotion_shifts" 1 "emotion_id"])))
+      (is (< (get-in first-cycle ["emotion_shifts" 0 "to_strength"])
+             (get-in first-cycle ["emotion_shifts" 0 "from_strength"])))
+      (is (= "s1_seeing_through"
+             (get-in first-cycle ["emotional_state" 1 "situation_id"]))))
+    (testing "the rationalization branch now carries canonical trace payloads"
+      (is (= "rationalization"
+             (get-in first-cycle ["branch_events" 0 "family"])))
+      (is (= ["seam_is_honesty"]
+             (get-in first-cycle ["branch_events" 0 "fact_ids"])))
+      (is (= ["honesty" "clarity"]
+             (get-in first-cycle ["selection" "adapter_active_indices"]))))))

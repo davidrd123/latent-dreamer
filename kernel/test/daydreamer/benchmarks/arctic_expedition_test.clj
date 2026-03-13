@@ -30,6 +30,11 @@
       (is (= "roving" (get-in cycles [1 "mutations" 0 "family"])))
       (is (= "roving" (get-in cycles [1 "branch_events" 0 "family"])))
       (is (= [] (get-in cycles [1 "branch_events" 0 "fact_ids"])))
+      (is (= [(name (:pleasant-episode-id benchmark-state))
+              (name (:linked-episode-id benchmark-state))]
+             (get-in cycles [1 "branch_events" 0 "episode_ids"])))
+      (is (= #{"aurora" "light" "horizon" "wonder"}
+             (set (get-in cycles [1 "branch_events" 0 "active_indices"]))))
       (is (= "roving" (get-in cycles [1 "selected_goal" "goal_type"])))
       (is (= "s4_the_horizon"
              (get-in cycles [1 "selected_goal" "situation_id"])))
@@ -69,5 +74,10 @@
       (is (= ["aurora" "light" "horizon" "wonder"]
              (get-in cycles [1 "active_indices"])))
       (is (= "roving" (get-in cycles [1 "branch_events" 0 "family"])))
+      (is (= [(name (:pleasant-episode-id benchmark-state))
+              (name (:linked-episode-id benchmark-state))]
+             (get-in cycles [1 "branch_events" 0 "episode_ids"])))
+      (is (= #{"aurora" "light" "horizon" "wonder"}
+             (set (get-in cycles [1 "branch_events" 0 "active_indices"]))))
       (is (= [(name (:linked-episode-id benchmark-state))]
              (get-in cycles [1 "selection" "roving_reminded_episodes"]))))))

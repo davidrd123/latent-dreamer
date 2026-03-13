@@ -159,12 +159,22 @@
                                        (:reframe-facts mutation)))
           {retracted-fact-ids :fact-ids
            retracted-fact-types :fact-types}
-          (branch-fact-summary (:retracted-facts mutation))]
+          (branch-fact-summary (:retracted-facts mutation))
+          episode-ids (distinct-vec
+                       (concat [(:seed-episode-id mutation)]
+                               (:reminded-episode-ids mutation)))
+          active-indices (distinct-vec (:active-indices mutation))]
       (cond-> {:family (:family mutation)
                :source-context (:source-context mutation)
                :target-context target-context
                :fact-ids fact-ids
                :fact-types fact-types}
+        (seq episode-ids)
+        (assoc :episode-ids episode-ids)
+
+        (seq active-indices)
+        (assoc :active-indices active-indices)
+
         (seq retracted-fact-ids)
         (assoc :retracted-fact-ids retracted-fact-ids
                :retracted-fact-types retracted-fact-types)))))
@@ -183,6 +193,8 @@
    "target_context" (some-> (:target-context event) scalar->json)
    "fact_ids" (json-value (or (:fact-ids event) []))
    "fact_types" (json-value (or (:fact-types event) []))
+   "episode_ids" (json-value (or (:episode-ids event) []))
+   "active_indices" (json-value (or (:active-indices event) []))
    "retracted_fact_ids" (json-value (or (:retracted-fact-ids event) []))
    "retracted_fact_types" (json-value (or (:retracted-fact-types event) []))})
 

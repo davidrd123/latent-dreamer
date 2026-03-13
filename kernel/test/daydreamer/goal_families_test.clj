@@ -414,7 +414,8 @@
                :source-context context-id
                :target-context sprouted-context-id
                :seed-episode-id pleasant-episode-id
-               :reminded-episode-ids [linked-episode-id]}]
+               :reminded-episode-ids [linked-episode-id]
+               :active-indices [:calm :sunlight]}]
              (:mutation-events world))))))
 
 (deftest rationalization-activation-candidates-detect-framed-failures

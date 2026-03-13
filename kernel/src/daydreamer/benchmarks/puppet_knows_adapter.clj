@@ -16,14 +16,34 @@
                                            :ripeness 0.05
                                            :hope 0.06}
                              :s1_seeing_through {:activation -0.05
-                                                 :anger -0.05}}})
+                                                 :anger -0.05}}
+   :seam_is_honesty {:s1_seeing_through {:activation 0.10
+                                         :ripeness 0.07
+                                         :hope 0.11
+                                         :threat -0.08}
+                     :s4_the_ring {:activation 0.03
+                                   :hope 0.04}}
+   :ring_is_honest_stage {:s4_the_ring {:activation 0.11
+                                        :ripeness 0.08
+                                        :hope 0.12}
+                          :s1_seeing_through {:activation -0.04
+                                              :anger -0.04}}
+   :present_is_reframed {:s1_seeing_through {:hope 0.05
+                                             :threat -0.04}}})
 
 (def ^:private branch-fact->indices
   {:s4_the_ring [:ritual :sincerity :non_directed_light]
-   :performance_is_admitted [:performance :honesty]})
+   :performance_is_admitted [:performance :honesty]
+   :seam_is_honesty [:honesty :clarity]
+   :ring_is_honest_stage [:ritual :honesty :performance]
+   :present_is_reframed [:clarity]})
 
 (def ^:private ordered-bridge-facts
-  [:s4_the_ring :performance_is_admitted])
+  [:s4_the_ring
+   :performance_is_admitted
+   :ring_is_honest_stage
+   :seam_is_honesty
+   :present_is_reframed])
 
 (def ^:private honest-ring-overlap
   [:honesty :performance :ritual])
@@ -44,11 +64,12 @@
 (defn- branch-context-id
   [world]
   (or (get-in world [:trace (latest-trace-index world) :selection :reversal_branch_context])
-      (get-in world [:trace (latest-trace-index world) :selection :roving_branch_context])))
+      (get-in world [:trace (latest-trace-index world) :selection :roving_branch_context])
+      (get-in world [:trace (latest-trace-index world) :selection :rationalization_branch_context])))
 
 (defn- fact-id
   [fact]
-  (when (contains? #{:situation :counterfactual} (:fact/type fact))
+  (when (contains? #{:situation :counterfactual :rationalization} (:fact/type fact))
     (:fact/id fact)))
 
 (defn- branch-fact-ids
@@ -90,6 +111,10 @@
   [fact-ids situations]
   (or (when (contains? fact-ids :s4_the_ring)
         :s4_the_ring)
+      (when (contains? fact-ids :ring_is_honest_stage)
+        :s4_the_ring)
+      (when (contains? fact-ids :seam_is_honesty)
+        :s1_seeing_through)
       (when-let [[situation-id _]
                  (first
                   (sort-by (fn [[candidate-id situation-state]]
