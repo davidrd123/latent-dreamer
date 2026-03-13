@@ -77,6 +77,57 @@
     (is (= [g1] (mapv :id (get-in world [:trace 0 :top-candidates]))))
     (is (= :highest_strength (get-in world [:trace 0 :goal-selection])))))
 
+(deftest run-cycle-activates-family-goals-before-competition
+  (let [[world root-id] (world-with-root)
+        [world failed-context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        weak-leaf-id :g-failed-leaf
+        leaf-objective {:fact/type :assumption
+                        :fact/id :the_set_stays_closed}
+        world (-> world
+                  (assoc :auto-activate-family-goals? true)
+                  (cx/assert-fact failed-context-id leaf-objective)
+                  (cx/assert-fact failed-context-id {:fact/type :goal
+                                                     :goal-id failed-goal-id
+                                                     :top-level-goal failed-goal-id
+                                                     :status :failed
+                                                     :activation-context failed-context-id})
+                  (cx/assert-fact failed-context-id {:fact/type :goal
+                                                     :goal-id weak-leaf-id
+                                                     :top-level-goal failed-goal-id
+                                                     :status :runable
+                                                     :activation-context failed-context-id
+                                                     :strength 0.3
+                                                     :objective-fact leaf-objective})
+                  (cx/assert-fact failed-context-id {:fact/type :intends
+                                                     :from-goal-id failed-goal-id
+                                                     :to-goal-id weak-leaf-id
+                                                     :top-level-goal failed-goal-id})
+                  (cx/assert-fact failed-context-id {:fact/type :emotion
+                                                     :emotion-id :e-shock
+                                                     :strength 0.72
+                                                     :valence :negative})
+                  (cx/assert-fact failed-context-id {:fact/type :dependency
+                                                     :from-id :e-shock
+                                                     :to-id failed-goal-id}))
+        [world selected-goal-id] (control/run-cycle world)
+        activated-goals (mapv #(get-in world [:goals (:goal-id %)])
+                              (:activation-events world))]
+    (testing "reversal and roving are inferred from the failed-goal state"
+      (is (= 2 (count (:activation-events world))))
+      (is (= #{:reversal :roving}
+             (set (map :goal-type activated-goals)))))
+    (testing "activated goals carry trigger metadata and compete immediately"
+      (is (every? #(= failed-context-id (:trigger-context-id %)) activated-goals))
+      (is (every? #(= failed-goal-id (:trigger-failed-goal-id %)) activated-goals))
+      (is (= selected-goal-id (get-in world [:trace 0 :selected-goal :id])))
+      (is (= #{:reversal :roving}
+             (set (map :goal-type (get-in world [:trace 0 :top-candidates]))))))
+    (testing "trace records activation events for the cycle"
+      (is (= 2 (count (get-in world [:trace 0 :activations]))))
+      (is (= #{:reversal :roving}
+             (set (map :goal-type (get-in world [:trace 0 :activations]))))))))
+
 (deftest run-cycle-switches-to-daydreaming-when-performance-has-no-goals
   (let [[world _] (world-with-root)
         [world selected-goal] (control/run-cycle

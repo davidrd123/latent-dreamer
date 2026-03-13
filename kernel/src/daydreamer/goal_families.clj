@@ -41,6 +41,9 @@
 (def ^:private roving-emotion-threshold
   0.04)
 
+(def ^:private reversal-emotion-threshold
+  0.5)
+
 (def ^:private roving-plan-policy
   :pleasant_episode_seed)
 
@@ -131,6 +134,23 @@
   [world context-id]
   (empty? (cx/children world context-id)))
 
+(defn- strongest-emotion
+  [world context-id predicate]
+  (->> (cx/visible-facts world context-id)
+       (filter emotion-fact?)
+       (filter predicate)
+       (sort-by (juxt (comp - #(double (or % 0.0)) :strength)
+                      (comp str fact-id)))
+       first))
+
+(defn- primary-situation-id
+  [world context-id]
+  (->> (cx/visible-facts world context-id)
+       (filter #(fact-type? % :situation))
+       (map fact-id)
+       (sort-by str)
+       first))
+
 (defn reversal-leaf-candidates
   "Find candidate failure leaf contexts for REVERSAL.
 
@@ -172,6 +192,34 @@
   "Choose the strongest candidate failure leaf for REVERSAL."
   [world]
   (first (reversal-leaf-candidates world)))
+
+(defn reversal-activation-candidates
+  "Find failed-goal / negative-emotion pairs strong enough to activate
+  REVERSAL."
+  [world]
+  (->> (reversal-leaf-candidates world)
+       (keep (fn [candidate]
+               (when-let [emotion-fact (strongest-emotion world
+                                                          (:old-context-id candidate)
+                                                          negative-emotion-fact?)]
+                 (let [emotion-strength (double (or (:strength emotion-fact) 0.0))]
+                   (when (> emotion-strength reversal-emotion-threshold)
+                     (cond-> (assoc candidate
+                                    :emotion-id (fact-id emotion-fact)
+                                    :emotion-strength emotion-strength
+                                    :activation-policy :failed_goal_negative_emotion
+                                    :activation-reasons [:failed_goal
+                                                         :negative_emotion
+                                                         :reversal_candidate])
+                       (some? (primary-situation-id world (:old-context-id candidate)))
+                       (assoc :situation-id
+                              (primary-situation-id
+                               world
+                               (:old-context-id candidate)))))))))
+       (sort-by (juxt (comp - :emotion-strength)
+                      (comp str :old-context-id)
+                      (comp str :failed-goal-id)))
+       vec))
 
 (defn- goal-strength
   [world goal-fact]
@@ -353,6 +401,68 @@
   "Choose the strongest failed-goal / negative-emotion trigger for ROVING."
   [world]
   (first (roving-activation-candidates world)))
+
+(defn- existing-family-goal?
+  [world goal-type trigger-context-id failed-goal-id]
+  (some (fn [goal]
+          (and (= goal-type (:goal-type goal))
+               (not (contains? terminal-goal-statuses (:status goal)))
+               (= trigger-context-id (:trigger-context-id goal))
+               (= failed-goal-id (:trigger-failed-goal-id goal))))
+        (vals (:goals world))))
+
+(defn activate-family-goals
+  "Infer family-goal activations from the current world state.
+
+  This approximates Mueller's Theme rules as a pure pre-competition pass.
+  To keep the kernel deterministic and bounded, activate at most one candidate
+  per family per cycle."
+  [world]
+  (let [activation-context-id (or (:reality-lookahead world)
+                                  (:reality-context world))
+        candidates (keep identity
+                         [(when-let [candidate (first (reversal-activation-candidates world))]
+                            (assoc candidate :goal-type :reversal))
+                          (when-let [candidate (first (roving-activation-candidates world))]
+                            (assoc candidate :goal-type :roving))])]
+    (reduce
+     (fn [current-world {:keys [goal-type situation-id emotion-id emotion-strength
+                                selection-policy selection-reasons
+                                activation-policy activation-reasons
+                                context-id old-context-id failed-goal-id]}]
+       (let [trigger-context-id (or old-context-id context-id)]
+         (if (existing-family-goal? current-world
+                                    goal-type
+                                    trigger-context-id
+                                    failed-goal-id)
+           current-world
+           (let [[next-world goal-id]
+                 (goals/activate-top-level-goal
+                  current-world
+                  activation-context-id
+                  {:goal-type goal-type
+                   :planning-type :imaginary
+                   :strength emotion-strength
+                   :main-motiv emotion-id
+                   :situation-id situation-id
+                   :trigger-context-id trigger-context-id
+                   :trigger-failed-goal-id failed-goal-id
+                   :trigger-emotion-id emotion-id
+                   :trigger-emotion-strength emotion-strength
+                   :activation-policy (or activation-policy selection-policy)
+                   :activation-reasons (or activation-reasons selection-reasons)})]
+             (update next-world :activation-events
+                     (fnil conj [])
+                     {:goal-id goal-id
+                      :goal-type goal-type
+                      :trigger-context-id trigger-context-id
+                      :failed-goal-id failed-goal-id
+                      :emotion-id emotion-id
+                      :emotion-strength emotion-strength
+                      :activation-policy (or activation-policy selection-policy)
+                      :activation-reasons (or activation-reasons selection-reasons)})))))
+     world
+     candidates)))
 
 (defn- choose-roving-episode-id
   [world {:keys [episode-id episode-ids]}]

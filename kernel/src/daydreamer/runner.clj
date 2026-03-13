@@ -37,6 +37,7 @@
      :mutation-events []
      :termination-events []
      :roving-episodes []
+     :auto-activate-family-goals? false
      :reality-context root-id
      :reality-lookahead root-id
      :id-counter 1}))
@@ -54,6 +55,10 @@
 (defn- goal-context
   [world goal-id]
   (goals/get-next-context world goal-id))
+
+(defn- goal-type
+  [world goal-id]
+  (get-in world [:goals goal-id :goal-type]))
 
 (defn- create-scripted-sprouts
   [world goal-id sprout-specs]
@@ -207,6 +212,31 @@
                               :roving_branch_context (:sprouted-context-id roving-result)}})]
       [world (:sprouted-context-id roving-result)])))
 
+(defn- apply-automatic-family-plan
+  [world selected-goal-id script]
+  (if-not (:auto-family-plans? script)
+    [world nil]
+    (case (goal-type world selected-goal-id)
+      :reversal
+      (apply-scripted-reversal
+       world
+       selected-goal-id
+       {:discover-leaf? true
+        :derive-counterfactuals? true
+        :selection-policy (get-in world [:goals selected-goal-id :activation-policy])
+        :selection-reasons (get-in world [:goals selected-goal-id :activation-reasons])
+        :old-context-id (get-in world [:goals selected-goal-id :trigger-context-id])
+        :old-top-level-goal-id (get-in world [:goals selected-goal-id :trigger-failed-goal-id])
+        :failed-goal-id (get-in world [:goals selected-goal-id :trigger-failed-goal-id])
+        :context-depth (count (cx/ancestors world
+                                            (get-in world [:goals selected-goal-id :trigger-context-id])))
+        :emotion-pressure (get-in world [:goals selected-goal-id :trigger-emotion-strength])})
+
+      :roving
+      (apply-scripted-roving world selected-goal-id {})
+
+      [world nil])))
+
 (defn- enrich-latest-trace
   [world script]
   (trace/merge-latest-cycle
@@ -265,6 +295,12 @@
             [world _] (apply-scripted-roving world
                                              selected-goal-id
                                              (:roving-branch script))
+            [world _] (if (or (:reversal-branch script)
+                              (:roving-branch script))
+                        [world nil]
+                        (apply-automatic-family-plan world
+                                                     selected-goal-id
+                                                     script))
             [world sprout-ids]
             (create-scripted-sprouts world selected-goal-id (:sprouts script []))
             world (append-sprouted-contexts world sprout-ids)

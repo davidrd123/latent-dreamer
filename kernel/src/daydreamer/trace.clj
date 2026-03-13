@@ -94,18 +94,30 @@
    "planning_type" (some-> (:planning-type goal) scalar->json)
    "situation_id" (some-> (:situation-id goal) scalar->json)})
 
+(defn- reporter-activation
+  [activation]
+  {"goal_id" (some-> (:goal-id activation) scalar->json)
+   "goal_type" (some-> (:goal-type activation) scalar->json)
+   "trigger_context_id" (some-> (:trigger-context-id activation) scalar->json)
+   "failed_goal_id" (some-> (:failed-goal-id activation) scalar->json)
+   "emotion_id" (some-> (:emotion-id activation) scalar->json)
+   "emotion_strength" (:emotion-strength activation)
+   "activation_policy" (some-> (:activation-policy activation) scalar->json)
+   "activation_reasons" (json-value (:activation-reasons activation))})
+
 (defn cycle-snapshot
   "Build an internal cycle snapshot. Fields that are not yet produced by the
   kernel can be supplied explicitly by the caller."
   [world {:keys [goal-id selected-goal top-candidate-ids top-candidates
                  active-indices retrievals chosen-node-id selection
                  feedback-applied serendipity-bias situations context-id
-                 sprouted active-plan backtrack-events mutations
+                 sprouted active-plan backtrack-events activations mutations
                  terminations timestamp goal-selection]
           :or {active-indices []
                retrievals []
                active-plan []
                backtrack-events []
+               activations []
                mutations []
                situations {}
                goal-selection :highest_strength}}]
@@ -145,6 +157,7 @@
      :serendipity-bias serendipity-bias
      :situations situations
      :backtrack-events (vec backtrack-events)
+     :activations (vec activations)
      :mutations (vec mutations)
      :terminations (vec terminations)}))
 
@@ -202,6 +215,7 @@
    "chosen_node_id" (or (:chosen-node-id snapshot) "n/a")
    "selection" (json-value (:selection snapshot))
    "sprouted_contexts" (json-value (:sprouted snapshot))
+   "activations" (mapv reporter-activation (:activations snapshot))
    "mutations" (json-value (:mutations snapshot))
    "feedback_applied" (json-value (:feedback-applied snapshot))
    "serendipity_bias" (:serendipity-bias snapshot)

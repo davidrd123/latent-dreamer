@@ -66,3 +66,29 @@
     (testing "trace retains termination on the bridge cycles"
       (is (= :succeeded (get-in world [:trace 0 :terminations 0 :status])))
       (is (= :succeeded (get-in world [:trace 1 :terminations 0 :status]))))))
+
+(deftest run-semi-unscripted-benchmark-activates-family-goals
+  (let [{:keys [world log benchmark-state]}
+        (puppet/run-semi-unscripted-benchmark {:git_commit "abc123"})
+        cycles (get log "cycles")]
+    (testing "the semi-unscripted run still advances through the benchmark window"
+      (is (= [8 9 10] (mapv #(get % "cycle") cycles)))
+      (is (= 3 (count (:trace world)))))
+    (testing "family activation is now autonomous"
+      (is (= ["reversal" "roving"]
+             (mapv #(get % "goal_type")
+                   (get-in cycles [0 "activations"]))))
+      (is (= "reversal"
+             (get-in cycles [2 "selected_goal" "goal_type"]))))
+    (testing "cycle 10 executes a real reversal branch without scripted branch directives"
+      (is (= (name (:old-context-id benchmark-state))
+             (get-in cycles [2 "selection" "reversal_source_context"])))
+      (is (= (name (:old-leaf-goal-id benchmark-state))
+             (get-in cycles [2 "selection" "reversal_leaf_goal"])))
+      (is (= ["performance_stays_hidden"]
+             (get-in cycles [2 "selection" "reversal_leaf_retracted_facts"])))
+      (is (= (name (:preferred-cause-id benchmark-state))
+             (get-in cycles [2 "selection" "reversal_counterfactual_source"]))))
+    (testing "the benchmark diverges from the scripted handoff in an explicit, traceable way"
+      (is (= "revenge" (get-in cycles [1 "selected_goal" "goal_type"])))
+      (is (not= "rehearsal" (get-in cycles [2 "selected_goal" "goal_type"]))))))

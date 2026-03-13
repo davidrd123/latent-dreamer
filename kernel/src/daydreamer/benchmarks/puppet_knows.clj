@@ -7,6 +7,7 @@
   from revenge in s1 to rehearsal in s4, with cycle 8 included as the causal
   bridge from apparatus-dread into anger at the set."
   (:require [daydreamer.context :as cx]
+            [daydreamer.episodic-memory :as episodic]
             [daydreamer.runner :as runner]))
 
 (def fixture-relative-paths
@@ -47,6 +48,23 @@
     :main-motiv :e-honest-performance
     :situation-id :s4_the_ring}])
 
+(def semi-unscripted-goal-specs
+  [{:goal-type :repercussions
+    :planning-type :imaginary
+    :strength 0.86
+    :main-motiv :e-apparatus-dread
+    :situation-id :s3_the_edge}
+   {:goal-type :revenge
+    :planning-type :imaginary
+    :strength 0.82
+    :main-motiv :e-set-anger
+    :situation-id :s1_seeing_through}
+   {:goal-type :rehearsal
+    :planning-type :real
+    :strength 0.42
+    :main-motiv :e-honest-performance
+    :situation-id :s4_the_ring}])
+
 (defn- assert-facts
   [world context-id facts]
   (reduce (fn [current-world fact]
@@ -70,7 +88,8 @@
                leaf-objective-fact
                {:fact/type :emotion
                 :emotion-id :e_fixture_apparatus_dread
-                :strength 0.74}
+                :strength 0.74
+                :valence :negative}
                {:fact/type :dependency
                 :from-id :e_fixture_apparatus_dread
                 :to-id old-top-level-goal-id}
@@ -124,12 +143,35 @@
                                             {:fact/type :situation
                                              :fact/id :s4_the_ring}]}]))
 
+(defn- seed-roving-episodes
+  [world]
+  (let [[world pleasant-episode-id]
+        (episodic/add-episode world {:rule :puppet-knows-roving-seed})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :honesty {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :performance {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :crowd {:reminding? true}))
+        [world linked-episode-id]
+        (episodic/add-episode world {:rule :puppet-knows-roving-follow-on})
+        world (-> world
+                  (episodic/store-episode linked-episode-id :performance {:reminding? true})
+                  (episodic/store-episode linked-episode-id :ritual {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))]
+    [world {:pleasant-episode-id pleasant-episode-id
+            :linked-episode-id linked-episode-id}]))
+
 (defn- benchmark-goal-ids
   [goal-ids]
-  {:repercussions-goal-id (nth goal-ids 0)
-   :reversal-goal-id (nth goal-ids 1)
-   :revenge-goal-id (nth goal-ids 2)
-   :rehearsal-goal-id (nth goal-ids 3)})
+  {:repercussions-goal-id (nth goal-ids 0 nil)
+   :reversal-goal-id (nth goal-ids 1 nil)
+   :revenge-goal-id (nth goal-ids 2 nil)
+   :rehearsal-goal-id (nth goal-ids 3 nil)})
+
+(defn- semi-unscripted-goal-ids
+  [goal-ids]
+  {:repercussions-goal-id (nth goal-ids 0 nil)
+   :revenge-goal-id (nth goal-ids 1 nil)
+   :rehearsal-goal-id (nth goal-ids 2 nil)})
 
 (defn cycle-scripts
   "Three-cycle benchmark bridge:
@@ -278,10 +320,101 @@
           graph-counts
           overrides)))
 
+(defn semi-unscripted-benchmark-metadata
+  ([] (semi-unscripted-benchmark-metadata {}))
+  ([overrides]
+   (benchmark-metadata (merge {:benchmark "puppet_knows_semi_unscripted"} overrides))))
+
 (defn benchmark-world
   "Seed a world so the scripted session emits cycles 8, 9, and 10."
   []
   (assoc (runner/initial-world) :cycle 7))
+
+(defn semi-unscripted-cycle-scripts
+  []
+  [{:timestamp "2026-03-12T12:00:08Z"
+    :auto-family-plans? true
+    :active-indices [:edge :void :backstage :stored_scenery :consequence :darkness]
+    :feedback-applied {:director_concepts [:stored_scenery :apparatus]
+                       :situation_boosts {:s1_seeing_through 0.05}
+                       :notes "Stored scenery reads as apparatus and turns dread into anger at the set."}
+    :serendipity-bias 0.04
+    :situations {:s1_seeing_through {:activation 0.48
+                                     :ripeness 0.72
+                                     :anger 0.24
+                                     :hope 0.19
+                                     :threat 0.47}
+                 :s2_the_mission {:activation 0.31
+                                  :ripeness 0.52
+                                  :anger 0.10
+                                  :hope 0.71
+                                  :threat 0.34}
+                 :s3_the_edge {:activation 0.44
+                               :ripeness 0.43
+                               :anger 0.18
+                               :hope 0.11
+                               :threat 0.63}
+                 :s4_the_ring {:activation 0.03
+                               :ripeness 0.30
+                               :anger 0.17
+                               :hope 0.40
+                               :threat 0.22}}
+    :terminate {:status :succeeded}}
+   {:timestamp "2026-03-12T12:00:09Z"
+    :auto-family-plans? true
+    :active-indices [:ritual :combat :honesty :crowd :seam :anger :performance]
+    :feedback-applied {:director_concepts [:honesty :performance]
+                       :situation_boosts {:s4_the_ring 0.12}
+                       :valence_delta 0.04
+                       :surprise 0.06
+                       :notes "Revenge inside the ring wakes the honest performance frame."}
+    :serendipity-bias 0.06
+    :situations {:s1_seeing_through {:activation 0.55
+                                     :ripeness 0.76
+                                     :anger 0.31
+                                     :hope 0.17
+                                     :threat 0.36}
+                 :s2_the_mission {:activation 0.29
+                                  :ripeness 0.50
+                                  :anger 0.10
+                                  :hope 0.66
+                                  :threat 0.33}
+                 :s3_the_edge {:activation 0.38
+                               :ripeness 0.40
+                               :anger 0.17
+                               :hope 0.09
+                               :threat 0.56}
+                 :s4_the_ring {:activation 0.15
+                               :ripeness 0.34
+                               :anger 0.21
+                               :hope 0.52
+                               :threat 0.20}}
+    :terminate {:status :succeeded}}
+   {:timestamp "2026-03-12T12:00:10Z"
+    :auto-family-plans? true
+    :active-indices [:ritual :honesty :crowd :performance :sincerity :non_directed_light]
+    :serendipity-bias 0.08
+    :situations {:s1_seeing_through {:activation 0.34
+                                     :ripeness 0.70
+                                     :anger 0.18
+                                     :hope 0.22
+                                     :threat 0.28}
+                 :s2_the_mission {:activation 0.36
+                                  :ripeness 0.55
+                                  :anger 0.10
+                                  :hope 0.68
+                                  :threat 0.30}
+                 :s3_the_edge {:activation 0.22
+                               :ripeness 0.37
+                               :anger 0.11
+                               :hope 0.16
+                               :threat 0.42}
+                 :s4_the_ring {:activation 0.33
+                               :ripeness 0.47
+                               :anger 0.16
+                               :hope 0.61
+                               :threat 0.14}}
+    :terminate {:status :succeeded}}])
 
 (defn run-benchmark
   "Run the scripted Puppet Knows benchmark and return
@@ -298,6 +431,29 @@
           world
           (cycle-scripts benchmark-state)
           (benchmark-metadata metadata-overrides))]
+     {:world world
+      :log log
+      :benchmark-state benchmark-state})))
+
+(defn run-semi-unscripted-benchmark
+  "Run the Puppet Knows benchmark with family activations and automatic family
+  plans enabled, but without scripted family branch invocation."
+  ([] (run-semi-unscripted-benchmark {}))
+  ([metadata-overrides]
+   (let [root-id :cx-1
+         [world reversal-setup] (seed-reversal-setup (assoc (benchmark-world)
+                                                            :auto-activate-family-goals? true)
+                                                     root-id)
+         [world roving-setup] (seed-roving-episodes world)
+         [world goal-ids] (runner/activate-goals world root-id semi-unscripted-goal-specs)
+         benchmark-state (merge reversal-setup
+                                roving-setup
+                                (semi-unscripted-goal-ids goal-ids))
+         {:keys [world log]}
+         (runner/run-scripted-session
+          world
+          (semi-unscripted-cycle-scripts)
+          (semi-unscripted-benchmark-metadata metadata-overrides))]
      {:world world
       :log log
       :benchmark-state benchmark-state})))

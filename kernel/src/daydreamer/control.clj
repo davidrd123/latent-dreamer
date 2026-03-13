@@ -9,12 +9,19 @@
   Source: dd_cntrl.cl (daydreamer-control0, daydreamer-control1,
           most-highly-motivated-goals, backtrack-top-level-goal)"
   (:require [daydreamer.context :as cx]
+            [daydreamer.goal-families :as families]
             [daydreamer.goals :as goals]
             [daydreamer.trace :as trace]))
 
 (def ^:private need-decay-factor 0.98)
 (def ^:private emotion-decay-factor 0.95)
 (def ^:private emotion-gc-threshold 0.15)
+
+(defn- maybe-activate-family-goals
+  [world]
+  (if (:auto-activate-family-goals? world)
+    (families/activate-family-goals world)
+    world))
 
 (defn set-state
   "Update the control state for the world."
@@ -87,6 +94,7 @@
   (assoc world
          :retrieval-events []
          :backtrack-events []
+         :activation-events []
          :mutation-events []
          :termination-events []))
 
@@ -232,7 +240,8 @@
                   prepare-cycle-events
                   need-decay
                   emotion-decay
-                  (update :cycle (fnil inc 0)))
+                  (update :cycle (fnil inc 0))
+                  maybe-activate-family-goals)
         candidates (goals/most-highly-motivated-goals world)]
     (cond
       (seq candidates)
@@ -247,6 +256,7 @@
                                        :selection {:policy :highest_strength}
                                        :retrievals (:retrieval-events world)
                                        :backtrack-events (:backtrack-events world)
+                                       :activations (:activation-events world)
                                        :mutations (:mutation-events world)
                                        :terminations (:termination-events world)})]
         [world selected-goal])
@@ -259,6 +269,7 @@
                                        :context-id (:reality-lookahead world)
                                        :retrievals (:retrieval-events world)
                                        :backtrack-events (:backtrack-events world)
+                                       :activations (:activation-events world)
                                        :mutations (:mutation-events world)
                                        :terminations (:termination-events world)})]
         [world nil])
@@ -273,6 +284,7 @@
                                        :context-id (:reality-lookahead world)
                                        :retrievals (:retrieval-events world)
                                        :backtrack-events (:backtrack-events world)
+                                       :activations (:activation-events world)
                                        :mutations (:mutation-events world)
                                        :terminations (:termination-events world)})]
         [world nil]))))

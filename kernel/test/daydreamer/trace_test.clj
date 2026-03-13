@@ -114,6 +114,8 @@
                                 :overlap [:s1_seeing_through]}]
                   :chosen-node-id "n09_tear_the_set"
                   :selection {:policy :highest_strength}
+                  :activations [{:goal-id :g-9
+                                 :goal-type :roving}]
                   :feedback-applied nil
                   :serendipity-bias 0.15
                   :situations {:s1_seeing_through {:activation 0.95
@@ -126,6 +128,7 @@
     (is (= ["dominant" "charged"]
            (get-in exported ["top_candidates" 0 "reasons"])))
     (is (= "ep-7" (get-in exported ["retrieved" 0 "node_id"])))
+    (is (= "roving" (get-in exported ["activations" 0 "goal_type"])))
     (is (= {"activation" 0.95
             "ripeness" 0.8}
            (get-in exported ["situations" "s1_seeing_through"])))))
