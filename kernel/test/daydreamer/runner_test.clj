@@ -400,6 +400,39 @@
            (get-in world [:trace 0 :selection :rationalization_frame_id])))
     (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
            (get-in world [:trace 0 :selection :rationalization_reframe_fact_ids])))
+    (is (= :divert_emot_to_tlg_bridge
+           (get-in world [:trace 0 :selection :rationalization_diversion_policy])))
+    (is (= :e-dread
+           (get-in world [:trace 0 :selection :rationalization_trigger_emotion_id])))
+    (is (= 0.82
+           (get-in world [:trace 0 :selection :rationalization_trigger_emotion_before])))
+    (is (= (- 0.82 (* 0.82 0.35 0.91))
+           (get-in world [:trace 0 :selection :rationalization_trigger_emotion_after])))
+    (is (= :rf-zone-mercy-hope
+           (get-in world [:trace 0 :selection :rationalization_hope_emotion_id])))
+    (is (= (* 0.82 0.35 0.91)
+           (get-in world [:trace 0 :selection :rationalization_hope_strength])))
+    (is (= :s5_the_guide
+           (get-in world [:trace 0 :selection :rationalization_hope_situation])))
+    (is (= [{:emotion-id :e-dread
+             :from-strength 0.82
+             :to-strength (- 0.82 (* 0.82 0.35 0.91))
+             :delta (- (- 0.82 (* 0.82 0.35 0.91)) 0.82)
+             :valence :negative
+             :affect nil
+             :situation-id nil
+             :context-id (first (get-in world [:trace 0 :sprouted]))
+             :role :trigger}
+            {:emotion-id :rf-zone-mercy-hope
+             :from-strength 0.0
+             :to-strength (* 0.82 0.35 0.91)
+             :delta (* 0.82 0.35 0.91)
+             :valence :positive
+             :affect :hope
+             :situation-id :s5_the_guide
+             :context-id (first (get-in world [:trace 0 :sprouted]))
+             :role :reframe}]
+           (get-in world [:trace 0 :emotion-shifts])))
     (let [sprouted-context-id (first (get-in world [:trace 0 :sprouted]))]
       (is (cx/fact-true? world sprouted-context-id
                          {:fact/type :situation

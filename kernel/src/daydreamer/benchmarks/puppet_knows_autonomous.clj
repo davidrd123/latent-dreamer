@@ -207,7 +207,7 @@
            (or (contains? indices :honesty)
                (contains? indices :performance)
                (contains? indices :ritual)))
-      [(if (> (:activation situation) 0.55) 0.20 0.12)
+      [(if (> (:activation situation) 0.55) 0.14 0.08)
        [:honest_place]]
 
       (and (= goal-type :reversal) (:inferred situation))
@@ -237,7 +237,8 @@
   [candidate situations world]
   (let [current-situation-id (first (current-goal-key world))
         current-goal-type (second (current-goal-key world))
-        visits (current-visits situations world)]
+        visits (current-visits situations world)
+        candidate-indices (set (get-in situations [(:situation-id candidate) :indices]))]
     (cond
       (and (= (:situation-id candidate) current-situation-id)
            (= (:goal-type candidate) current-goal-type)
@@ -254,6 +255,18 @@
       (-> candidate
           (update :strength #(clamp01 (+ (double %) (min 0.26 (* visits 0.06)))))
           (update :reasons conj :fatigue_escape))
+
+      (and (not= (:situation-id candidate) current-situation-id)
+           (= (:goal-type candidate) :rehearsal)
+           (contains? #{:rationalization :reversal} current-goal-type)
+           (>= visits 3)
+           (<= visits 5)
+           (or (contains? candidate-indices :mission)
+               (contains? candidate-indices :urgency)
+               (contains? candidate-indices :timer)))
+      (-> candidate
+          (update :strength #(clamp01 (+ (double %) (min 0.20 (* (max 0 (- visits 2)) 0.07)))))
+          (update :reasons conj :mission_escape))
 
       :else
       candidate)))

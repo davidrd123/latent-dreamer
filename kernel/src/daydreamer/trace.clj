@@ -105,6 +105,28 @@
    "activation_policy" (some-> (:activation-policy activation) scalar->json)
    "activation_reasons" (json-value (:activation-reasons activation))})
 
+(defn- reporter-emotion-shift
+  [shift]
+  {"emotion_id" (some-> (:emotion-id shift) scalar->json)
+   "from_strength" (:from-strength shift)
+   "to_strength" (:to-strength shift)
+   "delta" (:delta shift)
+   "valence" (some-> (:valence shift) scalar->json)
+   "affect" (some-> (:affect shift) scalar->json)
+   "situation_id" (some-> (:situation-id shift) scalar->json)
+   "context_id" (some-> (:context-id shift) scalar->json)
+   "role" (some-> (:role shift) scalar->json)})
+
+(defn- reporter-emotional-state
+  [emotion]
+  {"emotion_id" (some-> (:emotion-id emotion) scalar->json)
+   "strength" (:strength emotion)
+   "valence" (some-> (:valence emotion) scalar->json)
+   "affect" (some-> (:affect emotion) scalar->json)
+   "situation_id" (some-> (:situation-id emotion) scalar->json)
+   "context_id" (some-> (:context-id emotion) scalar->json)
+   "role" (some-> (:role emotion) scalar->json)})
+
 (defn cycle-snapshot
   "Build an internal cycle snapshot. Fields that are not yet produced by the
   kernel can be supplied explicitly by the caller."
@@ -112,13 +134,16 @@
                  active-indices retrievals chosen-node-id selection
                  feedback-applied serendipity-bias situations context-id
                  sprouted active-plan backtrack-events activations mutations
-                 terminations timestamp goal-selection]
+                 terminations timestamp goal-selection emotion-shifts
+                 emotional-state]
           :or {active-indices []
                retrievals []
                active-plan []
                backtrack-events []
                activations []
                mutations []
+               emotion-shifts []
+               emotional-state []
                situations {}
                goal-selection :highest_strength}}]
   (let [selected-goal (or selected-goal
@@ -159,6 +184,8 @@
      :backtrack-events (vec backtrack-events)
      :activations (vec activations)
      :mutations (vec mutations)
+     :emotion-shifts (vec emotion-shifts)
+     :emotional-state (vec emotional-state)
      :terminations (vec terminations)}))
 
 (defn append-cycle
@@ -217,6 +244,8 @@
    "sprouted_contexts" (json-value (:sprouted snapshot))
    "activations" (mapv reporter-activation (:activations snapshot))
    "mutations" (json-value (:mutations snapshot))
+   "emotion_shifts" (mapv reporter-emotion-shift (:emotion-shifts snapshot))
+   "emotional_state" (mapv reporter-emotional-state (:emotional-state snapshot))
    "feedback_applied" (json-value (:feedback-applied snapshot))
    "serendipity_bias" (:serendipity-bias snapshot)
    "situations" (json-value (:situations snapshot))})

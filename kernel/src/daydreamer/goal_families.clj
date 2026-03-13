@@ -56,7 +56,14 @@
 (def ^:private rationalization-plan-policy
   :stored_rationalization_frame)
 
-(declare reversal-sprout-alternative)
+(def ^:private rationalization-diversion-policy
+  :divert_emot_to_tlg_bridge)
+
+(def ^:private rationalization-diversion-scale
+  0.35)
+
+(declare reversal-sprout-alternative
+         retract-facts)
 
 (defn- fact-type?
   [fact expected]
@@ -92,6 +99,13 @@
        (or (= :negative (:valence fact))
            (= :negative (:polarity fact))
            (= true (:negative? fact)))))
+
+(defn- positive-emotion-fact?
+  [fact]
+  (and (emotion-fact? fact)
+       (or (= :positive (:valence fact))
+           (= :positive (:polarity fact))
+           (= true (:positive? fact)))))
 
 (defn- fact-id
   [fact]
@@ -163,6 +177,75 @@
        (map fact-id)
        (sort-by str)
        first))
+
+(defn- clamp-strength
+  [strength]
+  (-> (double (or strength 0.0))
+      (max 0.0)
+      (min 1.0)))
+
+(defn- linked-emotion-facts
+  [world context-id failed-goal-id predicate]
+  (let [facts (cx/visible-facts world context-id)
+        dependencies (filter dependency-fact? facts)]
+    (->> facts
+         (filter predicate)
+         (filter (fn [emotion-fact]
+                   (some (fn [dependency-fact]
+                           (let [ref-ids (fact-ref-ids dependency-fact)]
+                             (and (contains? ref-ids failed-goal-id)
+                                  (contains? ref-ids (fact-id emotion-fact)))))
+                         dependencies)))
+         (sort-by (juxt (comp - #(double (or % 0.0)) :strength)
+                        (comp str fact-id)))
+         vec)))
+
+(defn- select-trigger-emotion
+  [world trigger-context-id failed-goal-id]
+  (first (linked-emotion-facts world
+                               trigger-context-id
+                               failed-goal-id
+                               negative-emotion-fact?)))
+
+(defn- hope-emotion-id
+  [frame-id]
+  (keyword (str (name frame-id) "-hope")))
+
+(defn- emotion-state-entry
+  [fact role context-id]
+  {:emotion-id (fact-id fact)
+   :strength (double (or (:strength fact) 0.0))
+   :valence (or (:valence fact)
+                (when (positive-emotion-fact? fact) :positive)
+                (when (negative-emotion-fact? fact) :negative))
+   :affect (:affect fact)
+   :situation-id (:situation-id fact)
+   :context-id context-id
+   :role role})
+
+(defn- emotion-shift-entry
+  [{:keys [emotion-id from-strength to-strength valence affect
+           situation-id context-id role]}]
+  {:emotion-id emotion-id
+   :from-strength (double (or from-strength 0.0))
+   :to-strength (double (or to-strength 0.0))
+   :delta (- (double (or to-strength 0.0))
+             (double (or from-strength 0.0)))
+   :valence valence
+   :affect affect
+   :situation-id situation-id
+   :context-id context-id
+   :role role})
+
+(defn- replace-emotion-fact
+  [world context-id emotion-id new-fact]
+  (let [existing-facts (->> (cx/visible-facts world context-id)
+                            (filter emotion-fact?)
+                            (filter #(= emotion-id (fact-id %)))
+                            (sort-by pr-str)
+                            vec)
+        world (retract-facts world context-id existing-facts)]
+    (cx/assert-fact world context-id new-fact)))
 
 (defn reversal-leaf-candidates
   "Find candidate failure leaf contexts for REVERSAL.
@@ -645,6 +728,82 @@
             :active-indices (vec (:recent-indices world))
             :selection-policy roving-plan-policy}]))
 
+(defn- apply-rationalization-emotional-diversion
+  [world {:keys [goal-id trigger-context-id failed-goal-id sprouted-context-id]
+          :as plan-state}
+   frame]
+  (if-let [trigger-emotion (select-trigger-emotion world
+                                                   trigger-context-id
+                                                   failed-goal-id)]
+    (let [trigger-emotion-id (fact-id trigger-emotion)
+          trigger-strength-before (double (or (:strength trigger-emotion) 0.0))
+          diverted-strength (* trigger-strength-before
+                               rationalization-diversion-scale
+                               (double (or (:priority frame) 0.0)))
+          trigger-strength-after (clamp-strength
+                                  (- trigger-strength-before diverted-strength))
+          updated-trigger-emotion (assoc trigger-emotion
+                                         :strength trigger-strength-after)
+          hope-strength (clamp-strength diverted-strength)
+          reframe-situation-id (or (:situation-id frame)
+                                   (rationalization-frame-situation-id
+                                    (:reframe-facts frame)))
+          hope-emotion {:fact/type :emotion
+                        :emotion-id (hope-emotion-id (:frame-id frame))
+                        :strength hope-strength
+                        :valence :positive
+                        :affect :hope
+                        :goal-id goal-id
+                        :source-emotion-id trigger-emotion-id
+                        :frame-id (:frame-id frame)
+                        :situation-id reframe-situation-id}
+          world (-> world
+                    (replace-emotion-fact sprouted-context-id
+                                          trigger-emotion-id
+                                          updated-trigger-emotion)
+                    (cx/assert-fact sprouted-context-id hope-emotion)
+                    (assoc-in [:emotions trigger-emotion-id]
+                              (dissoc updated-trigger-emotion :fact/type))
+                    (assoc-in [:emotions (:emotion-id hope-emotion)]
+                              (dissoc hope-emotion :fact/type)))
+          emotion-shifts [(emotion-shift-entry
+                           {:emotion-id trigger-emotion-id
+                            :from-strength trigger-strength-before
+                            :to-strength trigger-strength-after
+                            :valence (or (:valence trigger-emotion) :negative)
+                            :affect (:affect trigger-emotion)
+                            :context-id sprouted-context-id
+                            :role :trigger})
+                          (emotion-shift-entry
+                           {:emotion-id (:emotion-id hope-emotion)
+                            :from-strength 0.0
+                            :to-strength hope-strength
+                            :valence :positive
+                            :affect :hope
+                            :situation-id reframe-situation-id
+                            :context-id sprouted-context-id
+                            :role :reframe})]
+          emotional-state [(emotion-state-entry updated-trigger-emotion
+                                                :trigger
+                                                sprouted-context-id)
+                           (emotion-state-entry hope-emotion
+                                                :reframe
+                                                sprouted-context-id)]]
+      [world (assoc plan-state
+                    :diversion-policy rationalization-diversion-policy
+                    :trigger-emotion-id trigger-emotion-id
+                    :trigger-emotion-before trigger-strength-before
+                    :trigger-emotion-after trigger-strength-after
+                    :hope-emotion-id (:emotion-id hope-emotion)
+                    :hope-strength hope-strength
+                    :hope-situation-id reframe-situation-id
+                    :emotion-shifts emotion-shifts
+                    :emotional-state emotional-state)])
+    [world (assoc plan-state
+                  :diversion-policy rationalization-diversion-policy
+                  :emotion-shifts []
+                  :emotional-state [])]))
+
 (defn rationalization-plan
   "Sprout a reinterpretation branch from an explicit rationalization frame.
 
@@ -678,6 +837,14 @@
                       world
                       (cons success-intends (:reframe-facts frame)))
         world (assoc-in world [:contexts sprouted-context-id :ordering] ordering)
+        [world diversion]
+        (apply-rationalization-emotional-diversion
+         world
+         {:goal-id goal-id
+          :trigger-context-id trigger-context-id
+          :failed-goal-id failed-goal-id
+          :sprouted-context-id sprouted-context-id}
+         frame)
         world (if (contains? (:goals world) goal-id)
                 (goals/set-next-context world goal-id sprouted-context-id)
                 world)
@@ -689,14 +856,31 @@
                        :target-context sprouted-context-id
                        :failed-goal-id failed-goal-id
                        :frame-id (:frame-id frame)
-                       :reframe-facts (:reframe-facts frame)})]
+                       :reframe-facts (:reframe-facts frame)
+                       :emotion-diversion (select-keys diversion
+                                                       [:diversion-policy
+                                                        :trigger-emotion-id
+                                                        :trigger-emotion-before
+                                                        :trigger-emotion-after
+                                                        :hope-emotion-id
+                                                        :hope-strength
+                                                        :hope-situation-id])})]
     [world {:sprouted-context-id sprouted-context-id
             :frame-id (:frame-id frame)
             :frame-goal-id (:goal-id frame)
             :reframe-fact-ids (mapv fact-id (:reframe-facts frame))
             :selection-policy rationalization-plan-policy
             :selection-reasons (:selection-reasons frame)
-            :situation-id (:situation-id frame)}]))
+            :situation-id (:situation-id frame)
+            :diversion-policy (:diversion-policy diversion)
+            :trigger-emotion-id (:trigger-emotion-id diversion)
+            :trigger-emotion-before (:trigger-emotion-before diversion)
+            :trigger-emotion-after (:trigger-emotion-after diversion)
+            :hope-emotion-id (:hope-emotion-id diversion)
+            :hope-strength (:hope-strength diversion)
+            :hope-situation-id (:hope-situation-id diversion)
+            :emotion-shifts (:emotion-shifts diversion)
+            :emotional-state (:emotional-state diversion)}]))
 
 (defn reverse-leafs
   "Sprout one alternative-past branch per weak leaf under the selected failed

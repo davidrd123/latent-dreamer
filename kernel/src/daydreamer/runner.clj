@@ -230,6 +230,8 @@
           world (trace/merge-latest-cycle
                  world
                  {:mutations (:mutation-events world)
+                  :emotion-shifts (:emotion-shifts rationalization-result)
+                  :emotional-state (:emotional-state rationalization-result)
                   :selection {:goal_family :rationalization
                               :family_goal_id selected-goal-id
                               :rationalization_selection_policy (:selection-policy rationalization-result)
@@ -237,7 +239,14 @@
                               :rationalization_frame_goal (:frame-goal-id rationalization-result)
                               :rationalization_frame_reasons (:selection-reasons rationalization-result)
                               :rationalization_reframe_fact_ids (:reframe-fact-ids rationalization-result)
-                              :rationalization_branch_context (:sprouted-context-id rationalization-result)}})]
+                              :rationalization_branch_context (:sprouted-context-id rationalization-result)
+                              :rationalization_diversion_policy (:diversion-policy rationalization-result)
+                              :rationalization_trigger_emotion_id (:trigger-emotion-id rationalization-result)
+                              :rationalization_trigger_emotion_before (:trigger-emotion-before rationalization-result)
+                              :rationalization_trigger_emotion_after (:trigger-emotion-after rationalization-result)
+                              :rationalization_hope_emotion_id (:hope-emotion-id rationalization-result)
+                              :rationalization_hope_strength (:hope-strength rationalization-result)
+                              :rationalization_hope_situation (:hope-situation-id rationalization-result)}})]
       [world (:sprouted-context-id rationalization-result)])))
 
 (defn- apply-automatic-family-plan

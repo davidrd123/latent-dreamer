@@ -468,6 +468,7 @@
   (let [[world root-id] (world-with-root)
         [world trigger-context-id] (cx/sprout world root-id)
         failed-goal-id :g-failed
+        emotion-id :e-dread
         frame-id :rf-zone-mercy
         frame-facts [guide-fact
                      {:fact/type :rationalization
@@ -480,6 +481,14 @@
                                                       :top-level-goal failed-goal-id
                                                       :status :failed
                                                       :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :emotion
+                                                      :emotion-id emotion-id
+                                                      :strength 0.82
+                                                      :valence :negative
+                                                      :affect :dread})
+                  (cx/assert-fact trigger-context-id {:fact/type :dependency
+                                                      :from-id emotion-id
+                                                      :to-id failed-goal-id})
                   (cx/assert-fact trigger-context-id
                                   (rationalization-frame-fact frame-id
                                                               failed-goal-id
@@ -494,8 +503,14 @@
           :strength 0.82
           :main-motiv :e-dread})
         context-id (get-in world [:goals rationalization-goal-id :next-cx])
+        expected-trigger-after (- 0.82 (* 0.82 0.35 0.91))
+        expected-hope-strength (* 0.82 0.35 0.91)
         [world {:keys [sprouted-context-id frame-id frame-goal-id
-                       reframe-fact-ids selection-policy]}]
+                       reframe-fact-ids selection-policy
+                       diversion-policy trigger-emotion-id
+                       trigger-emotion-before trigger-emotion-after
+                       hope-emotion-id hope-strength hope-situation-id
+                       emotion-shifts emotional-state]}]
         (families/rationalization-plan world
                                        {:goal-id rationalization-goal-id
                                         :context-id context-id
@@ -513,6 +528,66 @@
                   frame-facts))
       (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
              reframe-fact-ids)))
+    (testing "rationalization diverts the trigger emotion into hopeful reframe energy"
+      (is (= :divert_emot_to_tlg_bridge diversion-policy))
+      (is (= emotion-id trigger-emotion-id))
+      (is (= 0.82 trigger-emotion-before))
+      (is (= expected-trigger-after trigger-emotion-after))
+      (is (= :rf-zone-mercy-hope hope-emotion-id))
+      (is (= expected-hope-strength hope-strength))
+      (is (= :s5_the_guide hope-situation-id))
+      (is (cx/fact-true? world
+                         sprouted-context-id
+                         {:fact/type :emotion
+                          :emotion-id emotion-id
+                          :strength expected-trigger-after
+                          :valence :negative
+                          :affect :dread}))
+      (is (cx/fact-true? world
+                         sprouted-context-id
+                         {:fact/type :emotion
+                          :emotion-id :rf-zone-mercy-hope
+                          :strength expected-hope-strength
+                          :valence :positive
+                          :affect :hope
+                          :goal-id rationalization-goal-id
+                          :source-emotion-id emotion-id
+                          :frame-id :rf-zone-mercy
+                          :situation-id :s5_the_guide}))
+      (is (= [{:emotion-id emotion-id
+               :from-strength 0.82
+               :to-strength expected-trigger-after
+               :delta (- expected-trigger-after 0.82)
+               :valence :negative
+               :affect :dread
+               :situation-id nil
+               :context-id sprouted-context-id
+               :role :trigger}
+              {:emotion-id :rf-zone-mercy-hope
+               :from-strength 0.0
+               :to-strength expected-hope-strength
+               :delta expected-hope-strength
+               :valence :positive
+               :affect :hope
+               :situation-id :s5_the_guide
+               :context-id sprouted-context-id
+               :role :reframe}]
+             emotion-shifts))
+      (is (= [{:emotion-id emotion-id
+               :strength expected-trigger-after
+               :valence :negative
+               :affect :dread
+               :situation-id nil
+               :context-id sprouted-context-id
+               :role :trigger}
+              {:emotion-id :rf-zone-mercy-hope
+               :strength expected-hope-strength
+               :valence :positive
+               :affect :hope
+               :situation-id :s5_the_guide
+               :context-id sprouted-context-id
+               :role :reframe}]
+             emotional-state)))
     (testing "the plan records a trivial success intention and mutation event"
       (is (some #(and (= :intends (:fact/type %))
                       (= rationalization-goal-id (:from-goal-id %))
@@ -525,7 +600,14 @@
                :target-context sprouted-context-id
                :failed-goal-id failed-goal-id
                :frame-id :rf-zone-mercy
-               :reframe-facts frame-facts}]
+               :reframe-facts frame-facts
+               :emotion-diversion {:diversion-policy :divert_emot_to_tlg_bridge
+                                   :trigger-emotion-id emotion-id
+                                   :trigger-emotion-before 0.82
+                                   :trigger-emotion-after expected-trigger-after
+                                   :hope-emotion-id :rf-zone-mercy-hope
+                                   :hope-strength expected-hope-strength
+                                   :hope-situation-id :s5_the_guide}}]
              (:mutation-events world))))))
 
 (deftest reverse-leafs-follow-intends-and-retract-weak-leaf-objectives

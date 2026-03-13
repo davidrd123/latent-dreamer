@@ -7,14 +7,14 @@
             [daydreamer.trace :as trace]))
 
 (def ^:private branch-fact->situation-deltas
-  {:s4_the_ring {:s4_the_ring {:activation 0.24
-                               :ripeness 0.13
-                               :hope 0.12}
+  {:s4_the_ring {:s4_the_ring {:activation 0.14
+                               :ripeness 0.09
+                               :hope 0.08}
                  :s1_seeing_through {:activation -0.08
                                      :threat -0.05}}
-   :performance_is_admitted {:s4_the_ring {:activation 0.10
-                                           :ripeness 0.07
-                                           :hope 0.09}
+   :performance_is_admitted {:s4_the_ring {:activation 0.06
+                                           :ripeness 0.05
+                                           :hope 0.06}
                              :s1_seeing_through {:activation -0.05
                                                  :anger -0.05}}})
 

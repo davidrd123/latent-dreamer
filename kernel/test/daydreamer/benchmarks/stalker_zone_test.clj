@@ -32,6 +32,25 @@
       (is (= "n07_zone_is_mercy" (get-in cycles [1 "chosen_node_id"])))
       (is (= ["faith" "guide" "sincerity"]
              (get-in cycles [1 "retrieved" 0 "overlap"])))
+      (is (= "divert_emot_to_tlg_bridge"
+             (get-in cycles [1 "selection" "rationalization_diversion_policy"])))
+      (is (= "e_fixture_room_dread"
+             (get-in cycles [1 "selection" "rationalization_trigger_emotion_id"])))
+      (is (= 0.82
+             (get-in cycles [1 "selection" "rationalization_trigger_emotion_before"])))
+      (is (= (- 0.82 (* 0.82 0.35 0.93))
+             (get-in cycles [1 "selection" "rationalization_trigger_emotion_after"])))
+      (is (= "rf_zone_mercy-hope"
+             (get-in cycles [1 "selection" "rationalization_hope_emotion_id"])))
+      (is (= (* 0.82 0.35 0.93)
+             (get-in cycles [1 "selection" "rationalization_hope_strength"])))
+      (is (= "s5_the_guide"
+             (get-in cycles [1 "selection" "rationalization_hope_situation"])))
+      (is (= 2 (count (get-in cycles [1 "emotion_shifts"]))))
+      (is (= "e_fixture_room_dread"
+             (get-in cycles [1 "emotion_shifts" 0 "emotion_id"])))
+      (is (= "rf_zone_mercy-hope"
+             (get-in cycles [1 "emotional_state" 1 "emotion_id"])))
       (is (= ["s5_the_guide" "zone_is_mercy" "delay_is_faith"]
              (get-in cycles [1 "selection" "rationalization_reframe_fact_ids"]))))))
 
@@ -66,5 +85,17 @@
              (get-in cycles [1 "selection" "edge_kind"])))
       (is (= ["faith" "guide" "sincerity" "trust"]
              (get-in cycles [1 "active_indices"])))
+      (is (= "divert_emot_to_tlg_bridge"
+             (get-in cycles [1 "selection" "rationalization_diversion_policy"])))
+      (is (= 0.82
+             (get-in cycles [1 "selection" "rationalization_trigger_emotion_before"])))
+      (is (= (- 0.82 (* 0.82 0.35 0.93))
+             (get-in cycles [1 "selection" "rationalization_trigger_emotion_after"])))
+      (is (= "s5_the_guide"
+             (get-in cycles [1 "selection" "rationalization_hope_situation"])))
+      (is (= "rf_zone_mercy-hope"
+             (get-in cycles [1 "emotion_shifts" 1 "emotion_id"])))
+      (is (= (* 0.82 0.35 0.93)
+             (get-in cycles [1 "emotion_shifts" 1 "to_strength"])))
       (is (= (name (:preferred-frame-id benchmark-state))
              (get-in cycles [1 "selection" "rationalization_frame_id"]))))))
