@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Puppet Knows: Cognitive Trace Playback</title>
+  <style>
+    :root {
+      --bg: #090b10;
+      --bg-2: #11151f;
+      --panel: rgba(18, 23, 34, 0.88);
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --text: #f1eadf;
+      --muted: #a8b0c0;
+      --accent: #d4af6a;
+      --danger: #d1495b;
+      --dream: #5e60ce;
+      --real: #8ecae6;
+      --grid: rgba(255, 255, 255, 0.06);
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      --radius: 18px;
+      --mono: "SFMono-Regular", "Menlo", "Monaco", monospace;
+      --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      --sans: "Inter", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(94, 96, 206, 0.18), transparent 32%),
+        radial-gradient(circle at 20% 80%, rgba(212, 175, 106, 0.12), transparent 24%),
+        linear-gradient(180deg, #0a0c12 0%, #05070b 100%);
+      font-family: var(--sans);
+    }
+
+    .shell {
+      max-width: 1640px;
+      margin: 0 auto;
+      padding: 20px 24px 32px;
+    }
+
+    .hero {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 2rem;
+      letter-spacing: 0.01em;
+      font-weight: 600;
+    }
+
+    .hero .meta {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      max-width: 840px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto auto;
+      gap: 12px;
+      align-items: center;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    button, select, input[type="range"] {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      border-radius: 999px;
+      font: inherit;
+    }
+
+    button {
+      padding: 9px 14px;
+      cursor: pointer;
+      transition: background 120ms ease, transform 120ms ease;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.09);
+      transform: translateY(-1px);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, rgba(94, 96, 206, 0.45), rgba(212, 175, 106, 0.24));
+      border-color: rgba(212, 175, 106, 0.25);
+    }
+
+    .readout {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      justify-content: flex-end;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.92rem;
+    }
+
+    .readout strong {
+      color: var(--text);
+      font-size: 1.05rem;
+    }
+
+    .speed {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .speed input {
+      width: 180px;
+      height: 6px;
+      padding: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(94, 96, 206, 0.7), rgba(212, 175, 106, 0.7));
+      border: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      grid-template-rows: minmax(420px, 44vh) minmax(250px, 1fr);
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .panel.full {
+      grid-column: 1 / -1;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .panel-head .hint {
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .panel-body {
+      flex: 1;
+      padding: 14px 16px 16px;
+      min-height: 0;
+    }
+
+    #landscape {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.03), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 24%);
+      border-radius: 14px;
+      min-height: 340px;
+    }
+
+    .situation-node {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.96);
+      font-size: 0.76rem;
+      line-height: 1.25;
+      transition:
+        width 420ms ease,
+        height 420ms ease,
+        opacity 420ms ease,
+        box-shadow 420ms ease,
+        background 420ms ease,
+        filter 420ms ease;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+      padding: 8px;
+    }
+
+    .situation-label {
+      pointer-events: none;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    }
+
+    .situation-label strong {
+      display: block;
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+    }
+
+    .situation-label span {
+      display: block;
+      color: rgba(255, 255, 255, 0.72);
+      font-family: var(--mono);
+      margin-top: 2px;
+    }
+
+    .goal-race {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .goal-row {
+      display: grid;
+      grid-template-columns: 180px 1fr 48px;
+      gap: 12px;
+      align-items: center;
+      min-height: 28px;
+    }
+
+    .goal-name {
+      font-size: 0.86rem;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .goal-bar-wrap {
+      position: relative;
+      height: 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    .goal-bar {
+      position: absolute;
+      inset: 0 auto 0 0;
+      border-radius: 999px;
+      transition: width 320ms ease, background 240ms ease, opacity 240ms ease;
+      opacity: 0.62;
+    }
+
+    .goal-row.selected .goal-bar {
+      opacity: 1;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), 0 0 18px rgba(255, 255, 255, 0.12);
+    }
+
+    .goal-strength {
+      text-align: right;
+      font-family: var(--mono);
+      font-size: 0.84rem;
+      color: var(--text);
+    }
+
+    .timeline-wrap {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .lane-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .timeline {
+      position: relative;
+      height: 170px;
+      border-radius: 16px;
+      background:
+        linear-gradient(180deg, rgba(142, 202, 230, 0.06) 0 46%, transparent 46% 54%, rgba(94, 96, 206, 0.09) 54% 100%),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, calc(100% / 11) 100%;
+      overflow: hidden;
+    }
+
+    .timeline-center-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .timeline-node {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      margin-left: -9px;
+      margin-top: -9px;
+      border: 2px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.04);
+      transition: transform 220ms ease, box-shadow 220ms ease, opacity 220ms ease;
+    }
+
+    .timeline-node.current {
+      transform: scale(1.22);
+      box-shadow: 0 0 0 4px rgba(212, 175, 106, 0.25), 0 0 24px rgba(212, 175, 106, 0.18);
+    }
+
+    .timeline-node.future {
+      opacity: 0.18;
+    }
+
+    .timeline-node.past {
+      opacity: 0.55;
+    }
+
+    .timeline-node-label {
+      position: absolute;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      transform: translate(-50%, 0);
+      white-space: nowrap;
+    }
+
+    .timeline-branch {
+      position: absolute;
+      border-left: 1.5px dashed rgba(255, 255, 255, 0.24);
+      opacity: 0.8;
+    }
+
+    .thought-stream {
+      display: grid;
+      gap: 12px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .thought-entry {
+      padding: 14px 14px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: border-color 220ms ease, background 220ms ease;
+    }
+
+    .thought-entry.current {
+      border-color: rgba(212, 175, 106, 0.28);
+      background: rgba(212, 175, 106, 0.08);
+    }
+
+    .thought-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .thought-copy {
+      font-family: var(--serif);
+      font-size: 1.02rem;
+      line-height: 1.48;
+    }
+
+    .thought-copy strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .tag {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-family: var(--mono);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1200px) {
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .readout {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="hero">
+      <div>
+        <h1>Puppet Knows: Cognitive Trace Playback</h1>
+        <div class="meta" id="meta"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="buttons">
+        <button id="playPause" class="primary">Play</button>
+        <button id="prevCycle">Back</button>
+        <button id="nextCycle">Step</button>
+      </div>
+      <div class="speed">
+        <label for="speedRange">Speed</label>
+        <input id="speedRange" type="range" min="0" max="4" step="1" value="2">
+        <span id="speedValue">1×</span>
+      </div>
+      <div class="readout">
+        <span>Cycle <strong id="cycleReadout">1</strong></span>
+        <span id="goalReadout">goal</span>
+      </div>
+    </div>
+
+    <div class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Situation Landscape</h2>
+          <div class="hint">Activation as size, ripeness as focus, emotion as color</div>
+        </div>
+        <div class="panel-body">
+          <div id="landscape"></div>
+          <div class="legend" id="situationLegend"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Goal Race</h2>
+          <div class="hint">Top 8 candidates from the full ladder</div>
+        </div>
+        <div class="panel-body">
+          <div class="goal-race" id="goalRace"></div>
+          <div class="footer-note">
+            The selected goal is highlighted. Bars animate from the trace’s full
+            candidate ladder rather than only the winner.
+          </div>
+        </div>
+      </section>
+
+      <section class="panel full">
+        <div class="panel-head">
+          <h2>Timeline</h2>
+          <div class="hint">Reality above, daydreaming below</div>
+        </div>
+        <div class="panel-body">
+          <div class="timeline-wrap">
+            <div class="lane-labels">
+              <span>Reality / real planning</span>
+              <span>Imaginary / daydreaming</span>
+            </div>
+            <div class="timeline" id="timeline">
+              <div class="timeline-center-line"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel full">
+        <div class="panel-head">
+          <h2>Thought Stream</h2>
+          <div class="hint">Rule-based narration from current trace fields</div>
+        </div>
+        <div class="panel-body">
+          <div class="thought-stream" id="thoughtStream"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script id="trace-data" type="application/json">{"graph_sha256": null, "feedback_path": "/Users/daviddickinson/Projects/Lora/scope-drd/content/daydreams/puppet_knows/director_feedback.json", "graph_nodes": 20, "graph_path": "/Users/daviddickinson/Projects/Lora/scope-drd/content/daydreams/puppet_knows/dream_graph.json", "world_sha256": null, "feedback_sha256": null, "world_path": "/Users/daviddickinson/Projects/Lora/scope-drd/content/daydreams/puppet_knows/world.yaml", "started_at": "2026-03-12T12:30:00Z", "seed": "puppet-knows-autonomous", "cycles": [{"feedback_applied": null, "activations": [{"goal_id": "g-5", "goal_type": "rationalization", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s1_seeing_through-rationalization-motiv", "emotion_strength": 0.5189999999999999, "activation_policy": "autonomous_adapter", "activation_reasons": ["failed_pressure", "negative_affect"]}, {"goal_id": "g-7", "goal_type": "rehearsal", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s2_the_mission-rehearsal-motiv", "emotion_strength": 0.474, "activation_policy": "autonomous_adapter", "activation_reasons": ["anticipation", "waiting_goal"]}, {"goal_id": "g-8", "goal_type": "reversal", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s1_seeing_through-reversal-motiv", "emotion_strength": 0.44880000000000003, "activation_policy": "autonomous_adapter", "activation_reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"goal_id": "g-10", "goal_type": "rationalization", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s2_the_mission-rationalization-motiv", "emotion_strength": 0.4225, "activation_policy": "autonomous_adapter", "activation_reasons": ["failed_pressure", "negative_affect"]}, {"goal_id": "g-12", "goal_type": "rationalization", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s3_the_edge-rationalization-motiv", "emotion_strength": 0.409, "activation_policy": "autonomous_adapter", "activation_reasons": ["failed_pressure", "negative_affect"]}, {"goal_id": "g-14", "goal_type": "reversal", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s3_the_edge-reversal-motiv", "emotion_strength": 0.3968, "activation_policy": "autonomous_adapter", "activation_reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"goal_id": "g-16", "goal_type": "revenge", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s1_seeing_through-revenge-motiv", "emotion_strength": 0.34240000000000004, "activation_policy": "autonomous_adapter", "activation_reasons": ["directed_anger", "counterparty", "directed_target"]}, {"goal_id": "g-18", "goal_type": "rehearsal", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s4_the_ring-rehearsal-motiv", "emotion_strength": 0.326, "activation_policy": "autonomous_adapter", "activation_reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"goal_id": "g-19", "goal_type": "repercussions", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s3_the_edge-repercussions-motiv", "emotion_strength": 0.321, "activation_policy": "autonomous_adapter", "activation_reasons": ["external_threat", "what_follows", "external_pressure"]}, {"goal_id": "g-21", "goal_type": "repercussions", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s2_the_mission-repercussions-motiv", "emotion_strength": 0.3075, "activation_policy": "autonomous_adapter", "activation_reasons": ["external_threat", "what_follows", "external_pressure"]}, {"goal_id": "g-23", "goal_type": "roving", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s1_seeing_through-roving-motiv", "emotion_strength": 0.2997714285714285, "activation_policy": "autonomous_adapter", "activation_reasons": ["overload", "distraction"]}, {"goal_id": "g-25", "goal_type": "rehearsal", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s1_seeing_through-rehearsal-motiv", "emotion_strength": 0.241, "activation_policy": "autonomous_adapter", "activation_reasons": ["anticipation", "waiting_goal"]}, {"goal_id": "g-26", "goal_type": "reversal", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s2_the_mission-reversal-motiv", "emotion_strength": 0.23500000000000001, "activation_policy": "autonomous_adapter", "activation_reasons": ["counterfactual_pressure", "failed_plan"]}, {"goal_id": "g-28", "goal_type": "recovery", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s2_the_mission-recovery-motiv", "emotion_strength": 0.227, "activation_policy": "autonomous_adapter", "activation_reasons": ["retry", "goal_repair"]}, {"goal_id": "g-29", "goal_type": "recovery", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s1_seeing_through-recovery-motiv", "emotion_strength": 0.22, "activation_policy": "autonomous_adapter", "activation_reasons": ["retry", "goal_repair"]}, {"goal_id": "g-30", "goal_type": "rationalization", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s4_the_ring-rationalization-motiv", "emotion_strength": 0.209, "activation_policy": "autonomous_adapter", "activation_reasons": ["failed_pressure", "negative_affect"]}, {"goal_id": "g-32", "goal_type": "roving", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s3_the_edge-roving-motiv", "emotion_strength": 0.18605714285714287, "activation_policy": "autonomous_adapter", "activation_reasons": ["overload", "distraction"]}, {"goal_id": "g-34", "goal_type": "recovery", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s3_the_edge-recovery-motiv", "emotion_strength": 0.153, "activation_policy": "autonomous_adapter", "activation_reasons": ["retry", "goal_repair"]}, {"goal_id": "g-35", "goal_type": "recovery", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s4_the_ring-recovery-motiv", "emotion_strength": 0.12000000000000001, "activation_policy": "autonomous_adapter", "activation_reasons": ["retry", "goal_repair"]}, {"goal_id": "g-36", "goal_type": "reversal", "trigger_context_id": "cx-1", "failed_goal_id": null, "emotion_id": "s4_the_ring-reversal-motiv", "emotion_strength": 0.11679999999999999, "activation_policy": "autonomous_adapter", "activation_reasons": ["counterfactual_pressure", "failed_plan"]}], "cycle": 1, "branch_events": [], "timestamp": null, "top_candidates": [{"id": "g-5", "goal_type": "rationalization", "strength": 0.5189999999999999, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-7", "goal_type": "rehearsal", "strength": 0.474, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-8", "goal_type": "reversal", "strength": 0.44880000000000003, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-10", "goal_type": "rationalization", "strength": 0.4225, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-12", "goal_type": "rationalization", "strength": 0.409, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-14", "goal_type": "reversal", "strength": 0.3968, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-16", "goal_type": "revenge", "strength": 0.34240000000000004, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["directed_anger", "counterparty", "directed_target"]}, {"id": "g-18", "goal_type": "rehearsal", "strength": 0.326, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"id": "g-19", "goal_type": "repercussions", "strength": 0.321, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-21", "goal_type": "repercussions", "strength": 0.3075, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-23", "goal_type": "roving", "strength": 0.2997714285714285, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["overload", "distraction"]}, {"id": "g-25", "goal_type": "rehearsal", "strength": 0.241, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-26", "goal_type": "reversal", "strength": 0.23500000000000001, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-28", "goal_type": "recovery", "strength": 0.227, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["retry", "goal_repair"]}, {"id": "g-29", "goal_type": "recovery", "strength": 0.22, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["retry", "goal_repair"]}, {"id": "g-30", "goal_type": "rationalization", "strength": 0.209, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-32", "goal_type": "roving", "strength": 0.18605714285714287, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["overload", "distraction"]}, {"id": "g-34", "goal_type": "recovery", "strength": 0.153, "planning_type": "real", "situation_id": "s3_the_edge", "reasons": ["retry", "goal_repair"]}, {"id": "g-35", "goal_type": "recovery", "strength": 0.12000000000000001, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["retry", "goal_repair"]}, {"id": "g-36", "goal_type": "reversal", "strength": 0.11679999999999999, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["counterfactual_pressure", "failed_plan"]}], "mutations": [], "retrieved": [{"node_id": "n02_corridor_repeat", "episode_id": null, "retrieval_score": 5.0, "overlap": ["perception", "awareness", "seam", "cardboard", "stage_light"], "threshold": 2}, {"node_id": "n01_notice_seams", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "seam", "fingerprint"], "threshold": 2}, {"node_id": "n15_subway_self_scrutiny", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "fingerprint", "seam"], "threshold": 3}, {"node_id": "n12_full_circle_doorway", "episode_id": null, "retrieval_score": 3.0, "overlap": ["perception", "awareness", "seam"], "threshold": 2}, {"node_id": "n05_peel_the_wall", "episode_id": null, "retrieval_score": 2.0, "overlap": ["awareness", "seam"], "threshold": 3}, {"node_id": "n06_overhead_set_edge", "episode_id": null, "retrieval_score": 2.0, "overlap": ["stage_light", "awareness"], "threshold": 3}], "emotional_state": [], "selected_goal": {"id": "g-5", "goal_type": "rationalization", "strength": 0.5189999999999999, "planning_type": "imaginary", "situation_id": "s1_seeing_through"}, "active_indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "sprouted_contexts": [], "chosen_node_id": "n02_corridor_repeat", "goal_selection": "highest_strength", "situations": {"s1_seeing_through": {"visits": 1, "activation": 0.5880000000000001, "inferred": true, "place": "checkpoint", "threat": 0.4074, "id": "s1_seeing_through", "hope": 0.3044, "directed-target": "the_set", "waiting": 0.1764, "ripeness": 0.743, "grief": 0.18279999999999996, "anger": 0.17459999999999998, "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n", "indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "external": false}, "s2_the_mission": {"visits": 0, "activation": 0.2944, "inferred": false, "place": "street", "threat": 0.33949999999999997, "id": "s2_the_mission", "hope": 0.7056, "directed-target": null, "waiting": 0.8623999999999999, "ripeness": 0.5248, "grief": 0.0776, "anger": 0.097, "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n", "indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos"], "external": true}, "s3_the_edge": {"visits": 0, "activation": 0.09200000000000001, "inferred": true, "place": "checkpoint", "threat": 0.6013999999999999, "id": "s3_the_edge", "hope": 0.1568, "directed-target": null, "waiting": 0.0588, "ripeness": 0.406, "grief": 0.23279999999999998, "anger": 0.11639999999999999, "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n", "indices": ["edge", "void", "backstage", "darkness", "wall", "non_directed_light", "emotion:neg"], "external": true}, "s4_the_ring": {"visits": 0, "activation": 0.0, "inferred": false, "place": "arena", "threat": 0.2134, "id": "s4_the_ring", "hope": 0.4704, "directed-target": null, "waiting": 0.43119999999999997, "ripeness": 0.307, "grief": 0.058199999999999995, "anger": 0.17459999999999998, "description": "The wrestling ring. The only honest place. Here, performance is the stated purpose. Everywhere else it's a secret.\n", "indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos"], "external": false}}, "selection": {"policy": "highest_score", "score": 8.52, "reasons": ["retrieval:5", "goal_match", "situation_match", "return_pressure"]}, "emotion_shifts": [], "serendipity_bias": null}, {"feedback_applied": null, "activations": [], "cycle": 2, "branch_events": [{"family": "reversal", "source_context": "cx-2", "target_context": "cx-38", "fact_ids": ["performance_is_admitted", "s4_the_ring"], "fact_types": ["counterfactual", "situation"], "retracted_fact_ids": ["performance_stays_hidden"], "retracted_fact_types": ["assumption"]}], "timestamp": null, "top_candidates": [{"id": "g-8", "goal_type": "reversal", "strength": 0.5316280000000001, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-5", "goal_type": "rationalization", "strength": 0.5125900000000002, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-7", "goal_type": "rehearsal", "strength": 0.46336, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-10", "goal_type": "rationalization", "strength": 0.410761, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-12", "goal_type": "rationalization", "strength": 0.40104999999999996, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-14", "goal_type": "reversal", "strength": 0.39194, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-16", "goal_type": "revenge", "strength": 0.370996, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["directed_anger", "counterparty", "directed_target"]}, {"id": "g-18", "goal_type": "rehearsal", "strength": 0.32258, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"id": "g-19", "goal_type": "repercussions", "strength": 0.31562999999999997, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-21", "goal_type": "repercussions", "strength": 0.30084299999999997, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-29", "goal_type": "recovery", "strength": 0.28168000000000004, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["retry", "goal_repair"]}, {"id": "g-25", "goal_type": "rehearsal", "strength": 0.26548000000000005, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-32", "goal_type": "roving", "strength": 0.22870057142857142, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["overload", "distraction"]}, {"id": "g-26", "goal_type": "reversal", "strength": 0.2283892, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-28", "goal_type": "recovery", "strength": 0.22114999999999999, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["retry", "goal_repair"]}, {"id": "g-30", "goal_type": "rationalization", "strength": 0.20837, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-23", "goal_type": "roving", "strength": 0.19968799999999992, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["overload", "distraction"]}, {"id": "g-34", "goal_type": "recovery", "strength": 0.15022, "planning_type": "real", "situation_id": "s3_the_edge", "reasons": ["retry", "goal_repair"]}, {"id": "g-35", "goal_type": "recovery", "strength": 0.11908, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["retry", "goal_repair"]}, {"id": "g-36", "goal_type": "reversal", "strength": 0.11624400000000001, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["counterfactual_pressure", "failed_plan"]}], "mutations": [{"family": "reversal", "source-context": "cx-2", "target-context": "cx-38", "input-facts": [{"type": "counterfactual", "id": "performance_is_admitted"}, {"type": "situation", "id": "s4_the_ring"}], "retracted-facts": [{"type": "assumption", "id": "performance_stays_hidden"}]}], "retrieved": [{"node_id": "n02_corridor_repeat", "episode_id": null, "retrieval_score": 6.0, "overlap": ["perception", "awareness", "seam", "wall", "cardboard", "stage_light"], "threshold": 2}, {"node_id": "n01_notice_seams", "episode_id": null, "retrieval_score": 5.0, "overlap": ["perception", "awareness", "seam", "fingerprint", "sincerity"], "threshold": 2}, {"node_id": "n10_honest_ring", "episode_id": null, "retrieval_score": 5.0, "overlap": ["ritual", "honesty", "performance", "sincerity", "non_directed_light"], "threshold": 3}, {"node_id": "n09_tear_the_set", "episode_id": null, "retrieval_score": 4.0, "overlap": ["ritual", "honesty", "seam", "performance"], "threshold": 3}, {"node_id": "n12_full_circle_doorway", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "seam", "sincerity"], "threshold": 2}, {"node_id": "n15_subway_self_scrutiny", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "fingerprint", "seam"], "threshold": 3}], "emotional_state": [], "selected_goal": {"id": "g-8", "goal_type": "reversal", "strength": 0.5316280000000001, "planning_type": "imaginary", "situation_id": "s1_seeing_through"}, "active_indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg", "ritual", "sincerity", "non_directed_light", "performance", "honesty", "wall"], "sprouted_contexts": ["cx-38"], "chosen_node_id": "n02_corridor_repeat", "goal_selection": "highest_strength", "situations": {"s1_seeing_through": {"visits": 2, "activation": 0.678, "inferred": true, "place": "checkpoint", "threat": 0.4174, "id": "s1_seeing_through", "hope": 0.3044, "directed-target": "the_set", "waiting": 0.1764, "ripeness": 0.783, "grief": 0.22279999999999997, "anger": 0.12459999999999997, "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n", "indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "external": false}, "s2_the_mission": {"visits": 0, "activation": 0.2944, "inferred": false, "place": "street", "threat": 0.33949999999999997, "id": "s2_the_mission", "hope": 0.7056, "directed-target": null, "waiting": 0.8623999999999999, "ripeness": 0.5248, "grief": 0.0776, "anger": 0.097, "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n", "indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos"], "external": true}, "s3_the_edge": {"visits": 0, "activation": 0.09200000000000001, "inferred": true, "place": "checkpoint", "threat": 0.6013999999999999, "id": "s3_the_edge", "hope": 0.1568, "directed-target": null, "waiting": 0.0588, "ripeness": 0.406, "grief": 0.23279999999999998, "anger": 0.11639999999999999, "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n", "indices": ["edge", "void", "backstage", "darkness", "wall", "non_directed_light", "emotion:neg"], "external": true}, "s4_the_ring": {"visits": 0, "activation": 0.2, "inferred": false, "place": "arena", "threat": 0.2134, "id": "s4_the_ring", "hope": 0.6103999999999999, "directed-target": null, "waiting": 0.43119999999999997, "ripeness": 0.44699999999999995, "grief": 0.058199999999999995, "anger": 0.17459999999999998, "description": "The wrestling ring. The only honest place. Here, performance is the stated purpose. Everywhere else it's a secret.\n", "indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos"], "external": false}}, "selection": {"score": 7.937, "reversal_branch_contexts": ["cx-38"], "edge_kind": "counterfactual_bridge", "benchmark_step": "cycle_10_branch_arrival", "reversal_counterfactual_reasons": ["stored_failure_cause", "matching_failed_goal", "multi_fact_counterfactual"], "reversal_leaf_emotion_pressure": 0.74, "reversal_leaf_depth": 1, "adapter_branch_context": "cx-38", "reversal_source_context": "cx-2", "reversal_branch_count": 1, "adapter_policy": "branch_visible_facts", "reversal_leaf_strength": 0.32, "reversal_target_goal": "g_fixture_old_failure", "adapter_visible_fact_ids": ["performance_is_admitted", "s1_seeing_through", "s3_the_edge", "s4_the_ring"], "reversal_leaf_retracted_facts": ["performance_stays_hidden"], "goal_family": "reversal", "reversal_leaf_reasons": ["intends_leaf", "weak_assumption", "objective_retraction"], "adapter_selected_situation": "s4_the_ring", "reversal_leaf_goal": "g_fixture_old_leaf", "policy": "highest_score", "reversal_counterfactual_goal": "g_fixture_old_failure", "adapter_active_indices": ["ritual", "sincerity", "non_directed_light", "performance", "honesty"], "reversal_counterfactual_fact_ids": ["performance_is_admitted", "s4_the_ring"], "reversal_leaf_policy": "intends_weak_leaf", "reversal_counterfactual_source": "fc_admit_performance", "reasons": ["retrieval:6", "situation_match", "return_pressure", "recent_penalty"], "reversal_branch_context": "cx-38", "reversal_counterfactual_policy": "stored_priority", "reversal_target_policy": "emotion_then_depth"}, "emotion_shifts": [], "serendipity_bias": null}, {"feedback_applied": null, "activations": [], "cycle": 3, "branch_events": [{"family": "reversal", "source_context": "cx-2", "target_context": "cx-39", "fact_ids": ["performance_is_admitted", "s4_the_ring"], "fact_types": ["counterfactual", "situation"], "retracted_fact_ids": ["performance_stays_hidden"], "retracted_fact_types": ["assumption"]}], "timestamp": null, "top_candidates": [{"id": "g-8", "goal_type": "reversal", "strength": 0.6002279999999999, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-5", "goal_type": "rationalization", "strength": 0.47809, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-7", "goal_type": "rehearsal", "strength": 0.46336, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-10", "goal_type": "rationalization", "strength": 0.410761, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-12", "goal_type": "rationalization", "strength": 0.40104999999999996, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-18", "goal_type": "rehearsal", "strength": 0.39458, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"id": "g-14", "goal_type": "reversal", "strength": 0.39194, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-16", "goal_type": "revenge", "strength": 0.37119599999999997, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["directed_anger", "counterparty", "directed_target"]}, {"id": "g-29", "goal_type": "recovery", "strength": 0.32818, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["retry", "goal_repair"]}, {"id": "g-19", "goal_type": "repercussions", "strength": 0.31562999999999997, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-30", "goal_type": "rationalization", "strength": 0.31396999999999997, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-21", "goal_type": "repercussions", "strength": 0.30084299999999997, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-32", "goal_type": "roving", "strength": 0.2787005714285714, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["overload", "distraction"]}, {"id": "g-25", "goal_type": "rehearsal", "strength": 0.27098, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-26", "goal_type": "reversal", "strength": 0.2283892, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-28", "goal_type": "recovery", "strength": 0.22114999999999999, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["retry", "goal_repair"]}, {"id": "g-35", "goal_type": "recovery", "strength": 0.17708, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["retry", "goal_repair"]}, {"id": "g-36", "goal_type": "reversal", "strength": 0.172564, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-23", "goal_type": "roving", "strength": 0.16151657142857137, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["overload", "distraction"]}, {"id": "g-34", "goal_type": "recovery", "strength": 0.15022, "planning_type": "real", "situation_id": "s3_the_edge", "reasons": ["retry", "goal_repair"]}], "mutations": [{"family": "reversal", "source-context": "cx-2", "target-context": "cx-39", "input-facts": [{"type": "counterfactual", "id": "performance_is_admitted"}, {"type": "situation", "id": "s4_the_ring"}], "retracted-facts": [{"type": "assumption", "id": "performance_stays_hidden"}]}], "retrieved": [{"node_id": "n02_corridor_repeat", "episode_id": null, "retrieval_score": 6.0, "overlap": ["perception", "awareness", "seam", "wall", "cardboard", "stage_light"], "threshold": 2}, {"node_id": "n01_notice_seams", "episode_id": null, "retrieval_score": 5.0, "overlap": ["perception", "awareness", "seam", "fingerprint", "sincerity"], "threshold": 2}, {"node_id": "n10_honest_ring", "episode_id": null, "retrieval_score": 5.0, "overlap": ["ritual", "honesty", "performance", "sincerity", "non_directed_light"], "threshold": 3}, {"node_id": "n09_tear_the_set", "episode_id": null, "retrieval_score": 4.0, "overlap": ["ritual", "honesty", "seam", "performance"], "threshold": 3}, {"node_id": "n12_full_circle_doorway", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "seam", "sincerity"], "threshold": 2}, {"node_id": "n15_subway_self_scrutiny", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "fingerprint", "seam"], "threshold": 3}], "emotional_state": [], "selected_goal": {"id": "g-8", "goal_type": "reversal", "strength": 0.6002279999999999, "planning_type": "imaginary", "situation_id": "s1_seeing_through"}, "active_indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg", "ritual", "sincerity", "non_directed_light", "performance", "honesty", "wall"], "sprouted_contexts": ["cx-39"], "chosen_node_id": "n01_notice_seams", "goal_selection": "highest_strength", "situations": {"s1_seeing_through": {"visits": 3, "activation": 0.768, "inferred": true, "place": "checkpoint", "threat": 0.4274, "id": "s1_seeing_through", "hope": 0.3044, "directed-target": "the_set", "waiting": 0.1764, "ripeness": 0.8230000000000001, "grief": 0.2628, "anger": 0.07459999999999997, "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n", "indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "external": false}, "s2_the_mission": {"visits": 0, "activation": 0.4344, "inferred": false, "place": "street", "threat": 0.33949999999999997, "id": "s2_the_mission", "hope": 0.7056, "directed-target": null, "waiting": 0.8623999999999999, "ripeness": 0.5648000000000001, "grief": 0.0776, "anger": 0.097, "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n", "indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos"], "external": true}, "s3_the_edge": {"visits": 0, "activation": 0.09200000000000001, "inferred": true, "place": "checkpoint", "threat": 0.6013999999999999, "id": "s3_the_edge", "hope": 0.1568, "directed-target": null, "waiting": 0.0588, "ripeness": 0.406, "grief": 0.23279999999999998, "anger": 0.11639999999999999, "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n", "indices": ["edge", "void", "backstage", "darkness", "wall", "non_directed_light", "emotion:neg"], "external": true}, "s4_the_ring": {"visits": 0, "activation": 0.4, "inferred": false, "place": "arena", "threat": 0.2134, "id": "s4_the_ring", "hope": 0.7503999999999998, "directed-target": null, "waiting": 0.43119999999999997, "ripeness": 0.587, "grief": 0.058199999999999995, "anger": 0.17459999999999998, "description": "The wrestling ring. The only honest place. Here, performance is the stated purpose. Everywhere else it's a secret.\n", "indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos"], "external": false}}, "selection": {"score": 7.622000000000001, "reversal_branch_contexts": ["cx-39"], "edge_kind": "counterfactual_bridge", "benchmark_step": "cycle_10_branch_arrival", "reversal_counterfactual_reasons": ["stored_failure_cause", "matching_failed_goal", "multi_fact_counterfactual"], "reversal_leaf_emotion_pressure": 0.74, "reversal_leaf_depth": 1, "adapter_branch_context": "cx-39", "reversal_source_context": "cx-2", "reversal_branch_count": 1, "adapter_policy": "branch_visible_facts", "reversal_leaf_strength": 0.32, "reversal_target_goal": "g_fixture_old_failure", "adapter_visible_fact_ids": ["performance_is_admitted", "s1_seeing_through", "s3_the_edge", "s4_the_ring"], "reversal_leaf_retracted_facts": ["performance_stays_hidden"], "goal_family": "reversal", "reversal_leaf_reasons": ["intends_leaf", "weak_assumption", "objective_retraction"], "adapter_selected_situation": "s4_the_ring", "reversal_leaf_goal": "g_fixture_old_leaf", "policy": "highest_score", "reversal_counterfactual_goal": "g_fixture_old_failure", "adapter_active_indices": ["ritual", "sincerity", "non_directed_light", "performance", "honesty"], "reversal_counterfactual_fact_ids": ["performance_is_admitted", "s4_the_ring"], "reversal_leaf_policy": "intends_weak_leaf", "reversal_counterfactual_source": "fc_admit_performance", "reasons": ["retrieval:5", "situation_match", "return_pressure"], "reversal_branch_context": "cx-39", "reversal_counterfactual_policy": "stored_priority", "reversal_target_policy": "emotion_then_depth"}, "emotion_shifts": [], "serendipity_bias": null}, {"feedback_applied": null, "activations": [], "cycle": 4, "branch_events": [{"family": "reversal", "source_context": "cx-2", "target_context": "cx-40", "fact_ids": ["performance_is_admitted", "s4_the_ring"], "fact_types": ["counterfactual", "situation"], "retracted_fact_ids": ["performance_stays_hidden"], "retracted_fact_types": ["assumption"]}], "timestamp": null, "top_candidates": [{"id": "g-8", "goal_type": "reversal", "strength": 0.668828, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-7", "goal_type": "rehearsal", "strength": 0.55836, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["anticipation", "waiting_goal", "mission_escape"]}, {"id": "g-10", "goal_type": "rationalization", "strength": 0.47076099999999993, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-18", "goal_type": "rehearsal", "strength": 0.46658, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"id": "g-5", "goal_type": "rationalization", "strength": 0.44358999999999993, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-30", "goal_type": "rationalization", "strength": 0.41956999999999994, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-12", "goal_type": "rationalization", "strength": 0.40104999999999996, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-14", "goal_type": "reversal", "strength": 0.39194, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-29", "goal_type": "recovery", "strength": 0.37468, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["retry", "goal_repair"]}, {"id": "g-16", "goal_type": "revenge", "strength": 0.37139600000000006, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["directed_anger", "counterparty", "directed_target"]}, {"id": "g-21", "goal_type": "repercussions", "strength": 0.33084299999999994, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-32", "goal_type": "roving", "strength": 0.32870057142857145, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["overload", "distraction"]}, {"id": "g-19", "goal_type": "repercussions", "strength": 0.31562999999999997, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-25", "goal_type": "rehearsal", "strength": 0.27648000000000006, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-26", "goal_type": "reversal", "strength": 0.2603892, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-28", "goal_type": "recovery", "strength": 0.24615, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["retry", "goal_repair"]}, {"id": "g-35", "goal_type": "recovery", "strength": 0.23507999999999998, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["retry", "goal_repair"]}, {"id": "g-36", "goal_type": "reversal", "strength": 0.228884, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-23", "goal_type": "roving", "strength": 0.16608799999999999, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["overload", "distraction"]}, {"id": "g-34", "goal_type": "recovery", "strength": 0.15022, "planning_type": "real", "situation_id": "s3_the_edge", "reasons": ["retry", "goal_repair"]}], "mutations": [{"family": "reversal", "source-context": "cx-2", "target-context": "cx-40", "input-facts": [{"type": "counterfactual", "id": "performance_is_admitted"}, {"type": "situation", "id": "s4_the_ring"}], "retracted-facts": [{"type": "assumption", "id": "performance_stays_hidden"}]}], "retrieved": [{"node_id": "n01_notice_seams", "episode_id": null, "retrieval_score": 6.0, "overlap": ["perception", "awareness", "seam", "fingerprint", "explosive", "sincerity"], "threshold": 2}, {"node_id": "n02_corridor_repeat", "episode_id": null, "retrieval_score": 6.0, "overlap": ["perception", "awareness", "seam", "wall", "cardboard", "stage_light"], "threshold": 2}, {"node_id": "n10_honest_ring", "episode_id": null, "retrieval_score": 5.0, "overlap": ["ritual", "honesty", "performance", "sincerity", "non_directed_light"], "threshold": 3}, {"node_id": "n09_tear_the_set", "episode_id": null, "retrieval_score": 4.0, "overlap": ["ritual", "honesty", "seam", "performance"], "threshold": 3}, {"node_id": "n12_full_circle_doorway", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "seam", "sincerity"], "threshold": 2}, {"node_id": "n15_subway_self_scrutiny", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "fingerprint", "seam"], "threshold": 3}], "emotional_state": [], "selected_goal": {"id": "g-8", "goal_type": "reversal", "strength": 0.668828, "planning_type": "imaginary", "situation_id": "s1_seeing_through"}, "active_indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg", "ritual", "sincerity", "non_directed_light", "performance", "honesty", "wall", "explosive"], "sprouted_contexts": ["cx-40"], "chosen_node_id": "n02_corridor_repeat", "goal_selection": "highest_strength", "situations": {"s1_seeing_through": {"visits": 4, "activation": 0.858, "inferred": true, "place": "checkpoint", "threat": 0.4374, "id": "s1_seeing_through", "hope": 0.3044, "directed-target": "the_set", "waiting": 0.1764, "ripeness": 0.8630000000000001, "grief": 0.30279999999999996, "anger": 0.02459999999999997, "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n", "indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "external": false}, "s2_the_mission": {"visits": 0, "activation": 0.4344, "inferred": false, "place": "street", "threat": 0.33949999999999997, "id": "s2_the_mission", "hope": 0.7056, "directed-target": null, "waiting": 0.8623999999999999, "ripeness": 0.5648000000000001, "grief": 0.0776, "anger": 0.097, "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n", "indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos"], "external": true}, "s3_the_edge": {"visits": 0, "activation": 0.09200000000000001, "inferred": true, "place": "checkpoint", "threat": 0.6013999999999999, "id": "s3_the_edge", "hope": 0.1568, "directed-target": null, "waiting": 0.0588, "ripeness": 0.406, "grief": 0.23279999999999998, "anger": 0.11639999999999999, "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n", "indices": ["edge", "void", "backstage", "darkness", "wall", "non_directed_light", "emotion:neg"], "external": true}, "s4_the_ring": {"visits": 0, "activation": 0.6000000000000001, "inferred": false, "place": "arena", "threat": 0.2134, "id": "s4_the_ring", "hope": 0.8903999999999997, "directed-target": null, "waiting": 0.43119999999999997, "ripeness": 0.727, "grief": 0.058199999999999995, "anger": 0.17459999999999998, "description": "The wrestling ring. The only honest place. Here, performance is the stated purpose. Everywhere else it's a secret.\n", "indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos"], "external": false}}, "selection": {"score": 8.249, "reversal_branch_contexts": ["cx-40"], "edge_kind": "counterfactual_bridge", "benchmark_step": "cycle_10_branch_arrival", "reversal_counterfactual_reasons": ["stored_failure_cause", "matching_failed_goal", "multi_fact_counterfactual"], "reversal_leaf_emotion_pressure": 0.74, "reversal_leaf_depth": 1, "adapter_branch_context": "cx-40", "reversal_source_context": "cx-2", "reversal_branch_count": 1, "adapter_policy": "branch_visible_facts", "reversal_leaf_strength": 0.32, "reversal_target_goal": "g_fixture_old_failure", "adapter_visible_fact_ids": ["performance_is_admitted", "s1_seeing_through", "s3_the_edge", "s4_the_ring"], "reversal_leaf_retracted_facts": ["performance_stays_hidden"], "goal_family": "reversal", "reversal_leaf_reasons": ["intends_leaf", "weak_assumption", "objective_retraction"], "adapter_selected_situation": "s4_the_ring", "reversal_leaf_goal": "g_fixture_old_leaf", "policy": "highest_score", "reversal_counterfactual_goal": "g_fixture_old_failure", "adapter_active_indices": ["ritual", "sincerity", "non_directed_light", "performance", "honesty"], "reversal_counterfactual_fact_ids": ["performance_is_admitted", "s4_the_ring"], "reversal_leaf_policy": "intends_weak_leaf", "reversal_counterfactual_source": "fc_admit_performance", "reasons": ["retrieval:6", "situation_match", "local:association", "return_pressure", "recent_penalty"], "reversal_branch_context": "cx-40", "reversal_counterfactual_policy": "stored_priority", "reversal_target_policy": "emotion_then_depth"}, "emotion_shifts": [], "serendipity_bias": null}, {"feedback_applied": null, "activations": [], "cycle": 5, "branch_events": [], "timestamp": null, "top_candidates": [{"id": "g-7", "goal_type": "rehearsal", "strength": 0.62836, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["anticipation", "waiting_goal", "mission_escape"]}, {"id": "g-32", "goal_type": "roving", "strength": 0.6187005714285714, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["overload", "distraction", "fatigue_escape"]}, {"id": "g-18", "goal_type": "rehearsal", "strength": 0.59858, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"id": "g-8", "goal_type": "reversal", "strength": 0.597428, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene", "fatigue"]}, {"id": "g-30", "goal_type": "rationalization", "strength": 0.5251699999999999, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-10", "goal_type": "rationalization", "strength": 0.47076099999999993, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-29", "goal_type": "recovery", "strength": 0.42118, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["retry", "goal_repair"]}, {"id": "g-5", "goal_type": "rationalization", "strength": 0.40909, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-12", "goal_type": "rationalization", "strength": 0.40104999999999996, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-14", "goal_type": "reversal", "strength": 0.39194, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-16", "goal_type": "revenge", "strength": 0.37159600000000004, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["directed_anger", "counterparty", "directed_target"]}, {"id": "g-21", "goal_type": "repercussions", "strength": 0.33084299999999994, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-19", "goal_type": "repercussions", "strength": 0.31562999999999997, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-35", "goal_type": "recovery", "strength": 0.29308, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["retry", "goal_repair"]}, {"id": "g-36", "goal_type": "reversal", "strength": 0.285204, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-25", "goal_type": "rehearsal", "strength": 0.28198, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-26", "goal_type": "reversal", "strength": 0.2603892, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-28", "goal_type": "recovery", "strength": 0.24615, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["retry", "goal_repair"]}, {"id": "g-23", "goal_type": "roving", "strength": 0.18448799999999999, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["overload", "distraction"]}, {"id": "g-34", "goal_type": "recovery", "strength": 0.15022, "planning_type": "real", "situation_id": "s3_the_edge", "reasons": ["retry", "goal_repair"]}], "mutations": [], "retrieved": [{"node_id": "n02_corridor_repeat", "episode_id": null, "retrieval_score": 6.0, "overlap": ["perception", "awareness", "seam", "wall", "cardboard", "stage_light"], "threshold": 2}, {"node_id": "n01_notice_seams", "episode_id": null, "retrieval_score": 5.0, "overlap": ["perception", "awareness", "seam", "explosive", "sincerity"], "threshold": 2}, {"node_id": "n03_mission_walk", "episode_id": null, "retrieval_score": 5.0, "overlap": ["urgency", "timer", "mission", "sincerity", "bridge"], "threshold": 2}, {"node_id": "n04_spotlight_choices", "episode_id": null, "retrieval_score": 5.0, "overlap": ["urgency", "timer", "explosive", "sincerity", "stage_light"], "threshold": 3}, {"node_id": "n13_countdown_clock", "episode_id": null, "retrieval_score": 5.0, "overlap": ["urgency", "timer", "explosive", "mission", "sincerity"], "threshold": 2}, {"node_id": "n12_full_circle_doorway", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "seam", "sincerity"], "threshold": 2}], "emotional_state": [], "selected_goal": {"id": "g-7", "goal_type": "rehearsal", "strength": 0.62836, "planning_type": "real", "situation_id": "s2_the_mission"}, "active_indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos", "perception", "awareness", "seam", "wall", "cardboard", "stage_light"], "sprouted_contexts": [], "chosen_node_id": "n04_spotlight_choices", "goal_selection": "highest_strength", "situations": {"s1_seeing_through": {"visits": 4, "activation": 0.9293600000000001, "inferred": true, "place": "checkpoint", "threat": 0.424278, "id": "s1_seeing_through", "hope": 0.298312, "directed-target": "the_set", "waiting": 0.172872, "ripeness": 0.9043700000000001, "grief": 0.293716, "anger": 0.02386199999999997, "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n", "indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "external": false}, "s2_the_mission": {"visits": 1, "activation": 0.619648, "inferred": false, "place": "street", "threat": 0.32931499999999997, "id": "s2_the_mission", "hope": 0.771488, "directed-target": null, "waiting": 0.895152, "ripeness": 0.6091520000000001, "grief": 0.075272, "anger": 0.09409000000000001, "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n", "indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos"], "external": true}, "s3_the_edge": {"visits": 0, "activation": 0.08464000000000002, "inferred": true, "place": "checkpoint", "threat": 0.5833579999999999, "id": "s3_the_edge", "hope": 0.153664, "directed-target": null, "waiting": 0.057623999999999995, "ripeness": 0.41194000000000003, "grief": 0.22581599999999996, "anger": 0.11290799999999998, "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n", "indices": ["edge", "void", "backstage", "darkness", "wall", "non_directed_light", "emotion:neg"], "external": true}, "s4_the_ring": {"visits": 0, "activation": 0.5520000000000002, "inferred": false, "place": "arena", "threat": 0.206998, "id": "s4_the_ring", "hope": 0.8725919999999997, "directed-target": null, "waiting": 0.42257599999999995, "ripeness": 0.72973, "grief": 0.05645399999999999, "anger": 0.16936199999999998, "description": "The wrestling ring. The only honest place. Here, performance is the stated purpose. Everywhere else it's a secret.\n", "indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos"], "external": false}}, "selection": {"policy": "highest_score", "score": 9.327, "reasons": ["retrieval:5", "goal_match", "situation_match", "return_pressure"]}, "emotion_shifts": [], "serendipity_bias": null}, {"feedback_applied": null, "activations": [], "cycle": 6, "branch_events": [{"family": "reversal", "source_context": "cx-2", "target_context": "cx-41", "fact_ids": ["performance_is_admitted", "s4_the_ring"], "fact_types": ["counterfactual", "situation"], "retracted_fact_ids": ["performance_stays_hidden"], "retracted_fact_types": ["assumption"]}], "timestamp": null, "top_candidates": [{"id": "g-8", "goal_type": "reversal", "strength": 0.75353764, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-18", "goal_type": "rehearsal", "strength": 0.5859354, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"id": "g-7", "goal_type": "rehearsal", "strength": 0.529948, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-30", "goal_type": "rationalization", "strength": 0.5063045, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-10", "goal_type": "rationalization", "strength": 0.4645300099999999, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-5", "goal_type": "rationalization", "strength": 0.44011570000000005, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-29", "goal_type": "recovery", "strength": 0.43410000000000004, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["retry", "goal_repair"]}, {"id": "g-12", "goal_type": "rationalization", "strength": 0.39351129999999995, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-16", "goal_type": "revenge", "strength": 0.38802603999999996, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["directed_anger", "counterparty", "directed_target"]}, {"id": "g-14", "goal_type": "reversal", "strength": 0.38731796, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-21", "goal_type": "repercussions", "strength": 0.38696363000000006, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-26", "goal_type": "reversal", "strength": 0.343393172, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-28", "goal_type": "recovery", "strength": 0.3119427, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["retry", "goal_repair"]}, {"id": "g-19", "goal_type": "repercussions", "strength": 0.3105075, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-25", "goal_type": "rehearsal", "strength": 0.2947214, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-35", "goal_type": "recovery", "strength": 0.283732, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["retry", "goal_repair"]}, {"id": "g-36", "goal_type": "reversal", "strength": 0.27492900000000003, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-23", "goal_type": "roving", "strength": 0.18528792, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["overload", "distraction"]}, {"id": "g-32", "goal_type": "roving", "strength": 0.17182764571428574, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["overload", "distraction"]}, {"id": "g-34", "goal_type": "recovery", "strength": 0.14759219999999998, "planning_type": "real", "situation_id": "s3_the_edge", "reasons": ["retry", "goal_repair"]}], "mutations": [{"family": "reversal", "source-context": "cx-2", "target-context": "cx-41", "input-facts": [{"type": "counterfactual", "id": "performance_is_admitted"}, {"type": "situation", "id": "s4_the_ring"}], "retracted-facts": [{"type": "assumption", "id": "performance_stays_hidden"}]}], "retrieved": [{"node_id": "n01_notice_seams", "episode_id": null, "retrieval_score": 6.0, "overlap": ["perception", "awareness", "seam", "fingerprint", "explosive", "sincerity"], "threshold": 2}, {"node_id": "n04_spotlight_choices", "episode_id": null, "retrieval_score": 6.0, "overlap": ["urgency", "timer", "explosive", "sincerity", "stage_light", "choice"], "threshold": 3}, {"node_id": "n02_corridor_repeat", "episode_id": null, "retrieval_score": 5.0, "overlap": ["perception", "awareness", "seam", "cardboard", "stage_light"], "threshold": 2}, {"node_id": "n10_honest_ring", "episode_id": null, "retrieval_score": 5.0, "overlap": ["ritual", "honesty", "performance", "sincerity", "non_directed_light"], "threshold": 3}, {"node_id": "n09_tear_the_set", "episode_id": null, "retrieval_score": 4.0, "overlap": ["ritual", "honesty", "seam", "performance"], "threshold": 3}, {"node_id": "n12_full_circle_doorway", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "seam", "sincerity"], "threshold": 2}], "emotional_state": [], "selected_goal": {"id": "g-8", "goal_type": "reversal", "strength": 0.75353764, "planning_type": "imaginary", "situation_id": "s1_seeing_through"}, "active_indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg", "ritual", "sincerity", "non_directed_light", "performance", "honesty", "urgency", "timer", "explosive", "choice"], "sprouted_contexts": ["cx-41"], "chosen_node_id": "n01_notice_seams", "goal_selection": "highest_strength", "situations": {"s1_seeing_through": {"visits": 5, "activation": 1.0, "inferred": true, "place": "checkpoint", "threat": 0.434278, "id": "s1_seeing_through", "hope": 0.298312, "directed-target": "the_set", "waiting": 0.172872, "ripeness": 0.9443700000000002, "grief": 0.33371599999999996, "anger": 0.0, "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n", "indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "external": false}, "s2_the_mission": {"visits": 1, "activation": 0.759648, "inferred": false, "place": "street", "threat": 0.32931499999999997, "id": "s2_the_mission", "hope": 0.771488, "directed-target": null, "waiting": 0.895152, "ripeness": 0.6491520000000002, "grief": 0.075272, "anger": 0.09409000000000001, "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n", "indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos"], "external": true}, "s3_the_edge": {"visits": 0, "activation": 0.08464000000000002, "inferred": true, "place": "checkpoint", "threat": 0.5833579999999999, "id": "s3_the_edge", "hope": 0.153664, "directed-target": null, "waiting": 0.057623999999999995, "ripeness": 0.41194000000000003, "grief": 0.22581599999999996, "anger": 0.11290799999999998, "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n", "indices": ["edge", "void", "backstage", "darkness", "wall", "non_directed_light", "emotion:neg"], "external": true}, "s4_the_ring": {"visits": 0, "activation": 0.7520000000000001, "inferred": false, "place": "arena", "threat": 0.206998, "id": "s4_the_ring", "hope": 1.0, "directed-target": null, "waiting": 0.42257599999999995, "ripeness": 0.86973, "grief": 0.05645399999999999, "anger": 0.16936199999999998, "description": "The wrestling ring. The only honest place. Here, performance is the stated purpose. Everywhere else it's a secret.\n", "indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos"], "external": false}}, "selection": {"score": 8.44904, "reversal_branch_contexts": ["cx-41"], "edge_kind": "counterfactual_bridge", "benchmark_step": "cycle_10_branch_arrival", "reversal_counterfactual_reasons": ["stored_failure_cause", "matching_failed_goal", "multi_fact_counterfactual"], "reversal_leaf_emotion_pressure": 0.74, "reversal_leaf_depth": 1, "adapter_branch_context": "cx-41", "reversal_source_context": "cx-2", "reversal_branch_count": 1, "adapter_policy": "branch_visible_facts", "reversal_leaf_strength": 0.32, "reversal_target_goal": "g_fixture_old_failure", "adapter_visible_fact_ids": ["performance_is_admitted", "s1_seeing_through", "s3_the_edge", "s4_the_ring"], "reversal_leaf_retracted_facts": ["performance_stays_hidden"], "goal_family": "reversal", "reversal_leaf_reasons": ["intends_leaf", "weak_assumption", "objective_retraction"], "adapter_selected_situation": "s4_the_ring", "reversal_leaf_goal": "g_fixture_old_leaf", "policy": "highest_score", "reversal_counterfactual_goal": "g_fixture_old_failure", "adapter_active_indices": ["ritual", "sincerity", "non_directed_light", "performance", "honesty"], "reversal_counterfactual_fact_ids": ["performance_is_admitted", "s4_the_ring"], "reversal_leaf_policy": "intends_weak_leaf", "reversal_counterfactual_source": "fc_admit_performance", "reasons": ["retrieval:6", "situation_match", "return_pressure", "recent_penalty"], "reversal_branch_context": "cx-41", "reversal_counterfactual_policy": "stored_priority", "reversal_target_policy": "emotion_then_depth"}, "emotion_shifts": [], "serendipity_bias": null}, {"feedback_applied": null, "activations": [], "cycle": 7, "branch_events": [], "timestamp": null, "top_candidates": [{"id": "g-7", "goal_type": "rehearsal", "strength": 0.754948, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["anticipation", "waiting_goal", "mission_escape"]}, {"id": "g-32", "goal_type": "roving", "strength": 0.6818276457142858, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["overload", "distraction", "fatigue_escape"]}, {"id": "g-18", "goal_type": "rehearsal", "strength": 0.655417, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"id": "g-8", "goal_type": "reversal", "strength": 0.6384205199999999, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene", "fatigue"]}, {"id": "g-30", "goal_type": "rationalization", "strength": 0.6119045000000001, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-10", "goal_type": "rationalization", "strength": 0.52453001, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-29", "goal_type": "recovery", "strength": 0.477696, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["retry", "goal_repair"]}, {"id": "g-21", "goal_type": "repercussions", "strength": 0.4169636300000001, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-5", "goal_type": "rationalization", "strength": 0.3986461, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-12", "goal_type": "rationalization", "strength": 0.39351129999999995, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-16", "goal_type": "revenge", "strength": 0.39176944, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["directed_anger", "counterparty", "directed_target"]}, {"id": "g-14", "goal_type": "reversal", "strength": 0.38731796, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-26", "goal_type": "reversal", "strength": 0.37539317200000005, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-35", "goal_type": "recovery", "strength": 0.3404728, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["retry", "goal_repair"]}, {"id": "g-28", "goal_type": "recovery", "strength": 0.33694270000000004, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["retry", "goal_repair"]}, {"id": "g-36", "goal_type": "reversal", "strength": 0.331249, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-19", "goal_type": "repercussions", "strength": 0.3105075, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-25", "goal_type": "rehearsal", "strength": 0.2973174, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-23", "goal_type": "roving", "strength": 0.20322328, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["overload", "distraction"]}, {"id": "g-34", "goal_type": "recovery", "strength": 0.14759219999999998, "planning_type": "real", "situation_id": "s3_the_edge", "reasons": ["retry", "goal_repair"]}], "mutations": [], "retrieved": [{"node_id": "n01_notice_seams", "episode_id": null, "retrieval_score": 6.0, "overlap": ["perception", "awareness", "seam", "fingerprint", "explosive", "sincerity"], "threshold": 2}, {"node_id": "n03_mission_walk", "episode_id": null, "retrieval_score": 5.0, "overlap": ["urgency", "timer", "mission", "sincerity", "bridge"], "threshold": 2}, {"node_id": "n13_countdown_clock", "episode_id": null, "retrieval_score": 5.0, "overlap": ["urgency", "timer", "explosive", "mission", "sincerity"], "threshold": 2}, {"node_id": "n04_spotlight_choices", "episode_id": null, "retrieval_score": 4.0, "overlap": ["urgency", "timer", "explosive", "sincerity"], "threshold": 3}, {"node_id": "n12_full_circle_doorway", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "seam", "sincerity"], "threshold": 2}, {"node_id": "n15_subway_self_scrutiny", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "fingerprint", "seam"], "threshold": 3}], "emotional_state": [], "selected_goal": {"id": "g-7", "goal_type": "rehearsal", "strength": 0.754948, "planning_type": "real", "situation_id": "s2_the_mission"}, "active_indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos", "perception", "awareness", "seam", "fingerprint"], "sprouted_contexts": [], "chosen_node_id": "n13_countdown_clock", "goal_selection": "highest_strength", "situations": {"s1_seeing_through": {"visits": 5, "activation": 0.92, "inferred": true, "place": "checkpoint", "threat": 0.42124965999999997, "id": "s1_seeing_through", "hope": 0.29234576, "directed-target": "the_set", "waiting": 0.16941456, "ripeness": 0.9449263000000001, "grief": 0.32370451999999994, "anger": 0.0, "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n", "indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "external": false}, "s2_the_mission": {"visits": 2, "activation": 0.9188761599999999, "inferred": false, "place": "street", "threat": 0.31943554999999996, "id": "s2_the_mission", "hope": 0.83605824, "directed-target": null, "waiting": 0.92724896, "ripeness": 0.6926604800000002, "grief": 0.07301384, "anger": 0.09126730000000001, "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n", "indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos"], "external": true}, "s3_the_edge": {"visits": 0, "activation": 0.07786880000000002, "inferred": true, "place": "checkpoint", "threat": 0.5658572599999999, "id": "s3_the_edge", "hope": 0.15059071999999998, "directed-target": null, "waiting": 0.05647151999999999, "ripeness": 0.41782060000000004, "grief": 0.21904151999999996, "anger": 0.10952075999999998, "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n", "indices": ["edge", "void", "backstage", "darkness", "wall", "non_directed_light", "emotion:neg"], "external": true}, "s4_the_ring": {"visits": 0, "activation": 0.6918400000000001, "inferred": false, "place": "arena", "threat": 0.20078806, "id": "s4_the_ring", "hope": 0.98, "directed-target": null, "waiting": 0.41412447999999996, "ripeness": 0.8710327, "grief": 0.05476037999999999, "anger": 0.16428114, "description": "The wrestling ring. The only honest place. Here, performance is the stated purpose. Everywhere else it's a secret.\n", "indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos"], "external": false}}, "selection": {"policy": "highest_score", "score": 9.443472000000002, "reasons": ["retrieval:5", "goal_match", "situation_match", "local:association", "return_pressure"]}, "emotion_shifts": [], "serendipity_bias": null}, {"feedback_applied": null, "activations": [], "cycle": 8, "branch_events": [{"family": "reversal", "source_context": "cx-2", "target_context": "cx-42", "fact_ids": ["performance_is_admitted", "s4_the_ring"], "fact_types": ["counterfactual", "situation"], "retracted_fact_ids": ["performance_stays_hidden"], "retracted_fact_types": ["assumption"]}], "timestamp": null, "top_candidates": [{"id": "g-8", "goal_type": "reversal", "strength": 0.8002654915999999, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-18", "goal_type": "rehearsal", "strength": 0.64041039, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"id": "g-7", "goal_type": "rehearsal", "strength": 0.5921213599999999, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-30", "goal_type": "rationalization", "strength": 0.588386069, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-10", "goal_type": "rationalization", "strength": 0.5088363752999999, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-21", "goal_type": "repercussions", "strength": 0.4683758538999999, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-29", "goal_type": "recovery", "strength": 0.46385217200000006, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["retry", "goal_repair"]}, {"id": "g-26", "goal_type": "reversal", "strength": 0.45336058516000005, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-28", "goal_type": "recovery", "strength": 0.398646851, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["retry", "goal_repair"]}, {"id": "g-12", "goal_type": "rationalization", "strength": 0.386359753, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-14", "goal_type": "reversal", "strength": 0.38292044360000005, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-16", "goal_type": "revenge", "strength": 0.3783917456, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["directed_anger", "counterparty", "directed_target"]}, {"id": "g-5", "goal_type": "rationalization", "strength": 0.3654196930000001, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-35", "goal_type": "recovery", "strength": 0.32895807600000004, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["retry", "goal_repair"]}, {"id": "g-36", "goal_type": "reversal", "strength": 0.3184988388000001, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-19", "goal_type": "repercussions", "strength": 0.305619171, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-25", "goal_type": "rehearsal", "strength": 0.2833154220000001, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-23", "goal_type": "roving", "strength": 0.19974878000000001, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["overload", "distraction"]}, {"id": "g-34", "goal_type": "recovery", "strength": 0.145107178, "planning_type": "real", "situation_id": "s3_the_edge", "reasons": ["retry", "goal_repair"]}], "mutations": [{"family": "reversal", "source-context": "cx-2", "target-context": "cx-42", "input-facts": [{"type": "counterfactual", "id": "performance_is_admitted"}, {"type": "situation", "id": "s4_the_ring"}], "retracted-facts": [{"type": "assumption", "id": "performance_stays_hidden"}]}], "retrieved": [{"node_id": "n01_notice_seams", "episode_id": null, "retrieval_score": 6.0, "overlap": ["perception", "awareness", "seam", "fingerprint", "explosive", "sincerity"], "threshold": 2}, {"node_id": "n13_countdown_clock", "episode_id": null, "retrieval_score": 6.0, "overlap": ["urgency", "timer", "explosive", "mission", "sincerity", "rooftop"], "threshold": 2}, {"node_id": "n02_corridor_repeat", "episode_id": null, "retrieval_score": 5.0, "overlap": ["perception", "awareness", "seam", "cardboard", "stage_light"], "threshold": 2}, {"node_id": "n04_spotlight_choices", "episode_id": null, "retrieval_score": 5.0, "overlap": ["urgency", "timer", "explosive", "sincerity", "stage_light"], "threshold": 3}, {"node_id": "n10_honest_ring", "episode_id": null, "retrieval_score": 5.0, "overlap": ["ritual", "honesty", "performance", "sincerity", "non_directed_light"], "threshold": 3}, {"node_id": "n03_mission_walk", "episode_id": null, "retrieval_score": 4.0, "overlap": ["urgency", "timer", "mission", "sincerity"], "threshold": 2}], "emotional_state": [], "selected_goal": {"id": "g-8", "goal_type": "reversal", "strength": 0.8002654915999999, "planning_type": "imaginary", "situation_id": "s1_seeing_through"}, "active_indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg", "ritual", "sincerity", "non_directed_light", "performance", "honesty", "explosive", "urgency", "timer", "mission", "rooftop"], "sprouted_contexts": ["cx-42"], "chosen_node_id": "n01_notice_seams", "goal_selection": "highest_strength", "situations": {"s1_seeing_through": {"visits": 6, "activation": 1.0, "inferred": true, "place": "checkpoint", "threat": 0.43124966, "id": "s1_seeing_through", "hope": 0.29234576, "directed-target": "the_set", "waiting": 0.16941456, "ripeness": 0.9849263000000001, "grief": 0.3637045199999999, "anger": 0.0, "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n", "indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "external": false}, "s2_the_mission": {"visits": 2, "activation": 1.0, "inferred": false, "place": "street", "threat": 0.31943554999999996, "id": "s2_the_mission", "hope": 0.83605824, "directed-target": null, "waiting": 0.92724896, "ripeness": 0.7326604800000003, "grief": 0.07301384, "anger": 0.09126730000000001, "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n", "indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos"], "external": true}, "s3_the_edge": {"visits": 0, "activation": 0.07786880000000002, "inferred": true, "place": "checkpoint", "threat": 0.5658572599999999, "id": "s3_the_edge", "hope": 0.15059071999999998, "directed-target": null, "waiting": 0.05647151999999999, "ripeness": 0.41782060000000004, "grief": 0.21904151999999996, "anger": 0.10952075999999998, "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n", "indices": ["edge", "void", "backstage", "darkness", "wall", "non_directed_light", "emotion:neg"], "external": true}, "s4_the_ring": {"visits": 0, "activation": 0.8918400000000001, "inferred": false, "place": "arena", "threat": 0.20078806, "id": "s4_the_ring", "hope": 1.0, "directed-target": null, "waiting": 0.41412447999999996, "ripeness": 1.0, "grief": 0.05476037999999999, "anger": 0.16428114, "description": "The wrestling ring. The only honest place. Here, performance is the stated purpose. Everywhere else it's a secret.\n", "indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos"], "external": false}}, "selection": {"score": 8.07831424, "reversal_branch_contexts": ["cx-42"], "edge_kind": "counterfactual_bridge", "benchmark_step": "cycle_10_branch_arrival", "reversal_counterfactual_reasons": ["stored_failure_cause", "matching_failed_goal", "multi_fact_counterfactual"], "reversal_leaf_emotion_pressure": 0.74, "reversal_leaf_depth": 1, "adapter_branch_context": "cx-42", "reversal_source_context": "cx-2", "reversal_branch_count": 1, "adapter_policy": "branch_visible_facts", "reversal_leaf_strength": 0.32, "reversal_target_goal": "g_fixture_old_failure", "adapter_visible_fact_ids": ["performance_is_admitted", "s1_seeing_through", "s3_the_edge", "s4_the_ring"], "reversal_leaf_retracted_facts": ["performance_stays_hidden"], "goal_family": "reversal", "reversal_leaf_reasons": ["intends_leaf", "weak_assumption", "objective_retraction"], "adapter_selected_situation": "s4_the_ring", "reversal_leaf_goal": "g_fixture_old_leaf", "policy": "highest_score", "reversal_counterfactual_goal": "g_fixture_old_failure", "adapter_active_indices": ["ritual", "sincerity", "non_directed_light", "performance", "honesty"], "reversal_counterfactual_fact_ids": ["performance_is_admitted", "s4_the_ring"], "reversal_leaf_policy": "intends_weak_leaf", "reversal_counterfactual_source": "fc_admit_performance", "reasons": ["retrieval:6", "situation_match", "return_pressure", "recent_penalty"], "reversal_branch_context": "cx-42", "reversal_counterfactual_policy": "stored_priority", "reversal_target_policy": "emotion_then_depth"}, "emotion_shifts": [], "serendipity_bias": null}, {"feedback_applied": null, "activations": [], "cycle": 9, "branch_events": [], "timestamp": null, "top_candidates": [{"id": "g-30", "goal_type": "rationalization", "strength": 0.6913382209999999, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-18", "goal_type": "rehearsal", "strength": 0.68730712, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"id": "g-7", "goal_type": "rehearsal", "strength": 0.608289936, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-8", "goal_type": "reversal", "strength": 0.5804454916, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene", "fatigue"]}, {"id": "g-10", "goal_type": "rationalization", "strength": 0.5476409577, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-29", "goal_type": "recovery", "strength": 0.49835217200000004, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["retry", "goal_repair"]}, {"id": "g-21", "goal_type": "repercussions", "strength": 0.48777814509999995, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-26", "goal_type": "reversal", "strength": 0.4740563624400001, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-28", "goal_type": "recovery", "strength": 0.414815427, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["retry", "goal_repair"]}, {"id": "g-16", "goal_type": "revenge", "strength": 0.39231174560000004, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["directed_anger", "counterparty", "directed_target"]}, {"id": "g-12", "goal_type": "rationalization", "strength": 0.386359753, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-14", "goal_type": "reversal", "strength": 0.38292044360000005, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-35", "goal_type": "recovery", "strength": 0.373854806, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["retry", "goal_repair"]}, {"id": "g-36", "goal_type": "reversal", "strength": 0.3734066532, "planning_type": "imaginary", "situation_id": "s4_the_ring", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-5", "goal_type": "rationalization", "strength": 0.35731969299999994, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-19", "goal_type": "repercussions", "strength": 0.305619171, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-25", "goal_type": "rehearsal", "strength": 0.29181542200000005, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-23", "goal_type": "roving", "strength": 0.21250878, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["overload", "distraction"]}, {"id": "g-34", "goal_type": "recovery", "strength": 0.145107178, "planning_type": "real", "situation_id": "s3_the_edge", "reasons": ["retry", "goal_repair"]}], "mutations": [], "retrieved": [{"node_id": "n01_notice_seams", "episode_id": null, "retrieval_score": 6.0, "overlap": ["perception", "awareness", "seam", "fingerprint", "explosive", "sincerity"], "threshold": 2}, {"node_id": "n09_tear_the_set", "episode_id": null, "retrieval_score": 6.0, "overlap": ["ritual", "combat", "honesty", "crowd", "seam", "performance"], "threshold": 3}, {"node_id": "n10_honest_ring", "episode_id": null, "retrieval_score": 5.0, "overlap": ["ritual", "honesty", "crowd", "performance", "sincerity"], "threshold": 3}, {"node_id": "n18_grand_central_show", "episode_id": null, "retrieval_score": 5.0, "overlap": ["ritual", "combat", "crowd", "honesty", "performance"], "threshold": 3}, {"node_id": "n12_full_circle_doorway", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "seam", "sincerity"], "threshold": 2}, {"node_id": "n15_subway_self_scrutiny", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "fingerprint", "seam"], "threshold": 3}], "emotional_state": [], "selected_goal": {"id": "g-30", "goal_type": "rationalization", "strength": 0.6913382209999999, "planning_type": "imaginary", "situation_id": "s4_the_ring"}, "active_indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos", "perception", "awareness", "seam", "fingerprint", "explosive", "sincerity"], "sprouted_contexts": [], "chosen_node_id": "n09_tear_the_set", "goal_selection": "highest_strength", "situations": {"s1_seeing_through": {"visits": 6, "activation": 1.0, "inferred": true, "place": "checkpoint", "threat": 0.41831217019999994, "id": "s1_seeing_through", "hope": 0.2864988448, "directed-target": "the_set", "waiting": 0.1660262688, "ripeness": 1.0, "grief": 0.3527933843999999, "anger": 0.0, "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n", "indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "external": false}, "s2_the_mission": {"visits": 2, "activation": 0.92, "inferred": false, "place": "street", "threat": 0.30985248349999994, "id": "s2_the_mission", "hope": 0.8193370752, "directed-target": null, "waiting": 0.9087039808, "ripeness": 0.7353338752000003, "grief": 0.07082342479999999, "anger": 0.088529281, "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n", "indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos"], "external": true}, "s3_the_edge": {"visits": 0, "activation": 0.07163929600000002, "inferred": true, "place": "checkpoint", "threat": 0.5488815421999999, "id": "s3_the_edge", "hope": 0.14757890559999998, "directed-target": null, "waiting": 0.05534208959999999, "ripeness": 0.42364239400000003, "grief": 0.21247027439999996, "anger": 0.10623513719999998, "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n", "indices": ["edge", "void", "backstage", "darkness", "wall", "non_directed_light", "emotion:neg"], "external": true}, "s4_the_ring": {"visits": 1, "activation": 1.0, "inferred": false, "place": "arena", "threat": 0.19476441819999998, "id": "s4_the_ring", "hope": 1.0, "directed-target": null, "waiting": 0.40584199039999996, "ripeness": 1.0, "grief": 0.0031175685999999883, "anger": 0.1593527058, "description": "The wrestling ring. The only honest place. Here, performance is the stated purpose. Everywhere else it's a secret.\n", "indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos"], "external": false}}, "selection": {"policy": "highest_score", "score": 9.019999999999998, "reasons": ["retrieval:6", "situation_match", "return_pressure"]}, "emotion_shifts": [], "serendipity_bias": null}, {"feedback_applied": null, "activations": [], "cycle": 10, "branch_events": [{"family": "reversal", "source_context": "cx-2", "target_context": "cx-43", "fact_ids": ["performance_is_admitted", "s4_the_ring"], "fact_types": ["counterfactual", "situation"], "retracted_fact_ids": ["performance_stays_hidden"], "retracted_fact_types": ["assumption"]}], "timestamp": null, "top_candidates": [{"id": "g-8", "goal_type": "reversal", "strength": 0.799528677444, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-18", "goal_type": "rehearsal", "strength": 0.6894604975999999, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"id": "g-7", "goal_type": "rehearsal", "strength": 0.58857679776, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-10", "goal_type": "rationalization", "strength": 0.5161284992730001, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-29", "goal_type": "recovery", "strength": 0.49798110149999997, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["retry", "goal_repair"]}, {"id": "g-21", "goal_type": "repercussions", "strength": 0.4713031858990001, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-26", "goal_type": "reversal", "strength": 0.45693028239560013, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-35", "goal_type": "recovery", "strength": 0.4174764418200001, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["retry", "goal_repair"]}, {"id": "g-28", "goal_type": "recovery", "strength": 0.4004523433900001, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["retry", "goal_repair"]}, {"id": "g-16", "goal_type": "revenge", "strength": 0.394, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["directed_anger", "counterparty", "directed_target"]}, {"id": "g-12", "goal_type": "rationalization", "strength": 0.3795728608899999, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-14", "goal_type": "reversal", "strength": 0.37873491054799996, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-5", "goal_type": "rationalization", "strength": 0.35640925956999986, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-19", "goal_type": "repercussions", "strength": 0.30095254611, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-25", "goal_type": "rehearsal", "strength": 0.29130633616, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-23", "goal_type": "roving", "strength": 0.261197460424, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["overload", "distraction"]}, {"id": "g-34", "goal_type": "recovery", "strength": 0.14275617858, "planning_type": "real", "situation_id": "s3_the_edge", "reasons": ["retry", "goal_repair"]}], "mutations": [{"family": "reversal", "source-context": "cx-2", "target-context": "cx-43", "input-facts": [{"type": "counterfactual", "id": "performance_is_admitted"}, {"type": "situation", "id": "s4_the_ring"}], "retracted-facts": [{"type": "assumption", "id": "performance_stays_hidden"}]}], "retrieved": [{"node_id": "n09_tear_the_set", "episode_id": null, "retrieval_score": 7.0, "overlap": ["ritual", "combat", "honesty", "crowd", "seam", "anger", "performance"], "threshold": 3}, {"node_id": "n10_honest_ring", "episode_id": null, "retrieval_score": 6.0, "overlap": ["ritual", "honesty", "crowd", "performance", "sincerity", "non_directed_light"], "threshold": 3}, {"node_id": "n18_grand_central_show", "episode_id": null, "retrieval_score": 6.0, "overlap": ["ritual", "combat", "crowd", "honesty", "performance", "anger"], "threshold": 3}, {"node_id": "n01_notice_seams", "episode_id": null, "retrieval_score": 5.0, "overlap": ["perception", "awareness", "seam", "fingerprint", "sincerity"], "threshold": 2}, {"node_id": "n02_corridor_repeat", "episode_id": null, "retrieval_score": 5.0, "overlap": ["perception", "awareness", "seam", "cardboard", "stage_light"], "threshold": 2}, {"node_id": "n12_full_circle_doorway", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "seam", "sincerity"], "threshold": 2}], "emotional_state": [], "selected_goal": {"id": "g-8", "goal_type": "reversal", "strength": 0.799528677444, "planning_type": "imaginary", "situation_id": "s1_seeing_through"}, "active_indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg", "ritual", "sincerity", "non_directed_light", "performance", "honesty", "combat", "crowd", "anger"], "sprouted_contexts": ["cx-43"], "chosen_node_id": "n09_tear_the_set", "goal_selection": "highest_strength", "situations": {"s1_seeing_through": {"visits": 7, "activation": 1.0, "inferred": true, "place": "checkpoint", "threat": 0.42831217019999995, "id": "s1_seeing_through", "hope": 0.2864988448, "directed-target": "the_set", "waiting": 0.1660262688, "ripeness": 1.0, "grief": 0.3927933843999999, "anger": 0.0, "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n", "indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "external": false}, "s2_the_mission": {"visits": 2, "activation": 0.92, "inferred": false, "place": "street", "threat": 0.30985248349999994, "id": "s2_the_mission", "hope": 0.8193370752, "directed-target": null, "waiting": 0.9087039808, "ripeness": 0.7353338752000003, "grief": 0.07082342479999999, "anger": 0.088529281, "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n", "indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos"], "external": true}, "s3_the_edge": {"visits": 0, "activation": 0.07163929600000002, "inferred": true, "place": "checkpoint", "threat": 0.5488815421999999, "id": "s3_the_edge", "hope": 0.14757890559999998, "directed-target": null, "waiting": 0.05534208959999999, "ripeness": 0.42364239400000003, "grief": 0.21247027439999996, "anger": 0.10623513719999998, "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n", "indices": ["edge", "void", "backstage", "darkness", "wall", "non_directed_light", "emotion:neg"], "external": true}, "s4_the_ring": {"visits": 1, "activation": 1.0, "inferred": false, "place": "arena", "threat": 0.19476441819999998, "id": "s4_the_ring", "hope": 1.0, "directed-target": null, "waiting": 0.40584199039999996, "ripeness": 1.0, "grief": 0.0031175685999999883, "anger": 0.1593527058, "description": "The wrestling ring. The only honest place. Here, performance is the stated purpose. Everywhere else it's a secret.\n", "indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos"], "external": false}}, "selection": {"score": 9.37, "reversal_branch_contexts": ["cx-43"], "edge_kind": "counterfactual_bridge", "benchmark_step": "cycle_10_branch_arrival", "reversal_counterfactual_reasons": ["stored_failure_cause", "matching_failed_goal", "multi_fact_counterfactual"], "reversal_leaf_emotion_pressure": 0.74, "reversal_leaf_depth": 1, "adapter_branch_context": "cx-43", "reversal_source_context": "cx-2", "reversal_branch_count": 1, "adapter_policy": "branch_visible_facts", "reversal_leaf_strength": 0.32, "reversal_target_goal": "g_fixture_old_failure", "adapter_visible_fact_ids": ["performance_is_admitted", "s1_seeing_through", "s3_the_edge", "s4_the_ring"], "reversal_leaf_retracted_facts": ["performance_stays_hidden"], "goal_family": "reversal", "reversal_leaf_reasons": ["intends_leaf", "weak_assumption", "objective_retraction"], "adapter_selected_situation": "s4_the_ring", "reversal_leaf_goal": "g_fixture_old_leaf", "policy": "highest_score", "reversal_counterfactual_goal": "g_fixture_old_failure", "adapter_active_indices": ["ritual", "sincerity", "non_directed_light", "performance", "honesty"], "reversal_counterfactual_fact_ids": ["performance_is_admitted", "s4_the_ring"], "reversal_leaf_policy": "intends_weak_leaf", "reversal_counterfactual_source": "fc_admit_performance", "reasons": ["retrieval:7", "situation_match", "return_pressure", "recent_penalty"], "reversal_branch_context": "cx-43", "reversal_counterfactual_policy": "stored_priority", "reversal_target_policy": "emotion_then_depth"}, "emotion_shifts": [], "serendipity_bias": null}, {"feedback_applied": null, "activations": [], "cycle": 11, "branch_events": [], "timestamp": null, "top_candidates": [{"id": "g-18", "goal_type": "rehearsal", "strength": 0.6894604975999999, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"id": "g-7", "goal_type": "rehearsal", "strength": 0.58857679776, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-10", "goal_type": "rationalization", "strength": 0.5161284992730001, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-29", "goal_type": "recovery", "strength": 0.49898110149999997, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["retry", "goal_repair"]}, {"id": "g-8", "goal_type": "reversal", "strength": 0.49172867744400006, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene", "fatigue"]}, {"id": "g-21", "goal_type": "repercussions", "strength": 0.4713031858990001, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-26", "goal_type": "reversal", "strength": 0.45693028239560013, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-35", "goal_type": "recovery", "strength": 0.4174764418200001, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["retry", "goal_repair"]}, {"id": "g-28", "goal_type": "recovery", "strength": 0.4004523433900001, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["retry", "goal_repair"]}, {"id": "g-16", "goal_type": "revenge", "strength": 0.394, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["directed_anger", "counterparty", "directed_target"]}, {"id": "g-12", "goal_type": "rationalization", "strength": 0.3795728608899999, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-14", "goal_type": "reversal", "strength": 0.37873491054799996, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-5", "goal_type": "rationalization", "strength": 0.3599092595699999, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-19", "goal_type": "repercussions", "strength": 0.30095254611, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-25", "goal_type": "rehearsal", "strength": 0.29130633616, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-23", "goal_type": "roving", "strength": 0.21239746042399998, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["overload", "distraction"]}, {"id": "g-34", "goal_type": "recovery", "strength": 0.14275617858, "planning_type": "real", "situation_id": "s3_the_edge", "reasons": ["retry", "goal_repair"]}], "mutations": [], "retrieved": [{"node_id": "n09_tear_the_set", "episode_id": null, "retrieval_score": 7.0, "overlap": ["ritual", "combat", "honesty", "crowd", "seam", "anger", "performance"], "threshold": 3}, {"node_id": "n18_grand_central_show", "episode_id": null, "retrieval_score": 6.0, "overlap": ["ritual", "combat", "crowd", "honesty", "performance", "anger"], "threshold": 3}, {"node_id": "n10_honest_ring", "episode_id": null, "retrieval_score": 4.0, "overlap": ["ritual", "honesty", "crowd", "performance"], "threshold": 3}, {"node_id": "n17_ring_approach", "episode_id": null, "retrieval_score": 4.0, "overlap": ["ritual", "arena", "honesty", "performance"], "threshold": 3}, {"node_id": "n01_notice_seams", "episode_id": null, "retrieval_score": 1.0, "overlap": ["seam"], "threshold": 2}, {"node_id": "n02_corridor_repeat", "episode_id": null, "retrieval_score": 1.0, "overlap": ["seam"], "threshold": 2}], "emotional_state": [], "selected_goal": {"id": "g-18", "goal_type": "rehearsal", "strength": 0.6894604975999999, "planning_type": "real", "situation_id": "s4_the_ring"}, "active_indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos", "seam", "anger"], "sprouted_contexts": [], "chosen_node_id": "n18_grand_central_show", "goal_selection": "highest_strength", "situations": {"s1_seeing_through": {"visits": 7, "activation": 1.0, "inferred": true, "place": "checkpoint", "threat": 0.41546280509399997, "id": "s1_seeing_through", "hope": 0.28076886790399996, "directed-target": "the_set", "waiting": 0.162705743424, "ripeness": 1.0, "grief": 0.3810095828679999, "anger": 0.0, "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n", "indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "external": false}, "s2_the_mission": {"visits": 2, "activation": 0.8464, "inferred": false, "place": "street", "threat": 0.3005569089949999, "id": "s2_the_mission", "hope": 0.802950333696, "directed-target": null, "waiting": 0.890529901184, "ripeness": 0.7379805364480002, "grief": 0.06869872205599999, "anger": 0.08587340257, "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n", "indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos"], "external": true}, "s3_the_edge": {"visits": 0, "activation": 0.06590815232000002, "inferred": true, "place": "checkpoint", "threat": 0.5324150959339998, "id": "s3_the_edge", "hope": 0.14462732748799997, "directed-target": null, "waiting": 0.054235247807999994, "ripeness": 0.42940597006000003, "grief": 0.20609616616799997, "anger": 0.10304808308399999, "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n", "indices": ["edge", "void", "backstage", "darkness", "wall", "non_directed_light", "emotion:neg"], "external": true}, "s4_the_ring": {"visits": 2, "activation": 1.0, "inferred": false, "place": "arena", "threat": 0.18892148565399997, "id": "s4_the_ring", "hope": 1.0, "directed-target": null, "waiting": 0.44772515059199997, "ripeness": 1.0, "grief": 0.0030240415419999886, "anger": 0.15457212462599998, "description": "The wrestling ring. The only honest place. Here, performance is the stated purpose. Everywhere else it's a secret.\n", "indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos"], "external": false}}, "selection": {"policy": "highest_score", "score": 9.427999999999999, "reasons": ["retrieval:6", "situation_match", "local:association", "return_pressure"]}, "emotion_shifts": [], "serendipity_bias": null}, {"feedback_applied": null, "activations": [], "cycle": 12, "branch_events": [{"family": "reversal", "source_context": "cx-2", "target_context": "cx-44", "fact_ids": ["performance_is_admitted", "s4_the_ring"], "fact_types": ["counterfactual", "situation"], "retracted_fact_ids": ["performance_stays_hidden"], "retracted_fact_types": ["assumption"]}], "timestamp": null, "top_candidates": [{"id": "g-8", "goal_type": "reversal", "strength": 0.74890181712068, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-18", "goal_type": "rehearsal", "strength": 0.687931287648, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["anticipation", "waiting_goal", "honest_place"]}, {"id": "g-7", "goal_type": "rehearsal", "strength": 0.5699805956799999, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-29", "goal_type": "recovery", "strength": 0.4971231672998, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["retry", "goal_repair"]}, {"id": "g-10", "goal_type": "rationalization", "strength": 0.48701424689577, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-21", "goal_type": "repercussions", "strength": 0.45604889162250994, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-35", "goal_type": "recovery", "strength": 0.4448921485654, "planning_type": "real", "situation_id": "s4_the_ring", "reasons": ["retry", "goal_repair"]}, {"id": "g-26", "goal_type": "reversal", "strength": 0.4410928286442441, "planning_type": "imaginary", "situation_id": "s2_the_mission", "reasons": ["counterfactual_pressure", "failed_plan"]}, {"id": "g-16", "goal_type": "revenge", "strength": 0.394, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["directed_anger", "counterparty", "directed_target"]}, {"id": "g-28", "goal_type": "recovery", "strength": 0.3871087779139, "planning_type": "real", "situation_id": "s2_the_mission", "reasons": ["retry", "goal_repair"]}, {"id": "g-14", "goal_type": "reversal", "strength": 0.37474965051860004, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["counterfactual_pressure", "failed_plan", "inferred_scene"]}, {"id": "g-12", "goal_type": "rationalization", "strength": 0.37312965122649994, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-5", "goal_type": "rationalization", "strength": 0.35541198178289996, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["failed_pressure", "negative_affect"]}, {"id": "g-19", "goal_type": "repercussions", "strength": 0.29649595780829996, "planning_type": "imaginary", "situation_id": "s3_the_edge", "reasons": ["external_threat", "what_follows", "external_pressure"]}, {"id": "g-25", "goal_type": "rehearsal", "strength": 0.2893302094368, "planning_type": "real", "situation_id": "s1_seeing_through", "reasons": ["anticipation", "waiting_goal"]}, {"id": "g-23", "goal_type": "roving", "strength": 0.21085553661127998, "planning_type": "imaginary", "situation_id": "s1_seeing_through", "reasons": ["overload", "distraction"]}, {"id": "g-34", "goal_type": "recovery", "strength": 0.14053106219619999, "planning_type": "real", "situation_id": "s3_the_edge", "reasons": ["retry", "goal_repair"]}], "mutations": [{"family": "reversal", "source-context": "cx-2", "target-context": "cx-44", "input-facts": [{"type": "counterfactual", "id": "performance_is_admitted"}, {"type": "situation", "id": "s4_the_ring"}], "retracted-facts": [{"type": "assumption", "id": "performance_stays_hidden"}]}], "retrieved": [{"node_id": "n09_tear_the_set", "episode_id": null, "retrieval_score": 6.0, "overlap": ["ritual", "combat", "honesty", "seam", "anger", "performance"], "threshold": 3}, {"node_id": "n01_notice_seams", "episode_id": null, "retrieval_score": 5.0, "overlap": ["perception", "awareness", "seam", "fingerprint", "sincerity"], "threshold": 2}, {"node_id": "n02_corridor_repeat", "episode_id": null, "retrieval_score": 5.0, "overlap": ["perception", "awareness", "seam", "cardboard", "stage_light"], "threshold": 2}, {"node_id": "n10_honest_ring", "episode_id": null, "retrieval_score": 5.0, "overlap": ["ritual", "honesty", "performance", "sincerity", "non_directed_light"], "threshold": 3}, {"node_id": "n18_grand_central_show", "episode_id": null, "retrieval_score": 5.0, "overlap": ["ritual", "combat", "honesty", "performance", "anger"], "threshold": 3}, {"node_id": "n12_full_circle_doorway", "episode_id": null, "retrieval_score": 4.0, "overlap": ["perception", "awareness", "seam", "sincerity"], "threshold": 2}], "emotional_state": [], "selected_goal": {"id": "g-8", "goal_type": "reversal", "strength": 0.74890181712068, "planning_type": "imaginary", "situation_id": "s1_seeing_through"}, "active_indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg", "ritual", "sincerity", "non_directed_light", "performance", "honesty", "anger", "combat"], "sprouted_contexts": ["cx-44"], "chosen_node_id": "n02_corridor_repeat", "goal_selection": "highest_strength", "situations": {"s1_seeing_through": {"visits": 8, "activation": 1.0, "inferred": true, "place": "checkpoint", "threat": 0.425462805094, "id": "s1_seeing_through", "hope": 0.28076886790399996, "directed-target": "the_set", "waiting": 0.162705743424, "ripeness": 1.0, "grief": 0.4210095828679999, "anger": 0.0, "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n", "indices": ["perception", "awareness", "seam", "fingerprint", "cardboard", "stage_light", "emotion:neg"], "external": false}, "s2_the_mission": {"visits": 2, "activation": 0.8464, "inferred": false, "place": "street", "threat": 0.3005569089949999, "id": "s2_the_mission", "hope": 0.802950333696, "directed-target": null, "waiting": 0.890529901184, "ripeness": 0.7379805364480002, "grief": 0.06869872205599999, "anger": 0.08587340257, "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n", "indices": ["urgency", "timer", "explosive", "sincerity", "mission", "bridge", "emotion:pos"], "external": true}, "s3_the_edge": {"visits": 0, "activation": 0.06590815232000002, "inferred": true, "place": "checkpoint", "threat": 0.5324150959339998, "id": "s3_the_edge", "hope": 0.14462732748799997, "directed-target": null, "waiting": 0.054235247807999994, "ripeness": 0.42940597006000003, "grief": 0.20609616616799997, "anger": 0.10304808308399999, "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n", "indices": ["edge", "void", "backstage", "darkness", "wall", "non_directed_light", "emotion:neg"], "external": true}, "s4_the_ring": {"visits": 2, "activation": 1.0, "inferred": false, "place": "arena", "threat": 0.18892148565399997, "id": "s4_the_ring", "hope": 1.0, "directed-target": null, "waiting": 0.44772515059199997, "ripeness": 1.0, "grief": 0.0030240415419999886, "anger": 0.15457212462599998, "description": "The wrestling ring. The only honest place. Here, performance is the stated purpose. Everywhere else it's a secret.\n", "indices": ["ritual", "combat", "crowd", "honesty", "performance", "arena", "emotion:pos"], "external": false}}, "selection": {"score": 8.105, "reversal_branch_contexts": ["cx-44"], "edge_kind": "counterfactual_bridge", "benchmark_step": "cycle_10_branch_arrival", "reversal_counterfactual_reasons": ["stored_failure_cause", "matching_failed_goal", "multi_fact_counterfactual"], "reversal_leaf_emotion_pressure": 0.74, "reversal_leaf_depth": 1, "adapter_branch_context": "cx-44", "reversal_source_context": "cx-2", "reversal_branch_count": 1, "adapter_policy": "branch_visible_facts", "reversal_leaf_strength": 0.32, "reversal_target_goal": "g_fixture_old_failure", "adapter_visible_fact_ids": ["performance_is_admitted", "s1_seeing_through", "s3_the_edge", "s4_the_ring"], "reversal_leaf_retracted_facts": ["performance_stays_hidden"], "goal_family": "reversal", "reversal_leaf_reasons": ["intends_leaf", "weak_assumption", "objective_retraction"], "adapter_selected_situation": "s4_the_ring", "reversal_leaf_goal": "g_fixture_old_leaf", "policy": "highest_score", "reversal_counterfactual_goal": "g_fixture_old_failure", "adapter_active_indices": ["ritual", "sincerity", "non_directed_light", "performance", "honesty"], "reversal_counterfactual_fact_ids": ["performance_is_admitted", "s4_the_ring"], "reversal_leaf_policy": "intends_weak_leaf", "reversal_counterfactual_source": "fc_admit_performance", "reasons": ["retrieval:5", "situation_match", "return_pressure"], "reversal_branch_context": "cx-44", "reversal_counterfactual_policy": "stored_priority", "reversal_target_policy": "emotion_then_depth"}, "emotion_shifts": [], "serendipity_bias": null}], "palette_path": "/Users/daviddickinson/Projects/Lora/scope-drd/content/palettes/escape_new_york.v2-layered.palette.yaml", "git_commit": null, "engine_path": "kernel/src/daydreamer", "palette_sha256": null, "engine_sha256": null, "graph_edges": 28}</script>
+  <script>
+    const TRACE = JSON.parse(document.getElementById("trace-data").textContent);
+    const GOAL_COLORS = {"rationalization": "#2ec4b6", "revenge": "#ef476f", "roving": "#f4a261", "reversal": "#5e60ce", "recovery": "#64b5f6", "rehearsal": "#84a98c", "repercussions": "#bc6c25"};
+    const SPEEDS = [4000, 2500, 1600, 950, 550];
+    const SPEED_LABELS = ["0.5×", "0.75×", "1×", "2×", "4×"];
+    const SITUATION_LAYOUT = {
+      s1_seeing_through: { x: 23, y: 30 },
+      s2_the_mission: { x: 72, y: 26 },
+      s3_the_edge: { x: 30, y: 72 },
+      s4_the_ring: { x: 72, y: 68 },
+      s5_the_others: { x: 52, y: 52 },
+    };
+
+    const cycles = TRACE.cycles || [];
+    let currentIndex = 0;
+    let playing = false;
+    let timer = null;
+    let speedIndex = 2;
+
+    const metaEl = document.getElementById("meta");
+    const cycleReadoutEl = document.getElementById("cycleReadout");
+    const goalReadoutEl = document.getElementById("goalReadout");
+    const playPauseEl = document.getElementById("playPause");
+    const prevCycleEl = document.getElementById("prevCycle");
+    const nextCycleEl = document.getElementById("nextCycle");
+    const speedRangeEl = document.getElementById("speedRange");
+    const speedValueEl = document.getElementById("speedValue");
+    const landscapeEl = document.getElementById("landscape");
+    const goalRaceEl = document.getElementById("goalRace");
+    const timelineEl = document.getElementById("timeline");
+    const thoughtStreamEl = document.getElementById("thoughtStream");
+    const situationLegendEl = document.getElementById("situationLegend");
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function titleCase(text) {
+      return (text || "").replace(/_/g, " ");
+    }
+
+    function shortSituation(id) {
+      return (id || "").replace(/^s\d+_/, "").replace(/_/g, " ");
+    }
+
+    function dominantEmotion(state) {
+      const metrics = [
+        ["threat", Number(state.threat || 0)],
+        ["anger", Number(state.anger || 0)],
+        ["hope", Number(state.hope || 0)],
+        ["grief", Number(state.grief || 0)],
+        ["waiting", Number(state.waiting || 0)],
+      ].sort((a, b) => b[1] - a[1]);
+      return metrics[0][0];
+    }
+
+    function situationColor(state) {
+      const emotion = dominantEmotion(state);
+      if (emotion === "threat" || emotion === "anger") {
+        const heat = clamp((Number(state.threat || 0) + Number(state.anger || 0)) / 1.7, 0.18, 1);
+        return `rgba(209, 73, 91, ${0.20 + heat * 0.38})`;
+      }
+      if (emotion === "hope") {
+        const glow = clamp(Number(state.hope || 0), 0.18, 1);
+        return `rgba(212, 175, 106, ${0.18 + glow * 0.36})`;
+      }
+      if (emotion === "grief") {
+        const depth = clamp(Number(state.grief || 0), 0.18, 1);
+        return `rgba(78, 103, 145, ${0.18 + depth * 0.34})`;
+      }
+      if (emotion === "waiting") {
+        const wait = clamp(Number(state.waiting || 0), 0.18, 1);
+        return `rgba(180, 145, 77, ${0.18 + wait * 0.3})`;
+      }
+      return "rgba(133, 144, 166, 0.24)";
+    }
+
+    function thoughtForCycle(cycle, previousCycle) {
+      const goal = cycle.selected_goal || {};
+      const situation = shortSituation(goal.situation_id || "unknown");
+      const goalType = goal.goal_type || "unknown";
+      const chosen = cycle.chosen_node_id ? ` [${cycle.chosen_node_id}]` : "";
+      const line1 = [];
+      const line2 = [];
+      line1.push(`<strong>${titleCase(goalType)}</strong> takes ${
+        situation ? "the " + situation : "the scene"
+      }.`);
+      if (goalType === "reversal") {
+        line1.push("Imagining an alternative past.");
+      } else if (goalType === "roving") {
+        line1.push("Slipping sideways into distraction.");
+      } else if (goalType === "rehearsal") {
+        line1.push("Practicing what still feels possible.");
+      } else if (goalType === "rationalization") {
+        line1.push("Trying to make the failure feel livable.");
+      } else if (goalType === "revenge") {
+        line1.push("Directed anger takes the wheel.");
+      } else if (goalType === "repercussions") {
+        line1.push("Watching consequences spread.");
+      } else if (goalType === "recovery") {
+        line1.push("Trying to repair the goal directly.");
+      }
+
+      if (cycle.sprouted_contexts && cycle.sprouted_contexts.length) {
+        line2.push(`Branch sprouting: ${cycle.sprouted_contexts.join(", ")}.`);
+      }
+
+      const selection = cycle.selection || {};
+      if (selection.adapter_selected_situation && selection.adapter_selected_situation !== goal.situation_id) {
+        line2.push(`Branch facts wake ${shortSituation(selection.adapter_selected_situation)}.`);
+      }
+
+      if (previousCycle && cycle.situations && previousCycle.situations) {
+        const deltas = [];
+        for (const [sid, state] of Object.entries(cycle.situations)) {
+          const prev = previousCycle.situations[sid];
+          if (!prev) continue;
+          const delta = Number(state.activation || 0) - Number(prev.activation || 0);
+          if (Math.abs(delta) >= 0.12) {
+            deltas.push(`${shortSituation(sid)} ${delta > 0 ? "wakes" : "falls"} (${
+              delta > 0 ? "+" : ""
+            }${delta.toFixed(2)})`);
+          }
+        }
+        if (deltas.length) {
+          line2.push(deltas.slice(0, 2).join(". ") + ".");
+        }
+      }
+
+      const topRetrieval = (cycle.retrieved || [])[0];
+      if (topRetrieval) {
+        line2.push(`Retrieval leads with ${topRetrieval.node_id} via ${topRetrieval.overlap?.slice(0, 3).join(", ") || "active cues"}.${chosen ? "" : ""}`);
+      }
+
+      return {
+        headline: `Cycle ${cycle.cycle}`,
+        copy: `${line1.join(" ")} ${line2.join(" ")}${chosen}`.trim(),
+        tags: [
+          `${goal.goal_type || "goal"} × ${goal.situation_id || "unknown"}`,
+          selection.edge_kind || selection.goal_family || "highest_score",
+        ],
+      };
+    }
+
+    function renderMeta() {
+      const seed = TRACE.seed || "unknown";
+      const started = TRACE.started_at || "unknown";
+      const cycleCount = cycles.length;
+      metaEl.textContent = `Seed ${seed} · ${cycleCount} cycles · started ${started}`;
+    }
+
+    function renderLegend(currentCycle) {
+      const items = Object.entries(currentCycle.situations || {}).map(([sid, state]) => {
+        return `<span class="legend-item"><span class="legend-swatch" style="background:${situationColor(state)}"></span>${shortSituation(sid)}</span>`;
+      });
+      situationLegendEl.innerHTML = items.join("");
+    }
+
+    function renderLandscape(currentCycle) {
+      const situations = currentCycle.situations || {};
+      landscapeEl.innerHTML = "";
+      for (const [sid, state] of Object.entries(situations)) {
+        const layout = SITUATION_LAYOUT[sid] || { x: 50, y: 50 };
+        const activation = Number(state.activation || 0);
+        const ripeness = Number(state.ripeness || 0);
+        const size = 70 + activation * 150;
+        const opacity = 0.28 + activation * 0.6;
+        const blur = (1 - ripeness) * 7;
+        const node = document.createElement("div");
+        node.className = "situation-node";
+        node.style.left = `${layout.x}%`;
+        node.style.top = `${layout.y}%`;
+        node.style.width = `${size}px`;
+        node.style.height = `${size}px`;
+        node.style.opacity = opacity.toFixed(3);
+        node.style.background = `radial-gradient(circle at 35% 35%, rgba(255,255,255,0.22), transparent 32%), ${situationColor(state)}`;
+        node.style.filter = `blur(${blur.toFixed(2)}px) saturate(${
+          (1 + ripeness * 0.45).toFixed(2)
+        })`;
+        node.innerHTML = `<div class="situation-label"><strong>${shortSituation(sid)}</strong><span>a:${activation.toFixed(2)} r:${ripeness.toFixed(2)}</span></div>`;
+        landscapeEl.appendChild(node);
+      }
+      renderLegend(currentCycle);
+    }
+
+    function renderGoalRace(currentCycle) {
+      const selected = currentCycle.selected_goal || {};
+      const ladder = (currentCycle.top_candidates || []).slice(0, 8);
+      goalRaceEl.innerHTML = "";
+      ladder.forEach((candidate) => {
+        const row = document.createElement("div");
+        const selectedMatch =
+          candidate.goal_type === selected.goal_type &&
+          candidate.situation_id === selected.situation_id;
+        row.className = "goal-row" + (selectedMatch ? " selected" : "");
+        const color = GOAL_COLORS[candidate.goal_type] || "#8892a6";
+        row.innerHTML = `
+          <div class="goal-name">${candidate.goal_type} × ${candidate.situation_id}</div>
+          <div class="goal-bar-wrap"><div class="goal-bar" style="width:${Math.max(2, (candidate.strength || 0) * 100)}%; background:${color}"></div></div>
+          <div class="goal-strength">${Number(candidate.strength || 0).toFixed(3)}</div>
+        `;
+        goalRaceEl.appendChild(row);
+      });
+    }
+
+    function renderTimeline(currentCycle) {
+      timelineEl.querySelectorAll(".timeline-node, .timeline-node-label, .timeline-branch").forEach((node) => node.remove());
+      const width = timelineEl.clientWidth || 1000;
+      const topY = 42;
+      const bottomY = 128;
+      cycles.forEach((cycle, index) => {
+        const x = 36 + (width - 72) * (index / Math.max(1, cycles.length - 1));
+        const planningType = cycle.selected_goal?.planning_type || "imaginary";
+        const y = planningType === "real" ? topY : bottomY;
+        const node = document.createElement("div");
+        node.className = "timeline-node";
+        node.classList.add(index < currentIndex ? "past" : index === currentIndex ? "current" : "future");
+        node.style.left = `${x}px`;
+        node.style.top = `${y}px`;
+        node.style.background = GOAL_COLORS[cycle.selected_goal?.goal_type] || "#9aa3b2";
+        timelineEl.appendChild(node);
+
+        const label = document.createElement("div");
+        label.className = "timeline-node-label";
+        label.style.left = `${x}px`;
+        label.style.top = `${y + (planningType === "real" ? -22 : 18)}px`;
+        label.textContent = `c${cycle.cycle}`;
+        timelineEl.appendChild(label);
+
+        if (cycle.sprouted_contexts && cycle.sprouted_contexts.length) {
+          const branch = document.createElement("div");
+          branch.className = "timeline-branch";
+          branch.style.left = `${x}px`;
+          branch.style.top = `${y + 10}px`;
+          branch.style.height = "34px";
+          timelineEl.appendChild(branch);
+        }
+      });
+    }
+
+    function renderThoughts(currentCycle) {
+      thoughtStreamEl.innerHTML = "";
+      cycles.forEach((cycle, index) => {
+        const previous = index > 0 ? cycles[index - 1] : null;
+        const thought = thoughtForCycle(cycle, previous);
+        const entry = document.createElement("article");
+        entry.className = "thought-entry" + (index === currentIndex ? " current" : "");
+        entry.innerHTML = `
+          <div class="thought-head">
+            <span>${thought.headline}</span>
+            <span>${cycle.selected_goal?.planning_type || "imaginary"}</span>
+          </div>
+          <div class="thought-copy">${thought.copy}</div>
+          <div class="tags">${thought.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}</div>
+        `;
+        thoughtStreamEl.appendChild(entry);
+      });
+
+      const current = thoughtStreamEl.querySelector(".thought-entry.current");
+      if (current) {
+        current.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+
+    function render() {
+      const cycle = cycles[currentIndex];
+      if (!cycle) return;
+      cycleReadoutEl.textContent = cycle.cycle;
+      goalReadoutEl.textContent = `${cycle.selected_goal?.goal_type || "goal"} × ${cycle.selected_goal?.situation_id || "unknown"}`;
+      renderLandscape(cycle);
+      renderGoalRace(cycle);
+      renderTimeline(cycle);
+      renderThoughts(cycle);
+    }
+
+    function stopPlayback() {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+      playing = false;
+      playPauseEl.textContent = "Play";
+    }
+
+    function schedulePlayback() {
+      if (!playing) return;
+      timer = window.setTimeout(() => {
+        if (currentIndex >= cycles.length - 1) {
+          stopPlayback();
+          return;
+        }
+        currentIndex += 1;
+        render();
+        schedulePlayback();
+      }, SPEEDS[speedIndex]);
+    }
+
+    function togglePlayback() {
+      if (playing) {
+        stopPlayback();
+      } else {
+        playing = true;
+        playPauseEl.textContent = "Pause";
+        schedulePlayback();
+      }
+    }
+
+    playPauseEl.addEventListener("click", togglePlayback);
+    prevCycleEl.addEventListener("click", () => {
+      stopPlayback();
+      currentIndex = Math.max(0, currentIndex - 1);
+      render();
+    });
+    nextCycleEl.addEventListener("click", () => {
+      stopPlayback();
+      currentIndex = Math.min(cycles.length - 1, currentIndex + 1);
+      render();
+    });
+    speedRangeEl.addEventListener("input", (event) => {
+      speedIndex = Number(event.target.value);
+      speedValueEl.textContent = SPEED_LABELS[speedIndex];
+      if (playing) {
+        stopPlayback();
+        togglePlayback();
+      }
+    });
+
+    speedValueEl.textContent = SPEED_LABELS[speedIndex];
+    renderMeta();
+    render();
+  </script>
+</body>
+</html>

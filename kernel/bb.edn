@@ -20,9 +20,16 @@
   puppet-knows-autonomous
   {:doc "Run the fixture-driven autonomous Puppet Knows trace, print summaries, and render HTML"
    :task (shell "clojure -M:trace -m daydreamer.export-trace --benchmark autonomous --cycles 12 --out out/puppet_knows_autonomous.json --render-html --html-out out/puppet_knows_autonomous.html --print-summary")}
+  puppet-knows-autonomous-cognitive
+  {:doc "Render a standalone cognitive playback page with embedded Puppet Knows autonomous trace data"
+   :depends [puppet-knows-autonomous]
+   :task (shell "python3 trace/daydreamer/render_cognitive_viz.py ../out/puppet_knows_autonomous.json --title 'Puppet Knows: Cognitive Trace Playback' --out ../out/puppet_knows_autonomous_cognitive.html")}
   dream
   {:doc "Alias for the autonomous Puppet Knows dream trace"
    :depends [puppet-knows-autonomous]}
+  dream-viz
+  {:doc "Alias for the autonomous cognitive playback visualizer"
+   :depends [puppet-knows-autonomous-cognitive]}
   arctic-trace
   {:doc "Write the scripted Arctic Expedition benchmark trace as reporter JSON and HTML"
    :task (shell "clojure -M:trace -m daydreamer.export-trace --benchmark arctic-scripted --out out/arctic_expedition_benchmark.json --render-html --html-out out/arctic_expedition_benchmark.html")}
