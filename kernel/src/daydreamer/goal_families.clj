@@ -41,11 +41,20 @@
 (def ^:private roving-emotion-threshold
   0.04)
 
+(def ^:private rationalization-emotion-threshold
+  0.7)
+
 (def ^:private reversal-emotion-threshold
   0.5)
 
 (def ^:private roving-plan-policy
   :pleasant_episode_seed)
+
+(def ^:private rationalization-frame-policy
+  :stored_priority)
+
+(def ^:private rationalization-plan-policy
+  :stored_rationalization_frame)
 
 (declare reversal-sprout-alternative)
 
@@ -72,6 +81,10 @@
 (defn- failure-cause-fact?
   [fact]
   (fact-type? fact :failure-cause))
+
+(defn- rationalization-frame-fact?
+  [fact]
+  (fact-type? fact :rationalization-frame))
 
 (defn- negative-emotion-fact?
   [fact]
@@ -362,6 +375,111 @@
      :counterfactual-policy (:selection-policy cause)
      :counterfactual-reasons (:selection-reasons cause)}))
 
+(defn- matching-rationalization-frame?
+  [fact failed-goal-id]
+  (let [goal-ids (->> [failed-goal-id] (remove nil?) set)
+        fact-goal-ids (->> [(:goal-id fact)
+                            (:failed-goal-id fact)
+                            (:top-level-goal fact)]
+                           (remove nil?)
+                           set)]
+    (seq (set/intersection goal-ids fact-goal-ids))))
+
+(defn- rationalization-frame-situation-id
+  [reframe-facts]
+  (->> reframe-facts
+       (filter #(fact-type? % :situation))
+       (map fact-id)
+       (sort-by str)
+       first))
+
+(defn rationalization-frame-candidates
+  "Find explicit rationalization frames for a failed goal.
+
+  This is an honest bridge for the missing rule engine: instead of inferring
+  LEADTO/minimization chains, the kernel looks for stored reinterpretation
+  frames that can be asserted into a rationalization branch."
+  [world {:keys [trigger-context-id failed-goal-id]}]
+  (->> (cx/visible-facts world trigger-context-id)
+       (filter rationalization-frame-fact?)
+       (filter #(matching-rationalization-frame? % failed-goal-id))
+       (keep (fn [fact]
+               (let [reframe-facts (vec (:reframe-facts fact []))]
+                 (when (seq reframe-facts)
+                   {:frame-id (fact-id fact)
+                    :goal-id (or (:failed-goal-id fact)
+                                 (:goal-id fact)
+                                 (:top-level-goal fact))
+                    :priority (double (or (:priority fact) 0.0))
+                    :reframe-fact-count (count reframe-facts)
+                    :reframe-facts reframe-facts
+                    :situation-id (rationalization-frame-situation-id reframe-facts)
+                    :selection-policy rationalization-frame-policy
+                    :selection-reasons (cond-> [:stored_rationalization_frame
+                                                :matching_failed_goal]
+                                         (> (count reframe-facts) 1)
+                                         (conj :multi_fact_reframe))}))))
+       (sort-by (juxt (comp - :priority)
+                      (comp - :reframe-fact-count)
+                      (comp str :frame-id)))
+       vec))
+
+(defn rationalization-activation-candidates
+  "Find failed-goal / negative-emotion pairs with an explicit rationalization
+  frame strong enough to activate RATIONALIZATION."
+  [world]
+  (->> (keys (:contexts world))
+       (mapcat (fn [context-id]
+                 (let [facts (cx/visible-facts world context-id)
+                       failed-goals (local-failed-goal-facts world context-id)
+                       negative-emotions (->> facts
+                                              (filter negative-emotion-fact?)
+                                              (filter #(> (double (or (:strength %) 0.0))
+                                                          rationalization-emotion-threshold))
+                                              (sort-by (juxt (comp - :strength)
+                                                             (comp str fact-id))))
+                       dependencies (filter dependency-fact? facts)]
+                   (for [goal-fact failed-goals
+                         emotion-fact negative-emotions
+                         :let [failed-goal-id (fact-id goal-fact)
+                               frames (rationalization-frame-candidates
+                                       world
+                                       {:trigger-context-id context-id
+                                        :failed-goal-id failed-goal-id})
+                               frame (first frames)]
+                         :when (and frame
+                                    (some (fn [dependency-fact]
+                                            (let [ref-ids (fact-ref-ids dependency-fact)]
+                                              (and (contains? ref-ids failed-goal-id)
+                                                   (contains? ref-ids (fact-id emotion-fact)))))
+                                          dependencies))]
+                     {:context-id context-id
+                      :failed-goal-id failed-goal-id
+                      :emotion-id (fact-id emotion-fact)
+                      :emotion-strength (double (or (:strength emotion-fact) 0.0))
+                      :frame-id (:frame-id frame)
+                      :frame-priority (:priority frame)
+                      :frame-count (count frames)
+                      :situation-id (or (:situation-id frame)
+                                        (primary-situation-id world context-id))
+                      :selection-policy :failed_goal_negative_emotion_rationalization_frame
+                      :selection-reasons [:failed_goal
+                                          :negative_emotion
+                                          :dependency_link
+                                          :rationalization_frame]}))))
+       (sort-by (juxt (comp - :emotion-strength)
+                      (comp - :frame-priority)
+                      (comp - :frame-count)
+                      (comp str :context-id)
+                      (comp str :failed-goal-id)))
+       vec))
+
+(defn select-rationalization-trigger
+  "Choose the strongest failed-goal / negative-emotion trigger for
+  RATIONALIZATION."
+  [world]
+  (first (rationalization-activation-candidates world)))
+
 (defn roving-activation-candidates
   "Find failed-goal / negative-emotion pairs that can activate ROVING."
   [world]
@@ -378,13 +496,19 @@
                        dependencies (filter dependency-fact? facts)]
                    (for [goal-fact failed-goals
                          emotion-fact negative-emotions
+                         :let [failed-goal-id (fact-id goal-fact)
+                               rationalization-frames (rationalization-frame-candidates
+                                                       world
+                                                       {:trigger-context-id context-id
+                                                        :failed-goal-id failed-goal-id})]
+                         :when (empty? rationalization-frames)
                          :when (some (fn [dependency-fact]
                                        (let [ref-ids (fact-ref-ids dependency-fact)]
-                                         (and (contains? ref-ids (fact-id goal-fact))
+                                         (and (contains? ref-ids failed-goal-id)
                                               (contains? ref-ids (fact-id emotion-fact)))))
                                      dependencies)]
                      {:context-id context-id
-                      :failed-goal-id (fact-id goal-fact)
+                      :failed-goal-id failed-goal-id
                       :emotion-id (fact-id emotion-fact)
                       :emotion-strength (double (or (:strength emotion-fact) 0.0))
                       :selection-policy :failed_goal_negative_emotion
@@ -423,13 +547,16 @@
         candidates (keep identity
                          [(when-let [candidate (first (reversal-activation-candidates world))]
                             (assoc candidate :goal-type :reversal))
+                          (when-let [candidate (first (rationalization-activation-candidates world))]
+                            (assoc candidate :goal-type :rationalization))
                           (when-let [candidate (first (roving-activation-candidates world))]
                             (assoc candidate :goal-type :roving))])]
     (reduce
      (fn [current-world {:keys [goal-type situation-id emotion-id emotion-strength
                                 selection-policy selection-reasons
                                 activation-policy activation-reasons
-                                context-id old-context-id failed-goal-id]}]
+                                context-id old-context-id failed-goal-id
+                                frame-id]}]
        (let [trigger-context-id (or old-context-id context-id)]
          (if (existing-family-goal? current-world
                                     goal-type
@@ -449,6 +576,7 @@
                    :trigger-failed-goal-id failed-goal-id
                    :trigger-emotion-id emotion-id
                    :trigger-emotion-strength emotion-strength
+                   :trigger-frame-id frame-id
                    :activation-policy (or activation-policy selection-policy)
                    :activation-reasons (or activation-reasons selection-reasons)})]
              (update next-world :activation-events
@@ -459,6 +587,7 @@
                       :failed-goal-id failed-goal-id
                       :emotion-id emotion-id
                       :emotion-strength emotion-strength
+                      :frame-id frame-id
                       :activation-policy (or activation-policy selection-policy)
                       :activation-reasons (or activation-reasons selection-reasons)})))))
      world
@@ -515,6 +644,59 @@
             :reminded-episode-ids (vec reminded-episode-ids)
             :active-indices (vec (:recent-indices world))
             :selection-policy roving-plan-policy}]))
+
+(defn rationalization-plan
+  "Sprout a reinterpretation branch from an explicit rationalization frame.
+
+  This is a bounded bridge to Mueller's rationalization planner: instead of
+  deriving LEADTO/minimization chains dynamically, choose a stored frame and
+  assert its reframe facts into a fresh branch."
+  [world {:keys [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
+          :or {ordering 1.0}}]
+  (let [trigger-context-id (or trigger-context-id context-id)
+        frame-candidates (rationalization-frame-candidates
+                          world
+                          {:trigger-context-id trigger-context-id
+                           :failed-goal-id failed-goal-id})
+        frame (or (when frame-id
+                    (some #(when (= frame-id (:frame-id %)) %) frame-candidates))
+                  (first frame-candidates)
+                  (throw (ex-info "RATIONALIZATION needs a matching frame"
+                                  {:goal-id goal-id
+                                   :context-id context-id
+                                   :trigger-context-id trigger-context-id
+                                   :failed-goal-id failed-goal-id})))
+        [world sprouted-context-id] (cx/sprout world context-id)
+        success-intends {:fact/type :intends
+                         :from-goal-id goal-id
+                         :to-goal-id :rtrue
+                         :top-level-goal goal-id
+                         :status :succeeded
+                         :rule :rationalization-plan1}
+        world (reduce (fn [current-world fact]
+                        (cx/assert-fact current-world sprouted-context-id fact))
+                      world
+                      (cons success-intends (:reframe-facts frame)))
+        world (assoc-in world [:contexts sprouted-context-id :ordering] ordering)
+        world (if (contains? (:goals world) goal-id)
+                (goals/set-next-context world goal-id sprouted-context-id)
+                world)
+        world (update world :mutation-events
+                      (fnil conj [])
+                      {:family :rationalization
+                       :source-context context-id
+                       :trigger-context trigger-context-id
+                       :target-context sprouted-context-id
+                       :failed-goal-id failed-goal-id
+                       :frame-id (:frame-id frame)
+                       :reframe-facts (:reframe-facts frame)})]
+    [world {:sprouted-context-id sprouted-context-id
+            :frame-id (:frame-id frame)
+            :frame-goal-id (:goal-id frame)
+            :reframe-fact-ids (mapv fact-id (:reframe-facts frame))
+            :selection-policy rationalization-plan-policy
+            :selection-reasons (:selection-reasons frame)
+            :situation-id (:situation-id frame)}]))
 
 (defn reverse-leafs
   "Sprout one alternative-past branch per weak leaf under the selected failed

@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stalker Zone Benchmark: Scripted</title>
+  <style>
+    :root {
+      --bg: #f5f3ef;
+      --panel: #fffdf9;
+      --ink: #1f2430;
+      --muted: #5f6778;
+      --line: #d8dce7;
+      --accent: #355070;
+      --shadow: 0 12px 30px rgba(31, 36, 48, 0.08);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(53, 80, 112, 0.08), transparent 32%),
+        linear-gradient(180deg, #fbfaf7 0%, var(--bg) 100%);
+    }
+    main { max-width: 1560px; margin: 0 auto; padding: 32px 24px 72px; }
+    header {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 28px;
+      padding: 24px 28px;
+      background: rgba(255, 253, 249, 0.92);
+      border: 1px solid rgba(216, 220, 231, 0.9);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1, h2, h3, h4 { margin: 0; font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif; letter-spacing: 0.01em; }
+    h1 { font-size: 34px; }
+    h2 { font-size: 28px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+    h4 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    p, li, td, th, summary, code { font-size: 14px; }
+    h5 { margin: 0 0 10px; font-size: 15px; font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif; }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    nav a {
+      color: var(--accent);
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(53, 80, 112, 0.08);
+    }
+    .run-section, .compare-section {
+      margin-top: 24px;
+      padding: 24px 24px 28px;
+      background: rgba(255, 253, 249, 0.94);
+      border: 1px solid rgba(216, 220, 231, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .run-chip {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .metric-card {
+      min-height: 96px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+    .metric-card p {
+      margin: 10px 0 0;
+      font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif;
+      font-size: 24px;
+    }
+    .list-card ul {
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 6px;
+    }
+    .list-card li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .panel-grid {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .panel-grid.two-up {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .panel-wide {
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 16px;
+    }
+    .feedback-card-stack {
+      display: grid;
+      gap: 14px;
+      margin-top: 12px;
+    }
+    .feedback-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.72);
+      padding: 14px 16px;
+    }
+    .feedback-card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+    .feedback-card-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+    .feedback-card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .feedback-card-grid section {
+      border: 1px solid rgba(216, 220, 231, 0.8);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(245, 243, 239, 0.45);
+    }
+    .mini-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 6px;
+    }
+    .mini-list li {
+      display: grid;
+      gap: 2px;
+    }
+    .mini-dl {
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+    .mini-dl div {
+      display: grid;
+      gap: 2px;
+    }
+    .mini-dl dt {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .mini-dl dd {
+      margin: 0;
+    }
+    .shift-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+    .delta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .delta {
+      display: inline-flex;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: rgba(53, 80, 112, 0.08);
+      color: #243b55;
+    }
+    .delta.up {
+      background: rgba(42, 157, 143, 0.12);
+      color: #1b6b62;
+    }
+    .delta.down {
+      background: rgba(196, 69, 54, 0.12);
+      color: #8a2b21;
+    }
+    .milestone-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .milestone-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: rgba(108, 92, 231, 0.14);
+      color: #513bb8;
+      font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif;
+    }
+    .detail-card {
+      padding: 12px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      overflow-x: auto;
+    }
+    .meta-table, .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .meta-table th, .meta-table td, .data-table th, .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    .meta-table th { width: 164px; color: var(--muted); font-weight: 600; }
+    .data-table th {
+      font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      background: #faf7f2;
+    }
+    .muted { color: var(--muted); }
+    details {
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      overflow: hidden;
+    }
+    summary {
+      cursor: pointer;
+      padding: 12px 14px;
+      font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif;
+      font-size: 16px;
+      background: #faf7f2;
+    }
+    details > *:not(summary) { margin: 0; }
+    .chart {
+      width: 100%;
+      height: auto;
+      display: block;
+      min-width: 320px;
+    }
+    .heatmap { min-width: 840px; }
+    code {
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+      background: rgba(53, 80, 112, 0.08);
+      padding: 1px 5px;
+      border-radius: 6px;
+    }
+    @media (max-width: 1080px) {
+      .metric-grid, .panel-grid.two-up, .feedback-card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Stalker Zone Benchmark: Scripted</h1>
+      <p class="muted">Static report for daydream session logs. Each run keeps its own dynamics visible, and the compare section overlays situation activation across revisions.</p>
+      <nav><a href="#scripted">scripted</a></nav>
+    </header>
+    
+    <section id="scripted" class="run-section"><h2><span class="run-chip" style="background:#0f8b8d"></span>scripted</h2><div class="metric-grid"><div class="metric-card"><h4>Cycles</h4><p>2</p></div><div class="metric-card"><h4>Git Commit</h4><p>ba6b122</p></div><div class="metric-card"><h4>First Feedback</h4><p>6</p></div><div class="metric-card"><h4>Fatigue Escapes</h4><p>none</p></div><div class="metric-card list-card"><h4>Top Goal Modes</h4><ul><li><code>s4_the_room × repercussions</code> <span>1</span></li><li><code>s5_the_guide × rationalization</code> <span>1</span></li></ul></div><div class="metric-card list-card"><h4>Peak Activation</h4><ul><li><code>s4_the_room</code> <span>0.520</span></li><li><code>s5_the_guide</code> <span>0.460</span></li><li><code>s2_the_path</code> <span>0.390</span></li><li><code>s1_the_approach</code> <span>0.330</span></li><li><code>s3_the_ruins</code> <span>0.280</span></li></ul></div></div><div class="panel-grid two-up"><div><table class="meta-table"><tbody><tr><th>Log File</th><td>/Users/daviddickinson/Projects/Lora/latent-dreamer/out/stalker_zone_benchmark.json</td></tr><tr><th>Started</th><td>2026-03-12T14:00:06Z</td></tr><tr><th>Seed</th><td>stalker-zone-benchmark</td></tr><tr><th>Git Commit</th><td>ba6b122</td></tr><tr><th>World</th><td>daydreaming/Notes/experiential-design/08-brief-stalker-zone.md</td></tr><tr><th>Graph</th><td>benchmark: synthetic</td></tr><tr><th>Feedback</th><td>n/a</td></tr><tr><th>Palette</th><td>stalker_zone</td></tr><tr><th>World SHA</th><td>n/a</td></tr><tr><th>Graph SHA</th><td>n/a</td></tr><tr><th>Feedback SHA</th><td>n/a</td></tr><tr><th>Engine SHA</th><td>n/a</td></tr></tbody></table></div><div><svg viewBox="0 0 920 86" class="chart" role="img" aria-label="Selected goal timeline"><text x="12" y="14" font-size="13" font-weight="700" fill="#1f2430">Selected Goal Timeline</text><g><title>cycle 6
+s4_the_room × repercussions
+node: n06_phone_without_voice
+selection: highest_strength</title><rect x="13.0" y="22" width="446.0" height="38" rx="5" fill="#c44536" opacity="0.92"/><text x="236.0" y="44" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="700">s4 rep</text><text x="236.0" y="76" text-anchor="middle" font-size="10" fill="#4c546a">6</text></g><g><title>cycle 7
+s5_the_guide × rationalization
+node: n07_zone_is_mercy
+selection: highest_strength</title><rect x="461.0" y="22" width="446.0" height="38" rx="5" fill="#5875ff" opacity="0.92"/><text x="684.0" y="44" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="700">s5 rat</text><text x="684.0" y="76" text-anchor="middle" font-size="10" fill="#4c546a">7</text></g></svg></div></div><div class="panel-grid two-up"><div><svg viewBox="0 0 540 220" class="chart" role="img" aria-label="Situation Activation"><text x="44" y="15" font-size="13" font-weight="700" fill="#1f2430">Situation Activation</text><line x1="44" y1="192.0" x2="522" y2="192.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="150.0" x2="522" y2="150.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="108.0" x2="522" y2="108.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="66.0" x2="522" y2="66.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="24.0" x2="522" y2="24.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><text x="36" y="196.0" text-anchor="end" font-size="11" fill="#4c546a">0.00</text><text x="36" y="154.0" text-anchor="end" font-size="11" fill="#4c546a">0.25</text><text x="36" y="112.0" text-anchor="end" font-size="11" fill="#4c546a">0.50</text><text x="36" y="70.0" text-anchor="end" font-size="11" fill="#4c546a">0.75</text><text x="36" y="28.0" text-anchor="end" font-size="11" fill="#4c546a">1.00</text><text x="44.0" y="212" text-anchor="middle" font-size="11" fill="#4c546a">1</text><text x="522.0" y="212" text-anchor="middle" font-size="11" fill="#4c546a">2</text><line x1="44" y1="192" x2="522" y2="192" stroke="#9097aa" stroke-width="1"/><line x1="44" y1="24" x2="44" y2="192" stroke="#9097aa" stroke-width="1"/><polyline fill="none" stroke="#355070" stroke-width="2.4" points="44.0,136.6 522.0,143.3"/><polyline fill="none" stroke="#6d597a" stroke-width="2.4" points="44.0,126.5 522.0,134.9"/><polyline fill="none" stroke="#b56576" stroke-width="2.4" points="44.0,145.0 522.0,151.7"/><polyline fill="none" stroke="#e56b6f" stroke-width="2.4" points="44.0,104.6 522.0,129.8"/><polyline fill="none" stroke="#eaac8b" stroke-width="2.4" points="44.0,148.3 522.0,114.7"/><rect x="372" y="10" width="12" height="12" rx="2" fill="#355070"/><text x="390" y="20" font-size="11" fill="#1f2430">s1_the_approach</text><rect x="372" y="28" width="12" height="12" rx="2" fill="#6d597a"/><text x="390" y="38" font-size="11" fill="#1f2430">s2_the_path</text><rect x="372" y="46" width="12" height="12" rx="2" fill="#b56576"/><text x="390" y="56" font-size="11" fill="#1f2430">s3_the_ruins</text><rect x="372" y="64" width="12" height="12" rx="2" fill="#e56b6f"/><text x="390" y="74" font-size="11" fill="#1f2430">s4_the_room</text><rect x="372" y="82" width="12" height="12" rx="2" fill="#eaac8b"/><text x="390" y="92" font-size="11" fill="#1f2430">s5_the_guide</text></svg></div><div><svg viewBox="0 0 540 220" class="chart" role="img" aria-label="Situation Ripeness"><text x="44" y="15" font-size="13" font-weight="700" fill="#1f2430">Situation Ripeness</text><line x1="44" y1="192.0" x2="522" y2="192.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="150.0" x2="522" y2="150.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="108.0" x2="522" y2="108.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="66.0" x2="522" y2="66.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="24.0" x2="522" y2="24.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><text x="36" y="196.0" text-anchor="end" font-size="11" fill="#4c546a">0.00</text><text x="36" y="154.0" text-anchor="end" font-size="11" fill="#4c546a">0.25</text><text x="36" y="112.0" text-anchor="end" font-size="11" fill="#4c546a">0.50</text><text x="36" y="70.0" text-anchor="end" font-size="11" fill="#4c546a">0.75</text><text x="36" y="28.0" text-anchor="end" font-size="11" fill="#4c546a">1.00</text><text x="44.0" y="212" text-anchor="middle" font-size="11" fill="#4c546a">1</text><text x="522.0" y="212" text-anchor="middle" font-size="11" fill="#4c546a">2</text><line x1="44" y1="192" x2="522" y2="192" stroke="#9097aa" stroke-width="1"/><line x1="44" y1="24" x2="44" y2="192" stroke="#9097aa" stroke-width="1"/><polyline fill="none" stroke="#355070" stroke-width="2.4" points="44.0,101.3 522.0,104.6"/><polyline fill="none" stroke="#6d597a" stroke-width="2.4" points="44.0,87.8 522.0,89.5"/><polyline fill="none" stroke="#b56576" stroke-width="2.4" points="44.0,116.4 522.0,118.1"/><polyline fill="none" stroke="#e56b6f" stroke-width="2.4" points="44.0,54.2 522.0,57.6"/><polyline fill="none" stroke="#eaac8b" stroke-width="2.4" points="44.0,106.3 522.0,94.6"/><rect x="372" y="10" width="12" height="12" rx="2" fill="#355070"/><text x="390" y="20" font-size="11" fill="#1f2430">s1_the_approach</text><rect x="372" y="28" width="12" height="12" rx="2" fill="#6d597a"/><text x="390" y="38" font-size="11" fill="#1f2430">s2_the_path</text><rect x="372" y="46" width="12" height="12" rx="2" fill="#b56576"/><text x="390" y="56" font-size="11" fill="#1f2430">s3_the_ruins</text><rect x="372" y="64" width="12" height="12" rx="2" fill="#e56b6f"/><text x="390" y="74" font-size="11" fill="#1f2430">s4_the_room</text><rect x="372" y="82" width="12" height="12" rx="2" fill="#eaac8b"/><text x="390" y="92" font-size="11" fill="#1f2430">s5_the_guide</text></svg></div></div><div class="panel-grid two-up"><div class="detail-card"><svg viewBox="0 0 430 180" class="chart" role="img" aria-label="s1_the_approach"><text x="44" y="15" font-size="13" font-weight="700" fill="#1f2430">s1_the_approach</text><line x1="44" y1="152.0" x2="412" y2="152.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="120.0" x2="412" y2="120.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="88.0" x2="412" y2="88.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="56.0" x2="412" y2="56.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="24.0" x2="412" y2="24.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><text x="36" y="156.0" text-anchor="end" font-size="11" fill="#4c546a">0.00</text><text x="36" y="124.0" text-anchor="end" font-size="11" fill="#4c546a">0.25</text><text x="36" y="92.0" text-anchor="end" font-size="11" fill="#4c546a">0.50</text><text x="36" y="60.0" text-anchor="end" font-size="11" fill="#4c546a">0.75</text><text x="36" y="28.0" text-anchor="end" font-size="11" fill="#4c546a">1.00</text><text x="44.0" y="172" text-anchor="middle" font-size="11" fill="#4c546a">1</text><text x="412.0" y="172" text-anchor="middle" font-size="11" fill="#4c546a">2</text><line x1="44" y1="152" x2="412" y2="152" stroke="#9097aa" stroke-width="1"/><line x1="44" y1="24" x2="44" y2="152" stroke="#9097aa" stroke-width="1"/><polyline fill="none" stroke="#355070" stroke-width="2.4" points="44.0,109.8 412.0,114.9"/><polyline fill="none" stroke="#c44536" stroke-width="2.4" points="44.0,152.0 412.0,152.0"/><polyline fill="none" stroke="#2a9d8f" stroke-width="2.4" points="44.0,130.2 412.0,129.0"/><polyline fill="none" stroke="#6d597a" stroke-width="2.4" points="44.0,103.4 412.0,112.3"/><rect x="262" y="10" width="12" height="12" rx="2" fill="#355070"/><text x="280" y="20" font-size="11" fill="#1f2430">activation</text><rect x="262" y="28" width="12" height="12" rx="2" fill="#c44536"/><text x="280" y="38" font-size="11" fill="#1f2430">anger</text><rect x="262" y="46" width="12" height="12" rx="2" fill="#2a9d8f"/><text x="280" y="56" font-size="11" fill="#1f2430">hope</text><rect x="262" y="64" width="12" height="12" rx="2" fill="#6d597a"/><text x="280" y="74" font-size="11" fill="#1f2430">threat</text></svg></div><div class="detail-card"><svg viewBox="0 0 430 180" class="chart" role="img" aria-label="s2_the_path"><text x="44" y="15" font-size="13" font-weight="700" fill="#1f2430">s2_the_path</text><line x1="44" y1="152.0" x2="412" y2="152.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="120.0" x2="412" y2="120.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="88.0" x2="412" y2="88.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="56.0" x2="412" y2="56.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="24.0" x2="412" y2="24.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><text x="36" y="156.0" text-anchor="end" font-size="11" fill="#4c546a">0.00</text><text x="36" y="124.0" text-anchor="end" font-size="11" fill="#4c546a">0.25</text><text x="36" y="92.0" text-anchor="end" font-size="11" fill="#4c546a">0.50</text><text x="36" y="60.0" text-anchor="end" font-size="11" fill="#4c546a">0.75</text><text x="36" y="28.0" text-anchor="end" font-size="11" fill="#4c546a">1.00</text><text x="44.0" y="172" text-anchor="middle" font-size="11" fill="#4c546a">1</text><text x="412.0" y="172" text-anchor="middle" font-size="11" fill="#4c546a">2</text><line x1="44" y1="152" x2="412" y2="152" stroke="#9097aa" stroke-width="1"/><line x1="44" y1="24" x2="44" y2="152" stroke="#9097aa" stroke-width="1"/><polyline fill="none" stroke="#355070" stroke-width="2.4" points="44.0,102.1 412.0,108.5"/><polyline fill="none" stroke="#c44536" stroke-width="2.4" points="44.0,152.0 412.0,152.0"/><polyline fill="none" stroke="#2a9d8f" stroke-width="2.4" points="44.0,105.9 412.0,103.4"/><polyline fill="none" stroke="#6d597a" stroke-width="2.4" points="44.0,127.7 412.0,131.5"/><rect x="262" y="10" width="12" height="12" rx="2" fill="#355070"/><text x="280" y="20" font-size="11" fill="#1f2430">activation</text><rect x="262" y="28" width="12" height="12" rx="2" fill="#c44536"/><text x="280" y="38" font-size="11" fill="#1f2430">anger</text><rect x="262" y="46" width="12" height="12" rx="2" fill="#2a9d8f"/><text x="280" y="56" font-size="11" fill="#1f2430">hope</text><rect x="262" y="64" width="12" height="12" rx="2" fill="#6d597a"/><text x="280" y="74" font-size="11" fill="#1f2430">threat</text></svg></div><div class="detail-card"><svg viewBox="0 0 430 180" class="chart" role="img" aria-label="s3_the_ruins"><text x="44" y="15" font-size="13" font-weight="700" fill="#1f2430">s3_the_ruins</text><line x1="44" y1="152.0" x2="412" y2="152.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="120.0" x2="412" y2="120.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="88.0" x2="412" y2="88.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="56.0" x2="412" y2="56.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="24.0" x2="412" y2="24.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><text x="36" y="156.0" text-anchor="end" font-size="11" fill="#4c546a">0.00</text><text x="36" y="124.0" text-anchor="end" font-size="11" fill="#4c546a">0.25</text><text x="36" y="92.0" text-anchor="end" font-size="11" fill="#4c546a">0.50</text><text x="36" y="60.0" text-anchor="end" font-size="11" fill="#4c546a">0.75</text><text x="36" y="28.0" text-anchor="end" font-size="11" fill="#4c546a">1.00</text><text x="44.0" y="172" text-anchor="middle" font-size="11" fill="#4c546a">1</text><text x="412.0" y="172" text-anchor="middle" font-size="11" fill="#4c546a">2</text><line x1="44" y1="152" x2="412" y2="152" stroke="#9097aa" stroke-width="1"/><line x1="44" y1="24" x2="44" y2="152" stroke="#9097aa" stroke-width="1"/><polyline fill="none" stroke="#355070" stroke-width="2.4" points="44.0,116.2 412.0,121.3"/><polyline fill="none" stroke="#c44536" stroke-width="2.4" points="44.0,152.0 412.0,152.0"/><polyline fill="none" stroke="#2a9d8f" stroke-width="2.4" points="44.0,139.2 412.0,136.6"/><polyline fill="none" stroke="#6d597a" stroke-width="2.4" points="44.0,108.5 412.0,116.2"/><rect x="262" y="10" width="12" height="12" rx="2" fill="#355070"/><text x="280" y="20" font-size="11" fill="#1f2430">activation</text><rect x="262" y="28" width="12" height="12" rx="2" fill="#c44536"/><text x="280" y="38" font-size="11" fill="#1f2430">anger</text><rect x="262" y="46" width="12" height="12" rx="2" fill="#2a9d8f"/><text x="280" y="56" font-size="11" fill="#1f2430">hope</text><rect x="262" y="64" width="12" height="12" rx="2" fill="#6d597a"/><text x="280" y="74" font-size="11" fill="#1f2430">threat</text></svg></div><div class="detail-card"><svg viewBox="0 0 430 180" class="chart" role="img" aria-label="s4_the_room"><text x="44" y="15" font-size="13" font-weight="700" fill="#1f2430">s4_the_room</text><line x1="44" y1="152.0" x2="412" y2="152.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="120.0" x2="412" y2="120.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="88.0" x2="412" y2="88.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="56.0" x2="412" y2="56.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="24.0" x2="412" y2="24.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><text x="36" y="156.0" text-anchor="end" font-size="11" fill="#4c546a">0.00</text><text x="36" y="124.0" text-anchor="end" font-size="11" fill="#4c546a">0.25</text><text x="36" y="92.0" text-anchor="end" font-size="11" fill="#4c546a">0.50</text><text x="36" y="60.0" text-anchor="end" font-size="11" fill="#4c546a">0.75</text><text x="36" y="28.0" text-anchor="end" font-size="11" fill="#4c546a">1.00</text><text x="44.0" y="172" text-anchor="middle" font-size="11" fill="#4c546a">1</text><text x="412.0" y="172" text-anchor="middle" font-size="11" fill="#4c546a">2</text><line x1="44" y1="152" x2="412" y2="152" stroke="#9097aa" stroke-width="1"/><line x1="44" y1="24" x2="44" y2="152" stroke="#9097aa" stroke-width="1"/><polyline fill="none" stroke="#355070" stroke-width="2.4" points="44.0,85.4 412.0,104.6"/><polyline fill="none" stroke="#c44536" stroke-width="2.4" points="44.0,152.0 412.0,152.0"/><polyline fill="none" stroke="#2a9d8f" stroke-width="2.4" points="44.0,123.8 412.0,120.0"/><polyline fill="none" stroke="#6d597a" stroke-width="2.4" points="44.0,66.2 412.0,90.6"/><rect x="262" y="10" width="12" height="12" rx="2" fill="#355070"/><text x="280" y="20" font-size="11" fill="#1f2430">activation</text><rect x="262" y="28" width="12" height="12" rx="2" fill="#c44536"/><text x="280" y="38" font-size="11" fill="#1f2430">anger</text><rect x="262" y="46" width="12" height="12" rx="2" fill="#2a9d8f"/><text x="280" y="56" font-size="11" fill="#1f2430">hope</text><rect x="262" y="64" width="12" height="12" rx="2" fill="#6d597a"/><text x="280" y="74" font-size="11" fill="#1f2430">threat</text></svg></div><div class="detail-card"><svg viewBox="0 0 430 180" class="chart" role="img" aria-label="s5_the_guide"><text x="44" y="15" font-size="13" font-weight="700" fill="#1f2430">s5_the_guide</text><line x1="44" y1="152.0" x2="412" y2="152.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="120.0" x2="412" y2="120.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="88.0" x2="412" y2="88.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="56.0" x2="412" y2="56.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><line x1="44" y1="24.0" x2="412" y2="24.0" stroke="#d8dce7" stroke-dasharray="4 4" stroke-width="1"/><text x="36" y="156.0" text-anchor="end" font-size="11" fill="#4c546a">0.00</text><text x="36" y="124.0" text-anchor="end" font-size="11" fill="#4c546a">0.25</text><text x="36" y="92.0" text-anchor="end" font-size="11" fill="#4c546a">0.50</text><text x="36" y="60.0" text-anchor="end" font-size="11" fill="#4c546a">0.75</text><text x="36" y="28.0" text-anchor="end" font-size="11" fill="#4c546a">1.00</text><text x="44.0" y="172" text-anchor="middle" font-size="11" fill="#4c546a">1</text><text x="412.0" y="172" text-anchor="middle" font-size="11" fill="#4c546a">2</text><line x1="44" y1="152" x2="412" y2="152" stroke="#9097aa" stroke-width="1"/><line x1="44" y1="24" x2="44" y2="152" stroke="#9097aa" stroke-width="1"/><polyline fill="none" stroke="#355070" stroke-width="2.4" points="44.0,118.7 412.0,93.1"/><polyline fill="none" stroke="#c44536" stroke-width="2.4" points="44.0,152.0 412.0,152.0"/><polyline fill="none" stroke="#2a9d8f" stroke-width="2.4" points="44.0,112.3 412.0,91.8"/><polyline fill="none" stroke="#6d597a" stroke-width="2.4" points="44.0,121.3 412.0,130.2"/><rect x="262" y="10" width="12" height="12" rx="2" fill="#355070"/><text x="280" y="20" font-size="11" fill="#1f2430">activation</text><rect x="262" y="28" width="12" height="12" rx="2" fill="#c44536"/><text x="280" y="38" font-size="11" fill="#1f2430">anger</text><rect x="262" y="46" width="12" height="12" rx="2" fill="#2a9d8f"/><text x="280" y="56" font-size="11" fill="#1f2430">hope</text><rect x="262" y="64" width="12" height="12" rx="2" fill="#6d597a"/><text x="280" y="74" font-size="11" fill="#1f2430">threat</text></svg></div></div><div class="panel-wide"><svg viewBox="0 0 318 86" class="chart heatmap" role="img" aria-label="Top candidate heatmap"><text x="12" y="15" font-size="13" font-weight="700" fill="#1f2430">Candidate Ladder</text><text x="264.0" y="17" text-anchor="middle" font-size="10" fill="#4c546a">6</text><text x="292.0" y="17" text-anchor="middle" font-size="10" fill="#4c546a">7</text><text x="242" y="39" text-anchor="end" font-size="11" fill="#1f2430">s4_the_room × repercussions</text><text x="242" y="61" text-anchor="end" font-size="11" fill="#1f2430">s5_the_guide × rationalization</text><g><title>cycle 6
+s4_the_room × repercussions
+strength: 0.880
+reasons: </title><rect x="251" y="24" width="26" height="20" rx="4" fill="hsl(214 72% 59.0%)" stroke="#d8dce7"/><text x="264.0" y="39" text-anchor="middle" font-size="9" fill="#10243e">0.88</text></g><g><title>cycle 7
+s4_the_room × repercussions
+not in top candidates</title><rect x="279" y="24" width="26" height="20" rx="4" fill="#f4f6fb" stroke="#d8dce7"/><text x="292.0" y="39" text-anchor="middle" font-size="9" fill="#10243e"></text></g><g><title>cycle 6
+s5_the_guide × rationalization
+not in top candidates</title><rect x="251" y="46" width="26" height="20" rx="4" fill="#f4f6fb" stroke="#d8dce7"/><text x="264.0" y="61" text-anchor="middle" font-size="9" fill="#10243e"></text></g><g><title>cycle 7
+s5_the_guide × rationalization
+strength: 0.360
+reasons: </title><rect x="279" y="46" width="26" height="20" rx="4" fill="hsl(214 72% 80.9%)" stroke="#d8dce7"/><text x="292.0" y="61" text-anchor="middle" font-size="9" fill="#10243e">0.36</text></g></svg></div><details open><summary>Feedback Events</summary><table class="data-table"><thead><tr><th>Cycle</th><th>Node</th><th>Director Concepts</th><th>Episodes</th><th>Boosts</th><th>Valence</th><th>Surprise</th><th>Notes</th></tr></thead><tbody><tr><td>6</td><td><code>n06_phone_without_voice</code></td><td>room, phone, confession</td><td>dread@the_room:0.26</td><td>s4_the_room:0.11</td><td>n/a</td><td>n/a</td><td>The phone at the center makes arrival feel like confession.</td></tr><tr><td>7</td><td><code>n07_zone_is_mercy</code></td><td>guide, faith, mercy</td><td>n/a</td><td>s5_the_guide:0.19</td><td>0.120</td><td>0.070</td><td>The delay becomes an explanation rather than a failure.</td></tr></tbody></table></details><details open><summary>Dreamer -> Director -> Handoff</summary><div class='feedback-card-stack'><article class='feedback-card'><header class='feedback-card-head'><div><h4>Cycle 6</h4><p><code>s4_the_room × repercussions</code> -> <code>n06_phone_without_voice</code></p></div><div class='milestone-row'><span class='muted'>&nbsp;</span></div></header><div class='feedback-card-grid'><section><h5>Dreamer Chose</h5><dl class='mini-dl'><div><dt>Selection</dt><dd>highest_strength</dd></div><div><dt>Strength</dt><dd>0.88</dd></div><div><dt>Top Retrieved</dt><dd>n06_phone_without_voice</dd></div></dl><ul class='mini-list'><li><code>s4_the_room × repercussions</code> <span>0.88</span></li></ul></section><section><h5>Director Echoed</h5><dl class='mini-dl'><div><dt>Concepts</dt><dd>room, phone, confession</dd></div><div><dt>Boosts</dt><dd>s4_the_room:0.11</dd></div><div><dt>Episodes</dt><dd>dread@the_room:0.26</dd></div><div><dt>Valence</dt><dd>n/a</dd></div><div><dt>Surprise</dt><dd>n/a</dd></div><div><dt>Note</dt><dd>The phone at the center makes arrival feel like confession.</dd></div></dl></section><section><h5>State Shift To Next</h5><ul class='shift-list'><li><code>s5_the_guide</code><div class='delta-row'><span class='delta up'>activation +0.20</span> <span class='delta up'>hope +0.16</span> <span class='delta down'>threat -0.07</span></div></li><li><code>s4_the_room</code><div class='delta-row'><span class='delta down'>activation -0.15</span> <span class='delta up'>hope +0.03</span> <span class='delta down'>threat -0.19</span></div></li><li><code>s1_the_approach</code><div class='delta-row'><span class='delta down'>activation -0.04</span> <span class='delta down'>threat -0.07</span></div></li></ul></section><section><h5>Next Handoff</h5><dl class='mini-dl'><div><dt>Next Goal</dt><dd><code>s5_the_guide × rationalization</code></dd></div><div><dt>Next Node</dt><dd><code>n07_zone_is_mercy</code></dd></div><div><dt>Selection</dt><dd>highest_strength</dd></div></dl><ul class='mini-list'><li><code>n07_zone_is_mercy</code> <span>3</span> <small>faith, guide, sincerity</small></li></ul></section></div></article><article class='feedback-card'><header class='feedback-card-head'><div><h4>Cycle 7</h4><p><code>s5_the_guide × rationalization</code> -> <code>n07_zone_is_mercy</code></p></div><div class='milestone-row'><span class='muted'>&nbsp;</span></div></header><div class='feedback-card-grid'><section><h5>Dreamer Chose</h5><dl class='mini-dl'><div><dt>Selection</dt><dd>highest_strength</dd></div><div><dt>Strength</dt><dd>0.36</dd></div><div><dt>Top Retrieved</dt><dd>n07_zone_is_mercy</dd></div></dl><ul class='mini-list'><li><code>s5_the_guide × rationalization</code> <span>0.36</span></li></ul></section><section><h5>Director Echoed</h5><dl class='mini-dl'><div><dt>Concepts</dt><dd>guide, faith, mercy</dd></div><div><dt>Boosts</dt><dd>s5_the_guide:0.19</dd></div><div><dt>Episodes</dt><dd>n/a</dd></div><div><dt>Valence</dt><dd>0.12</dd></div><div><dt>Surprise</dt><dd>0.07</dd></div><div><dt>Note</dt><dd>The delay becomes an explanation rather than a failure.</dd></div></dl></section><section><h5>State Shift To Next</h5><p class='muted'>Final cycle.</p></section><section><h5>Next Handoff</h5><p class='muted'>No next cycle.</p></section></div></article></div></details><details><summary>Cycle Drilldown</summary><table class="data-table"><thead><tr><th>Cycle</th><th>Selected Goal</th><th>Selection</th><th>Chosen Node</th><th>Top Retrieved</th><th>Score</th><th>Overlap</th><th>Episodes</th></tr></thead><tbody><tr><td>6</td><td>s4_the_room × repercussions</td><td>highest_strength</td><td><code>n06_phone_without_voice</code></td><td><code>n06_phone_without_voice</code></td><td>3</td><td>fear, honesty, wish</td><td>n/a</td></tr><tr><td>7</td><td>s5_the_guide × rationalization</td><td>highest_strength</td><td><code>n07_zone_is_mercy</code></td><td><code>n07_zone_is_mercy</code></td><td>3</td><td>faith, guide, sincerity</td><td>n/a</td></tr></tbody></table></details></section>
+  </main>
+</body>
+</html>

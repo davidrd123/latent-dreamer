@@ -212,6 +212,34 @@
                               :roving_branch_context (:sprouted-context-id roving-result)}})]
       [world (:sprouted-context-id roving-result)])))
 
+(defn- apply-scripted-rationalization
+  [world selected-goal-id rationalization-spec]
+  (if-not rationalization-spec
+    [world nil]
+    (let [context-id (or (:context-id rationalization-spec)
+                         (goal-context world selected-goal-id)
+                         (:reality-lookahead world)
+                         (:reality-context world))
+          [world rationalization-result]
+          (families/rationalization-plan
+           world
+           (assoc rationalization-spec
+                  :goal-id selected-goal-id
+                  :context-id context-id))
+          world (append-sprouted-contexts world [(:sprouted-context-id rationalization-result)])
+          world (trace/merge-latest-cycle
+                 world
+                 {:mutations (:mutation-events world)
+                  :selection {:goal_family :rationalization
+                              :family_goal_id selected-goal-id
+                              :rationalization_selection_policy (:selection-policy rationalization-result)
+                              :rationalization_frame_id (:frame-id rationalization-result)
+                              :rationalization_frame_goal (:frame-goal-id rationalization-result)
+                              :rationalization_frame_reasons (:selection-reasons rationalization-result)
+                              :rationalization_reframe_fact_ids (:reframe-fact-ids rationalization-result)
+                              :rationalization_branch_context (:sprouted-context-id rationalization-result)}})]
+      [world (:sprouted-context-id rationalization-result)])))
+
 (defn- apply-automatic-family-plan
   [world selected-goal-id script]
   (if-not (:auto-family-plans? script)
@@ -234,6 +262,14 @@
 
       :roving
       (apply-scripted-roving world selected-goal-id {})
+
+      :rationalization
+      (apply-scripted-rationalization
+       world
+       selected-goal-id
+       {:trigger-context-id (get-in world [:goals selected-goal-id :trigger-context-id])
+        :failed-goal-id (get-in world [:goals selected-goal-id :trigger-failed-goal-id])
+        :frame-id (get-in world [:goals selected-goal-id :trigger-frame-id])})
 
       [world nil])))
 
@@ -285,6 +321,8 @@
     stored failure-cause facts instead of taking fixture-supplied input facts.
   - `:roving-branch` -> invoke the real ROVING plan body, optionally seeding a
     specific pleasant episode via `:episode-id`
+  - `:rationalization-branch` -> invoke the real RATIONALIZATION plan body,
+    optionally selecting a stored reinterpretation frame via `:frame-id`
   - `:cycle-adapter` -> pure function `(fn [world selected-goal-id script])`
     that can derive additional trace state from the mutated branch
   - `:sprouts` -> vector of child context specs, each with optional
@@ -303,7 +341,11 @@
             [world _] (apply-scripted-roving world
                                              selected-goal-id
                                              (:roving-branch script))
+            [world _] (apply-scripted-rationalization world
+                                                      selected-goal-id
+                                                      (:rationalization-branch script))
             [world _] (if (or (:reversal-branch script)
+                              (:rationalization-branch script)
                               (:roving-branch script))
                         [world nil]
                         (apply-automatic-family-plan world

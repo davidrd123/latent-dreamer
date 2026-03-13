@@ -346,3 +346,64 @@
     (is (= (first goal-ids) selected-goal-id))
     (is (= "n10_honest_ring"
            (get-in world [:trace 0 :chosen-node-id])))))
+
+(deftest run-scripted-cycle-can-invoke-real-rationalization-branch
+  (let [[world goal-ids]
+        (runner/activate-goals
+         (runner/initial-world)
+         :cx-1
+         [{:goal-type :rationalization
+           :planning-type :imaginary
+           :strength 0.82
+           :main-motiv :e-dread
+           :situation-id :s4_the_room}])
+        [world trigger-context-id] (cx/sprout world :cx-1)
+        failed-goal-id :g-room-failure
+        frame-id :rf-zone-mercy
+        reframe-facts [{:fact/type :situation
+                        :fact/id :s5_the_guide}
+                       {:fact/type :rationalization
+                        :fact/id :zone_is_mercy}
+                       {:fact/type :rationalization
+                        :fact/id :delay_is_faith}]
+        world (-> world
+                  (cx/assert-fact trigger-context-id {:fact/type :goal
+                                                      :goal-id failed-goal-id
+                                                      :top-level-goal failed-goal-id
+                                                      :status :failed
+                                                      :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :emotion
+                                                      :emotion-id :e-dread
+                                                      :strength 0.82
+                                                      :valence :negative})
+                  (cx/assert-fact trigger-context-id {:fact/type :dependency
+                                                      :from-id :e-dread
+                                                      :to-id failed-goal-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :rationalization-frame
+                                                      :fact/id frame-id
+                                                      :goal-id failed-goal-id
+                                                      :priority 0.91
+                                                      :reframe-facts reframe-facts}))
+        [world selected-goal-id]
+        (runner/run-scripted-cycle
+         world
+         {:timestamp "2026-03-12T12:00:00Z"
+          :active-indices [:wish :fear :honesty]
+          :rationalization-branch {:trigger-context-id trigger-context-id
+                                   :failed-goal-id failed-goal-id}
+          :situations {:s4_the_room {:activation 0.82
+                                     :ripeness 0.88}}})]
+    (is (= (first goal-ids) selected-goal-id))
+    (is (= 1 (count (get-in world [:trace 0 :sprouted]))))
+    (is (= :rationalization (get-in world [:trace 0 :mutations 0 :family])))
+    (is (= :rf-zone-mercy
+           (get-in world [:trace 0 :selection :rationalization_frame_id])))
+    (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
+           (get-in world [:trace 0 :selection :rationalization_reframe_fact_ids])))
+    (let [sprouted-context-id (first (get-in world [:trace 0 :sprouted]))]
+      (is (cx/fact-true? world sprouted-context-id
+                         {:fact/type :situation
+                          :fact/id :s5_the_guide}))
+      (is (= :rationalization
+             (get-in (-> world :trace first :selection)
+                     [:goal_family]))))))

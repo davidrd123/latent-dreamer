@@ -13,6 +13,10 @@
   {:fact/type :situation
    :fact/id :s2_the_mission})
 
+(def guide-fact
+  {:fact/type :situation
+   :fact/id :s5_the_guide})
+
 (def counterfactual-fact
   {:fact/type :counterfactual
    :fact/id :wall_was_open})
@@ -62,6 +66,14 @@
    :goal-id goal-id
    :priority priority
    :counterfactual-facts counterfactual-facts})
+
+(defn rationalization-frame-fact
+  [fact-id goal-id priority reframe-facts]
+  {:fact/type :rationalization-frame
+   :fact/id fact-id
+   :goal-id goal-id
+   :priority priority
+   :reframe-facts reframe-facts})
 
 (defn world-with-root
   []
@@ -403,6 +415,117 @@
                :target-context sprouted-context-id
                :seed-episode-id pleasant-episode-id
                :reminded-episode-ids [linked-episode-id]}]
+             (:mutation-events world))))))
+
+(deftest rationalization-activation-candidates-detect-framed-failures
+  (let [[world root-id] (world-with-root)
+        [world context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        frame-id :rf-zone-mercy
+        frame-facts [guide-fact
+                     {:fact/type :rationalization
+                      :fact/id :zone_is_mercy}
+                     {:fact/type :rationalization
+                      :fact/id :delay_is_faith}]
+        world (-> world
+                  (cx/assert-fact context-id {:fact/type :goal
+                                              :goal-id failed-goal-id
+                                              :top-level-goal failed-goal-id
+                                              :status :failed
+                                              :activation-context context-id})
+                  (cx/assert-fact context-id {:fact/type :emotion
+                                              :emotion-id emotion-id
+                                              :strength 0.82
+                                              :valence :negative})
+                  (cx/assert-fact context-id {:fact/type :dependency
+                                              :from-id emotion-id
+                                              :to-id failed-goal-id})
+                  (cx/assert-fact context-id
+                                  (rationalization-frame-fact frame-id
+                                                              failed-goal-id
+                                                              0.91
+                                                              frame-facts)))
+        candidates (families/rationalization-activation-candidates world)]
+    (is (= [{:context-id context-id
+             :failed-goal-id failed-goal-id
+             :emotion-id emotion-id
+             :emotion-strength 0.82
+             :frame-id frame-id
+             :frame-priority 0.91
+             :frame-count 1
+             :situation-id :s5_the_guide
+             :selection-policy :failed_goal_negative_emotion_rationalization_frame
+             :selection-reasons [:failed_goal
+                                 :negative_emotion
+                                 :dependency_link
+                                 :rationalization_frame]}]
+           candidates))
+    (is (= (first candidates)
+           (families/select-rationalization-trigger world)))))
+
+(deftest rationalization-plan-sprouts-and-asserts-reframe-facts
+  (let [[world root-id] (world-with-root)
+        [world trigger-context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        frame-id :rf-zone-mercy
+        frame-facts [guide-fact
+                     {:fact/type :rationalization
+                      :fact/id :zone_is_mercy}
+                     {:fact/type :rationalization
+                      :fact/id :delay_is_faith}]
+        world (-> world
+                  (cx/assert-fact trigger-context-id {:fact/type :goal
+                                                      :goal-id failed-goal-id
+                                                      :top-level-goal failed-goal-id
+                                                      :status :failed
+                                                      :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id
+                                  (rationalization-frame-fact frame-id
+                                                              failed-goal-id
+                                                              0.91
+                                                              frame-facts)))
+        [world rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.82
+          :main-motiv :e-dread})
+        context-id (get-in world [:goals rationalization-goal-id :next-cx])
+        [world {:keys [sprouted-context-id frame-id frame-goal-id
+                       reframe-fact-ids selection-policy]}]
+        (families/rationalization-plan world
+                                       {:goal-id rationalization-goal-id
+                                        :context-id context-id
+                                        :trigger-context-id trigger-context-id
+                                        :failed-goal-id failed-goal-id})]
+    (testing "rationalization chooses the stored frame and sprouts once"
+      (is (= context-id
+             (get-in world [:contexts sprouted-context-id :parent-id])))
+      (is (= 1.0
+             (get-in world [:contexts sprouted-context-id :ordering])))
+      (is (= :rf-zone-mercy frame-id))
+      (is (= failed-goal-id frame-goal-id)))
+    (testing "the reframe facts are asserted into the branch"
+      (is (every? #(cx/fact-true? world sprouted-context-id %)
+                  frame-facts))
+      (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
+             reframe-fact-ids)))
+    (testing "the plan records a trivial success intention and mutation event"
+      (is (some #(and (= :intends (:fact/type %))
+                      (= rationalization-goal-id (:from-goal-id %))
+                      (= :rtrue (:to-goal-id %)))
+                (cx/visible-facts world sprouted-context-id)))
+      (is (= :stored_rationalization_frame selection-policy))
+      (is (= [{:family :rationalization
+               :source-context context-id
+               :trigger-context trigger-context-id
+               :target-context sprouted-context-id
+               :failed-goal-id failed-goal-id
+               :frame-id :rf-zone-mercy
+               :reframe-facts frame-facts}]
              (:mutation-events world))))))
 
 (deftest reverse-leafs-follow-intends-and-retract-weak-leaf-objectives

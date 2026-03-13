@@ -5,10 +5,13 @@
             [clojure.java.shell :as sh]
             [clojure.string :as str]
             [daydreamer.benchmarks.arctic-expedition :as arctic]
-            [daydreamer.benchmarks.puppet-knows :as puppet]))
+            [daydreamer.benchmarks.puppet-knows-autonomous :as puppet-autonomous]
+            [daydreamer.benchmarks.puppet-knows :as puppet]
+            [daydreamer.benchmarks.stalker-zone :as zone]))
 
 (declare build-puppet-knows-log)
 (declare build-arctic-expedition-log)
+(declare build-stalker-zone-log)
 
 (def ^:private benchmark-specs
   {:scripted {:builder :puppet-knows
@@ -21,6 +24,11 @@
                      :default-html-path "out/puppet_knows_semi_unscripted.html"
                      :default-title "Puppet Knows Benchmark: Semi-Unscripted"
                      :label "semi-unscripted"}
+   :autonomous {:builder :puppet-knows
+                :default-output-path "out/puppet_knows_autonomous.json"
+                :default-html-path "out/puppet_knows_autonomous.html"
+                :default-title "Puppet Knows Benchmark: Autonomous"
+                :label "autonomous"}
    :arctic-scripted {:builder :arctic-expedition
                      :default-output-path "out/arctic_expedition_benchmark.json"
                      :default-html-path "out/arctic_expedition_benchmark.html"
@@ -30,7 +38,17 @@
                             :default-output-path "out/arctic_expedition_semi_unscripted.json"
                             :default-html-path "out/arctic_expedition_semi_unscripted.html"
                             :default-title "Arctic Expedition Benchmark: Semi-Unscripted"
-                            :label "semi-unscripted"}})
+                            :label "semi-unscripted"}
+   :zone-scripted {:builder :stalker-zone
+                   :default-output-path "out/stalker_zone_benchmark.json"
+                   :default-html-path "out/stalker_zone_benchmark.html"
+                   :default-title "Stalker Zone Benchmark: Scripted"
+                   :label "scripted"}
+   :zone-semi-unscripted {:builder :stalker-zone
+                          :default-output-path "out/stalker_zone_semi_unscripted.json"
+                          :default-html-path "out/stalker_zone_semi_unscripted.html"
+                          :default-title "Stalker Zone Benchmark: Semi-Unscripted"
+                          :label "semi-unscripted"}})
 
 (defn- cwd-file
   []
@@ -58,6 +76,8 @@
         "--render-html" (recur (rest args) (assoc options :render-html? true))
         "--out" (let [[_ value & more] args]
                   (recur more (assoc options :out-path value)))
+        "--cycles" (let [[_ value & more] args]
+                     (recur more (assoc options :cycles (Long/parseLong value))))
         "--scope-root" (let [[_ value & more] args]
                          (recur more (assoc options :scope-root value)))
         "--benchmark" (let [[_ value & more] args]
@@ -66,6 +86,7 @@
                        (recur more (assoc options :html-out value)))
         "--title" (let [[_ value & more] args]
                     (recur more (assoc options :title value)))
+        "--print-summary" (recur (rest args) (assoc options :print-summary? true))
         (throw (ex-info "Unknown CLI flag"
                         {:flag flag
                          :args args})))
@@ -78,9 +99,13 @@
       :scripted :scripted
       :semi :semi-unscripted
       :semi-unscripted :semi-unscripted
+      :autonomous :autonomous
       :arctic-scripted :arctic-scripted
       :arctic-semi :arctic-semi-unscripted
       :arctic-semi-unscripted :arctic-semi-unscripted
+      :zone-scripted :zone-scripted
+      :zone-semi :zone-semi-unscripted
+      :zone-semi-unscripted :zone-semi-unscripted
       (throw (ex-info "Unknown benchmark variant"
                       {:benchmark value
                        :supported (sort (map name (keys benchmark-specs)))})))))
@@ -141,6 +166,7 @@
   (case (:builder (benchmark-spec benchmark))
     :puppet-knows (build-puppet-knows-log options)
     :arctic-expedition (build-arctic-expedition-log options)
+    :stalker-zone (build-stalker-zone-log options)
     (throw (ex-info "Unknown benchmark log builder"
                     {:benchmark benchmark
                      :builder (:builder (benchmark-spec benchmark))}))))
@@ -149,25 +175,29 @@
   "Return the reporter-shaped Puppet Knows benchmark log with resolved fixture
   metadata."
   ([] (build-puppet-knows-log {}))
-  ([{:keys [benchmark scope-root git-commit]}]
+  ([{:keys [benchmark scope-root git-commit cycles]}]
    (let [benchmark (parse-benchmark benchmark)
          scope-root (or scope-root (default-scope-root))
          run-benchmark (case benchmark
                          :scripted puppet/run-benchmark
                          :semi-unscripted puppet/run-semi-unscripted-benchmark
+                         :autonomous puppet-autonomous/run-benchmark
                          (throw (ex-info "Unsupported Puppet Knows benchmark variant"
                                          {:benchmark benchmark})))
          {:keys [world-path graph-path feedback-path reporter-path]}
          (fixture-paths scope-root)]
-     (:log (run-benchmark
-            (merge {:world_path world-path
-                    :graph_path graph-path
-                    :feedback_path feedback-path
-                    :palette_path (palette-path world-path)
-                    :git_commit (or git-commit
-                                    (repo-commit (latent-root)))
-                    :reporter_path reporter-path}
-                   (graph-counts graph-path)))))))
+     (run-benchmark
+      (merge {:world_path world-path
+              :graph_path graph-path
+              :feedback_path feedback-path
+              :palette_path (palette-path world-path)
+              :git_commit (or git-commit
+                              (repo-commit (latent-root)))
+              :reporter_path reporter-path
+              :scope-root scope-root}
+             (graph-counts graph-path)
+             (when cycles
+               {:cycles cycles}))))))
 
 (defn build-arctic-expedition-log
   "Return the reporter-shaped Arctic Expedition benchmark log."
@@ -178,6 +208,19 @@
                          :arctic-scripted arctic/run-benchmark
                          :arctic-semi-unscripted arctic/run-semi-unscripted-benchmark
                          (throw (ex-info "Unsupported Arctic benchmark variant"
+                                         {:benchmark benchmark})))]
+     (:log (run-benchmark {:git_commit (or git-commit
+                                           (repo-commit (latent-root)))})))))
+
+(defn build-stalker-zone-log
+  "Return the reporter-shaped Stalker Zone benchmark log."
+  ([] (build-stalker-zone-log {}))
+  ([{:keys [benchmark git-commit]}]
+   (let [benchmark (parse-benchmark benchmark)
+         run-benchmark (case benchmark
+                         :zone-scripted zone/run-benchmark
+                         :zone-semi-unscripted zone/run-semi-unscripted-benchmark
+                         (throw (ex-info "Unsupported Stalker Zone benchmark variant"
                                          {:benchmark benchmark})))]
      (:log (run-benchmark {:git_commit (or git-commit
                                            (repo-commit (latent-root)))})))))
@@ -218,28 +261,32 @@
   "Write a reporter-shaped benchmark log to disk and return the absolute output
   path."
   ([] (write-benchmark-log! {}))
-  ([{:keys [benchmark out-path scope-root git-commit]}]
+  ([{:keys [benchmark out-path scope-root git-commit cycles]}]
    (let [benchmark (parse-benchmark benchmark)
          out-path (or out-path (default-output-path benchmark))
          output-file (io/file (latent-root) out-path)
          payload (build-log benchmark
                             {:benchmark benchmark
                              :scope-root scope-root
-                             :git-commit git-commit})]
+                             :git-commit git-commit
+                             :cycles cycles})
+         log (if (map? payload) (or (:log payload) payload) payload)]
      (.mkdirs (.getParentFile output-file))
-     (spit output-file (json/write-str payload :escape-unicode false))
-     (.getCanonicalPath output-file))))
+     (spit output-file (json/write-str log :escape-unicode false))
+     {:json-path (.getCanonicalPath output-file)
+      :payload payload})))
 
 (defn write-benchmark-report!
   "Write reporter JSON, and optionally HTML, for any supported benchmark
   variant. Returns the written paths."
   ([] (write-benchmark-report! {}))
-  ([{:keys [benchmark out-path html-out scope-root git-commit render-html? title]}]
+  ([{:keys [benchmark out-path html-out scope-root git-commit render-html? title cycles]}]
    (let [benchmark (parse-benchmark benchmark)
-         json-path (write-benchmark-log! {:benchmark benchmark
-                                          :out-path out-path
-                                          :scope-root scope-root
-                                          :git-commit git-commit})
+         {:keys [json-path payload]} (write-benchmark-log! {:benchmark benchmark
+                                                            :out-path out-path
+                                                            :scope-root scope-root
+                                                            :git-commit git-commit
+                                                            :cycles cycles})
          html-path (when render-html?
                      (render-report! {:json-path json-path
                                       :html-path (or html-out
@@ -249,7 +296,8 @@
                                                  (default-title benchmark))
                                       :label (:label (benchmark-spec benchmark))}))]
      {:json-path json-path
-      :html-path html-path})))
+      :html-path html-path
+      :summaries (:summaries payload)})))
 
 (defn write-puppet-knows-log!
   "Backward-compatible alias for `write-benchmark-log!`."
@@ -266,15 +314,21 @@
 (defn -main
   [& args]
   (try
-    (let [{:keys [benchmark out-path html-out render-html? scope-root title]}
+    (let [{:keys [benchmark out-path html-out render-html? scope-root title
+                  cycles print-summary?]}
           (parse-args args)
-          {:keys [json-path html-path]}
+          {:keys [json-path html-path summaries]}
           (write-benchmark-report! {:benchmark benchmark
                                     :out-path out-path
                                     :html-out html-out
                                     :render-html? render-html?
                                     :scope-root scope-root
-                                    :title title})]
+                                    :title title
+                                    :cycles cycles})]
+      (when print-summary?
+        (doseq [summary summaries]
+          (println summary)
+          (println)))
       (println json-path)
       (when html-path
         (println html-path)))
