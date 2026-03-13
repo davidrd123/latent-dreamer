@@ -127,6 +127,65 @@
    "context_id" (some-> (:context-id emotion) scalar->json)
    "role" (some-> (:role emotion) scalar->json)})
 
+(defn- fact-id
+  [fact]
+  (or (:fact/id fact)
+      (:goal-id fact)
+      (:emotion-id fact)
+      (:id fact)))
+
+(defn- fact-type
+  [fact]
+  (:fact/type fact))
+
+(defn- distinct-vec
+  [values]
+  (->> values
+       (remove nil?)
+       distinct
+       vec))
+
+(defn- branch-fact-summary
+  [facts]
+  {:fact-ids (->> facts (map fact-id) distinct-vec)
+   :fact-types (->> facts (map fact-type) distinct-vec)})
+
+(defn- branch-event
+  [mutation]
+  (when-let [target-context (:target-context mutation)]
+    (let [{fact-ids :fact-ids
+           fact-types :fact-types}
+          (branch-fact-summary (concat (:input-facts mutation)
+                                       (:reframe-facts mutation)))
+          {retracted-fact-ids :fact-ids
+           retracted-fact-types :fact-types}
+          (branch-fact-summary (:retracted-facts mutation))]
+      (cond-> {:family (:family mutation)
+               :source-context (:source-context mutation)
+               :target-context target-context
+               :fact-ids fact-ids
+               :fact-types fact-types}
+        (seq retracted-fact-ids)
+        (assoc :retracted-fact-ids retracted-fact-ids
+               :retracted-fact-types retracted-fact-types)))))
+
+(defn derive-branch-events
+  "Derive canonical branch events from the snapshot mutation stream."
+  [snapshot]
+  (->> (:mutations snapshot)
+       (keep branch-event)
+       vec))
+
+(defn- reporter-branch-event
+  [event]
+  {"family" (some-> (:family event) scalar->json)
+   "source_context" (some-> (:source-context event) scalar->json)
+   "target_context" (some-> (:target-context event) scalar->json)
+   "fact_ids" (json-value (or (:fact-ids event) []))
+   "fact_types" (json-value (or (:fact-types event) []))
+   "retracted_fact_ids" (json-value (or (:retracted-fact-ids event) []))
+   "retracted_fact_types" (json-value (or (:retracted-fact-types event) []))})
+
 (defn cycle-snapshot
   "Build an internal cycle snapshot. Fields that are not yet produced by the
   kernel can be supplied explicitly by the caller."
@@ -135,6 +194,7 @@
                  feedback-applied serendipity-bias situations context-id
                  sprouted active-plan backtrack-events activations mutations
                  terminations timestamp goal-selection emotion-shifts
+                 branch-events
                  emotional-state]
           :or {active-indices []
                retrievals []
@@ -142,6 +202,7 @@
                backtrack-events []
                activations []
                mutations []
+               branch-events nil
                emotion-shifts []
                emotional-state []
                situations {}
@@ -163,7 +224,10 @@
                        []))
         top-candidates (or top-candidates
                            (mapv #(goal-summary world %) top-candidate-ids))
-        terminations (or terminations (:termination-events world) [])]
+        terminations (or terminations (:termination-events world) [])
+        branch-events (or branch-events
+                          (-> {:mutations (vec mutations)}
+                              derive-branch-events))]
     {:cycle-num (:cycle world)
      :timestamp timestamp
      :mode (:mode world)
@@ -184,6 +248,7 @@
      :backtrack-events (vec backtrack-events)
      :activations (vec activations)
      :mutations (vec mutations)
+     :branch-events (vec branch-events)
      :emotion-shifts (vec emotion-shifts)
      :emotional-state (vec emotional-state)
      :terminations (vec terminations)}))
@@ -195,12 +260,15 @@
 
 (defn- merge-snapshot-fields
   [snapshot snapshot-fields]
-  (merge-with (fn [left right]
-                (if (and (map? left) (map? right))
-                  (merge left right)
-                  right))
-              snapshot
-              snapshot-fields))
+  (let [merged (merge-with (fn [left right]
+                             (if (and (map? left) (map? right))
+                               (merge left right)
+                               right))
+                           snapshot
+                           snapshot-fields)]
+    (if (contains? snapshot-fields :mutations)
+      (assoc merged :branch-events (derive-branch-events merged))
+      merged)))
 
 (defn merge-latest-cycle
   "Merge additional fields into the latest trace snapshot. If no snapshot
@@ -219,36 +287,40 @@
   "Project an internal snapshot into the cycle shape expected by the existing
   Python HTML reporter."
   [snapshot]
-  {"cycle" (:cycle-num snapshot)
-   "timestamp" (:timestamp snapshot)
-   "goal_selection" (scalar->json (:goal-selection snapshot))
-   "selected_goal" (reporter-goal (:selected-goal snapshot))
-   "top_candidates" (mapv #(assoc (reporter-goal %)
-                                  "reasons"
-                                  (json-value (:reasons % [])))
-                          (:top-candidates snapshot))
-   "active_indices" (json-value (:active-indices snapshot))
-   "retrieved" (mapv (fn [hit]
-                       {"node_id" (or (some-> (:node-id hit) scalar->json)
-                                      (some-> (:episode-id hit) scalar->json)
-                                      "n/a")
-                        "episode_id" (some-> (:episode-id hit) scalar->json)
-                        "retrieval_score" (or (:retrieval-score hit)
-                                              (:marks hit)
-                                              0.0)
-                        "overlap" (json-value (or (:overlap hit) []))
-                        "threshold" (:threshold hit)})
-                     (:retrievals snapshot))
-   "chosen_node_id" (or (:chosen-node-id snapshot) "n/a")
-   "selection" (json-value (:selection snapshot))
-   "sprouted_contexts" (json-value (:sprouted snapshot))
-   "activations" (mapv reporter-activation (:activations snapshot))
-   "mutations" (json-value (:mutations snapshot))
-   "emotion_shifts" (mapv reporter-emotion-shift (:emotion-shifts snapshot))
-   "emotional_state" (mapv reporter-emotional-state (:emotional-state snapshot))
-   "feedback_applied" (json-value (:feedback-applied snapshot))
-   "serendipity_bias" (:serendipity-bias snapshot)
-   "situations" (json-value (:situations snapshot))})
+  (let [snapshot (if (contains? snapshot :branch-events)
+                   snapshot
+                   (assoc snapshot :branch-events (derive-branch-events snapshot)))]
+    {"cycle" (:cycle-num snapshot)
+     "timestamp" (:timestamp snapshot)
+     "goal_selection" (scalar->json (:goal-selection snapshot))
+     "selected_goal" (reporter-goal (:selected-goal snapshot))
+     "top_candidates" (mapv #(assoc (reporter-goal %)
+                                    "reasons"
+                                    (json-value (:reasons % [])))
+                            (:top-candidates snapshot))
+     "active_indices" (json-value (:active-indices snapshot))
+     "retrieved" (mapv (fn [hit]
+                         {"node_id" (or (some-> (:node-id hit) scalar->json)
+                                        (some-> (:episode-id hit) scalar->json)
+                                        "n/a")
+                          "episode_id" (some-> (:episode-id hit) scalar->json)
+                          "retrieval_score" (or (:retrieval-score hit)
+                                                (:marks hit)
+                                                0.0)
+                          "overlap" (json-value (or (:overlap hit) []))
+                          "threshold" (:threshold hit)})
+                       (:retrievals snapshot))
+     "chosen_node_id" (or (:chosen-node-id snapshot) "n/a")
+     "selection" (json-value (:selection snapshot))
+     "sprouted_contexts" (json-value (:sprouted snapshot))
+     "activations" (mapv reporter-activation (:activations snapshot))
+     "mutations" (json-value (:mutations snapshot))
+     "branch_events" (mapv reporter-branch-event (:branch-events snapshot))
+     "emotion_shifts" (mapv reporter-emotion-shift (:emotion-shifts snapshot))
+     "emotional_state" (mapv reporter-emotional-state (:emotional-state snapshot))
+     "feedback_applied" (json-value (:feedback-applied snapshot))
+     "serendipity_bias" (:serendipity-bias snapshot)
+     "situations" (json-value (:situations snapshot))}))
 
 (defn reporter-log
   "Project the world's trace into the top-level shape expected by the existing

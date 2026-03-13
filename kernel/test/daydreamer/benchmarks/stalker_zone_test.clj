@@ -26,6 +26,9 @@
       (is (= (name (:preferred-frame-id benchmark-state))
              (get-in cycles [1 "selection" "rationalization_frame_id"])))
       (is (= "rationalization" (get-in cycles [1 "mutations" 0 "family"])))
+      (is (= "rationalization" (get-in cycles [1 "branch_events" 0 "family"])))
+      (is (= ["s5_the_guide" "zone_is_mercy" "delay_is_faith"]
+             (get-in cycles [1 "branch_events" 0 "fact_ids"])))
       (is (= "rationalization" (get-in cycles [1 "selected_goal" "goal_type"])))
       (is (= "s5_the_guide"
              (get-in cycles [1 "selected_goal" "situation_id"])))
@@ -93,6 +96,7 @@
              (get-in cycles [1 "selection" "rationalization_trigger_emotion_after"])))
       (is (= "s5_the_guide"
              (get-in cycles [1 "selection" "rationalization_hope_situation"])))
+      (is (= "rationalization" (get-in cycles [1 "branch_events" 0 "family"])))
       (is (= "rf_zone_mercy-hope"
              (get-in cycles [1 "emotion_shifts" 1 "emotion_id"])))
       (is (= (* 0.82 0.35 0.93)

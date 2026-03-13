@@ -1,8 +1,9 @@
 # Cognitive Trace Visualizer — Spec
 
-**Date:** 2026-03-12
+**Date:** 2026-03-12 (revised after Codex 1/2/Opus review)
 **Input:** Any kernel trace JSON (autonomous, semi-unscripted, or scripted)
-**Output:** Standalone HTML/JS page, no server, reads trace JSON directly
+**Output:** Standalone HTML/JS page, no server, reads trace JSON via drag-drop
+**Build:** `bb dream-viz` → `out/puppet_knows_autonomous_cognitive.html`
 
 ---
 
@@ -24,10 +25,10 @@ experience* — you watch it unfold.
    or step). Everything animates between states. You see the system *change*,
    not just snapshots.
 
-2. **Two lanes.** Mueller's two modes — reality processing and daydreaming —
-   are spatially separated. When the kernel switches from reality to
-   imaginary planning (REVERSAL, ROVING, RATIONALIZATION), you see it cross
-   the boundary.
+2. **Two lanes.** Keyed off `selected_goal.planning_type` ("real" vs
+   "imaginary"). When the selected goal's planning type switches, the
+   timeline path crosses from reality to daydreaming. This is the stable
+   field in the trace — not an abstract global mode.
 
 3. **Emotional state is color/size, not numbers.** Situations are rendered as
    regions whose visual properties (warmth, size, brightness, edge softness)
@@ -38,14 +39,16 @@ experience* — you watch it unfold.
    heights change each cycle. You watch rationalization climb while rehearsal
    stays flat, then the moment one overtakes the other.
 
-5. **Branch sprouting is spatial.** When the kernel sprouts cx-16 for a
-   reversal branch, a new region appears connected to its parent context.
-   Facts flow from the branch back into the main trace. The counterfactual
-   bridge is *visible*.
+5. **Branch events are visible.** When the kernel sprouts a branch, a
+   marker appears on the timeline with the family type and fact IDs. When
+   the adapter propagates branch facts into situation state, an annotation
+   connects the branch event to the situation landscape. (v1 shows per-cycle
+   branch events, not a full persistent context tree — see panel D.)
 
-6. **The thought stream narrates.** A running text that translates the cycle
-   into readable cognition: "Failed at rehearsal. Dread is high. Imagining
-   an alternative past. Performance is admitted. The ring wakes up."
+6. **The thought stream narrates.** A template-driven running text that
+   translates the cycle into readable cognition. No LLM — the trace has
+   enough structured signals for deterministic narration: selected goal,
+   branch mutations, adapter deltas, emotional shifts.
 
 ---
 
@@ -109,11 +112,14 @@ value. On hover: full metric breakdown.
 
 ## B. Goal Race
 
-**Data source:** `cycle.top_candidates` — 15-20 candidates per cycle, each
-with goal_type, strength, situation_id, reasons.
+**Data source:** `cycle.top_candidates` — typically 15-20 candidates per
+cycle in autonomous traces (confirmed), each with goal_type, strength,
+situation_id, reasons. Semi-unscripted traces may have fewer candidates.
 
-**Rendering:** Horizontal bar chart or bump chart showing the top 6-8
-candidates' strengths across cycles. Each goal type has a consistent color:
+**Rendering:** The visualizer aggregates candidates by goal_type, taking the
+max strength per type per cycle. This produces 5-7 goal-type lines across
+cycles. Displayed as a bump chart (lines) or grouped bar chart. Each goal
+type has a consistent color:
 - reversal: indigo
 - rationalization: teal
 - roving: amber
@@ -161,29 +167,39 @@ cycles hidden until reached.
 
 ---
 
-## D. Branch Tree
+## D. Branch Events (v1) / Branch Tree (v2)
 
-**Data source:** `cycle.mutations`, `cycle.selection` (branch context IDs,
-fact IDs), `cycle.sprouted_contexts`.
+**Data source:** `cycle.branch_events`, `cycle.mutations`,
+`cycle.sprouted_contexts`.
 
-**Rendering:** Small tree diagram showing context ancestry:
-```
-cx-1 (root)
-├── cx-2 (reality lookahead)
-│   ├── cx-10 (reversal: reverse-leafs)
-│   │   └── facts: performance_is_admitted, s4_the_ring
-│   └── cx-16 (reversal: alternative-past)
-└── cx-3 (roving side-channel)
-    └── facts: pleasant-episode-seed
-```
+**Canonical trace shape:** `branch_events` normalizes family-specific branch
+information into:
+- `family`
+- `source_context`
+- `target_context`
+- `fact_ids`
+- `fact_types`
+- optional `retracted_fact_ids` / `retracted_fact_types`
 
-Nodes represent contexts. Edges show parent-child. Fact labels on leaf nodes
-show what the branch produced.
+Family-specific `selection` keys still exist for detailed inspection, but the
+visualizer should treat `branch_events` as the primary branch API.
 
-When the adapter reads branch facts and propagates them into situation state,
-an animated arrow flows from the branch fact to the situation landscape.
+**v1 Rendering:** Per-cycle branch event list. For each cycle with mutations
+or sprouted contexts, show:
+- Family type (reversal/rationalization/roving) with color
+- Source → target context IDs
+- Fact IDs asserted or retracted
+- Whether the adapter fired (adapter_policy != no_branch_context)
 
-If no branching has happened yet, this panel is minimal/collapsed.
+If no branching in the current cycle, panel shows "no branch activity" or
+collapses.
+
+**v2 (future):** Full context tree with ancestry. Requires a normalized
+`branch_events` / `context_edges` export in the trace schema (not yet
+implemented). The tree would show the full sprouting history across cycles
+with fact-flow arrows back to the situation landscape.
+
+If no branching has happened at all yet, panel is collapsed.
 
 ---
 
@@ -207,14 +223,18 @@ Cycle 10 REVERSAL takes over. Counterfactual: performance IS admitted.
          [n10_honest_ring via counterfactual_bridge]
 ```
 
-Generation rules:
+Generation rules (deterministic templates, no LLM):
 - Situation name from `selected_goal.situation_id`
 - Goal type in plain English ("imagining an alternative past" for reversal,
   "escaping to a pleasant memory" for roving, "reinterpreting the failure"
   for rationalization)
-- Metric changes when adapter fires (delta from previous cycle)
-- Branch sprouting noted when `mutations` is non-empty
+- Metric changes when adapter fires (delta from previous cycle's situations)
+- Branch sprouting noted when `branch_events` is non-empty
+- Emotional shifts when present (e.g., "Dread drops 0.82 → 0.55. Hope rises.")
+  keyed off `emotion_shifts` / `emotional_state`
 - Node selection with edge_kind annotation
+- Fatigue/escape noted when candidate reasons include `:fatigue_escape` or
+  `:mission_escape`
 
 ---
 
@@ -232,36 +252,166 @@ Generation rules:
 
 ## Data Contract
 
-Input: any file matching the kernel's reporter JSON schema:
+Input: drag-drop or embedded JSON matching the kernel's reporter schema.
+
+### Cycle object (all fields optional except `cycle`)
 
 ```json
 {
-  "cycles": [
+  "cycle": 1,
+  "timestamp": "2026-03-12T12:30:01Z",
+  "selected_goal": {
+    "id": "g-5",
+    "goal_type": "rationalization",
+    "strength": 0.519,
+    "planning_type": "imaginary",
+    "situation_id": "s1_seeing_through"
+  },
+  "top_candidates": [
     {
-      "cycle": 1,
-      "selected_goal": { "goal_type": "...", "strength": 0.0, "situation_id": "...", "planning_type": "..." },
-      "top_candidates": [ { "goal_type": "...", "strength": 0.0, ... }, ... ],
-      "activations": [ ... ],
-      "mutations": [ ... ],
-      "situations": { "situation_id": { "activation": 0.0, "hope": 0.0, ... }, ... },
-      "active_indices": [ "..." ],
-      "retrieved": [ { "node_id": "...", "retrieval_score": 0, "overlap": [...] } ],
-      "chosen_node_id": "...",
-      "sprouted_contexts": [ "..." ],
-      "selection": { "policy": "...", ... }
+      "id": "g-5",
+      "goal_type": "rationalization",
+      "strength": 0.519,
+      "planning_type": "imaginary",
+      "situation_id": "s1_seeing_through",
+      "reasons": ["failed_pressure", "negative_affect"]
     }
   ],
-  "started_at": "...",
-  "seed": "...",
-  ...
+  "activations": [
+    {
+      "goal_id": "g-5",
+      "goal_type": "rationalization",
+      "trigger_context_id": "cx-1",
+      "failed_goal_id": null,
+      "emotion_id": "...",
+      "emotion_strength": 0.519,
+      "activation_policy": "autonomous_adapter",
+      "activation_reasons": ["failed_pressure", "negative_affect"]
+    }
+  ],
+  "mutations": [
+    {
+      "family": "reversal",
+      "source-context": "cx-2",
+      "target-context": "cx-38",
+      "input-facts": [{"type": "counterfactual", "id": "..."}],
+      "retracted-facts": [{"type": "assumption", "id": "..."}]
+    }
+  ],
+  "branch_events": [
+    {
+      "family": "reversal",
+      "source_context": "cx-2",
+      "target_context": "cx-38",
+      "fact_ids": ["performance_is_admitted", "s4_the_ring"],
+      "fact_types": ["counterfactual", "situation"],
+      "retracted_fact_ids": ["performance_stays_hidden"],
+      "retracted_fact_types": ["assumption"]
+    }
+  ],
+  "situations": {
+    "s1_seeing_through": {
+      "activation": 0.55, "ripeness": 0.72, "hope": 0.19, "threat": 0.47,
+      "anger": 0.24, "grief": 0.0, "waiting": 0.0, "visits": 3,
+      "description": "...", "place": "checkpoint", "indices": ["..."],
+      "inferred": true, "external": false, "directed-target": "the_set"
+    }
+  },
+  "active_indices": ["perception", "awareness", "seam"],
+  "retrieved": [
+    {
+      "node_id": "n02_corridor_repeat",
+      "retrieval_score": 5.0,
+      "marks": 3,
+      "threshold": 2,
+      "overlap": ["perception", "awareness"]
+    }
+  ],
+  "chosen_node_id": "n02_corridor_repeat",
+  "sprouted_contexts": ["cx-38"],
+  "selection": {
+    "policy": "highest_score",
+    "score": 8.1,
+    "reasons": ["retrieval:5", "goal_match", "situation_match"],
+    "goal_family": "reversal",
+    "edge_kind": "counterfactual_bridge"
+  },
+  "emotion_shifts": [
+    {
+      "emotion_id": "e_fixture_room_dread",
+      "from_strength": 0.82,
+      "to_strength": 0.55,
+      "delta": -0.27,
+      "valence": "negative",
+      "role": "trigger"
+    }
+  ],
+  "emotional_state": [
+    {
+      "emotion_id": "rf_zone_mercy-hope",
+      "strength": 0.27,
+      "valence": "positive",
+      "affect": "hope",
+      "situation_id": "s5_the_guide",
+      "role": "reframe"
+    }
+  ],
+  "feedback_applied": null,
+  "serendipity_bias": null
 }
 ```
 
-The visualizer must handle:
-- 2-cycle benchmarks (Puppet Knows semi-unscripted) — show both cycles
+### Selection keys by family (present only when that family fires)
+
+**Reversal:** `reversal_branch_context`, `reversal_branch_contexts`,
+`reversal_branch_count`, `reversal_source_context`, `reversal_target_goal`,
+`reversal_target_policy`, `reversal_leaf_goal`, `reversal_leaf_strength`,
+`reversal_leaf_depth`, `reversal_leaf_emotion_pressure`,
+`reversal_leaf_policy`, `reversal_leaf_reasons`,
+`reversal_leaf_retracted_facts`, `reversal_counterfactual_policy`,
+`reversal_counterfactual_source`, `reversal_counterfactual_goal`,
+`reversal_counterfactual_reasons`, `reversal_counterfactual_fact_ids`
+
+**Rationalization:** `rationalization_branch_context`,
+`rationalization_frame_id`, `rationalization_frame_goal`,
+`rationalization_reframe_fact_ids`, `rationalization_selection_policy`,
+`rationalization_frame_reasons`, `rationalization_trigger_emotion_id`,
+`rationalization_trigger_emotion_before`, `rationalization_trigger_emotion_after`,
+`rationalization_hope_emotion_id`
+
+**Roving:** `roving_branch_context`, `roving_seed_episode`,
+`roving_reminded_episodes`, `roving_active_indices`, `roving_selection_policy`
+
+**Adapter:** `adapter_policy`, `adapter_branch_context`,
+`adapter_visible_fact_ids`, `adapter_selected_situation`,
+`adapter_active_indices`
+
+### Situation metrics by trace type
+
+| Metric | Scripted | Semi-unscripted | Autonomous |
+|--------|----------|-----------------|------------|
+| activation | yes | yes | yes |
+| ripeness | yes | yes | yes |
+| hope | yes | yes | yes |
+| threat | yes | yes | yes |
+| anger | yes | yes | yes |
+| grief | — | — | yes |
+| waiting | — | — | yes |
+| visits | — | — | yes |
+| description | — | — | yes |
+| place | — | — | yes |
+| indices | — | — | yes |
+| inferred | — | — | yes |
+| external | — | — | yes |
+| directed-target | — | — | yes |
+
+### The visualizer must handle
+
+- 2-cycle benchmarks (semi-unscripted) — show both cycles
 - 12-cycle autonomous traces — the primary use case
 - Missing fields (graceful degradation, not errors)
-- Autonomous-specific fields (visits, grief, waiting, description)
+- Family-specific selection keys (detect by presence, not by trace type)
+- `top_candidates` count varies: ~20 in autonomous, fewer in benchmarks
 
 ---
 
@@ -269,7 +419,10 @@ The visualizer must handle:
 
 - Standalone HTML + JS + CSS, no framework, no build step
 - Vanilla JS or lightweight lib (d3.js for the charts/animation is fine)
-- Reads JSON via file input or URL parameter
+- Input: drag-drop JSON onto page, or embedded JSON in generated HTML
+- `bb dream-viz` generates `out/puppet_knows_autonomous_cognitive.html`
+  with the trace JSON embedded (no separate file needed for default case)
+- Drag-drop allows loading any other trace JSON for comparison
 - All animation via requestAnimationFrame or CSS transitions
 - Dark background (the kernel is dreaming, not presenting a spreadsheet)
 - Typographic: monospace for data, serif for thought stream
@@ -291,10 +444,20 @@ Dark theme evoking a dreaming mind:
 
 ---
 
-## Priority Order
+## Versioning
 
-1. Situation Landscape + Goal Race + Timeline (the core experience)
-2. Thought Stream (makes it legible without reading numbers)
-3. Branch Tree (shows the "what if" structure)
-4. Interactions (hover, click, speed control)
-5. Polish (transitions, particle effects, ambient animation)
+### v1 (build now)
+
+1. Situation Landscape (A) + Goal Race (B) + Timeline (C) + Thought Stream (E)
+2. Branch Events panel (D) — per-cycle event list, not full tree
+3. Play/pause, step, speed controls
+4. Drag-drop JSON input + embedded default trace
+5. Dark theme, CSS transitions between cycle states
+
+### v2 (after trace schema normalization)
+
+1. Full Branch Tree with context ancestry and fact-flow arrows
+2. Requires normalized `branch_events` / `context_edges` in trace export
+3. Click-to-expand situation detail with metric history sparklines
+4. Comparison mode (load two traces side by side)
+5. Ambient animation (situation circles breathing, goal bars easing)

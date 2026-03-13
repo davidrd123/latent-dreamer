@@ -44,6 +44,12 @@
       (is (= ["performance_stays_hidden"]
              (mapv #(get % "id")
                    (get-in cycles [0 "mutations" 0 "retracted-facts"]))))
+      (is (= "reversal"
+             (get-in cycles [0 "branch_events" 0 "family"])))
+      (is (= ["performance_is_admitted" "s4_the_ring"]
+             (get-in cycles [0 "branch_events" 0 "fact_ids"])))
+      (is (= ["performance_stays_hidden"]
+             (get-in cycles [0 "branch_events" 0 "retracted_fact_ids"])))
       (let [reversal-branch-id (first (get-in world [:trace 0 :sprouted]))]
         (is (= true (get-in world [:contexts reversal-branch-id :alternative-past?])))
         (is (= true (get-in world [:contexts reversal-branch-id :pseudo-sprout?])))
@@ -89,6 +95,8 @@
              (get-in cycles [2 "selection" "reversal_leaf_retracted_facts"])))
       (is (= (name (:preferred-cause-id benchmark-state))
              (get-in cycles [2 "selection" "reversal_counterfactual_source"])))
+      (is (= "reversal"
+             (get-in cycles [2 "branch_events" 0 "family"])))
       (is (= "branch_visible_facts"
              (get-in cycles [2 "selection" "adapter_policy"])))
       (is (= "s4_the_ring"

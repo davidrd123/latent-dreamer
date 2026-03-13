@@ -116,6 +116,15 @@
                   :selection {:policy :highest_strength}
                   :activations [{:goal-id :g-9
                                  :goal-type :roving}]
+                  :mutations [{:family :reversal
+                               :source-context :cx-2
+                               :target-context :cx-3
+                               :input-facts [{:fact/type :counterfactual
+                                              :fact/id :performance_is_admitted}
+                                             {:fact/type :situation
+                                              :fact/id :s4_the_ring}]
+                               :retracted-facts [{:fact/type :assumption
+                                                  :fact/id :performance_stays_hidden}]}]
                   :emotion-shifts [{:emotion-id :e-dread
                                     :from-strength 0.82
                                     :to-strength 0.55
@@ -139,6 +148,11 @@
            (get-in exported ["top_candidates" 0 "reasons"])))
     (is (= "ep-7" (get-in exported ["retrieved" 0 "node_id"])))
     (is (= "roving" (get-in exported ["activations" 0 "goal_type"])))
+    (is (= "reversal" (get-in exported ["branch_events" 0 "family"])))
+    (is (= ["performance_is_admitted" "s4_the_ring"]
+           (get-in exported ["branch_events" 0 "fact_ids"])))
+    (is (= ["performance_stays_hidden"]
+           (get-in exported ["branch_events" 0 "retracted_fact_ids"])))
     (is (= "e-dread" (get-in exported ["emotion_shifts" 0 "emotion_id"])))
     (is (= 0.55 (get-in exported ["emotional_state" 0 "strength"])))
     (is (= {"activation" 0.95
