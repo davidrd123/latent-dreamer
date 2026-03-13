@@ -654,6 +654,37 @@ def build_html(payload: dict[str, Any], title: str) -> str:
       return (id || "").replace(/^s\\d+_/, "").replace(/_/g, " ");
     }}
 
+    function titleizeId(value) {{
+      return (value || "").replace(/_/g, " ");
+    }}
+
+    function branchEventsForCycle(cycle) {{
+      return Array.isArray(cycle.branch_events) ? cycle.branch_events : [];
+    }}
+
+    function emotionShiftSummary(cycle) {{
+      const shifts = Array.isArray(cycle.emotion_shifts) ? cycle.emotion_shifts : [];
+      if (!shifts.length) return null;
+      const strongest = [...shifts].sort((a, b) => Math.abs(Number(b.delta || 0)) - Math.abs(Number(a.delta || 0)))[0];
+      if (!strongest) return null;
+      const delta = Number(strongest.delta || 0);
+      const sign = delta > 0 ? "+" : "";
+      const label = strongest.affect || strongest.emotion_id || strongest.valence || "emotion";
+      const situation = strongest.situation_id ? ` in ${{shortSituation(strongest.situation_id)}}` : "";
+      return `${{titleizeId(label)}} shifts ${{sign}}${{delta.toFixed(2)}}${{situation}}`;
+    }}
+
+    function emotionalStateSummary(cycle) {{
+      const states = Array.isArray(cycle.emotional_state) ? cycle.emotional_state : [];
+      if (!states.length) return null;
+      const strongest = [...states].sort((a, b) => Number(b.strength || 0) - Number(a.strength || 0))[0];
+      if (!strongest) return null;
+      const label = strongest.affect || strongest.emotion_id || strongest.valence || "emotion";
+      const strength = Number(strongest.strength || 0).toFixed(2);
+      const role = strongest.role ? ` (${{titleizeId(strongest.role)}})` : "";
+      return `Emotional state: ${{titleizeId(label)}} at ${{strength}}${{role}}`;
+    }}
+
     function dominantEmotion(state) {{
       const metrics = [
         ["threat", Number(state.threat || 0)],
@@ -693,6 +724,7 @@ def build_html(payload: dict[str, Any], title: str) -> str:
       const chosen = cycle.chosen_node_id ? ` [${{cycle.chosen_node_id}}]` : "";
       const line1 = [];
       const line2 = [];
+      const branchEvents = branchEventsForCycle(cycle);
       line1.push(`<strong>${{titleCase(goalType)}}</strong> takes ${{
         situation ? "the " + situation : "the scene"
       }}.`);
@@ -712,13 +744,21 @@ def build_html(payload: dict[str, Any], title: str) -> str:
         line1.push("Trying to repair the goal directly.");
       }}
 
-      if (cycle.sprouted_contexts && cycle.sprouted_contexts.length) {{
+      if (branchEvents.length) {{
+        const branch = branchEvents[0];
+        const factIds = (branch.fact_ids || []).map(titleizeId);
+        const family = titleizeId(branch.family || "branch");
+        line2.push(`Branch event: ${{family}} opens ${{branch.target_context || "branch context"}} with ${{factIds.slice(0, 3).join(", ") || "new facts"}}.`);
+        if ((branch.retracted_fact_ids || []).length) {{
+          line2.push(`It retracts ${{branch.retracted_fact_ids.map(titleizeId).slice(0, 2).join(", ")}}.`);
+        }}
+      }} else if (cycle.sprouted_contexts && cycle.sprouted_contexts.length) {{
         line2.push(`Branch sprouting: ${{cycle.sprouted_contexts.join(", ")}}.`);
       }}
 
       const selection = cycle.selection || {{}};
       if (selection.adapter_selected_situation && selection.adapter_selected_situation !== goal.situation_id) {{
-        line2.push(`Branch facts wake ${{shortSituation(selection.adapter_selected_situation)}}.`);
+        line2.push(`Adapter consequences wake ${{shortSituation(selection.adapter_selected_situation)}}.`);
       }}
 
       if (previousCycle && cycle.situations && previousCycle.situations) {{
@@ -743,12 +783,22 @@ def build_html(payload: dict[str, Any], title: str) -> str:
         line2.push(`Retrieval leads with ${{topRetrieval.node_id}} via ${{topRetrieval.overlap?.slice(0, 3).join(", ") || "active cues"}}.${{chosen ? "" : ""}}`);
       }}
 
+      const shiftLine = emotionShiftSummary(cycle);
+      if (shiftLine) {{
+        line2.push(shiftLine + ".");
+      }}
+
+      const stateLine = emotionalStateSummary(cycle);
+      if (stateLine) {{
+        line2.push(stateLine + ".");
+      }}
+
       return {{
         headline: `Cycle ${{cycle.cycle}}`,
         copy: `${{line1.join(" ")}} ${{line2.join(" ")}}${{chosen}}`.trim(),
         tags: [
           `${{goal.goal_type || "goal"}} × ${{goal.situation_id || "unknown"}}`,
-          selection.edge_kind || selection.goal_family || "highest_score",
+          branchEvents[0]?.family || selection.edge_kind || selection.goal_family || "highest_score",
         ],
       }};
     }}
@@ -838,12 +888,12 @@ def build_html(payload: dict[str, Any], title: str) -> str:
         label.textContent = `c${{cycle.cycle}}`;
         timelineEl.appendChild(label);
 
-        if (cycle.sprouted_contexts && cycle.sprouted_contexts.length) {{
+        if (branchEventsForCycle(cycle).length || (cycle.sprouted_contexts && cycle.sprouted_contexts.length)) {{
           const branch = document.createElement("div");
           branch.className = "timeline-branch";
           branch.style.left = `${{x}}px`;
           branch.style.top = `${{y + 10}}px`;
-          branch.style.height = "34px";
+          branch.style.height = `${{34 + 8 * branchEventsForCycle(cycle).length}}px`;
           timelineEl.appendChild(branch);
         }}
       }});
