@@ -53,8 +53,8 @@ Page numbers below are PDF page numbers. They match the `<!-- page: N -->` marke
 - Main prose in Chapters 1-11 outside the page ranges above.
 - References `303-322`
   These still need OCR cleanup, but they are text problems rather than image-dependent layout problems.
-- Index `386-413`
-  Text-only cleanup is adequate for the actual index pages. PDF pages `414-423` are blank/endpaper scan noise, and `424` is back-cover material rather than index content.
+- Index `385-413`
+  Text-only cleanup is adequate for the actual index pages. PDF page `384` is scan garbage/blank interleaf between Appendix B and the index. PDF pages `414-423` are blank/endpaper scan noise, and `424` is back-cover material rather than index content.
 
 ## Good Spot-Check Pages
 

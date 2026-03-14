@@ -25,13 +25,18 @@ are eligible. In daydreaming mode, both personal and daydreaming
 goals are eligible. The program switches modes when no concerns
 are eligible in the current mode.
 
-On each cycle: needs and non-motivating emotions decay. Emotions
-below threshold are removed.
+On each cycle: **needs and non-motivating emotions** decay.
+Emotions below threshold are removed. Motivating emotions
+(those currently driving a concern's selection priority) are
+NOT subject to this per-cycle decay — they persist at strength
+until modified by reappraisal, concern termination, or explicit
+emotion events.
 
 This is simpler than the kernel's current control.clj but
-matches its shape. The critical thing the kernel is missing:
-**the decay + threshold removal on every cycle**, which is what
-prevents the system from getting stuck on exhausted concerns.
+matches its shape. The distinction matters: decaying motivating
+emotions would damp the very signals that keep a concern
+runnable. Only needs and residual/non-motivating emotions decay
+on the clock.
 
 ---
 
@@ -79,9 +84,15 @@ into isolated hypothetical contexts. The only thing they write
 back to reality is: (a) new top-level goals, and (b) the
 eventual outcome (success/failure) of the daydreaming goal.
 
-This maps directly to doc 11's commit types:
-- Personal-goal concerns → `ontic` commits
-- Daydreaming-goal concerns → `policy` and `salience` commits
+This is *analogous* to doc 11's commit types but should not be
+treated as a one-to-one mapping. Mueller's distinction is about
+how concerns write back to the reality context (directly vs.
+through isolated hypothetical contexts), not about commit
+classification per se. The commit taxonomy in doc 11
+(ontic | policy | salience | none) is a finer-grained design
+decision that cross-cuts this concern-type distinction — a
+daydreaming-goal concern could still produce an ontic commit
+if the character acts on what they rehearsed.
 
 ---
 

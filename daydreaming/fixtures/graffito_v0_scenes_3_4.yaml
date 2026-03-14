@@ -11,6 +11,9 @@ nodes:
     variant_family: null
     situation_ids: [s1_street_overwhelm]
     dwell_s: 4.0
+    delta_tension: 0.10
+    delta_energy: 0.15
+    priority_tier: 0
     visual_description: >
       Graffito Mixed-Media Stop-Motion - A low child-height close-up
       locks onto Tony, a 7-year-old puppet with a PAINTED PAPER CUTOUT
@@ -40,6 +43,9 @@ nodes:
     variant_family: null
     situation_ids: [s1_street_overwhelm]
     dwell_s: 4.5
+    delta_tension: 0.00
+    delta_energy: 0.05
+    priority_tier: 0
     visual_description: >
       Graffito Mixed-Media Stop-Motion - A close-up rides beside Tony as
       his small articulated paper hand drags across GRAFFITI MURALS on a
@@ -68,6 +74,9 @@ nodes:
     variant_family: null
     situation_ids: [s1_street_overwhelm]
     dwell_s: 5.0
+    delta_tension: 0.15
+    delta_energy: 0.10
+    priority_tier: 0
     visual_description: >
       Graffito Mixed-Media Stop-Motion - The camera drops low into a
       forest of adult legs made from PAINTED PAPER CUTOUT bodies and
@@ -97,6 +106,9 @@ nodes:
     variant_family: REVERSAL
     situation_ids: [s1_street_overwhelm]
     dwell_s: 5.5
+    delta_tension: 0.30
+    delta_energy: 0.20
+    priority_tier: 1
     visual_description: >
       Graffito Mixed-Media Stop-Motion - The same low-angle street
       corridor warps into Tony's overload. Adult legs made from PAINTED
@@ -125,6 +137,9 @@ nodes:
     variant_family: null
     situation_ids: [s1_street_overwhelm]
     dwell_s: 4.5
+    delta_tension: 0.20
+    delta_energy: 0.15
+    priority_tier: 0
     visual_description: >
       Graffito Mixed-Media Stop-Motion - A tight medium close-up catches
       Tony's PHOTOGRAPHIC CUTOUT face as he runs, mouth open mid-shout,
@@ -153,6 +168,9 @@ nodes:
     variant_family: null
     situation_ids: [s1_street_overwhelm]
     dwell_s: 4.5
+    delta_tension: 0.28
+    delta_energy: 0.18
+    priority_tier: 0
     visual_description: >
       Graffito Mixed-Media Stop-Motion - A yellow cab prop made from
       PAINTED CARDBOARD lunges into the foreground with a violent
@@ -181,6 +199,9 @@ nodes:
     variant_family: REVERSAL
     situation_ids: [s1_street_overwhelm]
     dwell_s: 6.0
+    delta_tension: 0.40
+    delta_energy: 0.25
+    priority_tier: 2
     visual_description: >
       Graffito Mixed-Media Stop-Motion - The cab near miss detonates into
       Tony's full sensory burst. The yellow PAINTED CARDBOARD cab fills
@@ -210,6 +231,9 @@ nodes:
     variant_family: null
     situation_ids: [s1_street_overwhelm]
     dwell_s: 6.5
+    delta_tension: -0.18
+    delta_energy: -0.10
+    priority_tier: 0
     visual_description: >
       Graffito Mixed-Media Stop-Motion - An extreme close-up starts on
       Tony's PHOTOGRAPHIC CUTOUT eyes, wide and wet with fear, then
@@ -239,6 +263,9 @@ nodes:
     variant_family: null
     situation_ids: [s2_grandmas_apartment]
     dwell_s: 5.5
+    delta_tension: -0.25
+    delta_energy: -0.20
+    priority_tier: 1
     visual_description: >
       Graffito Mixed-Media Stop-Motion - The same camera that pulled up
       over the neighborhood glides through a window frame and levels into
@@ -268,6 +295,9 @@ nodes:
     variant_family: null
     situation_ids: [s2_grandmas_apartment]
     dwell_s: 5.0
+    delta_tension: -0.14
+    delta_energy: 0.05
+    priority_tier: 1
     visual_description: >
       Graffito Mixed-Media Stop-Motion - Monk, a 27-year-old puppet with
       a PAINTED PAPER CUTOUT body splattered in THICK IMPASTO PAINT and a
@@ -297,6 +327,9 @@ nodes:
     variant_family: null
     situation_ids: [s2_grandmas_apartment]
     dwell_s: 4.5
+    delta_tension: 0.05
+    delta_energy: 0.22
+    priority_tier: 0
     visual_description: >
       Graffito Mixed-Media Stop-Motion - The camera pans with Monk, then
       whips to the front door just as Tony bursts inside. Tony, a
@@ -319,6 +352,36 @@ nodes:
       wonder: 0.2
     tags: [arrival, reunion, doorway, burst, father, joy]
 
+  - id: g_s2_n03v_tony_still_spun_up
+    name: Tony bursts in still carrying the street
+    scene_ref: "Scene 4, Shot 10 cont."
+    variant_of: g_s2_n03_tony_bursts_in
+    variant_family: REVERSAL
+    situation_ids: [s2_grandmas_apartment]
+    dwell_s: 5.0
+    delta_tension: 0.18
+    delta_energy: 0.20
+    priority_tier: 0
+    visual_description: >
+      Graffito Mixed-Media Stop-Motion - Tony comes through the apartment
+      door, but the street has not left him. His body hits the room with
+      the same jerky momentum from outside, shoulders tight, breath still
+      ragged, eyes flashing past Monk toward the window and hallway as if
+      danger might have followed him in. Warm apartment light catches on
+      the edges of his PAINTED PAPER CUTOUT shirt, but the rhythm stays
+      clipped and overclocked. Monk turns toward him with concern rather
+      than immediate play, and paint flecks hang in the air while the
+      room holds the charge of an arrival that has not yet become safe.
+    characters: [Tony, Monk]
+    objects: []
+    valences:
+      hope: 0.4
+      threat: 0.4
+      dread: 0.3
+      joy: 0.2
+      wonder: 0.1
+    tags: [reversal, arrival, spun_up, doorway, carryover, not_yet_safe]
+
   - id: g_s2_n04_dance_together
     name: Monk and Tony paint-dance together
     scene_ref: "Scene 4, Shot 11"
@@ -326,6 +389,9 @@ nodes:
     variant_family: null
     situation_ids: [s2_grandmas_apartment]
     dwell_s: 6.0
+    delta_tension: -0.18
+    delta_energy: 0.15
+    priority_tier: 0
     visual_description: >
       Graffito Mixed-Media Stop-Motion - Monk and Tony share the frame in
       a medium two-shot, painting by dancing to AFROBEAT HORNS. Monk's
@@ -354,6 +420,9 @@ nodes:
     variant_family: null
     situation_ids: [s2_grandmas_apartment]
     dwell_s: 5.5
+    delta_tension: -0.08
+    delta_energy: -0.18
+    priority_tier: 1
     visual_description: >
       Graffito Mixed-Media Stop-Motion - Grandma is heard before she is
       seen, then she enters from the bottom of the frame carrying two
@@ -376,4 +445,90 @@ nodes:
       wonder: 0.1
     tags: [Grandma, bowls, authority, grounding, interruption, family]
 
-edges: []
+edges:
+  - from: g_s1_n01_feet_pounding
+    to: g_s1_n02_hand_over_graffiti
+  - from: g_s1_n01_feet_pounding
+    to: g_s1_n03_forest_of_legs
+  - from: g_s1_n02_hand_over_graffiti
+    to: g_s1_n03_forest_of_legs
+  - from: g_s1_n02_hand_over_graffiti
+    to: g_s1_n04_eyes_searching
+  - from: g_s1_n03_forest_of_legs
+    to: g_s1_n03v_legs_overwhelm
+  - from: g_s1_n03_forest_of_legs
+    to: g_s1_n04_eyes_searching
+  - from: g_s1_n03_forest_of_legs
+    to: g_s1_n05_cab_near_miss
+  - from: g_s1_n03v_legs_overwhelm
+    to: g_s1_n05_cab_near_miss
+  - from: g_s1_n03v_legs_overwhelm
+    to: g_s1_n06_drone_pullback
+  - from: g_s1_n03v_legs_overwhelm
+    to: g_s2_n01_camera_enters_window
+  - from: g_s1_n04_eyes_searching
+    to: g_s1_n03v_legs_overwhelm
+  - from: g_s1_n04_eyes_searching
+    to: g_s1_n05_cab_near_miss
+  - from: g_s1_n04_eyes_searching
+    to: g_s2_n01_camera_enters_window
+  - from: g_s1_n05_cab_near_miss
+    to: g_s1_n05v_cab_overwhelm
+  - from: g_s1_n05_cab_near_miss
+    to: g_s1_n06_drone_pullback
+  - from: g_s1_n05_cab_near_miss
+    to: g_s2_n01_camera_enters_window
+  - from: g_s1_n05v_cab_overwhelm
+    to: g_s1_n06_drone_pullback
+  - from: g_s1_n05v_cab_overwhelm
+    to: g_s2_n01_camera_enters_window
+  - from: g_s1_n05v_cab_overwhelm
+    to: g_s2_n03_tony_bursts_in
+  - from: g_s1_n05v_cab_overwhelm
+    to: g_s2_n03v_tony_still_spun_up
+  - from: g_s1_n06_drone_pullback
+    to: g_s1_n01_feet_pounding
+  - from: g_s1_n06_drone_pullback
+    to: g_s2_n01_camera_enters_window
+  - from: g_s1_n06_drone_pullback
+    to: g_s2_n02_monk_painting
+  - from: g_s2_n01_camera_enters_window
+    to: g_s2_n02_monk_painting
+  - from: g_s2_n01_camera_enters_window
+    to: g_s2_n03_tony_bursts_in
+  - from: g_s2_n01_camera_enters_window
+    to: g_s2_n03v_tony_still_spun_up
+  - from: g_s2_n01_camera_enters_window
+    to: g_s1_n04_eyes_searching
+  - from: g_s2_n02_monk_painting
+    to: g_s2_n03_tony_bursts_in
+  - from: g_s2_n02_monk_painting
+    to: g_s2_n03v_tony_still_spun_up
+  - from: g_s2_n02_monk_painting
+    to: g_s2_n04_dance_together
+  - from: g_s2_n02_monk_painting
+    to: g_s1_n06_drone_pullback
+  - from: g_s2_n03_tony_bursts_in
+    to: g_s2_n03v_tony_still_spun_up
+  - from: g_s2_n03_tony_bursts_in
+    to: g_s2_n04_dance_together
+  - from: g_s2_n03_tony_bursts_in
+    to: g_s1_n04_eyes_searching
+  - from: g_s2_n03v_tony_still_spun_up
+    to: g_s2_n05_grandma_enters
+  - from: g_s2_n03v_tony_still_spun_up
+    to: g_s1_n04_eyes_searching
+  - from: g_s2_n03v_tony_still_spun_up
+    to: g_s2_n04_dance_together
+  - from: g_s2_n04_dance_together
+    to: g_s2_n05_grandma_enters
+  - from: g_s2_n04_dance_together
+    to: g_s1_n01_feet_pounding
+  - from: g_s2_n04_dance_together
+    to: g_s1_n03_forest_of_legs
+  - from: g_s2_n05_grandma_enters
+    to: g_s2_n04_dance_together
+  - from: g_s2_n05_grandma_enters
+    to: g_s1_n01_feet_pounding
+  - from: g_s2_n05_grandma_enters
+    to: g_s1_n03_forest_of_legs

@@ -189,9 +189,14 @@ stream.
    "here's what happened" but "here's what the character is
    *imagining*."
 
-2. **Authored pruning per operator.** Each L2 operator should
-   specify which of its internal steps are worth narrating.
-   Don't dump everything; don't hide everything.
+2. **Authored pruning per rule, not per operator.** Mueller's
+   pruning hooks live on individual planning/inference rules
+   and hand-authored episodes — much finer-grained than an
+   operator family. Each rule specifies (via inf-no-gen and
+   plan-no-gen flags) which of its subgoals and inferences
+   should be narrated. The kernel equivalent should attach
+   narration hints to individual rules and benchmark-level
+   knowledge, not coarsely to operator families.
 
 3. **Emotion narration with strength and direction.** "I feel
    really angry at B" is more useful than "emotion: anger,

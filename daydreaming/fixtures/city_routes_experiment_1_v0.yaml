@@ -1,0 +1,1012 @@
+graph_id: city_routes_experiment_1_v0
+title: The City Routes Around You
+brief_ref: /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/experiential-design/23-brief-city-night-pursuit.md
+source_palette: /Users/daviddickinson/Projects/Lora/scope-drd/content/palettes/escape_new_york.v2-layered.palette.yaml
+
+places:
+  - id: platform
+    description: The elevated platform where missed timing becomes route destiny.
+  - id: market
+    description: The alley market where concealment and drag arrive together.
+  - id: rooftop
+    description: The rooftop and bridge threshold where crossings become inspections.
+  - id: club
+    description: The public interior where spectacle can hide or expose the route.
+  - id: apartment
+    description: The borrowed kitchen refuge where the package can be set down once.
+  - id: warehouse
+    description: The river-edge exchange zone where the route stops being transit.
+
+events:
+  - id: e1_train_missed
+    description: The last train doors close before the courier reaches them.
+    anchor_places: [platform]
+  - id: e2_blackout_siren
+    description: A blackout and siren wave turn concealment into exposure.
+    anchor_places: [club, market]
+  - id: e3_wrong_handoff
+    description: The package nearly goes to the wrong receiver under the wrong light.
+    anchor_places: [warehouse]
+  - id: e4_bridge_lockdown
+    description: The bridge checkpoint seals and forces a rooftop workaround.
+    anchor_places: [rooftop]
+
+situations:
+  - id: s1_the_run
+    place_id: platform
+    resolution_path_count: 2
+    description: The courier is in motion and timing still feels objective.
+  - id: s2_the_detour
+    place_id: market
+    resolution_path_count: 3
+    description: The clean route has failed and the city is routing by friction.
+  - id: s3_false_refuge
+    place_id: apartment
+    resolution_path_count: 2
+    description: Shelter is real, but staying sheltered costs the route.
+  - id: s4_public_spectacle
+    place_id: club
+    resolution_path_count: 3
+    description: Spectacle can swallow the courier or pin him under the light.
+  - id: s5_the_threshold
+    place_id: rooftop
+    resolution_path_count: 2
+    description: Crossings narrow and ask for proof at exactly the wrong time.
+  - id: s6_the_exchange
+    place_id: warehouse
+    resolution_path_count: 2
+    description: The run becomes a question of transfer, identity, and mistake.
+
+nodes:
+  - id: c_s1_n01_last_train_doors_shut
+    name: Last train doors shut
+    scene_ref: "Run cluster 1"
+    variant_of: null
+    variant_family: null
+    place_id: platform
+    situation_id: s1_the_run
+    situation_ids: [s1_the_run]
+    line_id: line_route
+    subplot_id: route_integrity
+    availability_test: start_or_return
+    priority_tier: 1
+    delta_tension: 0.24
+    delta_energy: 0.18
+    setup_refs: []
+    payoff_refs: [e1_train_missed]
+    event_id: e1_train_missed
+    event_commit_potential: 1.0
+    pressure_tags: [timing_loss, exposure, route_collapse, train]
+    option_effect: reroute
+    importance: 0.92
+    resolution_path_count: 1
+    dwell_s: 4.5
+    visual_description: >
+      The last train doors shear shut under fluorescent platform light as
+      the courier reaches for them a half-beat too late, the silver case
+      catching the glass for an instant before the city takes the route away.
+    characters: [courier, crowd]
+    objects: [silver_package_case, dead_pager]
+    tags: [platform, train, missed_doors, fluorescent, urgency]
+
+  - id: c_s1_n02_platform_sprint
+    name: Platform sprint under closing lights
+    scene_ref: "Run cluster 2"
+    variant_of: null
+    variant_family: null
+    place_id: platform
+    situation_id: s1_the_run
+    situation_ids: [s1_the_run]
+    line_id: line_route
+    subplot_id: route_integrity
+    availability_test: after_e1_or_return
+    priority_tier: 0
+    delta_tension: 0.12
+    delta_energy: 0.20
+    setup_refs: [e1_train_missed]
+    payoff_refs: []
+    event_id: null
+    event_commit_potential: 0.0
+    pressure_tags: [movement, urgency, exposure]
+    option_effect: escalate
+    importance: 0.68
+    resolution_path_count: 2
+    dwell_s: 4.0
+    visual_description: >
+      The courier runs the empty length of the platform under impatient
+      fluorescent strips, staying in motion even after the obvious route is gone.
+    characters: [courier]
+    objects: [silver_package_case]
+    tags: [platform, sprint, fluorescent, run]
+
+  - id: c_s1_n03_track_edge_hesitation
+    name: Track-edge hesitation
+    scene_ref: "Run cluster 3"
+    variant_of: null
+    variant_family: null
+    place_id: platform
+    situation_id: s1_the_run
+    situation_ids: [s1_the_run]
+    line_id: line_route
+    subplot_id: route_integrity
+    availability_test: always
+    priority_tier: 0
+    delta_tension: 0.14
+    delta_energy: 0.10
+    setup_refs: [bridge_wristband]
+    payoff_refs: []
+    event_id: null
+    event_commit_potential: 0.1
+    pressure_tags: [threshold, hesitation, exposure]
+    option_effect: choose
+    importance: 0.64
+    resolution_path_count: 2
+    dwell_s: 4.5
+    visual_description: >
+      At the platform edge the courier checks the dead line, the dark track,
+      and the bridge wristband at his wrist, as if one of them might reopen the run.
+    characters: [courier]
+    objects: [bridge_wristband, dead_pager]
+    tags: [platform, hesitation, edge, wristband]
+
+  - id: c_s1_n04_train_leaving_reflection
+    name: Train leaving in black glass reflection
+    scene_ref: "Run cluster 4"
+    variant_of: null
+    variant_family: null
+    place_id: platform
+    situation_id: s1_the_run
+    situation_ids: [s1_the_run]
+    line_id: line_route
+    subplot_id: route_integrity
+    availability_test: always
+    priority_tier: 0
+    delta_tension: -0.02
+    delta_energy: -0.02
+    setup_refs: [e1_train_missed]
+    payoff_refs: [route_rewritten]
+    event_id: null
+    event_commit_potential: 0.2
+    pressure_tags: [afterimage, route_loss, exposure]
+    option_effect: reflect
+    importance: 0.56
+    resolution_path_count: 2
+    dwell_s: 4.0
+    visual_description: >
+      The departing train becomes a sliding reflection across wet black panels,
+      turning the missed route into an image the courier has to run away from.
+    characters: [courier]
+    objects: [silver_package_case]
+    tags: [reflection, train, wet_glass, afterimage]
+
+  - id: c_s1_n05_fluorescent_waiters
+    name: Fluorescent waiters reading the case
+    scene_ref: "Run cluster 5"
+    variant_of: null
+    variant_family: null
+    place_id: platform
+    situation_id: s1_the_run
+    situation_ids: [s1_the_run]
+    line_id: line_route
+    subplot_id: object_visibility
+    availability_test: always
+    priority_tier: 0
+    delta_tension: 0.16
+    delta_energy: 0.08
+    setup_refs: [dead_pager_glow]
+    payoff_refs: [s2_the_detour]
+    event_id: null
+    event_commit_potential: 0.15
+    pressure_tags: [visibility, watchers, object_readability]
+    option_effect: expose
+    importance: 0.62
+    resolution_path_count: 3
+    dwell_s: 4.0
+    visual_description: >
+      Under fluorescent wash the waiting faces on the platform read the silver case
+      before they read the courier, turning stillness into a form of pursuit.
+    characters: [courier, crowd]
+    objects: [silver_package_case, dead_pager]
+    tags: [platform, crowd, fluorescent, watched]
+
+  - id: c_s2_n01_alley_squeeze
+    name: Alley squeeze behind the market
+    scene_ref: "Detour cluster 1"
+    variant_of: null
+    variant_family: null
+    place_id: market
+    situation_id: s2_the_detour
+    situation_ids: [s2_the_detour]
+    line_id: line_route
+    subplot_id: route_integrity
+    availability_test: after_e1_train_missed
+    priority_tier: 1
+    delta_tension: 0.10
+    delta_energy: 0.12
+    setup_refs: [e1_train_missed]
+    payoff_refs: [s2_the_detour]
+    event_id: null
+    event_commit_potential: 0.1
+    pressure_tags: [detour, squeeze, concealment, drag]
+    option_effect: reroute
+    importance: 0.75
+    resolution_path_count: 3
+    dwell_s: 4.5
+    visual_description: >
+      The courier slips into a narrow alley market where produce crates, wet tarps,
+      and shoulders turn concealment into drag.
+    characters: [courier, crowd]
+    objects: [silver_package_case]
+    tags: [market, alley, squeeze, detour]
+
+  - id: c_s2_n02_produce_cart_bottleneck
+    name: Produce-cart bottleneck
+    scene_ref: "Detour cluster 2"
+    variant_of: null
+    variant_family: null
+    place_id: market
+    situation_id: s2_the_detour
+    situation_ids: [s2_the_detour]
+    line_id: line_route
+    subplot_id: object_visibility
+    availability_test: always
+    priority_tier: 0
+    delta_tension: 0.18
+    delta_energy: 0.12
+    setup_refs: [silver_case_visibility]
+    payoff_refs: []
+    event_id: null
+    event_commit_potential: 0.15
+    pressure_tags: [bottleneck, crowd_drag, visibility]
+    option_effect: expose
+    importance: 0.66
+    resolution_path_count: 3
+    dwell_s: 4.0
+    visual_description: >
+      A stack of produce carts turns the alley into a moving choke point and forces
+      the silver case into other people's light.
+    characters: [courier, crowd]
+    objects: [silver_package_case]
+    tags: [market, bottleneck, carts, crowd]
+
+  - id: c_s2_n03_tarp_corridor
+    name: Tarp corridor concealment
+    scene_ref: "Detour cluster 3"
+    variant_of: null
+    variant_family: null
+    place_id: market
+    situation_id: s2_the_detour
+    situation_ids: [s2_the_detour]
+    line_id: line_route
+    subplot_id: concealment_exposure
+    availability_test: always
+    priority_tier: 0
+    delta_tension: -0.04
+    delta_energy: 0.10
+    setup_refs: []
+    payoff_refs: [borrowed_anonymity]
+    event_id: null
+    event_commit_potential: 0.0
+    pressure_tags: [concealment, weather, drift]
+    option_effect: conceal
+    importance: 0.58
+    resolution_path_count: 4
+    dwell_s: 4.5
+    visual_description: >
+      Blue tarps and steam strips turn the market into a temporary weather system
+      that lets the courier borrow anonymity without actually stopping.
+    characters: [courier, crowd]
+    objects: [silver_package_case]
+    tags: [market, tarp, steam, concealment]
+
+  - id: c_s2_n04_wrong_turn_through_steam
+    name: Wrong turn through steam
+    scene_ref: "Detour cluster 4"
+    variant_of: null
+    variant_family: null
+    place_id: market
+    situation_id: s2_the_detour
+    situation_ids: [s2_the_detour]
+    line_id: line_route
+    subplot_id: route_integrity
+    availability_test: always
+    priority_tier: 0
+    delta_tension: 0.22
+    delta_energy: 0.14
+    setup_refs: [dead_pager_glow]
+    payoff_refs: [wrong_instruction_glow, siren_pressure]
+    event_id: null
+    event_commit_potential: 0.35
+    pressure_tags: [wrong_turn, reroute, confusion, siren_pressure]
+    option_effect: escalate
+    importance: 0.73
+    resolution_path_count: 3
+    dwell_s: 4.5
+    visual_description: >
+      A steam-blind turn sends the courier under the wrong awning just as the pager
+      flashes the wrong instruction too late to trust.
+    characters: [courier]
+    objects: [dead_pager, silver_package_case]
+    tags: [market, steam, wrong_turn, pager]
+
+  - id: c_s2_n05_fence_jump_setup
+    name: Fence-jump setup
+    scene_ref: "Detour cluster 5"
+    variant_of: null
+    variant_family: RECOVERY
+    place_id: market
+    situation_id: s2_the_detour
+    situation_ids: [s2_the_detour]
+    line_id: line_route
+    subplot_id: threshold_pressure
+    availability_test: after_wrong_turn
+    priority_tier: 1
+    delta_tension: 0.12
+    delta_energy: 0.18
+    setup_refs: [e4_bridge_lockdown]
+    payoff_refs: [roof_access]
+    event_id: null
+    event_commit_potential: 0.25
+    pressure_tags: [threshold, workaround, climb]
+    option_effect: prepare
+    importance: 0.69
+    resolution_path_count: 2
+    dwell_s: 4.0
+    visual_description: >
+      Bent wire and chain-link become the city's way of asking whether the courier
+      can still move vertically after every flat route failed.
+    characters: [courier]
+    objects: [bridge_wristband]
+    tags: [market, fence, climb, workaround]
+
+  - id: c_s5_n01_ladder_climb
+    name: Ladder climb to the roofs
+    scene_ref: "Threshold cluster 1"
+    variant_of: null
+    variant_family: null
+    place_id: rooftop
+    situation_id: s5_the_threshold
+    situation_ids: [s5_the_threshold]
+    line_id: line_route
+    subplot_id: threshold_pressure
+    availability_test: after_detour_or_spectacle
+    priority_tier: 1
+    delta_tension: 0.16
+    delta_energy: 0.15
+    setup_refs: [roof_access]
+    payoff_refs: [s5_the_threshold]
+    event_id: null
+    event_commit_potential: 0.2
+    pressure_tags: [threshold, climb, exposure]
+    option_effect: escalate
+    importance: 0.76
+    resolution_path_count: 2
+    dwell_s: 4.5
+    visual_description: >
+      A rust ladder lifts the route off the street and into sodium-orange exposure,
+      making height the new cost of moving forward.
+    characters: [courier]
+    objects: [silver_package_case]
+    tags: [rooftop, ladder, climb, threshold]
+
+  - id: c_s5_n02_roof_gap_commit
+    name: Roof-gap commit
+    scene_ref: "Threshold cluster 2"
+    variant_of: null
+    variant_family: REVERSAL
+    place_id: rooftop
+    situation_id: s5_the_threshold
+    situation_ids: [s5_the_threshold]
+    line_id: line_route
+    subplot_id: threshold_pressure
+    availability_test: after_ladder_climb
+    priority_tier: 0
+    delta_tension: 0.26
+    delta_energy: 0.18
+    setup_refs: [roof_access]
+    payoff_refs: [threshold_crossed]
+    event_id: null
+    event_commit_potential: 0.3
+    pressure_tags: [commitment, gap, threshold, exposure]
+    option_effect: commit
+    importance: 0.78
+    resolution_path_count: 1
+    dwell_s: 4.0
+    visual_description: >
+      A roof gap turns the whole city into one held breath and makes the courier
+      choose momentum over explanation.
+    characters: [courier]
+    objects: [silver_package_case]
+    tags: [rooftop, gap, commit, leap]
+
+  - id: c_s5_n03_sodium_bridge_view
+    name: Sodium bridge view
+    scene_ref: "Threshold cluster 3"
+    variant_of: null
+    variant_family: null
+    place_id: rooftop
+    situation_id: s5_the_threshold
+    situation_ids: [s5_the_threshold]
+    line_id: line_route
+    subplot_id: threshold_pressure
+    availability_test: always
+    priority_tier: 0
+    delta_tension: 0.04
+    delta_energy: -0.06
+    setup_refs: [bridge_wristband]
+    payoff_refs: [inspection_view]
+    event_id: null
+    event_commit_potential: 0.45
+    pressure_tags: [inspection, bridge, visibility, jurisdiction]
+    option_effect: reveal
+    importance: 0.71
+    resolution_path_count: 2
+    dwell_s: 4.5
+    visual_description: >
+      From above, the bridge narrows into sodium-vapor jurisdiction and the wristband
+      starts to look like proof from a route that no longer applies.
+    characters: [courier]
+    objects: [bridge_wristband, silver_package_case]
+    tags: [bridge, sodium, view, checkpoint]
+
+  - id: c_s5_n04_wire_fence_scrape
+    name: Wire fence scrape
+    scene_ref: "Threshold cluster 4"
+    variant_of: null
+    variant_family: null
+    place_id: rooftop
+    situation_id: s5_the_threshold
+    situation_ids: [s5_the_threshold]
+    line_id: line_route
+    subplot_id: threshold_pressure
+    availability_test: after_roof_gap
+    priority_tier: 0
+    delta_tension: 0.14
+    delta_energy: 0.08
+    setup_refs: [e4_bridge_lockdown]
+    payoff_refs: []
+    event_id: null
+    event_commit_potential: 0.35
+    pressure_tags: [constraint, scrape, exposure]
+    option_effect: constrain
+    importance: 0.6
+    resolution_path_count: 1
+    dwell_s: 4.0
+    visual_description: >
+      Bent wire and silver thread drag across the case and sleeve, making the
+      courier pay in sound and friction for every shortcut.
+    characters: [courier]
+    objects: [silver_package_case]
+    tags: [fence, scrape, wire, threshold]
+
+  - id: c_s5_n05_checkpoint_seen_from_above
+    name: Checkpoint seen from above
+    scene_ref: "Threshold cluster 5"
+    variant_of: null
+    variant_family: null
+    place_id: rooftop
+    situation_id: s5_the_threshold
+    situation_ids: [s5_the_threshold]
+    line_id: line_route
+    subplot_id: threshold_pressure
+    availability_test: after_bridge_view
+    priority_tier: 1
+    delta_tension: 0.20
+    delta_energy: 0.06
+    setup_refs: [roof_access, inspection_view]
+    payoff_refs: [e4_bridge_lockdown]
+    event_id: e4_bridge_lockdown
+    event_commit_potential: 1.0
+    pressure_tags: [checkpoint, lockdown, inspection, reroute]
+    option_effect: reroute
+    importance: 0.88
+    resolution_path_count: 1
+    dwell_s: 5.0
+    visual_description: >
+      From the roofline the checkpoint is visible all at once: barricades, flashlight
+      cones, stopped bodies, and the bridge line sealing in real time.
+    characters: [courier, crowd]
+    objects: [bridge_wristband, silver_package_case]
+    tags: [checkpoint, lockdown, bridge, roofline]
+
+  - id: c_s4_n01_strobe_crowd_swallow
+    name: Strobe crowd swallow
+    scene_ref: "Spectacle cluster 1"
+    variant_of: null
+    variant_family: ROVING
+    place_id: club
+    situation_id: s4_public_spectacle
+    situation_ids: [s4_public_spectacle]
+    line_id: line_spectacle
+    subplot_id: concealment_exposure
+    availability_test: after_detour
+    priority_tier: 0
+    delta_tension: -0.02
+    delta_energy: 0.20
+    setup_refs: []
+    payoff_refs: [borrowed_anonymity]
+    event_id: null
+    event_commit_potential: 0.1
+    pressure_tags: [spectacle, concealment, crowd_current]
+    option_effect: mix
+    importance: 0.67
+    resolution_path_count: 4
+    dwell_s: 5.0
+    visual_description: >
+      Club strobes break the crowd into fragments and let the courier disappear
+      only by moving at someone else's rhythm.
+    characters: [courier, crowd, hostess]
+    objects: [silver_package_case]
+    tags: [club, strobe, crowd, swallow]
+
+  - id: c_s4_n02_back_room_cut_through
+    name: Back-room cut-through
+    scene_ref: "Spectacle cluster 2"
+    variant_of: null
+    variant_family: RECOVERY
+    place_id: club
+    situation_id: s4_public_spectacle
+    situation_ids: [s4_public_spectacle]
+    line_id: line_spectacle
+    subplot_id: route_integrity
+    availability_test: after_strobe_crowd
+    priority_tier: 0
+    delta_tension: -0.06
+    delta_energy: 0.08
+    setup_refs: [dead_pager_glow]
+    payoff_refs: [borrowed_table]
+    event_id: null
+    event_commit_potential: 0.15
+    pressure_tags: [cut_through, concealment, borrowed_route]
+    option_effect: recover
+    importance: 0.58
+    resolution_path_count: 3
+    dwell_s: 4.0
+    visual_description: >
+      A back-room corridor offers speed without safety, the kind of shortcut that
+      only works if the hostess wants the route to pass through her hands.
+    characters: [courier, hostess]
+    objects: [dead_pager]
+    tags: [club, back_room, cut_through, hostess]
+
+  - id: c_s4_n03_stage_light_freeze
+    name: Stage-light freeze during blackout siren
+    scene_ref: "Spectacle cluster 3"
+    variant_of: null
+    variant_family: null
+    place_id: club
+    situation_id: s4_public_spectacle
+    situation_ids: [s4_public_spectacle]
+    line_id: line_spectacle
+    subplot_id: concealment_exposure
+    availability_test: after_strobe_crowd
+    priority_tier: 1
+    delta_tension: 0.24
+    delta_energy: 0.10
+    setup_refs: [wrong_instruction_glow, siren_pressure]
+    payoff_refs: [e2_blackout_siren]
+    event_id: e2_blackout_siren
+    event_commit_potential: 1.0
+    pressure_tags: [blackout, siren, exposure, freeze]
+    option_effect: expose
+    importance: 0.84
+    resolution_path_count: 2
+    dwell_s: 4.5
+    visual_description: >
+      The strobe drops out, a siren bleeds through the wall, and one hard stage light
+      turns concealment into a held pose the whole room can suddenly read.
+    characters: [courier, crowd, hostess]
+    objects: [silver_package_case]
+    tags: [club, blackout, siren, stage_light]
+
+  - id: c_s4_n04_side_door_exit
+    name: Side-door exit into another jurisdiction
+    scene_ref: "Spectacle cluster 4"
+    variant_of: null
+    variant_family: ROVING
+    place_id: club
+    situation_id: s4_public_spectacle
+    situation_ids: [s4_public_spectacle]
+    line_id: line_spectacle
+    subplot_id: route_integrity
+    availability_test: always
+    priority_tier: 0
+    delta_tension: 0.04
+    delta_energy: 0.06
+    setup_refs: [borrowed_anonymity]
+    payoff_refs: [threshold_crossed]
+    event_id: null
+    event_commit_potential: 0.1
+    pressure_tags: [exit, jurisdiction_shift, route_change]
+    option_effect: reroute
+    importance: 0.55
+    resolution_path_count: 3
+    dwell_s: 4.0
+    visual_description: >
+      The side door spits the courier back into wet city air under different light,
+      proving that one block's cover is another block's exposure.
+    characters: [courier]
+    objects: [silver_package_case]
+    tags: [club, side_door, exit, jurisdiction]
+
+  - id: c_s3_n01_kitchen_table_set_down
+    name: Kitchen table set-down
+    scene_ref: "Refuge cluster 1"
+    variant_of: null
+    variant_family: RECOVERY
+    place_id: apartment
+    situation_id: s3_false_refuge
+    situation_ids: [s3_false_refuge]
+    line_id: line_shelter
+    subplot_id: borrowed_refuge
+    availability_test: after_detour_or_spectacle
+    priority_tier: 1
+    delta_tension: -0.16
+    delta_energy: -0.08
+    setup_refs: [borrowed_table]
+    payoff_refs: [silver_case_inspected]
+    event_id: null
+    event_commit_potential: 0.2
+    pressure_tags: [refuge, table, inspection, pause]
+    option_effect: inspect
+    importance: 0.82
+    resolution_path_count: 2
+    dwell_s: 5.0
+    visual_description: >
+      For the first time all night the silver case can touch a flat surface, and the
+      table makes that simple act feel like a temporary suspension of pursuit.
+    characters: [courier, hostess]
+    objects: [silver_package_case, borrowed_kitchen_table]
+    tags: [apartment, kitchen_table, refuge, set_down]
+
+  - id: c_s3_n02_sink_water_breath_return
+    name: Sink water and breath return
+    scene_ref: "Refuge cluster 2"
+    variant_of: null
+    variant_family: RECOVERY
+    place_id: apartment
+    situation_id: s3_false_refuge
+    situation_ids: [s3_false_refuge]
+    line_id: line_shelter
+    subplot_id: borrowed_refuge
+    availability_test: after_table
+    priority_tier: 0
+    delta_tension: -0.18
+    delta_energy: -0.12
+    setup_refs: []
+    payoff_refs: [temporary_shelter]
+    event_id: null
+    event_commit_potential: 0.0
+    pressure_tags: [recovery, breath, shelter]
+    option_effect: recover
+    importance: 0.57
+    resolution_path_count: 1
+    dwell_s: 4.5
+    visual_description: >
+      Tungsten light, sink water, and a too-small room give the courier exactly one
+      chance to let the body catch up with the route.
+    characters: [courier]
+    objects: [borrowed_kitchen_table]
+    tags: [apartment, sink, breath, tungsten]
+
+  - id: c_s3_n03_map_spread_under_tungsten
+    name: Map spread under tungsten
+    scene_ref: "Refuge cluster 3"
+    variant_of: null
+    variant_family: null
+    place_id: apartment
+    situation_id: s3_false_refuge
+    situation_ids: [s3_false_refuge]
+    line_id: line_shelter
+    subplot_id: borrowed_refuge
+    availability_test: after_table_or_sink
+    priority_tier: 0
+    delta_tension: -0.06
+    delta_energy: -0.04
+    setup_refs: [dead_pager_glow, red_string_key]
+    payoff_refs: [route_rewritten]
+    event_id: null
+    event_commit_potential: 0.15
+    pressure_tags: [map, plan, shelter_cost]
+    option_effect: reflect
+    importance: 0.72
+    resolution_path_count: 2
+    dwell_s: 5.0
+    visual_description: >
+      Under tungsten the route becomes a tabletop argument, with the pager's late glow
+      and the key on red string both pretending to be instructions.
+    characters: [courier, hostess]
+    objects: [dead_pager, apartment_key_red_string, borrowed_kitchen_table]
+    tags: [apartment, map, tungsten, reroute]
+
+  - id: c_s3_n04_red_string_key_on_hook
+    name: Red-string key on the hook
+    scene_ref: "Refuge cluster 4"
+    variant_of: null
+    variant_family: null
+    place_id: apartment
+    situation_id: s3_false_refuge
+    situation_ids: [s3_false_refuge]
+    line_id: line_shelter
+    subplot_id: borrowed_refuge
+    availability_test: after_map
+    priority_tier: 0
+    delta_tension: -0.02
+    delta_energy: 0.00
+    setup_refs: [red_string_key]
+    payoff_refs: [apartment_key_red_string]
+    event_id: null
+    event_commit_potential: 0.0
+    pressure_tags: [portable_refuge, threshold, choice]
+    option_effect: prepare
+    importance: 0.6
+    resolution_path_count: 2
+    dwell_s: 4.0
+    visual_description: >
+      The apartment key on a red string makes refuge look portable for one dangerous
+      second before the route demands it be spent.
+    characters: [courier, hostess]
+    objects: [apartment_key_red_string]
+    tags: [apartment, key, red_string, threshold]
+
+  - id: c_s3_n05_window_watch
+    name: Window watch over the next crossing
+    scene_ref: "Refuge cluster 5"
+    variant_of: null
+    variant_family: null
+    place_id: apartment
+    situation_id: s3_false_refuge
+    situation_ids: [s3_false_refuge]
+    line_id: line_shelter
+    subplot_id: borrowed_refuge
+    availability_test: after_map_or_key
+    priority_tier: 0
+    delta_tension: 0.10
+    delta_energy: 0.04
+    setup_refs: [e4_bridge_lockdown]
+    payoff_refs: [inspection_view, s5_the_threshold]
+    event_id: null
+    event_commit_potential: 0.25
+    pressure_tags: [watch, threshold, shelter_cost]
+    option_effect: return
+    importance: 0.67
+    resolution_path_count: 2
+    dwell_s: 4.5
+    visual_description: >
+      From the window the courier can see the next stretch of route tightening again,
+      turning refuge into a preview of the cost of leaving it.
+    characters: [courier]
+    objects: [silver_package_case, apartment_key_red_string]
+    tags: [apartment, window, watch, threshold]
+
+  - id: c_s6_n01_river_edge_loading_bay
+    name: River-edge loading bay
+    scene_ref: "Exchange cluster 1"
+    variant_of: null
+    variant_family: null
+    place_id: warehouse
+    situation_id: s6_the_exchange
+    situation_ids: [s6_the_exchange]
+    line_id: line_exchange
+    subplot_id: handoff_truth
+    availability_test: after_threshold
+    priority_tier: 1
+    delta_tension: -0.04
+    delta_energy: -0.02
+    setup_refs: [route_rewritten]
+    payoff_refs: [receiver_misalignment]
+    event_id: null
+    event_commit_potential: 0.25
+    pressure_tags: [arrival, exchange, river_edge]
+    option_effect: approach
+    importance: 0.82
+    resolution_path_count: 2
+    dwell_s: 4.5
+    visual_description: >
+      The river-edge loading bay feels less like arrival than like the route finally
+      admitting where it had been steering all night.
+    characters: [courier, runner]
+    objects: [silver_package_case]
+    tags: [warehouse, river, loading_bay, approach]
+
+  - id: c_s6_n02_wrong_receiver_silhouette
+    name: Wrong receiver silhouette
+    scene_ref: "Exchange cluster 2"
+    variant_of: null
+    variant_family: null
+    place_id: warehouse
+    situation_id: s6_the_exchange
+    situation_ids: [s6_the_exchange]
+    line_id: line_exchange
+    subplot_id: handoff_truth
+    availability_test: after_loading_bay
+    priority_tier: 0
+    delta_tension: 0.22
+    delta_energy: 0.10
+    setup_refs: [receiver_misalignment, object_visibility_peak]
+    payoff_refs: [e3_wrong_handoff]
+    event_id: e3_wrong_handoff
+    event_commit_potential: 0.8
+    pressure_tags: [mistake, identity, exchange, suspicion]
+    option_effect: suspect
+    importance: 0.86
+    resolution_path_count: 1
+    dwell_s: 4.5
+    visual_description: >
+      A receiver steps out under wrong light at the wrong angle, and the route suddenly
+      asks whether recognition has been faked from the start.
+    characters: [courier, runner]
+    objects: [silver_package_case]
+    tags: [warehouse, silhouette, wrong_receiver, suspicion]
+
+  - id: c_s6_n03_silver_case_under_headlight_sweep
+    name: Silver case under headlight sweep
+    scene_ref: "Exchange cluster 3"
+    variant_of: null
+    variant_family: null
+    place_id: warehouse
+    situation_id: s6_the_exchange
+    situation_ids: [s6_the_exchange]
+    line_id: line_exchange
+    subplot_id: object_visibility
+    availability_test: after_loading_bay
+    priority_tier: 0
+    delta_tension: 0.18
+    delta_energy: 0.02
+    setup_refs: [silver_case_visibility]
+    payoff_refs: [object_visibility_peak]
+    event_id: null
+    event_commit_potential: 0.35
+    pressure_tags: [visibility, object, exchange]
+    option_effect: reveal
+    importance: 0.7
+    resolution_path_count: 2
+    dwell_s: 4.5
+    visual_description: >
+      A headlight sweep turns the silver case into the brightest thing on the dock and
+      makes everyone else's motives suddenly easier to imagine than the courier's own.
+    characters: [courier, runner]
+    objects: [silver_package_case]
+    tags: [warehouse, headlight, silver_case, reveal]
+
+  - id: c_s6_n04_almost_handoff
+    name: Almost handoff to the wrong hands
+    scene_ref: "Exchange cluster 4"
+    variant_of: null
+    variant_family: REVERSAL
+    place_id: warehouse
+    situation_id: s6_the_exchange
+    situation_ids: [s6_the_exchange]
+    line_id: line_exchange
+    subplot_id: handoff_truth
+    availability_test: after_wrong_receiver_or_headlight
+    priority_tier: 1
+    delta_tension: 0.28
+    delta_energy: 0.14
+    setup_refs: [receiver_misalignment, object_visibility_peak]
+    payoff_refs: [correct_transfer]
+    event_id: e3_wrong_handoff
+    event_commit_potential: 1.0
+    pressure_tags: [handoff, mistake, commitment, exposure]
+    option_effect: commit
+    importance: 0.9
+    resolution_path_count: 1
+    dwell_s: 5.0
+    visual_description: >
+      The case is halfway out of the courier's grip before the route reveals the
+      exchange has almost completed itself under false assumptions.
+    characters: [courier, runner]
+    objects: [silver_package_case]
+    tags: [warehouse, handoff, wrong_hands, reversal]
+
+  - id: c_s6_n05_corrected_transfer
+    name: Corrected transfer under moving light
+    scene_ref: "Exchange cluster 5"
+    variant_of: null
+    variant_family: RECOVERY
+    place_id: warehouse
+    situation_id: s6_the_exchange
+    situation_ids: [s6_the_exchange]
+    line_id: line_exchange
+    subplot_id: handoff_truth
+    availability_test: after_almost_handoff
+    priority_tier: 1
+    delta_tension: -0.10
+    delta_energy: -0.04
+    setup_refs: [correct_transfer]
+    payoff_refs: [route_rewritten]
+    event_id: null
+    event_commit_potential: 0.7
+    pressure_tags: [handoff, correction, aftermath]
+    option_effect: release
+    importance: 0.88
+    resolution_path_count: 2
+    dwell_s: 5.0
+    visual_description: >
+      The transfer corrects itself under moving headlight bands, but the route that
+      delivered the case is no longer the route that leaves with the courier.
+    characters: [courier, runner]
+    objects: [silver_package_case]
+    tags: [warehouse, transfer, correction, aftermath]
+
+edges:
+  - from: c_s1_n01_last_train_doors_shut
+    to: c_s1_n02_platform_sprint
+  - from: c_s1_n02_platform_sprint
+    to: c_s1_n03_track_edge_hesitation
+  - from: c_s1_n03_track_edge_hesitation
+    to: c_s1_n04_train_leaving_reflection
+  - from: c_s1_n03_track_edge_hesitation
+    to: c_s2_n01_alley_squeeze
+  - from: c_s1_n04_train_leaving_reflection
+    to: c_s1_n05_fluorescent_waiters
+  - from: c_s1_n05_fluorescent_waiters
+    to: c_s2_n02_produce_cart_bottleneck
+  - from: c_s2_n01_alley_squeeze
+    to: c_s2_n02_produce_cart_bottleneck
+  - from: c_s2_n01_alley_squeeze
+    to: c_s4_n01_strobe_crowd_swallow
+  - from: c_s2_n02_produce_cart_bottleneck
+    to: c_s2_n03_tarp_corridor
+  - from: c_s2_n02_produce_cart_bottleneck
+    to: c_s4_n01_strobe_crowd_swallow
+  - from: c_s2_n03_tarp_corridor
+    to: c_s2_n04_wrong_turn_through_steam
+  - from: c_s2_n03_tarp_corridor
+    to: c_s4_n02_back_room_cut_through
+  - from: c_s2_n04_wrong_turn_through_steam
+    to: c_s2_n05_fence_jump_setup
+  - from: c_s2_n04_wrong_turn_through_steam
+    to: c_s3_n01_kitchen_table_set_down
+  - from: c_s2_n05_fence_jump_setup
+    to: c_s5_n01_ladder_climb
+  - from: c_s5_n01_ladder_climb
+    to: c_s5_n02_roof_gap_commit
+  - from: c_s5_n01_ladder_climb
+    to: c_s5_n03_sodium_bridge_view
+  - from: c_s5_n02_roof_gap_commit
+    to: c_s5_n04_wire_fence_scrape
+  - from: c_s5_n03_sodium_bridge_view
+    to: c_s5_n05_checkpoint_seen_from_above
+  - from: c_s5_n04_wire_fence_scrape
+    to: c_s6_n01_river_edge_loading_bay
+  - from: c_s5_n05_checkpoint_seen_from_above
+    to: c_s6_n03_silver_case_under_headlight_sweep
+  - from: c_s4_n01_strobe_crowd_swallow
+    to: c_s4_n02_back_room_cut_through
+  - from: c_s4_n01_strobe_crowd_swallow
+    to: c_s4_n03_stage_light_freeze
+  - from: c_s4_n02_back_room_cut_through
+    to: c_s4_n04_side_door_exit
+  - from: c_s4_n02_back_room_cut_through
+    to: c_s3_n03_map_spread_under_tungsten
+  - from: c_s4_n03_stage_light_freeze
+    to: c_s5_n01_ladder_climb
+  - from: c_s4_n04_side_door_exit
+    to: c_s6_n03_silver_case_under_headlight_sweep
+  - from: c_s3_n01_kitchen_table_set_down
+    to: c_s3_n02_sink_water_breath_return
+  - from: c_s3_n01_kitchen_table_set_down
+    to: c_s3_n03_map_spread_under_tungsten
+  - from: c_s3_n02_sink_water_breath_return
+    to: c_s3_n03_map_spread_under_tungsten
+  - from: c_s3_n03_map_spread_under_tungsten
+    to: c_s3_n04_red_string_key_on_hook
+  - from: c_s3_n04_red_string_key_on_hook
+    to: c_s3_n05_window_watch
+  - from: c_s3_n05_window_watch
+    to: c_s5_n03_sodium_bridge_view
+  - from: c_s3_n05_window_watch
+    to: c_s1_n05_fluorescent_waiters
+  - from: c_s6_n01_river_edge_loading_bay
+    to: c_s6_n02_wrong_receiver_silhouette
+  - from: c_s6_n01_river_edge_loading_bay
+    to: c_s6_n03_silver_case_under_headlight_sweep
+  - from: c_s6_n02_wrong_receiver_silhouette
+    to: c_s6_n04_almost_handoff
+  - from: c_s6_n03_silver_case_under_headlight_sweep
+    to: c_s6_n04_almost_handoff
+  - from: c_s6_n04_almost_handoff
+    to: c_s6_n05_corrected_transfer
+  - from: c_s6_n05_corrected_transfer
+    to: c_s3_n03_map_spread_under_tungsten

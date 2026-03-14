@@ -41,6 +41,7 @@ CANONICAL_APPENDIX_TITLES = {
 }
 
 SECTION_END_PAGE_OVERRIDES = {
+    "14-appendix-b-english-generation-for-daydreaming": 383,
     "15-index": 413,
 }
 
@@ -138,6 +139,9 @@ def extract_page_marker(page_text: str) -> Section | None:
         return Section(kind="references", title="References", start_page=0, slug="")
 
     if line == "INDEX":
+        return Section(kind="index", title="Index", start_page=0, slug="")
+
+    if line == "Author/Subject Index":
         return Section(kind="index", title="Index", start_page=0, slug="")
 
     chapter_match = re.fullmatch(r"Chapter (\d+)", line)

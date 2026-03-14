@@ -306,5 +306,5 @@ output surface, not just a debug view.
 | M2 | Mueller §11.3 Overdetermination | yes | (book section read directly) |
 | M3 | Mueller §11.1.5 Art and Music | yes | (book section read directly) |
 | M4 | Mueller §5.4 Action Mutation | yes | (book section read directly) |
-| M5 | Mueller Ch. 7 Kernel Procedures | yes | (book section read directly) |
-| M6 | Mueller Appendix B Generation | yes | (book section read directly) |
+| M5 | Mueller Ch. 7 Kernel Procedures | yes | `11-mueller-ch7-extraction.md` |
+| M6 | Mueller Appendix B Generation | yes | `12-mueller-appendix-b-extraction.md` |

@@ -1,5 +1,54 @@
 # Index
 
+<!-- page: 385 -->
+```text
+Author/Subject Index
+a-lists, 169                                             Adams, Norman I., 169, 296
+Abelson, Robert P., 32, 33, 34, 35, 50, 67,              adaptiveness, 62, 69, 79, 82, 217, 271
+            i BOO MSZ. Gow 1 ole 5       2Naliis         add-name (operation), 170
+            206, 245, 276, 283, 297                      add-slot-values (operation), 170
+Abrahams, Paul W., 169, 291                              adding rule conditions, 116
+abreaction, 217                                          Adler, Alfred, 227
+absolute meaning, 240                                    age differences, 20
+abstract sameness of algorithms, 260                     age of imagination, 219
+abstract wish, 227                                       aggression reduction, 68
+ABSTRIPS 139, 164                                        agreements, 160
+    DAYDREAMER              vs., 139                     Al-complete problem, 282
+accessibility of knowledge, 100                          aims, 31
+accident, 13, 122, 132, 138                              algorithms 235, 258
+accidental by-product, 81                                      sameness of, 260
+achievement goals, 32                                    algorithms for daydreaming, 178
+ACQUAINTED,           157                                alien biologies, 234
+action mutation 48, 132, 194, 223, 263                   alpha EEG, 230
+      function of, 132                                   altered state of consciousness, 19
+      strategies for, 134                                alternative past contexts
+      traces of, 334, 335                                      English generation and, 361
+action mutation procedure, 48, 194                       alternative past daydreams, 8
+action preconditions, 143                                alternative plans 98, 179
+action subgoals, 176                                           selecting from among, 98
+actions 2, 3, 4, 31, 34, 87, 115, 146, 179,              alternative worlds, 179
+            183, 306                                     AM 14, 43, 146
+      English generation of, 353                               agenda mechanism of, 43, 146
+      failure of, 183                                          DAYDREAMER vs., 43, 147
+      input, 56                                                success of, 147
+      of others, 183                                     amusement,   55
+      performing, 176, 179                               anagrams, 135
+      representation of, 152                             analogical daydream generation, 60
+      rules for, 175                                     analogical planning 30, 46, 86, 89, 90, 97,
+activation 198, 243, 278                                             98, 117, 118, 133, 143, 189, 224,
+      decay of, 199                                                  264, 308, 327, 335, 347, 349
+      stable pattern of, 203, 208                              examples of, 91
+active concern, 130                                            multiple roles of, 282
+active goal, 179                                               previous work in, 117
+active indices, 209                                            procedures for, 46, 186
+ACTIVE-P-GOAL                                                  recursive, 91, 118
+    English generation of, 361                           analogical rule application procedure, 47,
+activities, 34                                                       189
+actor slot, 152, 153                                     analogy
+actors, 280                                                    finding an, 118
+Adams, James L., 15, 123, 133, 266, 283                        learning by, 117
+```
+
 <!-- page: 386 -->
 ```text
 ancestor context, 173                           associations   116, 124, 130, 188, 195, 211,

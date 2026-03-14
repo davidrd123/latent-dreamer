@@ -28,8 +28,8 @@ Files:
 - `11-future-work-and-conclusions.md` (283-302)
 - `12-references.md` (303-322)
 - `13-appendix-a-annotated-traces-from-daydreamer.md` (323-370)
-- `14-appendix-b-english-generation-for-daydreaming.md` (371-385)
-- `15-index.md` (386-413)
+- `14-appendix-b-english-generation-for-daydreaming.md` (371-383)
+- `15-index.md` (385-413)
 - `16-page-image-review-audit.md`
 - `17-image-reviewed-tables.md`
 - `18-image-reviewed-front-matter.md`
