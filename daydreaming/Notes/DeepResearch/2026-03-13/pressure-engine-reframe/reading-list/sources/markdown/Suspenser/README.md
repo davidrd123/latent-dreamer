@@ -7,9 +7,10 @@ Generated files:
 - `layout.txt`: layout-preserving `pdftotext -layout` extraction.
 - `plain-pages.md`: page-anchored plain-text markdown.
 - `layout-pages.md`: page-anchored layout markdown.
-- `source.md`: conservative hybrid markdown using page classification.
+- `source.md`: cleaned flowing markdown reconstructed from the extractions and page review.
 - `page-classification.csv`: per-page heuristic classification.
 - `page-review-images/`: JPEG page renders for direct visual review.
+- Optional manual override: `source-canonical.md` is copied to `source.md` on rebuild, if present.
 - Existing companion notes are preserved across rebuilds.
 
 Classifications:

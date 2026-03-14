@@ -157,8 +157,9 @@ Optional metadata flags:
   and persists the ranking back into the anchor record.
 - `lint-brief` is the first thin-world linter. It checks for things like
   situations without places, places with no role, characters that never
-  surface, events with no downstream surface, and charged objects that
-  never become functional in the brief.
+  surface, charged objects that never become functional in the brief,
+  and disconnected multi-entity clusters that are weakly tied to the
+  rest of the world.
 - `pack-from-brief` parses the embedded YAML blocks in notes like
   [23-brief-city-night-pursuit.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/experiential-design/23-brief-city-night-pursuit.md)
   and writes a normal pack file you can immediately run.

@@ -410,12 +410,14 @@ places:
     description: "The train platform."
   - id: warehouse
     description: "The warehouse."
+  - id: club
+    description: "The club."
 
 events:
   - id: e1_train_missed
     description: "The last train doors close before the courier reaches them."
   - id: e2_dead_drop
-    description: "A dead drop is moved to a different district."
+    description: "A dead drop waits at the warehouse loading bay."
 
 situations:
   - id: s1_run
@@ -430,6 +432,13 @@ situations:
       There is a temporary interior where the route can be reconsidered.
     indices:
       - shelter
+  - id: s3_exchange
+    description: >
+      The loading bay waits for a transfer that never touches the main route.
+    place: warehouse
+    indices:
+      - exchange
+      - loading_bay
 ```
 """,
             encoding="utf-8",
@@ -445,8 +454,8 @@ situations:
         self.assertIn("situation_without_place", codes)
         self.assertIn("place_without_role", codes)
         self.assertIn("character_without_surface", codes)
-        self.assertIn("event_without_surface", codes)
         self.assertIn("charged_object_without_function", codes)
+        self.assertIn("disconnected_subgraph", codes)
 
 
 if __name__ == "__main__":  # pragma: no cover

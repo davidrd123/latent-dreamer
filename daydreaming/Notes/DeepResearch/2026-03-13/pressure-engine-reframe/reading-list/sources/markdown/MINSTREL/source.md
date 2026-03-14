@@ -1,601 +1,63 @@
 # MINSTREL
 
 <!-- page: 1 -->
-_Layout-sensitive page. Review page image if fidelity matters. Reason: title/authors/abstract page._
 
-```text
-From: AAAI Technical Report SS-93-01. Compilation copyright © 1993, AAAI (www.aaai.org). All rights reserved.
-                                          A CASE-BASED             MODEL OF CREATIVITY
-                                                           SCOT’[" R. TURNER
-                                                      Department of Computer Science
-                                                     University of California, Los Angeles
-                                                        Los Angeles CA 90024 USA
-                                                                    Abstract
-            Creativity - creating newsolutions to problems- is an integral part of the problem-solvingprocess. This paper
-            presents a cognitive modelof creativity in whicha case-based problem-solver is augmentedwith (1) a creative
-            drive and (2) a set of creativity heuristics. Newsolutions are discoveredby solving a slightly different problem
-            and adapting that solution to the original problem. By repeating this process, a creative problem-solver can
-            discover new solutions that are novel, useful and very different from knownsolutions. This model has been
-            implemented in a computer program called MINSTREL.MINSTREL                has been used for planning and
-            problem-solving,to tell stories, and to invent mechanicaldevices.
-                                                                           a problem which is not very similar to a previous
-      1    Introduction                                                    problem. When a new problem is encountered, the
-                                                                           problem-solver has no way to invent or discover a new
-           Creativity    is an important element of human
-                                                                           solution, and problem-solving fails. So although case-
-      cognition. Weall invent on a daily basis: we fix cars
-                                                                           based problem-solving is efficient at solving familiar
-      using spare change and bailing wire, invent jokes based
-                                                                           problems, it cannot solve new problems.
-      on the latest domesticcrisis, and makeup bed-time stories
-      for our children. The ability to invent original, useful
-      solutions to problems is a fundamental process of human             3     Creativity
-      thought. To understand human cognition, we must                           What needs to be added to case-based problem-
-      understandthe processes of creativity: the goals that drive          solving to makeit capable of creativity? Consider this
-      people to create and the mechanismsthey use to invent                exampleof creativity concerning the seven-year old niece
-      novel and useful solutions to their problems.
-                                                                           of the author:
-           This paper presents a modelof creative reasoning as
-      an extension to case-based problem-solving. When                             One day, while visiting her grandparents,
-      problem-solving fails, the creative reasoner invents new                Janelle was seated alone at the dining roomtable,
-      solutions by combiningold knowledgein new ways. This                    having milk and cookies. Reachingfor the cookies,
-      model has been implemented in a computer program                        she accidently spilled her milk on the table. She
-      called MINSTREL,     which creates stories about King                   decidedto clean up the messherself.
-      Arthur and his Knights of the RoundTable. The creative                       Janelle went into the kitchen, but there were no
-      reasoning portion of MINSTREL    has also been applied to               towels or paper towels available. She stood for a
-      tasks such as mechanicalinvention.                                      momentin the center of the kitchen thinking, and
-                                                                              then she went out the back door.
-                                                                                   Janelle returned a few minutes later carrying a
-     2    Case-Based        Problem-Solving
-                                                                              kitten. The neighbor’s cat had given birth to a litter
-           In case-based reasoning problems are solved by                     about a month ago, and she had been over to play
-      recalling similar past problemsituations and applying the               with the kittens the previous day. Janelle brought the
-      solutions from those situations to the current problem                  kitten into the dining room, where he happily lapped
-      ([Slade 19921). The problem-solver recalls a past                       up the spilled milk.
-      problem similar to the current problem, adapts the
-                                                                                This story illustrates three important features of the
-      solution from the old problemto the current problem, and
-                                                                           creative process:
-      then assesses the results.
-                                                                                (1) Creativity is driven by the failure of problem-
-           Because it solves problems by looking for similar
-                                                                           solving [Weisberg 1986]. Janelle could not use the plan
-      past problems, a case-based problem-solver cannot solve
-                                                                           she knew for cleaning up a spill because no towel was
-```
+A CASE-BASED MODEL OF CREATIVITY SCOT’[" R. TURNER Department of Computer Science University of California, Los Angeles Los Angeles CA 90024 USA Abstract Creativity - creating newsolutions to problems- is an integral part of the problem-solvingprocess. This paper presents a cognitive modelof creativity in whicha case-based problem-solver is augmentedwith (1) a creative drive and (2) a set of creativity heuristics. Newsolutions are discoveredby solving a slightly different problem and adapting that solution to the original problem. By repeating this process, a creative problem-solver can discover new solutions that are novel, useful and very different from knownsolutions. This model has been implemented in a computer program called MINSTREL.MINSTREL has been used for planning and problem-solving,to tell stories, and to invent mechanicaldevices. 1 Introduction Creativity is an important element of human cognition. Weall invent on a daily basis: we fix cars using spare change and bailing wire, invent jokes based on the latest domesticcrisis, and makeup bed-time stories for our children. The ability to invent original, useful solutions to problems is a fundamental process of human thought. To understand human cognition, we must understandthe processes of creativity: the goals that drive people to create and the mechanismsthey use to invent novel and useful solutions to their problems. This paper presents a modelof creative reasoning as an extension to case-based problem-solving. When problem-solving fails, the creative reasoner invents new solutions by combiningold knowledgein new ways. This model has been implemented in a computer program called MINSTREL, which creates stories about King Arthur and his Knights of the RoundTable. The creative reasoning portion of MINSTREL has also been applied to tasks such as mechanicalinvention. 2 Case-Based Problem-Solving In case-based reasoning problems are solved by recalling similar past problemsituations and applying the solutions from those situations to the current problem ([Slade 19921). The problem-solver recalls a past problem similar to the current problem, adapts the solution from the old problemto the current problem, and then assesses the results. Because it solves problems by looking for similar past problems, a case-based problem-solver cannot solve 137 a problem which is not very similar to a previous problem. When a new problem is encountered, the problem-solver has no way to invent or discover a new solution, and problem-solving fails. So although casebased problem-solving is efficient at solving familiar problems, it cannot solve new problems. 3 Creativity What needs to be added to case-based problemsolving to makeit capable of creativity? Consider this exampleof creativity concerning the seven-year old niece of the author: One day, while visiting her grandparents, Janelle was seated alone at the dining roomtable, having milk and cookies. Reachingfor the cookies, she accidently spilled her milk on the table. She decidedto clean up the messherself. Janelle went into the kitchen, but there were no towels or paper towels available. She stood for a momentin the center of the kitchen thinking, and then she went out the back door. Janelle returned a few minutes later carrying a kitten. The neighbor’s cat had given birth to a litter about a month ago, and she had been over to play with the kittens the previous day. Janelle brought the kitten into the dining room, where he happily lapped up the spilled milk. This story illustrates three important features of the creative process: (1) Creativity is driven by the failure of problemsolving [Weisberg 1986]. Janelle could not use the plan she knew for cleaning up a spill because no towel was
 
 <!-- page: 2 -->
-_Layout-sensitive page. Review page image if fidelity matters. Reason: tabular spacing heuristic._
 
-```text
-available. In this case, problem-solvingfailed because a          problem of adapting discovered knowledgeis eliminated.
-plan precondition could not be achieved. But problem-                  TRAM:Cross-Domain-Reminding    is an example of a
-solving can fail for a number of reasons. The problem-            Transform-Recall-Adapt Method. TRAM:Cross-Domain-
-solver maynot be able to recall a similar past situation, or      Remindingsuggests that a new solution to a problem can
-a solution may be rejected by a domain assessment, as             be found by translating the problem into a new domain,
-whenan engineer rejects a solution as too dangerous.              solving the problem in that domain, and then translating
-     (2) Creative solutions are both original and useful          the solution back into the original domain. TRAM:Cross-
-[Wallas, 1926; Koestler, 1964]. Janelle’s solution is             Domain-Remindingis illustrated in Figure 4.1.
-original because it has significant differences from all
-other solutions Janelle knows,and useful because it solves
-her problem.                                                       TRAM:Cross-Domain-Reminding
-     (3) Old knowledgeis used to create new solutions              Comment:      Try solving the problem in a different
-[Kocstler, 1964; Weisberg 1986]. Janelle knew that
-                                                                                 problem domain.
-kittens like milk and that she could find a kitten next door.      Test:         Is this an action?
-The creative problem-solver must be able to discover
-                                                                   Transform:    1. Find a domain which has mappings
-appropriate old knowledgeand apply it in new waysto the
-                                                                                 for all the componentsof this problem
-current problem.
-                                                                                 description.
-     To be creative, the case-based problem-solver must
-                                                                                 2. Translate the problem description
-be extended to find and combineuseful old knowledgeto                            into the new domainusing the mapping.
-create newsolutions whenproblem-solvingfails.
-                                                                   Adapt:        Apply the reverse mapping on the
-                                                                                 solution to t~anslate it from the new
-4   Discovering      New Solutions                                               domainto the original problem domain.
-      As we have seen, problem-solving finds solutions by
-recalling past problemssimilar to the current problem.To
-                                                                        Figure 4.1 TRAM:Cross-Domain-Reminding
-discover newsolutions, the problem-solvermust (1) recall
-a past problemthat is different from the current problem
-                                                                       MINSTRELuses TRAM:Cross-Domain-Reminding
-and (2) adapt the solutions from the recalled problem
-                                                                  to create the followingstory scene:
-the current problem.
-     This would appear to be an impossible task. On the             Oneday while out riding, Lancelot’s horse went into
-one hand, if Janelle grabs randomlyat old knowledgeto               the woods. Lancelot could not control the horse.
-create a new solution, she has an impossibly hard                   The horse took him deeper into the woods. The
-adaptation task. Suppose that Janelle had recalled                  horse stopped. Lancelot saw Andrea, a Lady of the
-knowledgeabout howplants grow, the rules of ping pong,              Court, whowas out picking berries.
-and the route the school bus followed. Surely she would
-                                                                       Theoriginal specification for this problemis "create
-fail in adapting this knowledgeto the "spilled milk"
-                                                                  a scene in which a knight accidently meets a princess."
-problem. On the other hand, if Janelle only uses
-                                                                  TRAM:Cross-Domain-Reminding            transforms this
-knowledge that she knows how to apply to the current
-                                                                  specification by mappingit into the modern domainand
-problem, she is unlikely to invent anything new and
-                                                                  recalls this story:
-useful. Janelle’s knowledgeabout towels and cleaning is
-easy to apply, but won’t result in a new solution. The                               Walking The Dog
-challengeof creativity is to resolve this paradox.
-                                                                    John was sitting at homeone evening when his dog
-      MINSTREL’ssolution to this Catch-22 is to
-                                                                    began acting strange. The dog was scratching at the
-integrate the search and adapt processes of creativity.
-                                                                    door and whining for a walk. Finally, John decided
-MINSTREL’s  creativity heuristics are called Transform-
-                                                                    to take the dog for a walk. While they were out,
-Recall-Adapt Methods (TRAMs). Each TRAMhas three
-                                                                    John ran across his old friend Pete, whomhe hadn’t
-parts. "Transform"takes a problemand changes it into a
-                                                                    seen in many years. John realized that he would
-slightly different problem. "Recall" takes the new
-                                                                    never have run into Pete if his dog hadn’t acted so
-problem description and tries to recall similar past
-                                                                    strangely.
-problems from episodic memory. "Adapt" takes the
-recalled problemsolutions and adapts themto the original               This story is adapted back to the original problemby
-problem. And because a specific adaptation (Adapt)                mapping the story back into the King Arthur domain,
-bundled with each search method (Transform) the                   creating a scene in which Lancelot’s horse leads him to
-```
+available. In this case, problem-solvingfailed because a plan precondition could not be achieved. But problemsolving can fail for a number of reasons. The problemsolver maynot be able to recall a similar past situation, or a solution may be rejected by a domain assessment, as whenan engineer rejects a solution as too dangerous. (2) Creative solutions are both original and useful [Wallas, 1926; Koestler, 1964]. Janelle’s solution is original because it has significant differences from all other solutions Janelle knows,and useful because it solves her problem. (3) Old knowledgeis used to create new solutions [Kocstler, 1964; Weisberg 1986]. Janelle knew that kittens like milk and that she could find a kitten next door. The creative problem-solver must be able to discover appropriate old knowledgeand apply it in new waysto the current problem. To be creative, the case-based problem-solver must be extended to find and combineuseful old knowledgeto create newsolutions whenproblem-solvingfails. 4 Discovering New Solutions As we have seen, problem-solving finds solutions by recalling past problemssimilar to the current problem.To discover newsolutions, the problem-solvermust (1) recall a past problemthat is different from the current problem and (2) adapt the solutions from the recalled problem the current problem. This would appear to be an impossible task. On the one hand, if Janelle grabs randomlyat old knowledgeto create a new solution, she has an impossibly hard adaptation task. Suppose that Janelle had recalled knowledgeabout howplants grow, the rules of ping pong, and the route the school bus followed. Surely she would fail in adapting this knowledgeto the "spilled milk" problem. On the other hand, if Janelle only uses knowledge that she knows how to apply to the current problem, she is unlikely to invent anything new and useful. Janelle’s knowledgeabout towels and cleaning is easy to apply, but won’t result in a new solution. The challengeof creativity is to resolve this paradox. MINSTREL’ssolution to this Catch-22 is to integrate the search and adapt processes of creativity. MINSTREL’s creativity heuristics are called TransformRecall-Adapt Methods (TRAMs). Each TRAMhas three parts. "Transform"takes a problemand changes it into a slightly different problem. "Recall" takes the new problem description and tries to recall similar past problems from episodic memory. "Adapt" takes the recalled problemsolutions and adapts themto the original problem. And because a specific adaptation (Adapt) bundled with each search method (Transform) the 138 problem of adapting discovered knowledgeis eliminated. TRAM:Cross-Domain-Reminding is an example of a Transform-Recall-Adapt Method. TRAM:Cross-DomainRemindingsuggests that a new solution to a problem can be found by translating the problem into a new domain, solving the problem in that domain, and then translating the solution back into the original domain. TRAM:CrossDomain-Reminding is illustrated in Figure 4.1. TRAM:Cross-Domain-Reminding Comment: Test: Transform: Adapt: Try solving the problem in a different problem domain. Is this an action?
+
+1. Find a domain which has mappings for all the componentsof this problem description.
+
+2. Translate the problem description into the new domainusing the mapping. Apply the reverse mapping on the solution to t~anslate it from the new domainto the original problem domain. Figure 4.1 TRAM:Cross-Domain-Reminding MINSTRELuses TRAM:Cross-Domain-Reminding to create the followingstory scene: Oneday while out riding, Lancelot’s horse went into the woods. Lancelot could not control the horse. The horse took him deeper into the woods. The horse stopped. Lancelot saw Andrea, a Lady of the Court, whowas out picking berries. Theoriginal specification for this problemis "create a scene in which a knight accidently meets a princess." TRAM:Cross-Domain-Reminding transforms this specification by mappingit into the modern domainand recalls this story: Walking The Dog John was sitting at homeone evening when his dog began acting strange. The dog was scratching at the door and whining for a walk. Finally, John decided to take the dog for a walk. While they were out, John ran across his old friend Pete, whomhe hadn’t seen in many years. John realized that he would never have run into Pete if his dog hadn’t acted so strangely. This story is adapted back to the original problemby mapping the story back into the King Arthur domain, creating a scene in which Lancelot’s horse leads him to
 
 <!-- page: 3 -->
-_Layout-sensitive page. Review page image if fidelity matters. Reason: short-line density suggests columns._
 
-```text
-Andrea. The resulting scene is creative - novel and            5   Imaginative       Memory
-useful - because TRAM:Cross-Domain-Reminding                         The central step of the Transform-Recall-Adapt
-enabled the problem-solverto discover a solution different
-                                                               Methodis recalling a solution from episodic memory.
-from the knownsolutions.                                       But the process of recalling something from episodic
-     TRAMs  are added to case-based problem-solving by
-                                                               memorycan itself be viewed as a problem. What happens
-augmenting the problem-solving process with a pool of
-                                                               if creative problem-solvingis used to implementrecall?
-TRAMs.Whenstandard problem-solving fails, a TRAM                     To do this, the Recall step of each TRAM   is modified
-is selected I from this pool and applied to the current
-                                                               to recursively call the creative problem-solvingprocess.
-problem. If the TRAM   succeeds in discovering a solution      To prevent this from leading to endless recursion,
-to the problem, problem-solving succeeds. If problem-          TRAM:Problem-Solving    is left unchanged, and continues
-solving fails, the current TRAM     is discarded, another
-                                                               to recall directly from episodic memory.
-selected from the pool of available TRAMs,    and the cycle
-                                                                     To recall something, the problem-solveruses creative
-repeated.
-                                                               problem-solving with the problem specification "Find
-     Standard case-based problem-solving itself can be
-                                                               something in episodic memory that matches these
-implemented as a TRAM.TRAM:Problem-Solving is a
-                                                               features." TRAM:Problem-Solvingis the first TRAM
-special TRAM    that is always selected first from the
-                                                               used, and passes the recall features unchangedto episodic
-TRAM  pool. TRAM:Problem-Solvingpasses the original
-                                                               memory.If an episode that matchesthe recall features is
-problem unchanged to the recall step and does no
-                                                               found,       problem-solving        succeeds.       Because
-adaptation of any recalled solutions. This implements          TRAM:Problem-Solvingis always the first TRAM           used
-standard problem-solving and (since TRAM:Problem-
-                                                               and continues to use episodic memorynormally, recall
-Solving is always tried first) assures that the problem-       behaves as expected when an episode exists that matches
-solver will use an old, knownsolution if it is available and   the recall features.
-acceptable to the solution assessments.
-                                                                     Something more interesting happens when recall
-     There are two major benefits to Transform-Recall-
-                                                               fails. If TRAM:Problem-Solving      cannot find an episode
-Adapt Methods:
-                                                               in memorythat matches the recall features, problem-
-     First, TRAMs   discover new solutions by looking at
-                                                               solving fails and a new TRAM       is selected. This TRAM
-slightly different problems. A slightly different problem
-                                                               modifies the recall features and recursively calls the
-shares manyof the same constraints as the original             problem-solvingprocess with the newrecall features.
-problem, and its solution is likely to have some                     The first TRAM used on this recursive call is again
-applicability to the original problem. Lookingat slightly      TRAM:Problem-Solving.If the new features recall an
-different solutions also simplifies the adaptation process,    episode, the episode is returned to the previous recursion
-since fewer changes will be needed to adapt the solution
-                                                               of problem-solving, where it is adapted to the original
-to the original problem.
-                                                               problem by the previous TRAM,     and recall succeeds. But
-     Second, TRAMs    eliminate the adaptation problem
-                                                               because the recalled episode was changed by the Adapt
-by bundling appropriate adaptations with each search
-                                                               portion of the previous TRAM,it is no longer the episode
-method. Knowing the transformation that led to a
-                                                               that was found in memory.
-solution, the problem-solver can apply a specific
-                                                                     Recall has succeeded in a strange way: by recalling
-adapation to reverse the effects of the problem
-                                                               an episode that does not exist in episodic memory.
-transformation.
-                                                               Episodic memory has become imaginative. When an
-     There is, however, one drawback to this model of
-                                                               appropriate episode exists, it is recalled. Whenno
-creativity.    TRAMsinvent new solutions by adapting
-                                                               appropriate episode exists, recall uses creativity heuristics
-slightly different knowledge. But how can a creative
-                                                               to "imagine" an appropriate episode.
-problem-solving ever invent a solution with large
-                                                                     Imaginative memoryis that it makes creativity
-differences from past solutions? To answer that question,
-                                                               transparently available to any cognitive process that uses
-we must look at the role of memoryin problem-solving.
-                                                               memory.Imaginative memoryalso permits the problem-
-                                                               solver to apply multiple creativity heuristics to a problem.
-                                                               Each time recall fails, imaginative memoryrecurse and
-                                                               another TRAM   is be applied to the recall features. Each
-                                                               TRAM  changes the problem in only a small way, but the
-                                                               cumulative effect maybe large, enabling the creative
-                                                               problem-solver to discover new solutions significantly
-                                                               different from knownsolutions.
-1. Various strategies for selection (randomor based on
-experience) arc discussed in [Turner 19921.
-```
+Andrea. The resulting scene is creative - novel and useful - because TRAM:Cross-Domain-Reminding enabled the problem-solverto discover a solution different from the knownsolutions. TRAMs are added to case-based problem-solving by augmenting the problem-solving process with a pool of TRAMs.Whenstandard problem-solving fails, a TRAM is selected I from this pool and applied to the current problem. If the TRAM succeeds in discovering a solution to the problem, problem-solving succeeds. If problemsolving fails, the current TRAM is discarded, another selected from the pool of available TRAMs, and the cycle repeated. Standard case-based problem-solving itself can be implemented as a TRAM.TRAM:Problem-Solving is a special TRAM that is always selected first from the TRAM pool. TRAM:Problem-Solvingpasses the original problem unchanged to the recall step and does no adaptation of any recalled solutions. This implements standard problem-solving and (since TRAM:ProblemSolving is always tried first) assures that the problemsolver will use an old, knownsolution if it is available and acceptable to the solution assessments. There are two major benefits to Transform-RecallAdapt Methods: First, TRAMs discover new solutions by looking at slightly different problems. A slightly different problem shares manyof the same constraints as the original problem, and its solution is likely to have some applicability to the original problem. Lookingat slightly different solutions also simplifies the adaptation process, since fewer changes will be needed to adapt the solution to the original problem. Second, TRAMs eliminate the adaptation problem by bundling appropriate adaptations with each search method. Knowing the transformation that led to a solution, the problem-solver can apply a specific adapation to reverse the effects of the problem transformation. There is, however, one drawback to this model of creativity. TRAMsinvent new solutions by adapting slightly different knowledge. But how can a creative problem-solving ever invent a solution with large differences from past solutions? To answer that question, we must look at the role of memoryin problem-solving.
+
+1. Various strategies for selection (randomor based on experience) arc discussed in [Turner 19921. 139 5 Imaginative Memory The central step of the Transform-Recall-Adapt Methodis recalling a solution from episodic memory. But the process of recalling something from episodic memorycan itself be viewed as a problem. What happens if creative problem-solvingis used to implementrecall? To do this, the Recall step of each TRAM is modified to recursively call the creative problem-solvingprocess. To prevent this from leading to endless recursion, TRAM:Problem-Solving is left unchanged, and continues to recall directly from episodic memory. To recall something, the problem-solveruses creative problem-solving with the problem specification "Find something in episodic memory that matches these features." TRAM:Problem-Solvingis the first TRAM used, and passes the recall features unchangedto episodic memory.If an episode that matchesthe recall features is found, problem-solving succeeds. Because TRAM:Problem-Solvingis always the first TRAM used and continues to use episodic memorynormally, recall behaves as expected when an episode exists that matches the recall features. Something more interesting happens when recall fails. If TRAM:Problem-Solving cannot find an episode in memorythat matches the recall features, problemsolving fails and a new TRAM is selected. This TRAM modifies the recall features and recursively calls the problem-solvingprocess with the newrecall features. The first TRAM used on this recursive call is again TRAM:Problem-Solving.If the new features recall an episode, the episode is returned to the previous recursion of problem-solving, where it is adapted to the original problem by the previous TRAM, and recall succeeds. But because the recalled episode was changed by the Adapt portion of the previous TRAM,it is no longer the episode that was found in memory. Recall has succeeded in a strange way: by recalling an episode that does not exist in episodic memory. Episodic memory has become imaginative. When an appropriate episode exists, it is recalled. Whenno appropriate episode exists, recall uses creativity heuristics to "imagine" an appropriate episode. Imaginative memoryis that it makes creativity transparently available to any cognitive process that uses memory.Imaginative memoryalso permits the problemsolver to apply multiple creativity heuristics to a problem. Each time recall fails, imaginative memoryrecurse and another TRAM is be applied to the recall features. Each TRAM changes the problem in only a small way, but the cumulative effect maybe large, enabling the creative problem-solver to discover new solutions significantly different from knownsolutions.
 
 <!-- page: 4 -->
-_Layout-sensitive page. Review page image if fidelity matters. Reason: short-line density suggests columns._
 
-```text
-                                                     I                                I
-              Problem           Tran’
-                                 °rm
-                                  I[         : Imaginative
-                                     HAdaPt
-                                        l A--s,
-                                Original                            Past                        * Solution
-             Specification                      Memory                        : Solutions
-                                Problem                           Solutions
-                                 Figure 6.1 MINSTREL’s
-                                                    Process Modelof Creativity
-                                                            assessments, it is output as a solution to the original
-                                                            problem. This is simply the normal problem-solving
-6 A Model of Creativity                                     cycle.
-     Figure 6.1 illustrates howTransform-Recall-Adapt             If TRAM:Problem-Solving     fails, either because no
-Methods and imaginative memoryare integrated into           solutions were recalled or because the recalled solutions
-case-based problem-solving. The three central boxes         failed assessment, TRAM:Problem-Solving        is discarded
-represent the basic problem-solvingprocesses of recalling   and a new TRAMselected as the active TRAM.The
-a solution, adapting it to the current problem, and         selection of a TRAM     is based on the type of problem
-assessing the result. Anactive TRAM     controls the recall being solved and the TRAMs     previously used.
-and adapt steps. Initially this is TRAM:Problem-Solving,          The selected TRAM   transforms the original problem
-which is simply the strategy of recalling a similar past    specification, creating a new problem specification. The
-problem and using the solution from that problem. The       new problem specification is passed to imaginative
-assess step applies a pool of assessments to proposed       memory.If recall succeeds, the recalled solutions are
-solutions. In creative domains, this includes the boredom passed to the adapt step, where the active TRAM      applies a
-assessment,whichrejects solutions that are too similar to   specific adaptation which reverses the problem
-past solutions. The recall step uses imaginative memory transformation. If recall fails, then imaginative memory
-(a recursive call to problem-solving) instead of episodic   recursively applies a second TRAM,and the problem-
-memory.                                                     solvingrepeats at the inferior level.
-     The problem-solving cycle begins when a problem              Adaptedsolutions are passed to the assessment step,
-description enters the recall step.              Initially  where they are assessed by domain assessments. If a
-TRAM:Problem-Solving    is in control of the recall and     solution passes all assessments, problem-solving
-adapt steps. The original problem description is used to    succeeds. If all solutions fail, the active TRAM          is
-recall previous similar problem-solving situations from     discarded, a new TRAM    selected, and the Recall-Adapt-
-episodic memory. If recall succeeds, the recalled           Assess cycle repeats.
-situations    are passed to the adapt step. Under
-TRAM:Problem-Solving,no adaptation is needed because
-the recalled solutions are similar to the original problem,
-so the recalled solutions are passed along to the assess
-step. In the assess step, all active assessmentsare applied
-to the recalled solutions, and if a solution passes all the
-```
+I Problem Specification I Tran’ °rm I[ HAdaPt l A--s, Original Problem: Imaginative Memory Past Solutions: Solutions
+
+* Solution Figure 6.1 MINSTREL’s Process Modelof Creativity assessments, it is output as a solution to the original problem. This is simply the normal problem-solving A Model of Creativity cycle. If TRAM:Problem-Solving fails, either because no Figure 6.1 illustrates howTransform-Recall-Adapt Methods and imaginative memoryare integrated into solutions were recalled or because the recalled solutions case-based problem-solving. The three central boxes failed assessment, TRAM:Problem-Solving is discarded represent the basic problem-solvingprocesses of recalling and a new TRAMselected as the active TRAM.The a solution, adapting it to the current problem, and selection of a TRAM is based on the type of problem assessing the result. Anactive TRAM controls the recall being solved and the TRAMs previously used. and adapt steps. Initially this is TRAM:Problem-Solving, The selected TRAM transforms the original problem which is simply the strategy of recalling a similar past specification, creating a new problem specification. The problem and using the solution from that problem. The new problem specification is passed to imaginative assess step applies a pool of assessments to proposed memory.If recall succeeds, the recalled solutions are solutions. In creative domains, this includes the boredom passed to the adapt step, where the active TRAM applies a assessment,whichrejects solutions that are too similar to specific adaptation which reverses the problem past solutions. The recall step uses imaginative memory transformation. If recall fails, then imaginative memory (a recursive call to problem-solving) instead of episodic recursively applies a second TRAM,and the problemmemory. solvingrepeats at the inferior level. The problem-solving cycle begins when a problem Adaptedsolutions are passed to the assessment step, description enters the recall step. Initially where they are assessed by domain assessments. If a TRAM:Problem-Solving is in control of the recall and solution passes all assessments, problem-solving adapt steps. The original problem description is used to succeeds. If all solutions fail, the active TRAM is recall previous similar problem-solving situations from discarded, a new TRAM selected, and the Recall-Adaptepisodic memory. If recall succeeds, the recalled Assess cycle repeats. situations are passed to the adapt step. Under TRAM:Problem-Solving,no adaptation is needed because the recalled solutions are similar to the original problem, so the recalled solutions are passed along to the assess step. In the assess step, all active assessmentsare applied to the recalled solutions, and if a solution passes all the
 
 <!-- page: 5 -->
-_Layout-sensitive page. Review page image if fidelity matters. Reason: tabular spacing heuristic._
 
-```text
-7     Creativity      in MINSTREL
-                                                                ===============================================
-     The primary creative task in storytelling is scene
-                                                                              MINSTREL    Invention
-creation - inventing story events to achieve a particular       ===============================================
-storytelling    goal. This section illustrates        how       Initial specification is #{ACT.105):
-MINSTREL   uses the TRAM  model to invent three scenes           (A KNIGHT NAMED JOHN DID SOMETHING *PERIOD*
-in which "a knight kills himself." At the beginning of            JOHN DIED ~PERIOD*)
-this example, MINSTREL    knows nothing about suicide.
-                                                                RAS Cycle: #(ACT.105).
-Using creative problem-solving, MINSTREL        invents
-                                                                 Executing TRAM:GENERALIZE-CONSTRAINT.
-three novel scenes in which a knight kills himself: by           Generalizing  :OBJECT on #{STATE.If2}.
-purposely losing a fight with a dragon, by drinking              Recalling #{ACT.If3}:   #{KNIGHT-FIGHT}.
-poison, and by hitting himself with his sword.                  [...]
-      MINSTREL’sepisodic memory intially contains                [TRAM Recursion: #{ACT.Ill}.1
-                                                                    Executing TRAM:SIMILAR-OUTCOMES
-only two story scenes:
-                                                                    Recalling #(ACT.136}:           NIL.
-                       Knight Fight                                  [TRAM Recursion: #{ACT.136}.]
-                                                                        Executing TRAM:GENERALIZE-CONSTRAINT
-      Aknight fights a troll with his sword,killing the                 Recalling #(ACT.138}:   #{PRINCESS-POTION}.
-      troll and accidently injuring himself.                    [...]
-                                                                 [TRAM Recursion: #(ACT.If2}.]
-                                                                    Executing TRAM:INTENTION-SWITCH
-               The Princess and the Potion                          Recalling #(ACT.126}:          NIL.
-                                                                     [TRAM Recursion: #(ACT.126}.]
-      A lady of the court drank a potion to make                        Executing TRAM:SIMILAR-OUTCOMES
-      herselfill.                                                       Recalling #{ACT.128}:  #{KNIGHT-FIGHT}.
-     Using these      scenes    and three      TRAMs            ===============================================
-(TRAM:Generalize-Constraint, TRAM:Similar-Outcomes                            Invention     Results
-                                                                ===============================================
-and TRAM:Intention-Switch) MINSTREL     invents three           Minstrel   invented     this   story:
-waysfor a knight to commitsuicide. Figure 7.1 showsan            (A KNIGHT NAMED JOHN FOUGHT HIMSELF BY MOVING
-abbreviated trace of MINSTREL   creating these three              HIS SWORD TO HIMSELF IN ORDER TO KILL HIMSELF
-scenes (and generating English descriptions of the                *PERIOD* JOHN DIED "PERIOD*)
-scenes).
-                                                                Minstrel invented this story:
-                                                                 (A KNIGHT NAMED JOHN DRANK THE POTION IN ORDER
-                                                                  TO KILL HIMSELF *PERIOD* JOHN DIED *PERIOD*)
-7.1    TRAM:Generalize.Constraint                               Minstrel   invented     this   story:
-     TRAM:Generalize-Constraint suggests that a new              (A KNIGHT NAMED JOHN FOUGHT A DRAGON BY MOVING
-                                                                  HIS SWORD TO IT IN ORDER TO KILL HIMSELF
-solution to a problem can be found by removing a
-                                                                  *PERIOD*    JOHN    DIED *PERIOD*)
-solution constraint, solving the new problem, and then
-adding the constraint back to the new solution. For scene
-creation, the problemconstraints are the features of the
-                                                                                  Figure 7.1 Suicide Trace
-specification. TRAM:Generalize-Constraintis shown in
-Figure 7.2.
-                                                                (1) the actor is a knight, (2) the result of the act is death,
-     TRAM:Generalize-Constraint begins by using a
-                                                                and (3) the dead character is the actor. Of these
-broad      generalization      on     each     constraint.
-                                                                constraints, only removing(3) leads to a recollection,
-TRAM:Generalize-Constraintremoves each constraint in
-                                                                TRAM:Generalize-Constraint           selects      (3)     for
-turn and uses memoryto see whether there exists any
-                                                                generalization. This constraint is generalized using a
-episode that matchesthe newproblemspecification. If an
-                                                                class hierarchy of character roles. The actor is a knight,
-episode is recalled, MINSTREL   marks the constraint as a
-                                                                which is a type of "Violent               Character",      so
-feasible selection for generalization. The secondstep is to
-                                                                TRAM:Generalize-Constraintgeneralizes this constraint
-randomly select and generalize one of the feasible
-                                                                to "the dead character is a violent character". The new,
-constraints using a class hierarchy. The first step finds
-                                                                transformed problem is "A knight does something to kill
-possible generalizations; the second step creates a
-                                                                a violent character." Note that after this transformation,
-reasonable generalization.
-                                                                the newproblemsituation no longer requires the knight to
-     In the suicide example, the possible constraints are:
-                                                                kill himself, only that he kills someviolent character.
-```
+Creativity in MINSTREL The primary creative task in storytelling is scene creation - inventing story events to achieve a particular storytelling goal. This section illustrates how MINSTREL uses the TRAM model to invent three scenes in which "a knight kills himself." At the beginning of this example, MINSTREL knows nothing about suicide. Using creative problem-solving, MINSTREL invents three novel scenes in which a knight kills himself: by purposely losing a fight with a dragon, by drinking poison, and by hitting himself with his sword. MINSTREL’sepisodic memory intially contains only two story scenes: Knight Fight Aknight fights a troll with his sword,killing the troll and accidently injuring himself. =============================================== MINSTREL Invention =============================================== Initial specification is #{ACT.105): (A KNIGHT NAMED JOHN DID SOMETHING *PERIOD* JOHN DIED ~PERIOD*) RAS Cycle: #(ACT.105). Executing TRAM:GENERALIZE-CONSTRAINT. Generalizing:OBJECT on #{STATE.If2}. Recalling #{ACT.If3}:
+
+#{KNIGHT-FIGHT}.
+
+[...] [TRAM Recursion: #{ACT.Ill}.1 Executing TRAM:SIMILAR-OUTCOMES Recalling #(ACT.136}: NIL. [TRAM Recursion: #{ACT.136}.] Executing TRAM:GENERALIZE-CONSTRAINT Recalling #(ACT.138}:
+
+#{PRINCESS-POTION}.
+
+[...] [TRAM Recursion: #(ACT.If2}.] Executing TRAM:INTENTION-SWITCH Recalling #(ACT.126}: NIL. The Princess and the Potion [TRAM Recursion: #(ACT.126}.] Executing TRAM:SIMILAR-OUTCOMES Recalling #{ACT.128}:
+
+#{KNIGHT-FIGHT}.
+
+A lady of the court drank a potion to make herselfill. Using these scenes and three TRAMs (TRAM:Generalize-Constraint, TRAM:Similar-Outcomes and TRAM:Intention-Switch) MINSTREL invents three waysfor a knight to commitsuicide. Figure 7.1 showsan abbreviated trace of MINSTREL creating these three scenes (and generating English descriptions of the scenes). =============================================== Invention Results =============================================== Minstrel invented this story: (A KNIGHT NAMED JOHN FOUGHT HIMSELF BY MOVING HIS SWORD TO HIMSELF IN ORDER TO KILL HIMSELF *PERIOD* JOHN DIED "PERIOD*) Minstrel invented this story: (A KNIGHT NAMED JOHN DRANK THE POTION IN ORDER TO KILL HIMSELF *PERIOD* JOHN DIED *PERIOD*) 7.1 TRAM:Generalize.Constraint Minstrel TRAM:Generalize-Constraint suggests that a new solution to a problem can be found by removing a solution constraint, solving the new problem, and then adding the constraint back to the new solution. For scene creation, the problemconstraints are the features of the specification. TRAM:Generalize-Constraintis shown in Figure 7.2. TRAM:Generalize-Constraint begins by using a broad generalization on each constraint. TRAM:Generalize-Constraintremoves each constraint in turn and uses memoryto see whether there exists any episode that matchesthe newproblemspecification. If an episode is recalled, MINSTREL marks the constraint as a feasible selection for generalization. The secondstep is to randomly select and generalize one of the feasible constraints using a class hierarchy. The first step finds possible generalizations; the second step creates a reasonable generalization. In the suicide example, the possible constraints are: 141 invented this story: (A KNIGHT NAMED JOHN FOUGHT A DRAGON BY MOVING HIS SWORD TO IT IN ORDER TO KILL HIMSELF *PERIOD* JOHN DIED *PERIOD*) Figure 7.1 Suicide Trace (1) the actor is a knight, (2) the result of the act is death, and (3) the dead character is the actor. Of these constraints, only removing(3) leads to a recollection, TRAM:Generalize-Constraint selects (3) for generalization. This constraint is generalized using a class hierarchy of character roles. The actor is a knight, which is a type of "Violent Character", so TRAM:Generalize-Constraintgeneralizes this constraint to "the dead character is a violent character". The new, transformed problem is "A knight does something to kill a violent character." Note that after this transformation, the newproblemsituation no longer requires the knight to kill himself, only that he kills someviolent character.
 
 <!-- page: 6 -->
-_Layout-sensitive page. Review page image if fidelity matters. Reason: tabular spacing heuristic._
 
-```text
-                                                               7.2   TRAM:Similar-Outcomes
-                                                                    TRAM:Similar-Outcomes    suggests that if an action
- 1"RAM:Generalize-Constraint
-                                                               results in a particular outcome, it might also result in
- Comment:       Removea constraint; solve problem;             similar outcomes.If riding a horse can carry a knight to
-                replace constraint.                            the castle, then riding a horse mightalso carry a knight to
- Test:          Is this an action?                             the woods.
- Transform:     1. For each constraint (slot), make                 In the suicide example, TRAM:Similar-Outcomes
-                broad generalization and use memoryto          recognizes that being injured is similar to being killed,
-                determine if the the generalization is         and transforms the scene description to "a knight
-                feasible.                                      purposely injures himself." If MINSTREL      can recall a
-                2. Randomly select a feasible constraint,      scene whichfits this description, it can be adaptedto the
-                and use a a class hierarchy to find a          current problem by guessing that an action which results
-                semantically close generalization.             in injury might also result in death. TRAM:Similar-
- Adapt:         Replace the generalized constraint with        Outcomesis shownin Figure 7.3.
-                the original value.
-                                                                TRAM:Similar-Outcomes
-          Figure 7.2 TRAM:Generalize-Constraint
-                                                                Comment:       Change a partial state change to a
-                                                                               complete, or vice versa.
-     This recalls the "Knight Fight" episode, in which a
-                                                                 Test:         Is the problema scaled state change?
-knight kills a troll by hitting it with a sword.This episode
-                                                                 Transform:    If the state change is partial in one
-is then adapted back to the original problemby replacing
-                                                                               direction along the slate scale, changeit
-the troll (the violent character) with the original constraint
-                                                                               to be completein that direction. If it is
-(knight), creating the scene "A knight kills himself
-                                                                               a complete change in one direction,
-fighting himself with his sword." TRAM:Generalize-
-                                                                               changeit to be partial in that direction.
-Constraint has used previous knowledge about how
-                                                                 Adapt:        Change the outcome on the recalled
-knights kill monsters to create a scene in whicha knight
-                                                                               solution to the original outcome.
-kills himself.
-     The use of a class hierarchy prevents MINSTREL
-from making errors caused by using a too broad
-                                                                          Figure 7.3 TRAM:Similar-Outcomes
-generalization. For example, suppose that MINSTREL         is
-creating a scene in which "a knight gives a princess
-                                                                     However,the description "a knight purposely injures
-something that makes her happy" and chooses to
-                                                               himself" does not recall either of the episodes in
-generalize the "princess" feature by removal. This
-                                                               MINSTREL’s    episodic memory. In "Knight Fight", the
-recalls a scene in which a knight makesa troll happy by
-                                                               knight does not intentionally injure himself. In "Princess
-giving him a hunk of raw meat. Whenthis reminding is
-                                                               and the Potion", the actor is not a knight. Since recall
-adapted for the original scene, the result has the knight
-                                                               fails, imaginative memoryrecurses and applies a new
-pleasing the princess by giving her a hunkof raw meat!
-                                                               TRAM  at the inferior level.
-     This type of mistake occurs because there is little
-                                                                     MINSTREL now applies          TRAM:Generalize-
-similarity between the original feature ("princess") and
-                                                               Constraint to the description "a knight purposely injures
-the instantiation of its generalization ("troll"). A better
-                                                               himself" and generalizes the "knight" feature (to the
-generalization wouldensure some similarity between the
-                                                               superclass), creating a new scene description "a natural
-original feature and the instantiations               of the
-                                                               being purposely injures himself." This description recalls
-generalization. Since class heirarchies group concepts
-                                                               "The Princess and the Potion" in which a lady of the
-with similar features, it is very effective for this type of
-                                                               court  drinks a potion to makeherself ill. This scene is
-generalization.
-                                                               adapted by TRAM:Generalize-Constraintby replacing the
-                                                               "lady of the court" feature with "a knight," resulting in a
-                                                               scene in which a knight makes himself ill by drinking a
-                                                               potion.
-                                                                     This adapted scene is returned to the previous level
-                                                               and is adapted by TRAM:Similar-Outcomes      by replacing
-                                                               the illness with death. This results in a scene in whicha
-```
+7.2 1"RAM:Generalize-Constraint Comment: Test: Transform: Adapt: Removea constraint; solve problem; replace constraint. Is this an action?
+
+1. For each constraint (slot), make broad generalization and use memoryto determine if the the generalization is feasible.
+
+2. Randomly select a feasible constraint, and use a a class hierarchy to find a semantically close generalization. Replace the generalized constraint with the original value. TRAM:Similar-Outcomes TRAM:Similar-Outcomes suggests that if an action results in a particular outcome, it might also result in similar outcomes.If riding a horse can carry a knight to the castle, then riding a horse mightalso carry a knight to the woods. In the suicide example, TRAM:Similar-Outcomes recognizes that being injured is similar to being killed, and transforms the scene description to "a knight purposely injures himself." If MINSTREL can recall a scene whichfits this description, it can be adaptedto the current problem by guessing that an action which results in injury might also result in death. TRAM:SimilarOutcomesis shownin Figure 7.3. TRAM:Similar-Outcomes Figure 7.2 TRAM:Generalize-Constraint Comment: Change a partial state change to a complete, or vice versa. Is the problema scaled state change? If the state change is partial in one direction along the slate scale, changeit to be completein that direction. If it is a complete change in one direction, changeit to be partial in that direction. Change the outcome on the recalled solution to the original outcome. This recalls the "Knight Fight" episode, in which a Test: knight kills a troll by hitting it with a sword.This episode Transform: is then adapted back to the original problemby replacing the troll (the violent character) with the original constraint (knight), creating the scene "A knight kills himself fighting himself with his sword." TRAM:GeneralizeConstraint has used previous knowledge about how Adapt: knights kill monsters to create a scene in whicha knight kills himself. The use of a class hierarchy prevents MINSTREL from making errors caused by using a too broad Figure 7.3 TRAM:Similar-Outcomes generalization. For example, suppose that MINSTREL is creating a scene in which "a knight gives a princess However,the description "a knight purposely injures something that makes her happy" and chooses to himself" does not recall either of the episodes in generalize the "princess" feature by removal. This MINSTREL’s episodic memory. In "Knight Fight", the recalls a scene in which a knight makesa troll happy by knight does not intentionally injure himself. In "Princess giving him a hunk of raw meat. Whenthis reminding is and the Potion", the actor is not a knight. Since recall adapted for the original scene, the result has the knight fails, imaginative memoryrecurses and applies a new pleasing the princess by giving her a hunkof raw meat! TRAM at the inferior level. This type of mistake occurs because there is little MINSTREL now applies TRAM:Generalizesimilarity between the original feature ("princess") and Constraint to the description "a knight purposely injures the instantiation of its generalization ("troll"). A better himself" and generalizes the "knight" feature (to the generalization wouldensure some similarity between the superclass), creating a new scene description "a natural original feature and the instantiations of the being purposely injures himself." This description recalls generalization. Since class heirarchies group concepts "The Princess and the Potion" in which a lady of the with similar features, it is very effective for this type of court drinks a potion to makeherself ill. This scene is generalization. adapted by TRAM:Generalize-Constraintby replacing the "lady of the court" feature with "a knight," resulting in a scene in which a knight makes himself ill by drinking a potion. This adapted scene is returned to the previous level and is adapted by TRAM:Similar-Outcomes by replacing the illness with death. This results in a scene in whicha
 
 <!-- page: 7 -->
-_Layout-sensitive page. Review page image if fidelity matters. Reason: tabular spacing heuristic._
 
-```text
-knight kills himself by drinking a potion, filling the           TRAM:Intention-Switch adapt this recalled scene,
-original description "a knight kills himself." (Note that        resulting in a scene in whicha knight commitssuicide by
-in the course of inventing this scene, MINSTREL       has also   intentionally losing a fight witha troll.
-inventedthe idea of poison - a potion that kills.)                    Since intended and unintended outcomes are always
-     The main issue in TRAM:Similar-Outcomes is                  interchangable, TRAM:Intention-Switch is simple and
-determining when two outcomes are interchangable.                useful in a widevariety of situations.
-MINSTREL  has two methods for deciding this question.
-     First, MINSTREL      assumes that if an action can
-                                                                 8     Current    Status    of MINSTREL
-result in a partial relative changeof a state (i.e., drinking
-potion results in a partial negative changein health) then            The current version of MINSTREL       is written in
-the action can also result in a completerelative changeof        Austin Kyoto Common Lisp using the RHAPSODY
-the state (i.e., drinking a potion can makeone’s health          representation package [Turner 1987] and runs on a Sun
-completely negative).                                            workstation.     Independent of RHAPSODY,        MINSTREL
-     Second, MINSTREL      assumes that two outcomes are         contains about 8,000 lines of code and representation.
-interchangable if it can recall other scenes in whichthey        MINSTREL   implements twenty-nine TRAMs.
-are interchangable.        MINSTREL  assumes that if two              MINSTREL  is primarily a storytelling program. The
-outcomes are interchangable in any scene then they are           current version of MINSTREL    tells a number of stories
-interchangable       in every scene. This method is              based on four different story themes. The role of theme
-implemented in a second TRAM        called TRAM:Similar-         and author-level goals in storytelling is discussed in more
-Outcomes-lmplicit.                                               detail in [Turner 1992]. MINSTREL      implements twenty-
-                                                                 eight author-level plans, and begins story telling with
-                                                                 approximately ten story scenes in memory."The Lady’s
-7.3    TRAM: Intention-Switch                                    Revenge" is typical of the stories that MINSTREL
-                                                                 creates:
-     TRAM:Intention-Switch  suggests that if the effect of
-an action in a scene was intentional it might just as well                          2The Lady’s Revenge
-have been unintentional,             and vice versa.
-                                                                           Onceupon a time there was a lady of the court
-TRAM:Intention-Switch is illustrated in Figure 7.4.
-                                                                     named Jennifer. Jennifer loved a knight named
-                                                                     Grunfeld. Grunfeld loved Jennifer.
-                                                                          Jennifer wantedrevenge on a lady of the court
- TRAM:Intention-Switch
-                                                                     named Darlene because she had the berries which
- Comment:        Look for an unintentional       outcome             she picked in the woodsand Jennifer wantedto have
-                 instead of an intentional one.                      the berries. Jennifer wanted to scare Darlene.
- Test:           Is this an action with an intentional               Jennifer wanted a dragon to move towards Darlene
-                 outcome?                                            so that Darlene believed it wouldeat her. Jennifer
- Transform:      Change the intentional outcome to an                wanted to appear to be a dragon so that a dragon
-                 unintentional outcome.                              would move towards Darlene. Jennifer drank a
- Adapt:          Change the unintentional outcome of                 magic potion. Jennifer transformed into a dragon. A
-                 the solution to an intentional outcome.             dragon move towards Darlene. A dragon was near
-                                                                     Darlene.
-                                                                          Grunfeld wanted to impress the king. Grunfeld
-           Figure 7.4 TRAM:Intention-Switch                          wanted to movetowards the woodsso that he could
-                                                                     fight a dragon. Grunfeld movedtowards the woods.
-      In the suicide example, TRAM:Intention-Switch                  Grunfeld was near the woods. Grunfeid fought a
-creates the new specification "a knight accidently kills             dragon. The dragon died. The dragon was Jennifer.
-himself." Recall on this newspecification fails, because             Jennifer wanted to live. Jennifer tried to drink a
-MINSTREL’sepisodic memory does not contain any                       magic potion but failed. Grunfeld was filled with
-episodes in whicha knight accidently kills himself.                  grief.
-      Problem-solving     is used recursively,      and                   Jennifer was buried in the woods. Grunfeld
-TRAM:Similar-Outcomes creates            the new scene               becamea hermit.
-description "a knight accidently injures himself." This
-recalls "KnightFight," in whicha knight is injured while
-killing a troll.     Both TRAM:Similar-Outcomes and              2. Exceptfor typography, this story appears exactly as
-                                                                 produced by MINSTREL.
-```
+knight kills himself by drinking a potion, filling the original description "a knight kills himself." (Note that in the course of inventing this scene, MINSTREL has also inventedthe idea of poison - a potion that kills.) The main issue in TRAM:Similar-Outcomes is determining when two outcomes are interchangable. MINSTREL has two methods for deciding this question. First, MINSTREL assumes that if an action can result in a partial relative changeof a state (i.e., drinking potion results in a partial negative changein health) then the action can also result in a completerelative changeof the state (i.e., drinking a potion can makeone’s health completely negative). Second, MINSTREL assumes that two outcomes are interchangable if it can recall other scenes in whichthey are interchangable. MINSTREL assumes that if two outcomes are interchangable in any scene then they are interchangable in every scene. This method is implemented in a second TRAM called TRAM:SimilarOutcomes-lmplicit. 7.3 TRAM: Intention-Switch TRAM:Intention-Switch suggests that if the effect of an action in a scene was intentional it might just as well have been unintentional, and vice versa. TRAM:Intention-Switch is illustrated in Figure 7.4. TRAM:Intention-Switch Comment: Test: Transform: Adapt: Look for an unintentional outcome instead of an intentional one. Is this an action with an intentional outcome? Change the intentional outcome to an unintentional outcome. Change the unintentional outcome of the solution to an intentional outcome. Figure 7.4 TRAM:Intention-Switch In the suicide example, TRAM:Intention-Switch creates the new specification "a knight accidently kills himself." Recall on this newspecification fails, because MINSTREL’sepisodic memory does not contain any episodes in whicha knight accidently kills himself. Problem-solving is used recursively, and TRAM:Similar-Outcomes creates the new scene description "a knight accidently injures himself." This recalls "KnightFight," in whicha knight is injured while killing a troll. Both TRAM:Similar-Outcomes and 143 TRAM:Intention-Switch adapt this recalled scene, resulting in a scene in whicha knight commitssuicide by intentionally losing a fight witha troll. Since intended and unintended outcomes are always interchangable, TRAM:Intention-Switch is simple and useful in a widevariety of situations. 8 Current Status of MINSTREL The current version of MINSTREL is written in Austin Kyoto Common Lisp using the RHAPSODY representation package [Turner 1987] and runs on a Sun workstation. Independent of RHAPSODY, MINSTREL contains about 8,000 lines of code and representation. MINSTREL implements twenty-nine TRAMs. MINSTREL is primarily a storytelling program. The current version of MINSTREL tells a number of stories based on four different story themes. The role of theme and author-level goals in storytelling is discussed in more detail in [Turner 1992]. MINSTREL implements twentyeight author-level plans, and begins story telling with approximately ten story scenes in memory."The Lady’s Revenge" is typical of the stories that MINSTREL creates: 2The Lady’s Revenge Onceupon a time there was a lady of the court named Jennifer. Jennifer loved a knight named Grunfeld. Grunfeld loved Jennifer. Jennifer wantedrevenge on a lady of the court named Darlene because she had the berries which she picked in the woodsand Jennifer wantedto have the berries. Jennifer wanted to scare Darlene. Jennifer wanted a dragon to move towards Darlene so that Darlene believed it wouldeat her. Jennifer wanted to appear to be a dragon so that a dragon would move towards Darlene. Jennifer drank a magic potion. Jennifer transformed into a dragon. A dragon move towards Darlene. A dragon was near Darlene. Grunfeld wanted to impress the king. Grunfeld wanted to movetowards the woodsso that he could fight a dragon. Grunfeld movedtowards the woods. Grunfeld was near the woods. Grunfeid fought a dragon. The dragon died. The dragon was Jennifer. Jennifer wanted to live. Jennifer tried to drink a magic potion but failed. Grunfeld was filled with grief. Jennifer was buried in the woods. Grunfeld becamea hermit.
+
+2. Exceptfor typography, this story appears exactly as produced by MINSTREL.
 
 <!-- page: 8 -->
-_Layout-sensitive page. Review page image if fidelity matters. Reason: references page._
 
-```text
-     MORAL:
-         Deception is a weapondifficult     to aim.                               References
-      Unlike previous work in storytelling        (TALESPIN
-                                                             Dehn, Natalie, Computer Story-Writing: The Role of
- IMechan, 1976], UNIVERSE[Lebowitz, 19851 and                          Reconstructive    and Dynamic Memory, Yale
- AUTHOR[Dehn, 1989]), MINSTRELfocuses on the
-                                                                       Technical Report 792 (Ph.D. Dissertation), Yale
- creative aspect of writing. Consequently, the creative                University, Dept. of ComputerScience, 1989.
- problem-solving portion of Minstrel can be applied
-                                                             Koestler, A. The act of creation. MacMillan, NewYork,
- independently to other invention tasks. In addition to
-                                                                       1964.
- storytelling    and the suicide example, MINSTREL’s
-                                                             Lebowitz, Michael, Story Telling and Generalization,
- creative problem-solver has been applied to the                       Proceedings of the Seventh Annual Conference
- mechanical invention domain, where MINSTREL           uses
-                                                                       of the Cognitive Science Society, Irvine,
- TRAMsand an episodic memory of simple mechanical                      California, 1985, pp. 100-109.
- devices to invent heavy-dutystaplers.                       Lenat, Douglas B., AM: An Artificial       Intelligence
-                                                                       Approach to Discovery in Mathematics as
-9 Previous          Work                                               Heuristic Search, Stanford AI Lab, Memo
-                                                                       AIM-286 (Ph.D. Dissertation),         Stanford
- The most interesting previous workin artificial creativity
-                                                                       University, Dept. of ComputerScience, 1976.
- is AM[Lenat 1976]. AMwas a computer program that
-                                                             Meehan, James R., The Metanovel: Writing Stories by
- used a large pool of heuristics to discover "new"
-                                                                       Computer, Technical Report #74 (Ph.D.
- mathematical concepts. Starting with some basic tenets
-                                                                       Dissertation),    Yale University, Dept. of
- of set theory, AMdiscovered numbers (the lengths of
-                                                                       ComputerScience, 1976.
- certain sets), addition, subtraction, multiplication, prime
-                                                             Reiser, B.J. (1986). "Knowledge-directed retrieval
- numbersand eventually, the unique factorization rule.
-                                                                       autobiographical memories."In Kolodner, J., &
-      One of the interesting differences between AMand
-                                                                       Riesbeck, C.K. (Eds.) Experience, Memoryand
- MINSTRELis in the focus of their creativity.
-                                                                       Reasoning. Hillsdale, NewJersey: Lawrence
- MINSTREL   is a purposeful creator: it begins creation
-                                                                       Erlbaum Associates.
- with a problemthat it is trying to solve, and ends with a
-                                                             Schank, Roger C., Dynamic Memory, Cambridge
- proposed new solution. AM,on the other hand, started
-                                                                       University Press, Cambridge,1982.
- with a group of base concepts and elaborated those in
-                                                             Slade, S., "Case-Based Reasoning: A Research
- manydirections. The purpose of AMwas not to solve a
-                                                                       Paradigm", A/Magazine, Spring, 1991.
- particular problem, but to find interesting problemsin a
-                                                             Tulving, E., "Episodic and Semantic Memory." In E.
- large problem space. More detailed comparison of
-                                                                       Tulving & W. Donaldson (Eds.), Organization
- MINSTREL   and AMmay reveal interesting similarities
-                                                                       of memory.NewYork: AcademicPress, 1972.
- and differences between purposeful creativity          and
-                                                             Turner, Scott and Reeves, John, The RHAPSODY       Manual
- explorativecreativity.
-                                                                       (Technical Note UCLA-AI-N-85-87).   Artificial
-                                                                       Intelligence Laboratory, Computer Science
-I0     Conclusions                                                     Department, University of California, Los
-                                                                       Angeles, 1987.
-      The challenge of creativity is to develop a cognitive
-                                                             Turner, Scott. MINSTREL:A Model of Storytelling and
- model which explains howa creative problem-solver can
-                                                                       Creativity,    Technical Note UCLA-AI-17-92
- (1) find old knowledgethat can be useful applied to a new
-                                                                       (Ph.D. Dissertation). Artificial Intelligence
- problem, and (2) adapt that knowledge to create
-                                                                       Laboratory, Computer Science Department,
- working solution. MINSTREL     answers this challenge by
-                                                                       University of California, Los Angeles, Dec.,
- integrating the search and adapt portions of the creative
-                                                                       1992.
- process in heuristics called TRAMs.   This modelhas been
-                                                             Weisberg, Robert W., Creativity: Genius and Other
- implemented and extensively tested in a computer
-                                                                       Myths. W.H. Freeman and Company, New
- programthat tells stories, solves problems, and invents
-                                                                       York, 1986.
- mechanical devices.
-```
+MORAL: Deception is a weapondifficult to aim. 
+
+## References
+
+Unlike previous work in storytelling (TALESPIN Dehn, Natalie, Computer Story-Writing: The Role of IMechan, 1976], UNIVERSE[Lebowitz, 19851 and Reconstructive and Dynamic Memory, Yale AUTHOR[Dehn, 1989]), MINSTRELfocuses on the Technical Report 792 (Ph.D. Dissertation), Yale creative aspect of writing. Consequently, the creative University, Dept. of ComputerScience, 1989. problem-solving portion of Minstrel can be applied Koestler, A. The act of creation. MacMillan, NewYork, independently to other invention tasks. In addition to 1964. storytelling and the suicide example, MINSTREL’s Lebowitz, Michael, Story Telling and Generalization, creative problem-solver has been applied to the Proceedings of the Seventh Annual Conference mechanical invention domain, where MINSTREL uses of the Cognitive Science Society, Irvine, TRAMsand an episodic memory of simple mechanical California, 1985, pp. 100-109. devices to invent heavy-dutystaplers. Lenat, Douglas B., AM: An Artificial Intelligence Approach to Discovery in Mathematics as Previous Work Heuristic Search, Stanford AI Lab, Memo AIM-286 (Ph.D. Dissertation), Stanford The most interesting previous workin artificial creativity University, Dept. of ComputerScience, 1976. is AM[Lenat 1976]. AMwas a computer program that Meehan, James R., The Metanovel: Writing Stories by used a large pool of heuristics to discover "new" Computer, Technical Report #74 (Ph.D. mathematical concepts. Starting with some basic tenets Dissertation), Yale University, Dept. of of set theory, AMdiscovered numbers (the lengths of ComputerScience, 1976. certain sets), addition, subtraction, multiplication, prime Reiser, B.J. (1986). "Knowledge-directed retrieval numbersand eventually, the unique factorization rule. autobiographical memories."In Kolodner, J., & One of the interesting differences between AMand Riesbeck, C.K. (Eds.) Experience, Memoryand MINSTRELis in the focus of their creativity. Reasoning. Hillsdale, NewJersey: Lawrence MINSTREL is a purposeful creator: it begins creation Erlbaum Associates. with a problemthat it is trying to solve, and ends with a Schank, Roger C., Dynamic Memory, Cambridge proposed new solution. AM,on the other hand, started University Press, Cambridge,1982. with a group of base concepts and elaborated those in Slade, S., "Case-Based Reasoning: A Research manydirections. The purpose of AMwas not to solve a Paradigm", A/Magazine, Spring, 1991. particular problem, but to find interesting problemsin a Tulving, E., "Episodic and Semantic Memory." In E. large problem space. More detailed comparison of Tulving & W. Donaldson (Eds.), Organization MINSTREL and AMmay reveal interesting similarities of memory.NewYork: AcademicPress, 1972. and differences between purposeful creativity and Turner, Scott and Reeves, John, The RHAPSODY Manual explorativecreativity. (Technical Note UCLA-AI-N-85-87). Artificial Intelligence Laboratory, Computer Science I0 Conclusions Department, University of California, Los Angeles, 1987. The challenge of creativity is to develop a cognitive Turner, Scott. MINSTREL:A Model of Storytelling and model which explains howa creative problem-solver can Creativity, Technical Note UCLA-AI-17-92 (1) find old knowledgethat can be useful applied to a new (Ph.D. Dissertation). Artificial Intelligence problem, and (2) adapt that knowledge to create Laboratory, Computer Science Department, working solution. MINSTREL answers this challenge by University of California, Los Angeles, Dec., integrating the search and adapt portions of the creative 1992. process in heuristics called TRAMs. This modelhas been Weisberg, Robert W., Creativity: Genius and Other implemented and extensively tested in a computer Myths. W.H. Freeman and Company, New programthat tells stories, solves problems, and invents York, 1986. mechanical devices.

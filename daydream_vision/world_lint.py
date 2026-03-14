@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from pathlib import Path
 import re
 from typing import Any, Iterable, Optional
@@ -151,6 +152,232 @@ def _matching_entries(entries: Iterable[dict[str, str]], terms: list[str]) -> li
         if any(_contains_term(text, term) for term in terms):
             matches.append(entry)
     return matches
+
+
+def _entry_text(entry: dict[str, Any]) -> str:
+    parts: list[str] = []
+    description = _clean_text(entry.get("description"))
+    if description:
+        parts.append(description)
+    indices = entry.get("indices")
+    if isinstance(indices, list):
+        parts.extend(
+            cleaned
+            for cleaned in (_clean_text(item) for item in indices)
+            if cleaned
+        )
+    return " ".join(parts)
+
+
+def _entity_key(entity_type: str, entity_id: str) -> str:
+    return f"{entity_type}:{entity_id}"
+
+
+def _connect(adjacency: dict[str, set[str]], left: str, right: str) -> None:
+    if left == right:
+        return
+    adjacency[left].add(right)
+    adjacency[right].add(left)
+
+
+def _place_terms(place_id: str, description: Optional[str]) -> list[str]:
+    parts = [place_id.replace("_", " ")]
+    if description:
+        parts.append(description)
+    return _distinctive_terms(" ".join(parts), min_len=4)
+
+
+def _build_entity_connectivity(brief: dict[str, Any]) -> tuple[dict[str, dict[str, str]], dict[str, set[str]]]:
+    entities: dict[str, dict[str, str]] = {}
+    adjacency: dict[str, set[str]] = defaultdict(set)
+
+    characters = brief.get("characters") or []
+    places = brief.get("places") or []
+    situations = brief.get("situations") or []
+    world_data = brief.get("worldData") or {}
+    events = world_data.get("events") if isinstance(world_data.get("events"), list) else []
+    charged_objects = brief.get("creativeBrief", {}).get("charged_objects")
+    charged_objects = charged_objects if isinstance(charged_objects, list) else []
+
+    place_map: dict[str, dict[str, Any]] = {}
+    for place in places:
+        if not isinstance(place, dict):
+            continue
+        place_id = _clean_text(place.get("id"))
+        if not place_id:
+            continue
+        place_map[place_id] = place
+        entities[_entity_key("place", place_id)] = {
+            "entityType": "place",
+            "entityId": place_id,
+        }
+
+    for character in characters:
+        if not isinstance(character, dict):
+            continue
+        character_id = _clean_text(character.get("id")) or "character"
+        entities[_entity_key("character", character_id)] = {
+            "entityType": "character",
+            "entityId": character_id,
+        }
+
+    for situation in situations:
+        if not isinstance(situation, dict):
+            continue
+        situation_id = _clean_text(situation.get("id")) or "situation"
+        situation_key = _entity_key("situation", situation_id)
+        entities[situation_key] = {
+            "entityType": "situation",
+            "entityId": situation_id,
+        }
+        place_id = _clean_text(situation.get("place"))
+        if place_id and place_id in place_map:
+            _connect(adjacency, situation_key, _entity_key("place", place_id))
+
+    for event in events:
+        if not isinstance(event, dict):
+            continue
+        event_id = _clean_text(event.get("id")) or "event"
+        event_key = _entity_key("event", event_id)
+        entities[event_key] = {
+            "entityType": "event",
+            "entityId": event_id,
+        }
+
+    for index, item in enumerate(charged_objects, start=1):
+        label = _item_label(item)
+        if not label:
+            continue
+        object_id = re.sub(r"\s+", "_", label.casefold())
+        object_key = _entity_key("charged_object", object_id)
+        entities[object_key] = {
+            "entityType": "charged_object",
+            "entityId": object_id,
+        }
+
+    non_place_entry_graph: list[tuple[str, str, str]] = []
+    for situation in situations:
+        if not isinstance(situation, dict):
+            continue
+        situation_id = _clean_text(situation.get("id")) or "situation"
+        text = _entry_text(situation)
+        if text:
+            non_place_entry_graph.append(("situation", situation_id, text))
+    for event in events:
+        if not isinstance(event, dict):
+            continue
+        event_id = _clean_text(event.get("id")) or "event"
+        description = _clean_text(event.get("description"))
+        if description:
+            non_place_entry_graph.append(("event", event_id, description))
+
+    for character in characters:
+        if not isinstance(character, dict):
+            continue
+        character_id = _clean_text(character.get("id")) or "character"
+        name = _clean_text(character.get("name")) or character_id
+        terms = _distinctive_terms(f"{character_id} {name}", min_len=4)
+        if not terms:
+            continue
+        character_key = _entity_key("character", character_id)
+        for entry_type, entry_id, text in non_place_entry_graph:
+            if _matching_entries([{"text": text}], terms):
+                _connect(adjacency, character_key, _entity_key(entry_type, entry_id))
+
+    for index, item in enumerate(charged_objects, start=1):
+        label = _item_label(item)
+        if not label:
+            continue
+        object_id = re.sub(r"\s+", "_", label.casefold())
+        object_key = _entity_key("charged_object", object_id)
+        terms = _distinctive_terms(label, min_len=4)
+        if not terms:
+            continue
+        for entry_type, entry_id, text in non_place_entry_graph:
+            if _matching_entries([{"text": text}], terms):
+                _connect(adjacency, object_key, _entity_key(entry_type, entry_id))
+
+    situation_texts: dict[str, str] = {}
+    for situation in situations:
+        if not isinstance(situation, dict):
+            continue
+        situation_id = _clean_text(situation.get("id")) or "situation"
+        situation_texts[situation_id] = _entry_text(situation)
+
+    for event in events:
+        if not isinstance(event, dict):
+            continue
+        event_id = _clean_text(event.get("id")) or "event"
+        event_key = _entity_key("event", event_id)
+        event_text = _clean_text(event.get("description")) or ""
+        event_terms = _distinctive_terms(event_text, min_len=5)
+
+        for place_id, place in place_map.items():
+            place_description = _clean_text(place.get("description"))
+            if any(_contains_term(event_text, term) for term in _place_terms(place_id, place_description)):
+                _connect(adjacency, event_key, _entity_key("place", place_id))
+
+        for situation_id, situation_text in situation_texts.items():
+            overlap = len(set(event_terms) & set(_distinctive_terms(situation_text, min_len=5)))
+            if overlap >= 2:
+                _connect(adjacency, event_key, _entity_key("situation", situation_id))
+
+    return entities, adjacency
+
+
+def _disconnected_subgraph_findings(brief: dict[str, Any]) -> list[dict[str, Any]]:
+    entities, adjacency = _build_entity_connectivity(brief)
+    connected_nodes = {
+        node_id
+        for node_id in entities
+        if adjacency.get(node_id)
+    }
+    if len(connected_nodes) < 4:
+        return []
+
+    components: list[set[str]] = []
+    remaining = set(connected_nodes)
+    while remaining:
+        start = remaining.pop()
+        stack = [start]
+        component = {start}
+        while stack:
+            current = stack.pop()
+            for neighbor in adjacency.get(current, set()):
+                if neighbor in remaining:
+                    remaining.remove(neighbor)
+                    component.add(neighbor)
+                    stack.append(neighbor)
+        components.append(component)
+
+    nontrivial_components = [component for component in components if len(component) >= 2]
+    if len(nontrivial_components) <= 1:
+        return []
+
+    main_component = max(nontrivial_components, key=len)
+    findings: list[dict[str, Any]] = []
+    component_index = 1
+    for component in sorted(nontrivial_components, key=lambda item: (-len(item), sorted(item))):
+        if component == main_component:
+            continue
+        members = sorted(
+            f"{entities[node_id]['entityType']}:{entities[node_id]['entityId']}"
+            for node_id in component
+        )
+        findings.append(
+            _make_finding(
+                severity="warn",
+                code="disconnected_subgraph",
+                entity_type="world",
+                entity_id=f"component_{component_index}",
+                message="A multi-entity cluster is weakly connected to the rest of the world.",
+                suggestion="Add a shared situation, event consequence, charged object, or route dependency that ties this cluster back into the main world.",
+                evidence=members[:5],
+            )
+        )
+        component_index += 1
+
+    return findings
 
 
 def _evidence_labels(entries: list[dict[str, str]], *, max_items: int = 3) -> list[str]:
@@ -336,6 +563,8 @@ def lint_brief_world(brief_path: str | Path) -> dict[str, Any]:
                 suggestion="Give the object at least one visible role in a situation, event, or route dependency.",
             )
         )
+
+    findings.extend(_disconnected_subgraph_findings(brief))
 
     severity_order = {"error": 0, "warn": 1, "info": 2}
     findings.sort(key=lambda item: (severity_order.get(str(item.get("severity")), 9), str(item.get("code")), str(item.get("entityId"))))

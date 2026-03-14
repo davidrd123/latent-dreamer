@@ -11,6 +11,8 @@ Each bundle includes:
 - `page-classification.csv`
 - `page-review-images/` for PDF sources
 
+`source.md` is the readable flowing-markdown target. If a bundle also contains `source-canonical.md`, that file is treated as the rebuild-safe manual override and copied back to `source.md` on regeneration.
+
 ## Bundles
 
 - `ATMS/`

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import csv
 from dataclasses import dataclass
 import html
@@ -30,6 +31,7 @@ GENERATED_FILE_NAMES = {
 GENERATED_DIR_NAMES = {
     "page-review-images",
 }
+CANONICAL_SOURCE_NAME = "source-canonical.md"
 
 
 @dataclass
@@ -205,6 +207,98 @@ def clean_plain_page(page: str) -> list[str]:
     return lines
 
 
+def margin_key(line: str) -> str:
+    return normalize_line(line).strip().lower()
+
+
+def looks_like_margin_artifact(key: str) -> bool:
+    if not key:
+        return False
+    if len(key.split()) <= 1:
+        return False
+    if len(key) > 220:
+        return False
+    return True
+
+
+def collect_margin_blacklists(records: list[PageRecord]) -> tuple[set[str], set[str]]:
+    top_counts: Counter[str] = Counter()
+    bottom_counts: Counter[str] = Counter()
+
+    for record in records:
+        lines = clean_plain_page(record.plain)
+        if not lines:
+            continue
+        for line in lines[:3]:
+            key = margin_key(line)
+            if looks_like_margin_artifact(key):
+                top_counts[key] += 1
+        for line in lines[-3:]:
+            key = margin_key(line)
+            if looks_like_margin_artifact(key):
+                bottom_counts[key] += 1
+
+    top_blacklist = {key for key, count in top_counts.items() if count >= 3}
+    bottom_blacklist = {key for key, count in bottom_counts.items() if count >= 3}
+    return top_blacklist, bottom_blacklist
+
+
+def is_boilerplate_line(line: str) -> bool:
+    lowered = margin_key(line)
+    if not lowered:
+        return True
+
+    patterns = (
+        "authorized licensed use limited to",
+        "downloaded on ",
+        "restrictions apply",
+        "digital object identifier",
+        "personal use is permitted",
+        "republication/redistribution requires ieee permission",
+        "for more information",
+        "copyright ©",
+        "all rights reserved",
+        "please direct all requests for permission",
+        "doi:",
+    )
+    return any(pattern in lowered for pattern in patterns)
+
+
+def clean_source_page(
+    record: PageRecord,
+    *,
+    top_blacklist: set[str],
+    bottom_blacklist: set[str],
+) -> list[str]:
+    if record.classification == "non-content-candidate" and "publisher wrapper page" in record.reason:
+        return []
+
+    lines = clean_plain_page(record.plain)
+
+    while lines and (
+        margin_key(lines[0]) in top_blacklist or is_boilerplate_line(lines[0])
+    ):
+        lines.pop(0)
+
+    while lines and (
+        margin_key(lines[-1]) in bottom_blacklist or is_boilerplate_line(lines[-1])
+    ):
+        lines.pop()
+
+    cleaned: list[str] = []
+    for line in lines:
+        if (
+            margin_key(line) in top_blacklist
+            or margin_key(line) in bottom_blacklist
+            or is_boilerplate_line(line)
+        ):
+            continue
+        normalized = re.sub(r"^\d{1,4}\s+(?=[A-Za-z(])", "", line).strip()
+        if normalized:
+            cleaned.append(normalized)
+    return cleaned
+
+
 def clean_layout_page(page: str) -> list[str]:
     lines = strip_page_number_lines(nonempty_lines(page, collapse_spaces=False))
     return [line.rstrip() for line in lines]
@@ -237,29 +331,36 @@ def render_layout_pages(records: list[PageRecord], title: str) -> str:
 
 
 def render_source_markdown(records: list[PageRecord], title: str) -> str:
+    top_blacklist, bottom_blacklist = collect_margin_blacklists(records)
     lines = [f"# {title}", ""]
     for record in records:
+        cleaned = clean_source_page(
+            record,
+            top_blacklist=top_blacklist,
+            bottom_blacklist=bottom_blacklist,
+        )
+        if not cleaned:
+            continue
         lines.append(f"<!-- page: {record.number} -->")
-        if record.classification == "prose":
-            cleaned = clean_plain_page(record.plain)
-            if cleaned:
-                lines.append(render_paragraph_blocks(cleaned))
-        elif record.classification == "layout-sensitive":
-            lines.append(f"_Layout-sensitive page. Review page image if fidelity matters. Reason: {record.reason}._")
-            lines.append("")
-            lines.append("```text")
-            lines.extend(clean_layout_page(record.layout))
-            lines.append("```")
-        else:
-            lines.append(f"_Non-content candidate. Review page image before omitting. Reason: {record.reason}._")
-            layout_lines = clean_layout_page(record.layout)
-            if layout_lines:
-                lines.append("")
-                lines.append("```text")
-                lines.extend(layout_lines)
-                lines.append("```")
+        lines.extend(cleaned)
         lines.append("")
-    return "\n".join(lines).strip() + "\n"
+    rendered = render_paragraph_blocks(lines).strip() + "\n"
+    rendered = re.sub(r"\bAbstract[—-]\s*", "\n\n## Abstract\n\n", rendered, count=1)
+    rendered = re.sub(r"\bABSTRACT\s+", "\n\n## Abstract\n\n", rendered, count=1)
+    rendered = re.sub(
+        r"\b([IVX]+)\.\s+([A-Z][A-Z \-]{2,60})\s+",
+        lambda match: f"\n\n## {match.group(1)}. {match.group(2).strip()}\n\n",
+        rendered,
+    )
+    rendered = re.sub(
+        r"\bACKNOWLEDGMENTS?\b\s+",
+        "\n\n## Acknowledgments\n\n",
+        rendered,
+    )
+    rendered = re.sub(r"\bREFERENCES\b\s+", "\n\n## References\n\n", rendered)
+    rendered = re.sub(r"\bReferences\s+", "\n\n## References\n\n", rendered)
+    rendered = re.sub(r"\n{3,}", "\n\n", rendered)
+    return rendered.strip() + "\n"
 
 
 def render_images(pdf_path: Path, output_dir: Path, page_count: int, dpi: int) -> None:
@@ -362,6 +463,12 @@ def write_html_bundle(raw_path: Path, output_root: Path) -> None:
     extracted = extract_html_text(raw_html)
 
     output_dir = output_root / title
+    existing_canonical = output_dir / CANONICAL_SOURCE_NAME
+    canonical_text = (
+        existing_canonical.read_text(encoding="utf-8")
+        if existing_canonical.exists()
+        else None
+    )
     preserved = preserve_companion_files(output_dir)
     if output_dir.exists():
         shutil.rmtree(output_dir)
@@ -380,7 +487,8 @@ def write_html_bundle(raw_path: Path, output_root: Path) -> None:
     markdown = "\n".join(markdown_lines).strip() + "\n"
     (output_dir / "plain-pages.md").write_text(markdown, encoding="utf-8")
     (output_dir / "layout-pages.md").write_text(markdown, encoding="utf-8")
-    (output_dir / "source.md").write_text(markdown, encoding="utf-8")
+    source_markdown = canonical_text if canonical_text is not None else markdown
+    (output_dir / "source.md").write_text(source_markdown, encoding="utf-8")
 
     with (output_dir / "page-classification.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
@@ -398,8 +506,9 @@ def write_html_bundle(raw_path: Path, output_root: Path) -> None:
         "- `layout.txt`: same as plain text for non-PDF HTML sources.",
         "- `plain-pages.md`: page-anchored markdown with a single synthetic page.",
         "- `layout-pages.md`: same as plain-pages for non-PDF HTML sources.",
-        "- `source.md`: normalized markdown source.",
+        "- `source.md`: cleaned flowing markdown source.",
         "- `page-classification.csv`: synthetic single-page classification.",
+        "- Optional manual override: `source-canonical.md` is copied to `source.md` on rebuild, if present.",
         "- Existing companion notes are preserved across rebuilds.",
         "",
         "Classifications:",
@@ -436,6 +545,12 @@ def write_bundle(pdf_path: Path, output_root: Path, dpi: int) -> None:
         )
 
     output_dir = output_root / title
+    existing_canonical = output_dir / CANONICAL_SOURCE_NAME
+    canonical_text = (
+        existing_canonical.read_text(encoding="utf-8")
+        if existing_canonical.exists()
+        else None
+    )
     preserved = preserve_companion_files(output_dir)
     if output_dir.exists():
         shutil.rmtree(output_dir)
@@ -445,7 +560,12 @@ def write_bundle(pdf_path: Path, output_root: Path, dpi: int) -> None:
     (output_dir / "layout.txt").write_text("\f".join(layout_pages), encoding="utf-8")
     (output_dir / "plain-pages.md").write_text(render_plain_pages(records, title), encoding="utf-8")
     (output_dir / "layout-pages.md").write_text(render_layout_pages(records, title), encoding="utf-8")
-    (output_dir / "source.md").write_text(render_source_markdown(records, title), encoding="utf-8")
+    source_markdown = (
+        canonical_text
+        if canonical_text is not None
+        else render_source_markdown(records, title)
+    )
+    (output_dir / "source.md").write_text(source_markdown, encoding="utf-8")
     write_classification_csv(records, output_dir)
     render_images(pdf_path, output_dir, page_count, dpi)
 
@@ -459,9 +579,10 @@ def write_bundle(pdf_path: Path, output_root: Path, dpi: int) -> None:
         "- `layout.txt`: layout-preserving `pdftotext -layout` extraction.",
         "- `plain-pages.md`: page-anchored plain-text markdown.",
         "- `layout-pages.md`: page-anchored layout markdown.",
-        "- `source.md`: conservative hybrid markdown using page classification.",
+        "- `source.md`: cleaned flowing markdown reconstructed from the extractions and page review.",
         "- `page-classification.csv`: per-page heuristic classification.",
         "- `page-review-images/`: JPEG page renders for direct visual review.",
+        "- Optional manual override: `source-canonical.md` is copied to `source.md` on rebuild, if present.",
         "- Existing companion notes are preserved across rebuilds.",
         "",
         "Classifications:",

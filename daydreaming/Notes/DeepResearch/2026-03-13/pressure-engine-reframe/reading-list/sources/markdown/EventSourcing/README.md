@@ -8,8 +8,9 @@ Generated files:
 - `layout.txt`: same as plain text for non-PDF HTML sources.
 - `plain-pages.md`: page-anchored markdown with a single synthetic page.
 - `layout-pages.md`: same as plain-pages for non-PDF HTML sources.
-- `source.md`: normalized markdown source.
+- `source.md`: cleaned flowing markdown source.
 - `page-classification.csv`: synthetic single-page classification.
+- Optional manual override: `source-canonical.md` is copied to `source.md` on rebuild, if present.
 - Existing companion notes are preserved across rebuilds.
 
 Classifications:

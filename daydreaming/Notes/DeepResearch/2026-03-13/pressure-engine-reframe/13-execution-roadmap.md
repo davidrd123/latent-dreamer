@@ -7,7 +7,11 @@ This note is the working roadmap from here, not a theory note.
 
 Related:
 - `11-settled-architecture.md`
+- `21-graph-interface-contract.md`
+- `27-authoring-time-generation-reframe.md`
 - `reading-list/08-l3-experiment-1-synthesis.md`
+- `reading-list/13-l2-refactor-synthesis.md`
+- `reading-list/14-l1-critic-test-synthesis.md`
 - `reading-list/11-graffito-phase-1-pilot-checklist.md`
 - `reading-list/12-city-routes-experiment-1-checklist.md`
 
@@ -15,181 +19,93 @@ Related:
 
 ## Top-line sequence
 
-1. **Graffito L3 pilot** (shipping lane, first)
-2. **Conductor mapping spike** (small, before full L3 claim)
-3. **City Routes full L3 experiment** (research lane, third)
-4. **L1 authoring critic test** (research lane, fourth)
-5. **L2 internal refactor** (research lane, fifth)
+1. **Authoring-time generation prototype** (new critical path)
+2. **Conductor mapping spike** (small, still needed)
+3. **Watched-run / performance-lane validation** (use existing `L3`)
+4. **L1 critic / repair pass** (after material exists)
+5. **L2 internal refactor** (only if the prototype proves out)
 
 This order is deliberate:
 
-- Graffito already exists and touches the watched run.
-- The conductor mapping needs one small playability spike before the
-  full expressivity claim is taken seriously.
-- City Routes is the first graph large enough to test the narrow L3
-  thesis properly.
-- L1 and L2 remain important, but they are not the next falsifier.
+- the `L3` scheduler question is no longer the main bottleneck
+- the current bottleneck is graph material supply
+- the conductor mapping still needs a physical playability check
+- watched output still matters, but it no longer blocks the upstream
+  authoring experiment
+- `L1` critique only becomes useful once enough material exists to
+  critique
+- deeper `L2` cleanup should follow proof, not lead it
 
 ---
 
-## 1. Graffito L3 Pilot
+## 1. Authoring-Time Generation Prototype
 
-Goal: prove that a small Façade-shaped traversal scheduler over the
-existing Graffito slice produces a more legible watched run than a
-naive traversal.
+Goal: test whether Mueller-shaped authoring-time generation can produce
+better graph-ready candidate moments than flat prompting.
 
 ### Why first
 
-- It uses the existing authored Graffito slice.
-- It stays on the shipping lane.
-- It tests the scheduler shape without dragging in DODM features,
-  structural tension, or L2 refactors.
+- the biggest constraint is material supply, not traversal theory
+- the next high-value falsifier is upstream of `L3`
+- this is the shortest path to learning whether the Mueller machinery
+  helps generate usable world material
 
 ### Concrete work
 
-- Keep the playback/render seam unchanged.
-- Upgrade `daydreaming/fixtures/graffito_v0_scenes_3_4.yaml` from a
-  playback fixture to a traversal-capable fixture:
-  - add explicit `edges`
-  - add `delta_tension`
-  - add `delta_energy`
-  - optional simple `priority_tier`
-- Add a small Python pilot harness beside
-  `daydreaming/render_trace.py`.
-- Implement shared traversal state:
-  - current node
-  - recent path
-  - visit count
-  - last seen cycle
-  - situation activation
-  - recent tension / energy
-  - optional conductor bias
-- Implement two arms:
-  - simple baseline walk
-  - Façade-shaped pilot arm
-- Emit:
-  - trace YAML compatible with the current render path
-  - debug JSONL with candidate sets, scores, tier promotions, and
-    reasons
+- define one narrow narrative seed:
+  - one character
+  - three authored backstory episodes
+  - one active unresolved situation
+- choose three operators only
+- implement simple tag-based retrieval over:
+  - authored backstory episodes
+  - generated episodes accepted into the working memory set
+- run two arms:
+  - flat prompting baseline
+  - operator-driven generation with retrieval and provenance
+- require candidate outputs to compile to graph-native fields:
+  - `situation_id`
+  - `delta_tension`
+  - `delta_energy`
+  - `pressure_tags[]`
+  - `origin_pressure_refs[]`
+  - `setup_refs[]`
+  - `payoff_refs[]`
+- record:
+  - generation prompt inputs
+  - retrieved episode set
+  - operator provenance
+  - accepted / rejected candidate moments
+  - curation yield
 
 ### Success condition
 
-- The pilot arm feels more intentional than the simple walk.
-- Returns feel timed rather than accidental.
-- The result is not explainable by a trivial two-rule heuristic.
-- The existing renderer and narration paths remain intact.
+- the operator-driven arm produces materially better candidates than the
+  flat baseline
+- retrieval changes the generated material in an observable way
+- accepted candidates compile cleanly to the frozen graph contract
+- human curation yield is high enough to make graph growth plausible
 
 ### Failure condition
 
-- The extra machinery does not visibly improve the watched run.
-
-### Checklist
-
-See:
-- `reading-list/11-graffito-phase-1-pilot-checklist.md`
-
----
-
-## 2. City Routes Full L3 Experiment
-
-Goal: validate the full narrow L3 claim with explicit ablations rather
-than one bundled rich arm.
-
-### Why second
-
-- It comes after a small conductor-mapping spike, so `conductor
-  expressivity` is not purely theoretical.
-- Graffito is only a pilot substrate.
-- City Routes is explicitly designed to stress traversal:
-  `28-32` nodes, `6` situations, `4` events, `30-40` edges.
-
-### Concrete work
-
-- Author the City Routes graph from
-  `daydreaming/Notes/experiential-design/23-brief-city-night-pursuit.md`.
-- Freeze graph-native scheduler annotations via
-  `21-graph-interface-contract.md`.
-- Run the ablated comparison:
-  - weighted-random baseline
-  - Façade baseline
-  - C1 = Façade + DODM-style feature registry
-  - C2 = C1 + Suspenser structural tension
-  - C3 = C2 + shallow lookahead only if immediate-node scoring proves
-    too weak
-- Evaluate:
-  - run quality
-  - controlled variety
-  - graph-change resilience
-  - conductor expressivity
-  - equivalent-policy complexity
-
-### Success condition
-
-- The Façade baseline beats the naive baseline.
-- C1 beats the Façade baseline clearly enough to justify the feature
-  registry.
-- C2 adds value beyond C1 rather than merely increasing complexity.
-- C3 is only kept if it adds clear marginal value.
-
-### Failure condition
-
-- The richer arms do not beat the simpler ones clearly.
-- Or the wins are not attributable because the additions remain bundled.
-
-### Checklist
-
-See:
-- `reading-list/12-city-routes-experiment-1-checklist.md`
-
----
-
-## 3. City Routes Full L3 Experiment
-## 4. L1 Authoring Critic Test
-
-Goal: test whether a narrow deficiency-driven authoring critic beats
-one-shot structured prompting.
-
-### Concrete work
-
-- Seed a typed world fixture with intentional defects.
-- Run a small pressure/operator set.
-- Compare against one-shot prompting with the same model budget.
-- Measure:
-  - defect reduction
-  - accepted proposals
-  - edit burden
-  - usable graph material yield
-
-### Note
-
-This is a separate research experiment.
-It should not be confused with the City Routes L3 traversal test.
-
----
-
-## 5. L2 Internal Refactor
-
-Goal: improve concern/appraisal/provenance clarity without changing the
-stage-facing output.
-
-### Concrete work
-
-- cleaner appraisal pass
-- clearer `CharacterConcern` lifecycle
-- stronger trace provenance / `CommitRecord`
-- later: social practices and assumption management
-
-### Note
-
-This remains later because it is not the next falsifier.
+- the operator arm does not beat the flat baseline
+- retrieval adds ceremony but not value
+- generated material remains graph-useless
+- curation burden stays close to hand-authoring
 
 ---
 
 ## 2. Conductor Mapping Spike
 
 Goal: validate that the APC Mini can produce a playable, legible bias
-surface before the full `conductor expressivity` claim is used in the
-City Routes evaluation.
+surface before stronger `conducting` claims harden.
+
+### Why still second
+
+- this is a physical-instrument question, not a theory note
+- it can run beside or just after the authoring prototype
+- it determines whether the system is actually playable as an
+  instrument rather than just tunable
 
 ### Concrete work
 
@@ -199,7 +115,7 @@ City Routes evaluation.
   - escalation bias
   - recall bias
   - intensity envelope
-- drive those against the pilot scheduler or a trace-replay harness
+- drive those against the current scheduler or a trace-replay harness
 - note which controls collapse together or feel physically unusable
 
 ### Success condition
@@ -211,7 +127,107 @@ City Routes evaluation.
 
 - multiple dimensions collapse together
 - intended bias changes are hard to produce on the instrument
-- scheduler expressivity claims outrun instrument reality
+- instrument reality remains weaker than the conducting claim
+
+---
+
+## 3. Watched-Run / Performance-Lane Validation
+
+Goal: move from scheduler traces to watched runs and determine whether
+the existing `L3` work reads as performance.
+
+### Why now
+
+- the scheduler question is far enough along for current purposes
+- the next `L3` uncertainty is experiential, not structural
+- current City Routes results should be evaluated in playback, not only
+  in trace analysis
+
+### Concrete work
+
+- render representative City Routes runs:
+  - baseline / simpler arm
+  - richer arm
+  - at least one contrasting conductor pair
+- inspect:
+  - legibility of setup / payoff
+  - readability of threshold recovery
+  - whether conductor influence is visible in playback
+  - packet ownership / stage-packet vocabulary clarity
+
+### Success condition
+
+- watched output confirms the trace-level wins are visible
+- conductor differences are at least sometimes legible in playback
+- runtime packet boundaries stay clean
+
+### Failure condition
+
+- watched runs flatten the distinctions seen in traces
+- conductor effects vanish in actual playback
+- runtime packet vocabulary leaks across seams
+
+---
+
+## 4. L1 Critic / Repair Pass
+
+Goal: test whether a narrow deficiency-driven authoring critic improves
+material once enough candidate graph content exists.
+
+### Why fourth
+
+- critique is useful only after generation supplies material
+- this is a stage-two tool, not the way out of the `0 -> usable graph`
+  problem
+
+### Concrete work
+
+- seed a typed graph slice with intentional structural defects
+- run the critic over material that already exists
+- compare against one-shot structured prompting with the same model
+  budget
+- measure:
+  - defect reduction
+  - accepted proposals
+  - edit burden
+  - usable graph material yield
+
+### Success condition
+
+- critic proposals reduce structural defects with lower edit burden than
+  baseline prompting
+- the critic improves graph quality without trying to become a full
+  generator
+
+### Failure condition
+
+- one-shot prompting or ad hoc human patching remains just as effective
+- the critic drifts into vague worldbuilding rather than targeted repair
+
+---
+
+## 5. L2 Internal Refactor
+
+Goal: improve concern/appraisal/provenance clarity without changing the
+stage-facing output.
+
+### Why fifth
+
+- the prototype should prove the authoring-time mechanism first
+- deeper cleanup only pays off if the mechanism earns its keep
+
+### Concrete work
+
+- cleaner appraisal pass
+- clearer `CharacterConcern` lifecycle
+- stronger trace provenance / `CommitRecord`
+- clearer theme-rule concern initiation
+- stronger recursive reminding / serendipity handling
+- later: social practices and assumption management
+
+### Note
+
+This remains later because it should follow proof, not lead it.
 
 ---
 
@@ -220,25 +236,26 @@ City Routes evaluation.
 These matter, but they are not the current bottleneck:
 
 - cross-level pressure propagation
+- embeddings / richer retrieval
+- aesthetic scoring / LLM filtering
 - multimodal world-building expansion
 - deeper L2 theory pass
 - richer visual-anchor workflows
 
-They should not displace the Graffito pilot.
+They should not displace the authoring-time generation prototype.
 
 ---
 
 ## Immediate next move
 
-Start the Graffito pilot in this exact order:
+Start the authoring-time generation prototype in this exact order:
 
-1. edit `daydreaming/fixtures/graffito_v0_scenes_3_4.yaml`
-   - add edges
-   - add `delta_tension`
-   - add `delta_energy`
-2. add a Python pilot harness beside `daydreaming/render_trace.py`
-3. implement shared traversal state and the two pilot arms
-4. emit trace YAMLs plus debug JSONL
-5. render both runs and compare the watched output
+1. define one character with contradictions
+2. author three backstory episodes plus one active unresolved situation
+3. choose three operators
+4. implement simple tag-based retrieval
+5. run flat baseline vs operator-driven generation
+6. require graph-compilable output fields on every accepted candidate
+7. compare curation yield and usable graph material
 
 That is the current execution path from here.
