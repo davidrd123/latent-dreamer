@@ -2,7 +2,7 @@
 
 Date: 2026-03-12
 
-Five deep research queries targeting the Graphiti/docking/learning thesis,
+Six deep research threads targeting the Graphiti/docking/learning thesis,
 cross-referenced with a prior landscape report on bidirectional
 knowledge-text coupling (654 sources), the generative conversation that
 produced it, and a working implementation in a different domain (SNT
@@ -10,15 +10,15 @@ legal research). The raw deep research replies are available separately
 if needed.
 
 This is structured as a **research package**, not just a position paper:
-headline takeaways first, then the underlying material from each query.
+headline takeaways first, then the underlying material from each thread.
 The idea is that you can inspect the evidence directly and disagree with
 the takeaways if you read it differently.
 
 Thread 5 (learner modeling without explicit assessment) came back
 separately and is incorporated into the temporal section. Thread 6
 (when does file-first stop being enough, what to build next) came back
-later and changed the architecture picture. David is keeping that one
-for a live conversation — the five threads here stand on their own.
+later and is integrated below. Full raw evidence is still available
+separately if useful.
 
 ---
 
@@ -43,7 +43,11 @@ for a live conversation — the five threads here stand on their own.
    exists. Temporal personal learner models barely do. The valuable
    object is tracked change in commitments, not timestamped facts.
 
-5. **The domain gap matters.** The SNT prior art validates the plumbing
+5. **The breakpoint is query type + reuse, not vault size.** If
+   file-first stops being enough, the next justified move is a compiled
+   layer, not full graph-first infrastructure.
+
+6. **The domain gap matters.** The SNT prior art validates the plumbing
    (Markdown → SQLite → MCP) but its epistemology (proven/provisional/
    open, evidence chains, falsification) doesn't transfer cleanly to
    raw creative work. The creative vault needs different status types
@@ -410,7 +414,7 @@ Don't solve learner-state inference or graph-based forgetting.
 
 ### Learner Modeling Without Explicit Assessment (Query 05)
 
-Full reply: `query05/query05_integrated_answer.md`
+Raw reply available separately if useful.
 
 A fifth thread came back targeting the specific question: can vault
 artifacts (journals, drafts, atoms) serve as a passive mastery signal?
@@ -476,6 +480,93 @@ Recommended sequence:
 
 "Version control for commitments" is more valuable than "timestamped
 facts."
+
+---
+
+## Query 06 — When Does File-First Stop Being Enough?
+
+*Source: deep research query on the breakpoint from flat-file
+inference-time assembly to a compiled layer or graph-first
+infrastructure. The final subsection explicitly marks what came from the
+later architecture review rather than the raw thread itself.*
+
+Raw reply available separately if useful.
+
+This thread asked the strategic question the earlier queries left open:
+when does file-first stop being enough, and what should the next move
+actually be?
+
+**Breakpoint rule:** Flat-file inference-time assembly stops being
+enough when the cost of repeatedly re-deriving structure exceeds the
+cost of maintaining a compiled artifact. The breakpoint is **not** raw
+vault size by itself. It is a mix of query type, reuse frequency, and
+whether typed operations are paying rent in live work.
+
+**What graph structure actually buys (from controlled comparisons):**
+- Plain RAG tends to do better on single-hop and detail-heavy questions
+- Graph-based retrieval tends to do better on multi-hop and reasoning
+  questions
+- Graph construction is lossy; tested benchmarks only recover about
+  two-thirds of answer entities in the graph
+- For summarization, graph + RAG is often only comparable to RAG alone
+- GraphRAG's strongest win is global sensemaking over large corpora, not
+  general-purpose PKM
+
+**Where the ecosystem is moving:** toward hybrids, not full eager
+graph-first systems.
+- Microsoft LazyGraphRAG pushes expensive structure to query time and
+  cuts indexing cost dramatically
+- LlamaIndex PropertyGraphIndex combines extracted entities/relations
+  with source text at query time
+- Even Microsoft's own GraphRAG materials now read like a critique of
+  static, expensive global graphing
+
+The recurring lesson is the same one the SNT project already
+demonstrates locally: structure pays when you reuse it often enough, not
+because graphs are inherently smarter.
+
+**What this means for the vault:** the trigger is not "the vault got
+large." The trigger is when the work repeatedly demands typed questions
+that are annoying to recover from raw files:
+- what supports this claim
+- what contradicts this
+- what changed
+- what shifts if this changes
+- trace the dependency path
+
+If those questions recur on the same working set often enough, the next
+justified move is a **one-way compiled layer**: Markdown remains source
+of truth, compiler builds a disposable retrieval artifact, MCP exposes
+typed queries. That is the A+ move. It is not yet graph-first.
+
+**When a compiled layer is justified (3 of 5 over 2-4 weeks):**
+1. Support/contradiction/change/path questions recur weekly
+2. The same note subset gets reread across roughly 10+ interactions
+3. Answers are slow because structure is re-derived each time
+4. The minimal schema has stopped changing every few days
+5. Impact questions ("what shifts if...?") happen often enough to
+   justify compiled traces
+
+**When heavier graph infrastructure is justified (all must hold):**
+- Multi-hop or global reasoning is a core workload, not an occasional
+  one
+- The graph itself becomes a user-facing surface, not only background
+  plumbing
+- You are willing to own extraction quality, rebuilds, staleness,
+  pruning, entity resolution, and cost
+- The graph is demonstrably paying rent in live work
+
+**Creative/exploratory evidence remains thin.** The benchmarks cover QA,
+summarization, code, and structured domains. They do not benchmark
+Drift/Membrane/Table-style creative work on live Obsidian vaults. So the
+breakpoint rule above is adjacent evidence, not direct proof.
+
+**Architecture-review addendum (not part of the raw thread):** After
+this thread came back, a later architecture review sharpened one product
+stance: this should be a **writing tool with a graph**, not a graph tool
+that produces writing. The missing layer is salience, surfacing, and
+control. The compiled layer serves the writing surface; it is not the
+product in itself.
 
 ---
 
@@ -732,11 +823,12 @@ if the need emerges.
    graph, using claims/questions/evidence, with mastery signals beyond
    note presence.
 
-5. **Walk through Thread 6 with David.** The sixth thread — when does
-   file-first stop being enough — changed the architecture picture.
-   Short version: file-first now, compiled layer next, graph-first only
-   if specific failure modes appear. David wants to discuss the reasoning
-   live.
+5. **Adopt the breakpoint rule explicitly.** Stay file-first until
+   support/contradiction/change/path questions recur enough that
+   maintaining a compiled artifact is cheaper than re-deriving
+   structure from raw files. When that happens, move first to a one-way
+   compiled layer; only consider graph-first infrastructure if it
+   clearly pays rent in live work.
 
 ---
 
@@ -750,6 +842,153 @@ if the need emerges.
 - How does the Membrane (selective agent↔human surface) interact with
   the compiler pattern? Does compiled structure make Membrane surfacing
   better, or does it over-determine what gets surfaced?
-- At what vault size does flat-file + inference-time matching actually
-  break? The Graphiti research says the crossover is unknown. Can we
-  design a test?
+- What concrete query/reuse profile would justify a compiled layer for
+  this vault? The research says the breakpoint is not raw size alone.
+  Can we design a test?
+
+---
+
+## Sources and References
+
+Raw deep research replies are in
+`daydreaming/Notes/DeepResearch/2026-03-12/john/replies/` — six query
+files plus one architecture review. The prior landscape report
+(`bidirectional_knowledge_text_coupling.md`, 654 sources) and its
+generative conversation are also in the repo.
+
+### Local Source Files
+
+| Section | Source file(s) |
+|---|---|
+| Query 01 — PKM docking | `query01.md` |
+| Query 02 — Graphiti | `query02.md` |
+| Query 03 — Graph intersection | `query03.md` |
+| Query 04 — Temporal KGs | `query04.md` |
+| Query 05 — Learner modeling | `query05/chat_reply.md`, `query05/query05_integrated_answer.md` |
+| Query 06 — File-first breakpoint | `query06.md` |
+| Architecture review | `project_file_org.md` |
+
+### Papers and Studies
+
+- Graphiti paper — arXiv:2501.13956v1 —
+  https://arxiv.org/html/2501.13956v1
+- RAG vs. GraphRAG comparison — arXiv:2502.11371v1 —
+  https://arxiv.org/html/2502.11371v1
+- Microsoft GraphRAG — arXiv:2404.16130v2 —
+  https://arxiv.org/html/2404.16130v2
+- "Lost in the Middle" — arXiv:2307.03172v1 —
+  https://arxiv.org/html/2307.03172v1
+- OP-RAG / "In Defense of RAG" — arXiv:2409.01666v1 —
+  https://arxiv.org/html/2409.01666v1
+- GraphRAG-Bench — arXiv:2506.05690v3 —
+  https://arxiv.org/html/2506.05690v3
+- Long-context vs. structured memory cost — arXiv:2603.04814 —
+  https://arxiv.org/abs/2603.04814
+- EMNLP 2024 Self-Route (LC vs. RAG) —
+  https://aclanthology.org/2024.emnlp-industry.66/
+- RULER benchmark —
+  https://openreview.net/forum?id=kIoBbc76Sy
+- CAG (Cache-Augmented Generation) —
+  https://openreview.net/pdf?id=EOG15VvlY4
+- Pleskach et al. 2023 — student KG vs. discipline KG —
+  https://ceur-ws.org/Vol-3646/Paper_11.pdf
+- 2024 systematic review (KGs in education) —
+  https://pmc.ncbi.nlm.nih.gov/articles/PMC10847940/
+- Aleven et al. 2017 — Adaptive Learning Technologies chapter —
+  https://www.cs.cmu.edu/~aleven/Papers/2016/Aleven_etal_Handbook2017_AdaptiveLearningTechnologies.pdf
+- Abu-Rasheed et al. 2025 — linked domain/curriculum/user models with
+  LLM-assisted KG completion — https://arxiv.org/abs/2501.12300
+- Chen et al. 2024 — textbook target KG + student-dialogue KG —
+  https://files.eric.ed.gov/fulltext/ED665357.pdf
+- Yu-Hsiang Chen et al. 2025 — personalized learning-trajectory graphs —
+  https://arxiv.org/abs/2504.11481
+- InstructKG 2026 — instructor-aligned prerequisite graphs —
+  https://arxiv.org/abs/2602.17111
+- Ilkou 2022 — PKG for e-learning —
+  https://files.eric.ed.gov/fulltext/ED665562.pdf (SkillTree context)
+- CourseMapper PKG (UMAP 2024) —
+  https://www.uni-due.de/imperia/md/content/soco/alatrash_ukde24_final.pdf
+- Epistemic Network Analysis (ENA) —
+  https://www.epistemicnetwork.org/
+- 2024 ENA reflective-writing study —
+  https://etasr.com/index.php/ETASR/article/download/7274/3645
+- 2025 ENA scoping review in science education —
+  https://link.springer.com/article/10.1007/s10956-024-10193-x
+- 2025 NLP adaptive dialog (162 students) —
+  https://www.mdpi.com/2227-7102/15/2/207
+- Oxford chapter on pedagogically informed NLP —
+  https://academic.oup.com/book/58946/chapter/492996783
+- 2024 keystroke-logging writing study —
+  https://www.sciencedirect.com/science/article/pii/S1060374324000201
+- Concept-map topology study (359 maps, 36 students) —
+  https://pmc.ncbi.nlm.nih.gov/articles/PMC9939863/
+- 2025 English-learning system (WeChat Mini Program, 200 learners) —
+  https://www.researchgate.net/publication/396169307
+- Stealth assessment —
+  https://files.eric.ed.gov/fulltext/ED612156.pdf
+- KG-based path planners —
+  https://pmc.ncbi.nlm.nih.gov/articles/PMC9748379/
+
+### Systems and Platforms
+
+- **Graphiti** (Zep) — https://github.com/getzep/graphiti
+- **Graphiti backend/config docs** —
+  https://help.getzep.com/graphiti/configuration/neo-4-j-configuration
+- **Zep managed platform** — https://help.getzep.com/facts
+- **Graphiti community OOM issue** —
+  https://github.com/getzep/graphiti/issues/836
+- **Graphiti generic `Entity` / ontology issue** —
+  https://github.com/getzep/graphiti/issues/992
+- **Microsoft GraphRAG** — https://microsoft.github.io/graphrag/
+- **LazyGraphRAG** — https://www.microsoft.com/en-us/research/blog/lazygraphrag-setting-a-new-standard-for-quality-and-cost/
+- **LlamaIndex PropertyGraphIndex** —
+  https://developers.llamaindex.ai/python/framework/module_guides/indexing/lpg_index_guide/
+- **LangChain graph stores** —
+  https://blog.langchain.com/enhancing-rag-based-applications-accuracy-by-constructing-and-leveraging-knowledge-graphs/
+- **Claude Code** — https://code.claude.com/docs/en/memory
+- **Neo4j versioning** —
+  https://neo4j.com/docs/getting-started/data-modeling/versioning/
+- **TigerGraph temporal** —
+  https://www.tigergraph.com/blog/utilizing-multi-edge-for-temporal-search-in-a-sales-agent-hierarchy/
+- **TerminusDB** — https://terminusdb.org/docs/terminusdb-explanation/
+- **Math Academy** — https://www.mathacademy.com/how-our-ai-works
+- **ALEKS** — https://www.aleks.com/about_aleks/research_behind
+- **Carnegie Learning MATHia** —
+  https://www.carnegielearning.com/blog/mathia-ai
+- **CZI/Learning Commons** —
+  https://chanzuckerberg.com/blog/scaling-proven-learning-practices/
+- **Recall** — https://docs.getrecall.ai/getting-started/6-review-content
+- **FSRS scheduler** —
+  https://github.com/open-spaced-repetition/fsrs4anki/wiki/The-Algorithm
+- **Gemini URL Context** —
+  https://ai.google.dev/gemini-api/docs/url-context
+
+### Obsidian MCP Servers
+
+- bitbonsai/mcpvault — https://github.com/bitbonsai/mcp-obsidian
+  (~700 stars, active Mar 2026)
+- MarkusPfundstein/mcp-obsidian —
+  https://github.com/MarkusPfundstein/mcp-obsidian (~3k stars, stale)
+- cyanheads/obsidian-mcp-server —
+  https://github.com/cyanheads/obsidian-mcp-server (~397 stars)
+- Piotr1215/mcp-obsidian —
+  https://github.com/Piotr1215/mcp-obsidian (direct filesystem access)
+
+### Standards and Frameworks
+
+- **MCP** (Model Context Protocol) — https://code.claude.com/docs/en/mcp
+- **xAPI** — learning activity stream standard
+- **Caliper** (1EdTech) —
+  https://www.1edtech.org/standards/caliper
+- **ADL TLA** — https://www.adlnet.gov/guides/tla/service-definitions/
+- **OAEI** (Ontology Alignment Evaluation Initiative) —
+  https://oaei.ontologymatching.org/
+
+### Graphiti GitHub Issues Referenced
+
+- #836 — `build_communities()` OOM at ~1k entities —
+  https://github.com/getzep/graphiti/issues/836
+- #992 — scale/efficiency comparison —
+  https://github.com/getzep/graphiti/issues/992
+- #1166 — node attributes destructively upserted —
+  https://github.com/getzep/graphiti/issues/1166

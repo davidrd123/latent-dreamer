@@ -1,5 +1,6 @@
 (ns daydreamer.benchmarks.puppet-knows-autonomous-test
   (:require [clojure.test :refer [deftest is testing]]
+            [daydreamer.director :as director]
             [daydreamer.benchmarks.puppet-knows-autonomous :as autonomous]))
 
 (deftest run-benchmark-emits-readable-autonomous-trace
@@ -58,3 +59,33 @@
              (get-in first-cycle ["branch_events" 0 "fact_ids"])))
       (is (= ["honesty" "clarity"]
              (get-in first-cycle ["selection" "adapter_active_indices"]))))))
+
+(deftest run-benchmark-can-apply-director-feedback-live-loop
+  (let [baseline (autonomous/run-benchmark {:cycles 6})
+        with-director
+        (autonomous/run-benchmark
+         {:cycles 6
+          :director-fn (fn [director-input]
+                         (director/mock-director nil director-input))})
+        baseline-cycles (get-in baseline [:log "cycles"])
+        director-cycles (get-in with-director [:log "cycles"])
+        baseline-ring-activation (or (get-in baseline-cycles
+                                             [0 "situations" "s4_the_ring" "activation"])
+                                     0.0)
+        director-ring-activation (or (get-in director-cycles
+                                             [1 "situations" "s4_the_ring" "activation"])
+                                     0.0)]
+    (testing "the trace records live Director feedback on each cycle"
+      (is (= 6 (count director-cycles)))
+      (is (every? map?
+                  (map #(get % "feedback_applied")
+                       director-cycles)))
+      (is (= ["honesty" "performance" "mercy"]
+             (get-in director-cycles
+                     [0 "feedback_applied" "director_concepts"]))))
+    (testing "Director feedback changes the forward state, not just the trace echo"
+      (is (> director-ring-activation baseline-ring-activation))
+      (is (not= (map #(get % "chosen_node_id")
+                     baseline-cycles)
+                (map #(get % "chosen_node_id")
+                     director-cycles))))))

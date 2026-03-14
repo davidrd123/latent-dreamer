@@ -29,6 +29,18 @@
                 :default-html-path "out/puppet_knows_autonomous.html"
                 :default-title "Puppet Knows Benchmark: Autonomous"
                 :label "autonomous"}
+   :autonomous-mock-director
+   {:builder :puppet-knows
+    :default-output-path "out/puppet_knows_with_mock_director.json"
+    :default-html-path "out/puppet_knows_with_mock_director.html"
+    :default-title "Puppet Knows Benchmark: Autonomous + Mock Director"
+    :label "autonomous+mock-director"}
+   :autonomous-director
+   {:builder :puppet-knows
+    :default-output-path "out/puppet_knows_with_director.json"
+    :default-html-path "out/puppet_knows_with_director.html"
+    :default-title "Puppet Knows Benchmark: Autonomous + Director"
+    :label "autonomous+director"}
    :arctic-scripted {:builder :arctic-expedition
                      :default-output-path "out/arctic_expedition_benchmark.json"
                      :default-html-path "out/arctic_expedition_benchmark.html"
@@ -82,6 +94,22 @@
                          (recur more (assoc options :scope-root value)))
         "--benchmark" (let [[_ value & more] args]
                         (recur more (assoc options :benchmark value)))
+        "--mock-director" (recur (rest args)
+                                 (assoc options :director-mode :mock))
+        "--director" (let [[_ value & more] args]
+                       (recur more (assoc options :director-mode
+                                          (keyword value))))
+        "--director-model" (let [[_ value & more] args]
+                             (recur more (assoc options :director-model value)))
+        "--director-temperature" (let [[_ value & more] args]
+                                   (recur more (assoc options
+                                                      :director-temperature
+                                                      (Double/parseDouble value))))
+        "--director-max-output-tokens" (let [[_ value & more] args]
+                                         (recur more
+                                                (assoc options
+                                                       :director-max-output-tokens
+                                                       (Long/parseLong value))))
         "--html-out" (let [[_ value & more] args]
                        (recur more (assoc options :html-out value)))
         "--title" (let [[_ value & more] args]
@@ -100,6 +128,8 @@
       :semi :semi-unscripted
       :semi-unscripted :semi-unscripted
       :autonomous :autonomous
+      :autonomous-mock-director :autonomous-mock-director
+      :autonomous-director :autonomous-director
       :arctic-scripted :arctic-scripted
       :arctic-semi :arctic-semi-unscripted
       :arctic-semi-unscripted :arctic-semi-unscripted
@@ -175,13 +205,16 @@
   "Return the reporter-shaped Puppet Knows benchmark log with resolved fixture
   metadata."
   ([] (build-puppet-knows-log {}))
-  ([{:keys [benchmark scope-root git-commit cycles]}]
+  ([{:keys [benchmark scope-root git-commit cycles director-mode director-model
+            director-temperature director-max-output-tokens]}]
    (let [benchmark (parse-benchmark benchmark)
          scope-root (or scope-root (default-scope-root))
          run-benchmark (case benchmark
                          :scripted puppet/run-benchmark
                          :semi-unscripted puppet/run-semi-unscripted-benchmark
                          :autonomous puppet-autonomous/run-benchmark
+                         :autonomous-mock-director puppet-autonomous/run-benchmark
+                         :autonomous-director puppet-autonomous/run-benchmark
                          (throw (ex-info "Unsupported Puppet Knows benchmark variant"
                                          {:benchmark benchmark})))
          {:keys [world-path graph-path feedback-path reporter-path]}
@@ -195,6 +228,16 @@
                               (repo-commit (latent-root)))
               :reporter_path reporter-path
               :scope-root scope-root}
+             (when (contains? #{:autonomous-mock-director
+                                :autonomous-director}
+                              benchmark)
+               {:director-mode (or director-mode
+                                   (case benchmark
+                                     :autonomous-mock-director :mock
+                                     :autonomous-director :gemini))
+                :director-model director-model
+                :director-temperature director-temperature
+                :director-max-output-tokens director-max-output-tokens})
              (graph-counts graph-path)
              (when cycles
                {:cycles cycles}))))))
@@ -261,7 +304,8 @@
   "Write a reporter-shaped benchmark log to disk and return the absolute output
   path."
   ([] (write-benchmark-log! {}))
-  ([{:keys [benchmark out-path scope-root git-commit cycles]}]
+  ([{:keys [benchmark out-path scope-root git-commit cycles director-mode
+            director-model director-temperature director-max-output-tokens]}]
    (let [benchmark (parse-benchmark benchmark)
          out-path (or out-path (default-output-path benchmark))
          output-file (io/file (latent-root) out-path)
@@ -269,7 +313,12 @@
                             {:benchmark benchmark
                              :scope-root scope-root
                              :git-commit git-commit
-                             :cycles cycles})
+                             :cycles cycles
+                             :director-mode director-mode
+                             :director-model director-model
+                             :director-temperature director-temperature
+                             :director-max-output-tokens
+                             director-max-output-tokens})
          log (if (map? payload) (or (:log payload) payload) payload)]
      (.mkdirs (.getParentFile output-file))
      (spit output-file (json/write-str log :escape-unicode false))
@@ -280,13 +329,21 @@
   "Write reporter JSON, and optionally HTML, for any supported benchmark
   variant. Returns the written paths."
   ([] (write-benchmark-report! {}))
-  ([{:keys [benchmark out-path html-out scope-root git-commit render-html? title cycles]}]
+  ([{:keys [benchmark out-path html-out scope-root git-commit render-html? title
+            cycles director-mode director-model director-temperature
+            director-max-output-tokens]}]
    (let [benchmark (parse-benchmark benchmark)
          {:keys [json-path payload]} (write-benchmark-log! {:benchmark benchmark
                                                             :out-path out-path
                                                             :scope-root scope-root
                                                             :git-commit git-commit
-                                                            :cycles cycles})
+                                                            :cycles cycles
+                                                            :director-mode director-mode
+                                                            :director-model director-model
+                                                            :director-temperature
+                                                            director-temperature
+                                                            :director-max-output-tokens
+                                                            director-max-output-tokens})
          html-path (when render-html?
                      (render-report! {:json-path json-path
                                       :html-path (or html-out
@@ -315,7 +372,8 @@
   [& args]
   (try
     (let [{:keys [benchmark out-path html-out render-html? scope-root title
-                  cycles print-summary?]}
+                  cycles print-summary? director-mode director-model
+                  director-temperature director-max-output-tokens]}
           (parse-args args)
           {:keys [json-path html-path summaries]}
           (write-benchmark-report! {:benchmark benchmark
@@ -324,7 +382,12 @@
                                     :render-html? render-html?
                                     :scope-root scope-root
                                     :title title
-                                    :cycles cycles})]
+                                    :cycles cycles
+                                    :director-mode director-mode
+                                    :director-model director-model
+                                    :director-temperature director-temperature
+                                    :director-max-output-tokens
+                                    director-max-output-tokens})]
       (when print-summary?
         (doseq [summary summaries]
           (println summary)

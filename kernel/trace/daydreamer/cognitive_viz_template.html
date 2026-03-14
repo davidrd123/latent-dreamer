@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;800&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090e;
+  --surface: rgba(14,17,26,0.92);
+  --border: rgba(255,255,255,0.06);
+  --border-hi: rgba(255,255,255,0.12);
+  --text: #e4ddd0;
+  --dim: #5e6580;
+  --accent: #c9a84c;
+  --accent-soft: rgba(201,168,76,0.12);
+  --radius: 16px;
+  --shadow: 0 8px 40px rgba(0,0,0,0.45);
+  --fd: "Fraunces",Georgia,serif;
+  --ft: "Crimson Pro",Georgia,serif;
+  --fm: "DM Mono","SF Mono",Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  color:var(--text);
+  font-family:var(--fm);
+  background:#08090e;
+  transition:background 800ms ease;
+}
+body.mode-imaginary{
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(94,96,206,0.1),transparent 40%),
+    radial-gradient(ellipse at 80% 90%,rgba(201,168,76,0.06),transparent 30%),
+    #08090e;
+}
+body.mode-real{
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(142,202,230,0.07),transparent 40%),
+    radial-gradient(ellipse at 20% 90%,rgba(94,96,206,0.05),transparent 30%),
+    #08090e;
+}
+
+/* Drop zone */
+#dropZone{
+  position:fixed;inset:0;z-index:100;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  background:rgba(8,9,14,0.97);
+  transition:opacity 400ms ease;
+}
+#dropZone.hidden{opacity:0;pointer-events:none}
+#dropZone h2{font:600 2.4rem/1.2 var(--fd);margin-bottom:12px;color:var(--text)}
+#dropZone p{color:var(--dim);font-size:0.95rem;margin-bottom:6px}
+.drop-ring{
+  width:140px;height:140px;border-radius:50%;margin-bottom:28px;
+  background:radial-gradient(circle,rgba(201,168,76,0.12),transparent);
+  border:1px dashed rgba(201,168,76,0.25);
+  animation:pulse 3s ease-in-out infinite;
+}
+#dropZone.drag-over .drop-ring{
+  animation:none;transform:scale(1.4);border-color:rgba(201,168,76,0.5);
+  background:radial-gradient(circle,rgba(201,168,76,0.2),transparent);
+}
+@keyframes pulse{
+  0%,100%{transform:scale(1);opacity:.6}
+  50%{transform:scale(1.15);opacity:.3}
+}
+
+/* App shell */
+.app{max-width:1640px;margin:0 auto;padding:18px 22px 28px;display:none}
+.app.visible{display:block}
+
+/* Header */
+.header{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:14px}
+.header h1{font:600 1.8rem/1.2 var(--fd);letter-spacing:.01em}
+.header .meta{color:var(--dim);font-size:.88rem}
+
+/* Controls */
+.controls{
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;
+  backdrop-filter:blur(10px);box-shadow:var(--shadow);
+}
+.controls .buttons{display:flex;gap:8px;align-items:center}
+button{
+  appearance:none;border:1px solid var(--border-hi);
+  background:rgba(255,255,255,0.04);color:var(--text);
+  border-radius:999px;padding:8px 14px;cursor:pointer;
+  font:inherit;font-size:.88rem;
+  transition:background 120ms,transform 100ms;
+}
+button:hover{background:rgba(255,255,255,0.08);transform:translateY(-1px)}
+button.primary{
+  background:linear-gradient(135deg,rgba(94,96,206,0.4),rgba(201,168,76,0.2));
+  border-color:rgba(201,168,76,0.2);
+}
+.speed{display:flex;align-items:center;gap:8px;color:var(--dim);font-size:.88rem}
+.speed input[type=range]{
+  appearance:none;width:120px;height:5px;border-radius:999px;border:none;
+  background:linear-gradient(90deg,rgba(94,96,206,0.6),rgba(201,168,76,0.6));
+  cursor:pointer;
+}
+.speed input[type=range]::-webkit-slider-thumb{
+  appearance:none;width:14px;height:14px;border-radius:50%;
+  background:#e4ddd0;border:none;cursor:pointer;
+}
+.readout{margin-left:auto;display:flex;align-items:baseline;gap:10px;font-size:.88rem;color:var(--dim)}
+.readout strong{color:var(--text);font-size:1rem}
+
+/* Grid layout */
+.grid{
+  display:grid;
+  grid-template-columns:1.25fr 1fr;
+  gap:14px;
+}
+
+/* Panels */
+.panel{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;display:flex;flex-direction:column;min-height:0;
+  backdrop-filter:blur(10px);
+}
+.panel.full{grid-column:1/-1}
+.panel-head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:12px 14px 9px;border-bottom:1px solid var(--border);
+}
+.panel-head h2{font-size:.88rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.panel-head .hint{color:var(--dim);font-size:.78rem}
+.panel-body{flex:1;padding:12px 14px 14px;min-height:0;overflow:hidden;position:relative}
+
+/* A: Situation Landscape */
+.panel-a .panel-head{border-left:3px solid #c9a84c}
+#landscape{
+  position:relative;width:100%;height:100%;min-height:320px;
+  border-radius:12px;overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(255,255,255,0.02),transparent 40%),
+    linear-gradient(180deg,rgba(255,255,255,0.01),transparent 30%);
+}
+.orb{
+  position:absolute;transform:translate(-50%,-50%);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  text-align:center;cursor:pointer;
+  transition:width 500ms ease,height 500ms ease,opacity 500ms ease,
+    background 500ms ease,filter 500ms ease,box-shadow 500ms ease;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.1);
+}
+.orb-label{pointer-events:none;text-shadow:0 2px 8px rgba(0,0,0,0.5)}
+.orb-label strong{display:block;font-size:.8rem;letter-spacing:.02em;color:rgba(255,255,255,0.95)}
+.orb-label span{display:block;font-size:.72rem;color:rgba(255,255,255,0.6);margin-top:2px}
+
+/* B: Goal Race */
+.panel-b .panel-head{border-left:3px solid #5e60ce}
+#bumpChart{width:100%;height:100%;min-height:280px}
+#bumpChart svg text{font-family:var(--fm)}
+.bump-legend{
+  display:flex;flex-wrap:wrap;gap:6px 12px;padding:8px 0 0;
+  font-size:.76rem;color:var(--dim);
+}
+.bump-legend-item{display:inline-flex;align-items:center;gap:5px}
+.bump-legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+/* C: Timeline */
+.panel-c .panel-head{border-left:3px solid #8ecae6}
+#timelineWrap{width:100%;height:100%;min-height:140px}
+#timelineWrap svg text{font-family:var(--fm)}
+
+/* D: Branch Events */
+.panel-d .panel-head{border-left:3px solid #2ec4b6}
+.panel-d .panel-body{overflow-y:auto}
+.branch-event{
+  padding:10px 12px;border-radius:10px;
+  background:rgba(255,255,255,0.03);border:1px solid var(--border);
+  margin-bottom:8px;
+}
+.branch-family{
+  display:inline-block;padding:3px 8px;border-radius:999px;
+  font-size:.74rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  margin-bottom:6px;
+}
+.branch-detail{font-size:.82rem;color:var(--dim);line-height:1.5}
+.branch-detail strong{color:var(--text)}
+.branch-empty{color:var(--dim);font-size:.88rem;font-style:italic;padding:8px 0}
+
+/* E: Thought Stream */
+.panel-e .panel-head{border-left:3px solid #c9a84c}
+.panel-e .panel-body{overflow-y:auto}
+.thought{
+  padding:12px;border-radius:12px;margin-bottom:8px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);
+  transition:border-color 200ms,background 200ms;
+}
+.thought.current{
+  border-color:rgba(201,168,76,0.25);background:rgba(201,168,76,0.06);
+}
+.thought-head{
+  display:flex;justify-content:space-between;gap:8px;
+  margin-bottom:6px;font-size:.78rem;color:var(--dim);
+}
+.thought-body{font:400 1rem/1.45 var(--ft);color:var(--text)}
+.thought-body strong{color:var(--accent);font-weight:600}
+.thought-body .node-ref{
+  font-family:var(--fm);font-size:.82rem;color:var(--dim);
+  background:rgba(255,255,255,0.04);padding:2px 6px;border-radius:4px;
+}
+
+/* Bottom row: D + E side by side */
+.bottom-row{
+  grid-column:1/-1;display:grid;
+  grid-template-columns:2fr 3fr;gap:14px;
+  min-height:280px;max-height:45vh;
+}
+
+/* Tooltip */
+#tooltip{
+  position:fixed;z-index:200;display:none;
+  background:rgba(10,12,18,0.95);border:1px solid var(--border-hi);
+  border-radius:10px;padding:10px 14px;
+  font-size:.8rem;color:var(--text);pointer-events:none;
+  max-width:280px;backdrop-filter:blur(12px);
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+#tooltip table{border-collapse:collapse;width:100%;margin:6px 0}
+#tooltip td{padding:2px 0}
+#tooltip td:first-child{color:var(--dim);padding-right:12px}
+#tooltip td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+#tooltip .tip-title{font-weight:600;margin-bottom:4px}
+#tooltip .tip-meta{color:var(--dim);font-size:.75rem;margin-top:4px}
+
+/* Responsive */
+@media(max-width:1100px){
+  .grid{grid-template-columns:1fr}
+  .bottom-row{grid-template-columns:1fr}
+  .controls{flex-direction:column;align-items:stretch}
+  .readout{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<div id="dropZone">
+  <div class="drop-ring"></div>
+  <h2>Cognitive Trace Visualizer</h2>
+  <p>Drop a kernel trace JSON to begin</p>
+  <p style="color:var(--dim);font-size:.82rem">or open a generated HTML with embedded trace</p>
+</div>
+
+<div class="app" id="app">
+  <div class="header">
+    <div>
+      <h1>__TITLE__</h1>
+      <div class="meta" id="meta"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="buttons">
+      <button id="btnPlay" class="primary">Play</button>
+      <button id="btnPrev">&#8592; Back</button>
+      <button id="btnNext">Step &#8594;</button>
+    </div>
+    <div class="speed">
+      <label>Speed</label>
+      <input id="speedRange" type="range" min="0" max="4" step="1" value="2">
+      <span id="speedLabel">1&times;</span>
+    </div>
+    <div class="readout">
+      <span>Cycle <strong id="cycleNum">1</strong> / <span id="cycleTotal">12</span></span>
+      <span id="goalLabel">—</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="panel panel-a" style="min-height:400px">
+      <div class="panel-head"><h2>Situation Landscape</h2><div class="hint">size = activation · blur = unripe · color = emotion</div></div>
+      <div class="panel-body"><div id="landscape"></div></div>
+    </section>
+
+    <section class="panel panel-b" style="min-height:400px">
+      <div class="panel-head"><h2>Goal Race</h2><div class="hint">max strength by type across cycles</div></div>
+      <div class="panel-body">
+        <div id="bumpChart"></div>
+        <div class="bump-legend" id="bumpLegend"></div>
+      </div>
+    </section>
+
+    <section class="panel full panel-c">
+      <div class="panel-head"><h2>Timeline</h2><div class="hint">reality above · daydream below</div></div>
+      <div class="panel-body"><div id="timelineWrap"></div></div>
+    </section>
+
+    <div class="bottom-row">
+      <section class="panel panel-d">
+        <div class="panel-head"><h2>Branch Events</h2><div class="hint" id="branchHint">this cycle</div></div>
+        <div class="panel-body" id="branchBody"></div>
+      </section>
+
+      <section class="panel panel-e">
+        <div class="panel-head"><h2>Thought Stream</h2><div class="hint">deterministic narration</div></div>
+        <div class="panel-body" id="thoughtBody"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div id="tooltip"></div>
+
+<script id="trace-data" type="application/json">__EMBEDDED_TRACE__</script>
+<script>
+// ─── Constants ─────────────────────────────────────────
+const GOAL_COLORS = {
+  rationalization:"#2ec4b6", revenge:"#ef476f", roving:"#f4a261",
+  reversal:"#5e60ce", recovery:"#64b5f6", rehearsal:"#84a98c",
+  repercussions:"#bc6c25"
+};
+const GOAL_DESC = {
+  reversal:"Imagining an alternative past",
+  roving:"Slipping into a pleasant diversion",
+  rationalization:"Reinterpreting what happened",
+  rehearsal:"Practicing what might still happen",
+  revenge:"Directed anger rises",
+  repercussions:"Watching consequences unfold",
+  recovery:"Attempting to repair the plan"
+};
+const SPEEDS = [4000,2500,1600,950,550];
+const SPEED_LABELS = ["0.5×","0.75×","1×","2×","4×"];
+const SITUATION_POS = {
+  s1_seeing_through:{x:25,y:30}, s2_the_mission:{x:72,y:25},
+  s3_the_edge:{x:28,y:72}, s4_the_ring:{x:74,y:70},
+  s5_the_others:{x:50,y:50}
+};
+
+// ─── State ─────────────────────────────────────────────
+let trace = null, cycles = [], currentIndex = 0;
+let playing = false, timer = null, speedIndex = 2;
+let bumpData = {}, bumpMax = 0.1, bumpTypes = [];
+let orbEls = {}, thoughtEls = [];
+
+// ─── DOM refs ──────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const dropZone = $('dropZone'), appEl = $('app');
+const metaEl = $('meta'), cycleNumEl = $('cycleNum');
+const cycleTotalEl = $('cycleTotal'), goalLabelEl = $('goalLabel');
+const btnPlay = $('btnPlay'), btnPrev = $('btnPrev'), btnNext = $('btnNext');
+const speedRange = $('speedRange'), speedLabel = $('speedLabel');
+const landscapeEl = $('landscape'), bumpChartEl = $('bumpChart');
+const bumpLegendEl = $('bumpLegend');
+const timelineEl = $('timelineWrap');
+const branchBody = $('branchBody'), branchHint = $('branchHint');
+const thoughtBody = $('thoughtBody');
+const tooltipEl = $('tooltip');
+
+// ─── Utilities ─────────────────────────────────────────
+function humanize(id) { return (id||'').replace(/^[sng]\d+_/,'').replace(/_/g,' '); }
+function clamp(v,lo,hi) { return Math.max(lo,Math.min(hi,v)); }
+function num(v) { return Number(v||0); }
+
+function defaultPos(i, total) {
+  const angle = (i / total) * Math.PI * 2 - Math.PI/2;
+  return { x: 50 + Math.cos(angle)*28, y: 50 + Math.sin(angle)*28 };
+}
+
+function dominantEmotion(s) {
+  const m = [['threat',num(s.threat)],['anger',num(s.anger)],['hope',num(s.hope)],
+    ['grief',num(s.grief)],['waiting',num(s.waiting)]];
+  m.sort((a,b)=>b[1]-a[1]);
+  return m[0];
+}
+
+function situationColor(s) {
+  const [emo,val] = dominantEmotion(s);
+  if (emo==='threat'||emo==='anger') {
+    const h = clamp((num(s.threat)+num(s.anger))/1.6,0.15,1);
+    return `rgba(209,73,91,${(0.18+h*0.4).toFixed(3)})`;
+  }
+  if (emo==='hope') { const g=clamp(num(s.hope),0.15,1); return `rgba(212,175,106,${(0.16+g*0.38).toFixed(3)})`; }
+  if (emo==='grief') { const d=clamp(num(s.grief),0.15,1); return `rgba(78,103,145,${(0.16+d*0.35).toFixed(3)})`; }
+  if (emo==='waiting') { const w=clamp(num(s.waiting),0.15,1); return `rgba(180,145,77,${(0.16+w*0.32).toFixed(3)})`; }
+  return 'rgba(133,144,166,0.2)';
+}
+
+function smoothPath(pts) {
+  if (pts.length<2) return '';
+  let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  for (let i=0;i<pts.length-1;i++) {
+    const p0=pts[Math.max(0,i-1)], p1=pts[i], p2=pts[i+1], p3=pts[Math.min(pts.length-1,i+2)];
+    const c1x=p1.x+(p2.x-p0.x)/6, c1y=p1.y+(p2.y-p0.y)/6;
+    const c2x=p2.x-(p3.x-p1.x)/6, c2y=p2.y-(p3.y-p1.y)/6;
+    d+=` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+  }
+  return d;
+}
+
+// ─── Tooltip ───────────────────────────────────────────
+function showTooltip(e, html) {
+  tooltipEl.innerHTML = html;
+  tooltipEl.style.display = 'block';
+  moveTooltip(e);
+}
+function moveTooltip(e) {
+  const x = Math.min(e.clientX+14, window.innerWidth-290);
+  const y = Math.min(e.clientY+14, window.innerHeight-200);
+  tooltipEl.style.left = x+'px';
+  tooltipEl.style.top = y+'px';
+}
+function hideTooltip() { tooltipEl.style.display='none'; }
+
+// ─── Data Preparation ──────────────────────────────────
+function prepareBump() {
+  const types = new Set();
+  bumpMax = 0.1;
+  cycles.forEach(c => {
+    (c.top_candidates||[]).forEach(cand => {
+      types.add(cand.goal_type);
+      bumpMax = Math.max(bumpMax, num(cand.strength));
+    });
+  });
+  bumpMax = Math.ceil(bumpMax*20)/20; // round up to nearest 0.05
+  bumpData = {};
+  types.forEach(t => {
+    bumpData[t] = cycles.map(c => {
+      const match = (c.top_candidates||[]).filter(x=>x.goal_type===t);
+      return match.length ? Math.max(...match.map(x=>num(x.strength))) : 0;
+    });
+  });
+  bumpTypes = [...types].sort((a,b) => {
+    const ma = Math.max(...(bumpData[a]||[0]));
+    const mb = Math.max(...(bumpData[b]||[0]));
+    return ma - mb; // weakest first → drawn first → strongest on top
+  });
+}
+
+// ─── A: Situation Landscape ────────────────────────────
+function createOrbs() {
+  landscapeEl.innerHTML = '';
+  orbEls = {};
+  const first = cycles[0];
+  if (!first?.situations) return;
+  const sids = Object.keys(first.situations);
+  sids.forEach((sid,i) => {
+    const el = document.createElement('div');
+    el.className = 'orb';
+    const pos = SITUATION_POS[sid] || defaultPos(i, sids.length);
+    el.style.left = pos.x+'%';
+    el.style.top = pos.y+'%';
+    el.addEventListener('mouseenter', e => {
+      const st = cycles[currentIndex]?.situations?.[sid];
+      if (!st) return;
+      showTooltip(e, `
+        <div class="tip-title">${humanize(sid)}</div>
+        <table>
+          <tr><td>activation</td><td>${num(st.activation).toFixed(3)}</td></tr>
+          <tr><td>ripeness</td><td>${num(st.ripeness).toFixed(3)}</td></tr>
+          <tr><td>hope</td><td>${num(st.hope).toFixed(3)}</td></tr>
+          <tr><td>threat</td><td>${num(st.threat).toFixed(3)}</td></tr>
+          <tr><td>anger</td><td>${num(st.anger).toFixed(3)}</td></tr>
+          <tr><td>grief</td><td>${num(st.grief).toFixed(3)}</td></tr>
+          <tr><td>waiting</td><td>${num(st.waiting).toFixed(3)}</td></tr>
+        </table>
+        <div class="tip-meta">${st.place||''} · visits: ${st.visits||0}${st.inferred?' · inferred':''}</div>
+      `);
+    });
+    el.addEventListener('mousemove', moveTooltip);
+    el.addEventListener('mouseleave', hideTooltip);
+    landscapeEl.appendChild(el);
+    orbEls[sid] = el;
+  });
+}
+
+function updateOrbs(cycle) {
+  const sits = cycle.situations || {};
+  Object.entries(sits).forEach(([sid, s]) => {
+    const el = orbEls[sid];
+    if (!el) return;
+    const act = num(s.activation);
+    const ripe = num(s.ripeness);
+    const size = 55 + act * 170;
+    const blur = (1 - ripe) * 6;
+    const color = situationColor(s);
+    el.style.width = size+'px';
+    el.style.height = size+'px';
+    el.style.opacity = (0.25 + act*0.65).toFixed(3);
+    el.style.background = `radial-gradient(circle at 35% 35%,rgba(255,255,255,0.14),transparent 42%),${color}`;
+    el.style.filter = `blur(${blur.toFixed(1)}px)`;
+    el.innerHTML = `<div class="orb-label"><strong>${humanize(sid)}</strong><span>${act.toFixed(2)}</span></div>`;
+  });
+}
+
+// ─── B: Goal Race (Bump Chart) ─────────────────────────
+function renderBump() {
+  const rect = bumpChartEl.getBoundingClientRect();
+  const W = Math.max(rect.width, 300), H = Math.max(rect.height-30, 200);
+  const m = {t:16,r:14,b:24,l:42};
+  const cw = W-m.l-m.r, ch = H-m.t-m.b;
+  const xOf = i => m.l + cw*i/Math.max(1,cycles.length-1);
+  const yOf = v => m.t + ch - ch*v/bumpMax;
+  const nc = currentIndex+1;
+  const selected = cycles[currentIndex]?.selected_goal?.goal_type;
+
+  let svg = '';
+  // Grid
+  for (let i=0;i<=4;i++){
+    const y=m.t+ch*i/4;
+    svg+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}" stroke="rgba(255,255,255,0.05)"/>`;
+    svg+=`<text x="${m.l-6}" y="${y+3}" text-anchor="end" fill="#5e6580" font-size="9">${(bumpMax*(4-i)/4).toFixed(2)}</text>`;
+  }
+  // X labels
+  for (let i=0;i<nc;i++){
+    svg+=`<text x="${xOf(i)}" y="${H-2}" text-anchor="middle" fill="#5e6580" font-size="9">c${cycles[i].cycle}</text>`;
+  }
+  // Current marker
+  svg+=`<line x1="${xOf(currentIndex)}" x2="${xOf(currentIndex)}" y1="${m.t}" y2="${m.t+ch}" stroke="rgba(201,168,76,0.2)" stroke-dasharray="3,3"/>`;
+
+  // Lines
+  bumpTypes.forEach(type => {
+    const color = GOAL_COLORS[type]||'#8892a6';
+    const isSel = type===selected;
+    const pts = [];
+    for (let i=0;i<nc&&i<cycles.length;i++){
+      const v = bumpData[type]?.[i];
+      if (v!=null && v>0) pts.push({x:xOf(i),y:yOf(v)});
+    }
+    if (pts.length>=2)
+      svg+=`<path d="${smoothPath(pts)}" fill="none" stroke="${color}" stroke-width="${isSel?2.5:1.2}" opacity="${isSel?1:0.3}"/>`;
+    pts.forEach((p,pi) => {
+      const last = pi===pts.length-1;
+      svg+=`<circle cx="${p.x}" cy="${p.y}" r="${last&&isSel?5:2}" fill="${color}" opacity="${isSel?1:0.4}"/>`;
+    });
+  });
+
+  bumpChartEl.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" style="overflow:visible">${svg}</svg>`;
+
+  // Legend
+  bumpLegendEl.innerHTML = bumpTypes.slice().reverse().map(t =>
+    `<span class="bump-legend-item"><span class="bump-legend-dot" style="background:${GOAL_COLORS[t]||'#888'}"></span>${t}</span>`
+  ).join('');
+}
+
+// ─── C: Timeline ───────────────────────────────────────
+function renderTimeline() {
+  const rect = timelineEl.getBoundingClientRect();
+  const W = Math.max(rect.width, 400), H = 140;
+  const laneY = {real:35, imaginary:105};
+  const centerY = 70;
+  const xOf = i => 36 + (W-72)*i/Math.max(1,cycles.length-1);
+
+  let svg = '';
+  // Center divider
+  svg+=`<line x1="0" x2="${W}" y1="${centerY}" y2="${centerY}" stroke="rgba(255,255,255,0.06)"/>`;
+  // Lane labels
+  svg+=`<text x="8" y="16" fill="#5e6580" font-size="9" text-transform="uppercase" letter-spacing="0.08em">REALITY</text>`;
+  svg+=`<text x="8" y="${H-6}" fill="#5e6580" font-size="9" letter-spacing="0.08em">DAYDREAM</text>`;
+
+  // Connections
+  for (let i=0;i<cycles.length-1;i++){
+    const pt1 = cycles[i].selected_goal?.planning_type||'imaginary';
+    const pt2 = cycles[i+1].selected_goal?.planning_type||'imaginary';
+    const x1=xOf(i), x2=xOf(i+1), y1=laneY[pt1], y2=laneY[pt2];
+    const op = i<currentIndex?0.3:i===currentIndex?0.5:0.06;
+    if (y1===y2)
+      svg+=`<line x1="${x1}" x2="${x2}" y1="${y1}" y2="${y2}" stroke="rgba(255,255,255,${op})" stroke-width="1.5"/>`;
+    else {
+      const mx=(x1+x2)/2;
+      svg+=`<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" fill="none" stroke="rgba(255,255,255,${op})" stroke-width="1.5"/>`;
+    }
+  }
+
+  // Nodes
+  cycles.forEach((c,i) => {
+    const pt = c.selected_goal?.planning_type||'imaginary';
+    const cy = laneY[pt], cx = xOf(i);
+    const color = GOAL_COLORS[c.selected_goal?.goal_type]||'#8892a6';
+    const isCur = i===currentIndex, isPast = i<currentIndex;
+    const op = i>currentIndex?0.12:isPast?0.45:1;
+    const r = isCur?8:5;
+    const stroke = isCur?'rgba(201,168,76,0.5)':'rgba(255,255,255,0.15)';
+    const sw = isCur?2.5:1;
+    svg+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${color}" opacity="${op}" stroke="${stroke}" stroke-width="${sw}"/>`;
+    // Label
+    const ly = pt==='real'?cy-14:cy+16;
+    svg+=`<text x="${cx}" y="${ly}" text-anchor="middle" fill="${isCur?'#c9a84c':'#5e6580'}" font-size="9">c${c.cycle}</text>`;
+    // Branch fork
+    const branches = c.branch_events||[];
+    if (branches.length && i<=currentIndex) {
+      const fy = cy+(pt==='real'?r+2:-r-2);
+      const fy2 = cy+(pt==='real'?r+22:-r-22);
+      svg+=`<line x1="${cx}" x2="${cx}" y1="${fy}" y2="${fy2}" stroke="rgba(255,255,255,0.18)" stroke-dasharray="2,2"/>`;
+      const bColor = GOAL_COLORS[branches[0].family]||'#5e6580';
+      const ty = pt==='real'?fy2+10:fy2-4;
+      svg+=`<text x="${cx}" y="${ty}" text-anchor="middle" fill="${bColor}" font-size="7" font-weight="600">${(branches[0].family||'').toUpperCase()}</text>`;
+    }
+  });
+
+  timelineEl.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" preserveAspectRatio="xMidYMid meet">${svg}</svg>`;
+}
+
+// ─── D: Branch Events ──────────────────────────────────
+function renderBranch(cycle) {
+  const events = cycle.branch_events||[];
+  const sprouted = cycle.sprouted_contexts||[];
+  branchHint.textContent = events.length ? `${events.length} event${events.length>1?'s':''}` : 'this cycle';
+
+  if (!events.length && !sprouted.length) {
+    branchBody.innerHTML = '<div class="branch-empty">No branch activity this cycle</div>';
+    return;
+  }
+
+  let html = '';
+  events.forEach(ev => {
+    const color = GOAL_COLORS[ev.family]||'#8892a6';
+    const facts = (ev.fact_ids||[]).map(humanize);
+    const retracted = (ev.retracted_fact_ids||[]).map(humanize);
+    html += `<div class="branch-event">
+      <span class="branch-family" style="background:${color}22;color:${color}">${(ev.family||'branch').toUpperCase()}</span>
+      <div class="branch-detail">
+        <strong>${ev.source_context}</strong> → <strong>${ev.target_context}</strong><br>
+        Asserts: ${facts.join(', ')||'—'}<br>
+        ${retracted.length ? 'Retracts: '+retracted.join(', ') : ''}
+      </div>
+    </div>`;
+  });
+  if (!events.length && sprouted.length) {
+    html += `<div class="branch-event"><div class="branch-detail">Sprouted: <strong>${sprouted.join(', ')}</strong></div></div>`;
+  }
+  branchBody.innerHTML = html;
+}
+
+// ─── E: Thought Stream ────────────────────────────────
+function narrateCycle(cycle, prev) {
+  const goal = cycle.selected_goal||{};
+  const gt = goal.goal_type||'unknown';
+  const sit = humanize(goal.situation_id||'');
+  const desc = GOAL_DESC[gt]||gt;
+  const branches = cycle.branch_events||[];
+  const shifts = cycle.emotion_shifts||[];
+  const sel = cycle.selection||{};
+  const chosen = cycle.chosen_node_id;
+
+  const lines = [];
+  lines.push(`<strong>${desc}</strong>. The mind turns to ${sit||'the scene'}.`);
+
+  if (branches.length) {
+    const b = branches[0];
+    const fam = humanize(b.family||'branch');
+    const facts = (b.fact_ids||[]).map(humanize).slice(0,3);
+    lines.push(`${fam.toUpperCase()} activates — ${facts.join(', ')||'new branch'}.`);
+    if ((b.retracted_fact_ids||[]).length)
+      lines.push(`Retracts: ${b.retracted_fact_ids.map(humanize).slice(0,2).join(', ')}.`);
+  }
+
+  if (prev && cycle.situations && prev.situations) {
+    const deltas = [];
+    for (const [sid, st] of Object.entries(cycle.situations)) {
+      const p = prev.situations[sid];
+      if (!p) continue;
+      const d = num(st.activation)-num(p.activation);
+      if (Math.abs(d)>=0.1)
+        deltas.push(`${humanize(sid)} ${d>0?'wakes':'fades'} (${d>0?'+':''}${d.toFixed(2)})`);
+    }
+    if (deltas.length) lines.push(deltas.slice(0,2).join('. ')+'.');
+  }
+
+  if (shifts.length) {
+    const s = [...shifts].sort((a,b)=>Math.abs(num(b.delta))-Math.abs(num(a.delta)))[0];
+    const affect = humanize(s.affect||s.emotion_id||'emotion');
+    lines.push(`${affect} shifts ${num(s.delta)>0?'+':''}${num(s.delta).toFixed(2)}.`);
+  }
+
+  if (chosen && chosen!=='n/a') {
+    const policy = sel.edge_kind||sel.policy||'selected';
+    lines.push(`<span class="node-ref">${chosen} via ${humanize(policy)}</span>`);
+  }
+
+  return lines.join(' ');
+}
+
+function createThoughts() {
+  thoughtBody.innerHTML = '';
+  thoughtEls = [];
+  cycles.forEach((c,i) => {
+    const el = document.createElement('article');
+    el.className = 'thought';
+    const prev = i>0?cycles[i-1]:null;
+    const mode = c.selected_goal?.planning_type||'imaginary';
+    el.innerHTML = `
+      <div class="thought-head"><span>Cycle ${c.cycle}</span><span>${mode}</span></div>
+      <div class="thought-body">${narrateCycle(c, prev)}</div>`;
+    thoughtBody.appendChild(el);
+    thoughtEls.push(el);
+  });
+}
+
+function updateThoughts() {
+  thoughtEls.forEach((el,i) => {
+    el.style.display = i<=currentIndex?'':'none';
+    el.classList.toggle('current', i===currentIndex);
+  });
+  if (thoughtEls[currentIndex])
+    thoughtEls[currentIndex].scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
+// ─── Render ────────────────────────────────────────────
+function render() {
+  const c = cycles[currentIndex];
+  if (!c) return;
+
+  // Update readout
+  cycleNumEl.textContent = c.cycle;
+  goalLabelEl.textContent = `${c.selected_goal?.goal_type||'—'} × ${humanize(c.selected_goal?.situation_id||'')}`;
+
+  // Mode atmosphere
+  const mode = c.selected_goal?.planning_type||'imaginary';
+  document.body.className = `mode-${mode}`;
+
+  // Panels
+  updateOrbs(c);
+  renderBump();
+  renderTimeline();
+  renderBranch(c);
+  updateThoughts();
+}
+
+// ─── Playback controls ────────────────────────────────
+function stopPlay() {
+  if (timer) { clearTimeout(timer); timer=null; }
+  playing = false;
+  btnPlay.textContent = 'Play';
+}
+
+function startPlay() {
+  playing = true;
+  btnPlay.textContent = 'Pause';
+  scheduleNext();
+}
+
+function scheduleNext() {
+  if (!playing) return;
+  timer = setTimeout(() => {
+    if (currentIndex >= cycles.length-1) { stopPlay(); return; }
+    currentIndex++;
+    render();
+    scheduleNext();
+  }, SPEEDS[speedIndex]);
+}
+
+function togglePlay() { playing ? stopPlay() : startPlay(); }
+
+function step(dir) {
+  stopPlay();
+  currentIndex = clamp(currentIndex+dir, 0, cycles.length-1);
+  render();
+}
+
+btnPlay.addEventListener('click', togglePlay);
+btnPrev.addEventListener('click', () => step(-1));
+btnNext.addEventListener('click', () => step(1));
+speedRange.addEventListener('input', e => {
+  speedIndex = Number(e.target.value);
+  speedLabel.textContent = SPEED_LABELS[speedIndex];
+  if (playing) { stopPlay(); startPlay(); }
+});
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.target.tagName==='INPUT') return;
+  if (e.key===' '||e.key==='k') { e.preventDefault(); togglePlay(); }
+  if (e.key==='ArrowLeft'||e.key==='j') step(-1);
+  if (e.key==='ArrowRight'||e.key==='l') step(1);
+  if (e.key==='Home') { stopPlay(); currentIndex=0; render(); }
+  if (e.key==='End') { stopPlay(); currentIndex=cycles.length-1; render(); }
+});
+
+// ─── Drag & Drop ───────────────────────────────────────
+function setupDrop() {
+  const targets = [dropZone, document.body];
+  targets.forEach(target => {
+    target.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    target.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    target.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer?.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (data.cycles) loadTrace(data);
+        } catch(err) { console.error('Invalid trace JSON', err); }
+      };
+      reader.readAsText(file);
+    });
+  });
+}
+
+// ─── Load Trace ────────────────────────────────────────
+function loadTrace(data) {
+  trace = data;
+  cycles = data.cycles||[];
+  currentIndex = 0;
+
+  // Meta
+  const seed = data.seed||'—';
+  const started = data.started_at||'';
+  metaEl.textContent = `${cycles.length} cycles · seed ${seed}${started?' · '+started:''}`;
+  cycleTotalEl.textContent = cycles.length;
+
+  // Prepare data
+  prepareBump();
+
+  // Create persistent DOM
+  createOrbs();
+  createThoughts();
+
+  // Show app, hide drop zone
+  dropZone.classList.add('hidden');
+  appEl.classList.add('visible');
+
+  // Initial render
+  render();
+}
+
+// ─── Init ──────────────────────────────────────────────
+function init() {
+  speedLabel.textContent = SPEED_LABELS[speedIndex];
+  setupDrop();
+
+  // Try embedded trace
+  try {
+    const el = document.getElementById('trace-data');
+    const raw = el?.textContent?.trim();
+    if (raw && raw.length > 10 && !raw.startsWith('__')) {
+      const data = JSON.parse(raw);
+      if (data.cycles) { loadTrace(data); return; }
+    }
+  } catch(e) {}
+
+  // No embedded trace — show drop zone
+  dropZone.classList.remove('hidden');
+}
+
+// Resize handler
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { if (trace) render(); }, 150);
+});
+
+init();
+</script>
+</body>
+</html>

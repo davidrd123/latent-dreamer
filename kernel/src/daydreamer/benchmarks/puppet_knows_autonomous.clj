@@ -9,6 +9,7 @@
             [clojure.data.json :as json]
             [clojure.java.io :as io]
             [clojure.string :as str]
+            [daydreamer.director :as director]
             [daydreamer.benchmarks.puppet-knows :as puppet]
             [daydreamer.benchmarks.puppet-knows-adapter :as adapter]
             [daydreamer.context :as cx]
@@ -162,7 +163,8 @@
      :situations situations
      :nodes nodes
      :node-by-id node-by-id
-     :edge-lookup edge-lookup}))
+     :edge-lookup edge-lookup
+     :world-data world-data}))
 
 (defn- negative-pressure
   [{:keys [anger grief threat]}]
@@ -720,6 +722,54 @@
             sprouted-summary
             (name (or (:mode snapshot) :daydreaming)))))
 
+(defn- scene-situation-ids
+  [snapshot fixture]
+  (let [chosen-node-id (:chosen-node-id snapshot)
+        node-situation-ids (get-in fixture [:node-by-id chosen-node-id :situation-ids] [])
+        selected-situation-id (get-in snapshot [:selected-goal :situation-id])]
+    (ordered-unique
+     (concat node-situation-ids
+             (when selected-situation-id
+               [selected-situation-id])))))
+
+(defn- scene-situation-descriptions
+  [fixture snapshot]
+  (into {}
+        (keep (fn [situation-id]
+                (when-let [description (get-in fixture
+                                               [:situations situation-id :description])]
+                  [(name situation-id) description])))
+        (scene-situation-ids snapshot fixture)))
+
+(defn- current-node-scene
+  [fixture snapshot]
+  (let [chosen-node-id (:chosen-node-id snapshot)
+        node (get-in fixture [:node-by-id chosen-node-id])
+        goal (:selected-goal snapshot)]
+    {:graph_node_id chosen-node-id
+     :tags (vec (:tags node))
+     :indices (mapv name (:active-indices snapshot))
+     :mind {:goal_type (some-> (:goal-type goal) name)
+            :strength (:strength goal)}
+     :world {:compatibility (some-> (:compatibility node) name)
+             :situation_ids (mapv name (scene-situation-ids snapshot fixture))}
+     :situation_descriptions (scene-situation-descriptions fixture snapshot)}))
+
+(defn- director-cycle-input
+  [world]
+  (let [snapshot (last (:trace world))
+        fixture (get-in world [:autonomous :fixture])]
+    {:packet (trace/dreamer-state-packet snapshot)
+     :scene (current-node-scene fixture snapshot)
+     :world-situations (->> (:situations fixture)
+                            keys
+                            (map name)
+                            sort
+                            vec)
+     :previous-director-feedback (->> (get world :director-recent-concepts [])
+                                      (map name)
+                                      vec)}))
+
 (defn- apply-family-plan
   [world goal-id]
   (let [goal-type (get-in world [:goals goal-id :goal-type])]
@@ -887,6 +937,22 @@
             snapshot (last (:trace world))]
         [world (summary-line snapshot)]))))
 
+(defn- maybe-apply-director-feedback
+  [world director-fn]
+  (if-not director-fn
+    world
+    (let [director-input (director-cycle-input world)
+          raw-feedback (director-fn director-input)
+          selected-situation-id (or (get-in world [:trace (dec (count (:trace world)))
+                                                   :selection :adapter_selected_situation])
+                                    (get-in world [:trace (dec (count (:trace world)))
+                                                   :selected-goal :situation-id]))
+          [world feedback-applied] (director/apply-feedback
+                                    world
+                                    {:selected-situation-id selected-situation-id}
+                                    raw-feedback)]
+      (trace/merge-latest-cycle world {:feedback-applied feedback-applied}))))
+
 (defn benchmark-metadata
   ([fixture]
    (benchmark-metadata fixture {}))
@@ -907,9 +973,23 @@
 
   Returns `{:world world :log reporter-log :summaries [..]}`."
   ([] (run-benchmark {}))
-  ([{:keys [cycles scope-root git-commit]
+  ([{:keys [cycles scope-root git-commit director-fn director-mode
+            director-model director-temperature director-max-output-tokens]
      :or {cycles 12}}]
    (let [fixture (load-fixture (or scope-root (default-scope-root)))
+         director-assets (when director-mode
+                           (director/load-assets
+                            {:world-path (:world-path fixture)
+                             :world-data (:world-data fixture)}))
+         director-fn (or director-fn
+                         (when director-mode
+                           (director/build-director-fn
+                            director-assets
+                            {:mode director-mode
+                             :model director-model
+                             :temperature (or director-temperature 0.2)
+                             :max-output-tokens (or director-max-output-tokens
+                                                    1024)})))
          {:keys [world seed-state]} (puppet/build-autonomous-world)
          world (assoc world
                       :cycle 0
@@ -927,9 +1007,15 @@
          {:world world
           :log (trace/reporter-log world
                                    (benchmark-metadata fixture
-                                                       {:git_commit git-commit}))
+                                                       {:git_commit git-commit
+                                                        :feedback_path
+                                                        (case director-mode
+                                                          :mock "live:mock-director"
+                                                          :gemini "live:gemini-director"
+                                                          (:feedback-path fixture))}))
           :summaries summaries}
-         (let [[world summary] (run-autonomous-cycle world)]
+         (let [[world summary] (run-autonomous-cycle world)
+               world (maybe-apply-director-feedback world director-fn)]
            (recur world
                   (dec remaining)
                   (conj summaries summary))))))))

@@ -71,6 +71,19 @@ should *do* once it's running, without blocking it from being built.
   maturity map, evaluation ladder, decision dashboard, falsification
   criteria. Written to enable questioning the direction, not just
   executing it.
+- `14-operating-map.md` — Current terrain map. Defines the active tracks
+  (conducted mainline vs Mueller fidelity), the stable seams
+  (DreamNode, Director packet, Director feedback, trace schema), what
+  "kernel -> Director integration" actually means, and what can safely
+  run in parallel without destabilizing the system.
+- `15-arctic-control-fixture.md` — Why `Arctic Expedition` should be the
+  control fixture for understanding and tuning the machinery, plus the
+  minimum full package shape and milestone set needed to make it useful.
+- `16-rendering-agents.md` — Three-agent rendering architecture:
+  Director (interprets the bend), Cinematographer (constructs the
+  video prompt using prompt craft rubrics), Composer (constructs the
+  music prompt). Supersedes the single-Director rendering model in
+  docs 01 and 03. Provisional.
 
 ## Key Connections to Other Work
 

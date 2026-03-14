@@ -30,6 +30,51 @@
   dream-viz
   {:doc "Alias for the autonomous cognitive playback visualizer"
    :depends [puppet-knows-autonomous-cognitive]}
+  dream-with-director
+  {:doc "Run Puppet Knows with a live Director loop using gemini-3-flash-preview. Pass --mock-director for deterministic local mode."
+   :task (let [args (apply str (interpose " " *command-line-args*))
+               command (str "clojure -M:trace -m daydreamer.export-trace "
+                            "--benchmark autonomous-director "
+                            "--director-model gemini-3-flash-preview "
+                            "--cycles 12 "
+                            "--out out/puppet_knows_with_director.json "
+                            "--render-html "
+                            "--html-out out/puppet_knows_with_director.html "
+                            "--print-summary "
+                            args)]
+           (shell command))}
+  dream-with-director-pro
+  {:doc "Run Puppet Knows with a live Director loop using gemini-3.1-pro-preview."
+   :task (let [args (apply str (interpose " " *command-line-args*))
+               command (str "clojure -M:trace -m daydreamer.export-trace "
+                            "--benchmark autonomous-director "
+                            "--director-model gemini-3.1-pro-preview "
+                            "--cycles 12 "
+                            "--out out/puppet_knows_with_director_pro.json "
+                            "--render-html "
+                            "--html-out out/puppet_knows_with_director_pro.html "
+                            "--print-summary "
+                            args)]
+           (shell command))}
+  dream-with-director-viz
+  {:doc "Render a standalone cognitive playback page for the existing Director-in-loop dream trace"
+   :depends [dream-with-director]
+   :task (shell "python3 trace/daydreamer/render_cognitive_viz.py ../out/puppet_knows_with_director.json --title 'Puppet Knows: Director-In-Loop Playback' --out ../out/puppet_knows_with_director_cognitive.html")}
+  dream-with-director-pro-viz
+  {:doc "Render a standalone cognitive playback page for the Pro Director trace"
+   :depends [dream-with-director-pro]
+   :task (shell "python3 trace/daydreamer/render_cognitive_viz.py ../out/puppet_knows_with_director_pro.json --title 'Puppet Knows: Pro Director Playback' --out ../out/puppet_knows_with_director_pro_cognitive.html")}
+  dream-with-mock-director
+  {:doc "Run Puppet Knows with the deterministic mock Director"
+   :task (shell "clojure -M:trace -m daydreamer.export-trace --benchmark autonomous-mock-director --cycles 12 --out out/puppet_knows_with_mock_director.json --render-html --html-out out/puppet_knows_with_mock_director.html --print-summary")}
+  dream-with-mock-director-viz
+  {:doc "Render a standalone cognitive playback page for the mock-Director trace"
+   :depends [dream-with-mock-director]
+   :task (shell "python3 trace/daydreamer/render_cognitive_viz.py ../out/puppet_knows_with_mock_director.json --title 'Puppet Knows: Mock Director Playback' --out ../out/puppet_knows_with_mock_director_cognitive.html")}
+  dream-with-mock-director-compare
+  {:doc "Compare baseline autonomous Puppet Knows against the mock-Director run"
+   :depends [puppet-knows-autonomous dream-with-mock-director]
+   :task (shell "python3 ../../scope-drd/tools/daydream_trace_report.py ../out/puppet_knows_autonomous.json ../out/puppet_knows_with_mock_director.json --label baseline --label mock-director --title 'Puppet Knows: Baseline vs Mock Director' --out ../out/puppet_knows_with_mock_director_compare.html")}
   arctic-trace
   {:doc "Write the scripted Arctic Expedition benchmark trace as reporter JSON and HTML"
    :task (shell "clojure -M:trace -m daydreamer.export-trace --benchmark arctic-scripted --out out/arctic_expedition_benchmark.json --render-html --html-out out/arctic_expedition_benchmark.html")}
