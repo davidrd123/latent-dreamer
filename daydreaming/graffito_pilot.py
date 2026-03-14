@@ -15,12 +15,13 @@ import yaml
 
 MAX_RECENT_PATH = 6
 FEATURE_WEIGHTS = {
-    "trajectory_fit": 0.30,
-    "preparation_satisfied": 0.18,
-    "situation_mixing": 0.14,
-    "event_homing": 0.14,
-    "recall_value": 0.10,
-    "structural_tension": 0.14,
+    "trajectory_fit": 0.24,
+    "preparation_satisfied": 0.16,
+    "situation_mixing": 0.12,
+    "event_homing": 0.12,
+    "recall_value": 0.08,
+    "structural_tension": 0.10,
+    "overdetermination": 0.18,
 }
 PENALTY_WEIGHTS = {
     "exhaustion_penalty": 0.10,
@@ -108,6 +109,8 @@ class TraversalState:
         self.event_last_seen_cycle: dict[str, int] = {}
         self.surfaced_refs: set[str] = set()
         self.surfaced_pressure_tags: set[str] = set()
+        self.surfaced_pressure_refs: set[str] = set()
+        self.pressure_ref_last_seen_cycle: dict[str, int] = {}
         self.line_last_seen_cycle: dict[str, int] = {}
         self.subplot_last_seen_cycle: dict[str, int] = {}
         self.pressure_tag_last_seen_cycle: dict[str, int] = {}
@@ -167,6 +170,9 @@ class TraversalState:
             self.surfaced_refs.add(str(situation_id))
         for payoff_ref in node.get("payoff_refs", []):
             self.surfaced_refs.add(str(payoff_ref))
+        for pressure_ref in node_pressure_refs(node):
+            self.surfaced_pressure_refs.add(pressure_ref)
+            self.pressure_ref_last_seen_cycle[pressure_ref] = cycle
 
         line_id = node.get("line_id")
         if line_id:
@@ -221,6 +227,18 @@ def target_energy(progress: float, config: PilotConfig) -> float:
     )
 
 
+def node_pressure_refs(node: dict[str, Any]) -> list[str]:
+    refs: list[str] = []
+    seen: set[str] = set()
+    for field in ("origin_pressure_refs", "supporting_pressure_refs"):
+        for ref in node.get(field, []):
+            ref_key = str(ref)
+            if ref_key and ref_key not in seen:
+                seen.add(ref_key)
+                refs.append(ref_key)
+    return refs
+
+
 def infer_family(previous_node: dict[str, Any], node: dict[str, Any]) -> str | None:
     if node.get("variant_family"):
         return node["variant_family"]
@@ -229,6 +247,35 @@ def infer_family(previous_node: dict[str, Any], node: dict[str, Any]) -> str | N
     if previous_situation != current_situation and float(node.get("delta_tension", 0.0)) < -0.10:
         return "ROVING"
     return None
+
+
+def infer_traversal_intent(
+    state: TraversalState,
+    previous_node: dict[str, Any],
+    node: dict[str, Any],
+    candidate_id: str,
+    cycle: int,
+) -> str:
+    last_seen = state.last_seen_cycle.get(candidate_id)
+    if (
+        state.visit_count.get(candidate_id, 0) > 0
+        and last_seen is not None
+        and (cycle - last_seen) >= 3
+    ):
+        return "recall"
+
+    previous_situation = previous_node.get("situation_ids", [None])[0]
+    current_situation = node.get("situation_ids", [None])[0]
+    if previous_situation != current_situation:
+        return "shift"
+
+    delta_tension = float(node.get("delta_tension", 0.0))
+    delta_energy = float(node.get("delta_energy", 0.0))
+    if delta_tension >= 0.12 or delta_energy >= 0.14:
+        return "escalate"
+    if delta_tension <= -0.10 or delta_energy <= -0.08:
+        return "release"
+    return "dwell"
 
 
 def recency_weight(state: TraversalState, candidate_id: str, cycle: int) -> float:
@@ -572,6 +619,38 @@ def _conductor_target_score(node: dict[str, Any], config: PilotConfig) -> tuple[
     return clamp(score, -1.0, 1.0), reasons
 
 
+def _overdetermination_score(
+    state: TraversalState,
+    node: dict[str, Any],
+    cycle: int,
+) -> tuple[float, list[str], list[str]]:
+    pressure_refs = node_pressure_refs(node)
+    if not pressure_refs:
+        return 0.2, [], []
+
+    freshness_window = MAX_RECENT_PATH + 2
+    matched_refs = [
+        ref
+        for ref in pressure_refs
+        if ref in state.pressure_ref_last_seen_cycle
+        and (cycle - state.pressure_ref_last_seen_cycle[ref]) <= freshness_window
+    ]
+    coverage_ratio = len(matched_refs) / len(pressure_refs)
+    breadth_score = clamp((len(pressure_refs) - 1) / 2.0)
+
+    score = 0.15
+    score += 0.30 * coverage_ratio
+    score += 0.20 * breadth_score
+    if len(matched_refs) >= 2:
+        score += 0.25
+    elif len(matched_refs) == 1:
+        score += 0.12
+    if len(pressure_refs) >= 3 and len(matched_refs) >= 2:
+        score += 0.10
+
+    return clamp(score), matched_refs, pressure_refs
+
+
 def _priority_for_candidate(
     state: TraversalState,
     current_id: str,
@@ -709,6 +788,9 @@ def choose_feature(
         event_homing = _event_homing_score(state, node, progress, preparation_score)
         recall_value = _recall_value_score(state, node, cycle)
         structural_tension = _structural_tension_score(node, progress)
+        overdetermination, matched_pressure_refs, pressure_refs = _overdetermination_score(
+            state, node, cycle
+        )
         exhaustion_penalty = _exhaustion_penalty(state, candidate_id, node)
         manipulation_penalty = _manipulation_penalty(state, node, preparation_score)
         event_reuse_penalty = _event_reuse_penalty(state, node, cycle)
@@ -723,6 +805,7 @@ def choose_feature(
         feature_score += FEATURE_WEIGHTS["event_homing"] * event_homing
         feature_score += FEATURE_WEIGHTS["recall_value"] * recall_value
         feature_score += FEATURE_WEIGHTS["structural_tension"] * structural_tension
+        feature_score += FEATURE_WEIGHTS["overdetermination"] * overdetermination
         feature_score -= PENALTY_WEIGHTS["exhaustion_penalty"] * exhaustion_penalty
         feature_score -= PENALTY_WEIGHTS["manipulation_penalty"] * manipulation_penalty
         feature_score -= PENALTY_WEIGHTS["event_reuse_penalty"] * event_reuse_penalty
@@ -750,6 +833,9 @@ def choose_feature(
                 "event_homing": round_metric(event_homing),
                 "recall_value": round_metric(recall_value),
                 "structural_tension": round_metric(structural_tension),
+                "overdetermination": round_metric(overdetermination),
+                "pressure_refs": pressure_refs,
+                "matched_pressure_refs": matched_pressure_refs,
                 "exhaustion_penalty": round_metric(exhaustion_penalty),
                 "manipulation_penalty": round_metric(manipulation_penalty),
                 "event_reuse_penalty": round_metric(event_reuse_penalty),
@@ -804,6 +890,7 @@ def run_pilot(graph: Graph, config: PilotConfig) -> tuple[dict[str, Any], list[d
             "cycle": 1,
             "node": config.start_node,
             "family": infer_family(initial_node, initial_node),
+            "traversal_intent": "dwell",
             "tension": round(state.tension, 1),
             "energy": round(state.energy, 1),
         }
@@ -814,6 +901,7 @@ def run_pilot(graph: Graph, config: PilotConfig) -> tuple[dict[str, Any], list[d
             "arm": config.mode,
             "selection_type": "initial",
             "selected_node": config.start_node,
+            "traversal_intent": "dwell",
             "tension": state.tension,
             "energy": state.energy,
             "situation_activation": dict(state.situation_activation),
@@ -835,6 +923,9 @@ def run_pilot(graph: Graph, config: PilotConfig) -> tuple[dict[str, Any], list[d
 
         selected_node = graph.nodes_by_id[selected_id]
         family = infer_family(previous_node, selected_node)
+        traversal_intent = infer_traversal_intent(
+            state, previous_node, selected_node, selected_id, cycle
+        )
         state.apply_visit(cycle, selected_id)
 
         trace_rows.append(
@@ -842,6 +933,7 @@ def run_pilot(graph: Graph, config: PilotConfig) -> tuple[dict[str, Any], list[d
                 "cycle": cycle,
                 "node": selected_id,
                 "family": family,
+                "traversal_intent": traversal_intent,
                 "tension": round(state.tension, 1),
                 "energy": round(state.energy, 1),
             }
@@ -853,6 +945,7 @@ def run_pilot(graph: Graph, config: PilotConfig) -> tuple[dict[str, Any], list[d
                 "previous_node": previous_id,
                 "selected_node": selected_id,
                 "selected_family": family,
+                "traversal_intent": traversal_intent,
                 "tension": state.tension,
                 "energy": state.energy,
                 "visit_count": dict(state.visit_count),

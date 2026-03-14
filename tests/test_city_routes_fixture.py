@@ -43,6 +43,7 @@ class CityRoutesFixtureTests(unittest.TestCase):
             "priority_tier",
             "delta_tension",
             "delta_energy",
+            "origin_pressure_refs",
             "setup_refs",
             "payoff_refs",
             "line_id",
@@ -56,6 +57,32 @@ class CityRoutesFixtureTests(unittest.TestCase):
         }
         for node in data["nodes"]:
             self.assertTrue(required.issubset(node.keys()), node["id"])
+
+    def test_ref_namespaces_are_mechanically_resolvable(self) -> None:
+        data = self._load_fixture()
+        allowed_setup_payoff = (
+            {event["id"] for event in data["events"]}
+            | {situation["id"] for situation in data["situations"]}
+            | {marker["id"] for marker in data["reference_markers"]}
+        )
+        allowed_pressure_refs = {pressure["id"] for pressure in data["origin_pressures"]}
+        allowed_option_effects = set(data["ref_resolution"]["option_effect_vocabulary"])
+
+        multi_pressure_nodes = 0
+        for node in data["nodes"]:
+            self.assertIn(node["option_effect"], allowed_option_effects, node["id"])
+            self.assertTrue(node["origin_pressure_refs"], node["id"])
+            for pressure_ref in node["origin_pressure_refs"]:
+                self.assertIn(pressure_ref, allowed_pressure_refs, node["id"])
+            for pressure_ref in node.get("supporting_pressure_refs", []):
+                self.assertIn(pressure_ref, allowed_pressure_refs, node["id"])
+            if node.get("supporting_pressure_refs"):
+                multi_pressure_nodes += 1
+            for field in ("setup_refs", "payoff_refs"):
+                for ref in node.get(field, []):
+                    self.assertIn(ref, allowed_setup_payoff, (node["id"], field, ref))
+
+        self.assertGreaterEqual(multi_pressure_nodes, 10)
 
     def test_graph_is_reachable_and_has_no_sinks(self) -> None:
         _data, graph = self._load_graph()

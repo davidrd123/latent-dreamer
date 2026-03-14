@@ -578,48 +578,42 @@
           "c_s1_n02_platform_sprint",
           "c_s1_n03_track_edge_hesitation",
           "c_s2_n01_alley_squeeze",
-          "c_s4_n01_strobe_crowd_swallow",
-          "c_s4_n03_stage_light_freeze",
-          "c_s5_n01_ladder_climb",
-          "c_s5_n02_roof_gap_commit",
-          "c_s5_n04_wire_fence_scrape",
-          "c_s6_n01_river_edge_loading_bay",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through",
+          "c_s4_n04_side_door_exit",
           "c_s6_n03_silver_case_under_headlight_sweep",
           "c_s6_n04_almost_handoff",
           "c_s6_n05_corrected_transfer",
           "c_s3_n03_map_spread_under_tungsten",
           "c_s3_n04_red_string_key_on_hook",
           "c_s3_n05_window_watch",
-          "c_s5_n03_sodium_bridge_view",
-          "c_s5_n05_checkpoint_seen_from_above"
+          "c_s1_n05_fluorescent_waiters",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through"
         ],
         "situation_counts": {
-          "s1_the_run": 3,
-          "s2_the_detour": 1,
-          "s4_public_spectacle": 2,
-          "s5_the_threshold": 5,
-          "s6_the_exchange": 4,
+          "s1_the_run": 4,
+          "s2_the_detour": 5,
+          "s4_public_spectacle": 3,
+          "s6_the_exchange": 3,
           "s3_false_refuge": 3
         },
         "event_counts": {
           "e1_train_missed": 1,
-          "e2_blackout_siren": 1,
-          "e3_wrong_handoff": 1,
-          "e4_bridge_lockdown": 1
+          "e3_wrong_handoff": 1
         },
         "first_situation_cycle": {
           "s1_the_run": 1,
           "s2_the_detour": 4,
-          "s4_public_spectacle": 5,
-          "s5_the_threshold": 7,
-          "s6_the_exchange": 10,
-          "s3_false_refuge": 14
+          "s4_public_spectacle": 7,
+          "s6_the_exchange": 9,
+          "s3_false_refuge": 12
         },
         "first_event_cycle": {
           "e1_train_missed": 1,
-          "e2_blackout_siren": 6,
-          "e3_wrong_handoff": 12,
-          "e4_bridge_lockdown": 18
+          "e3_wrong_handoff": 10
         }
       }
     },
@@ -646,22 +640,21 @@
           "c_s3_n03_map_spread_under_tungsten",
           "c_s3_n04_red_string_key_on_hook",
           "c_s3_n05_window_watch",
-          "c_s5_n03_sodium_bridge_view",
-          "c_s5_n05_checkpoint_seen_from_above"
+          "c_s1_n05_fluorescent_waiters",
+          "c_s2_n02_produce_cart_bottleneck"
         ],
         "situation_counts": {
-          "s1_the_run": 3,
-          "s2_the_detour": 1,
+          "s1_the_run": 4,
+          "s2_the_detour": 2,
           "s4_public_spectacle": 2,
-          "s5_the_threshold": 5,
+          "s5_the_threshold": 3,
           "s6_the_exchange": 4,
           "s3_false_refuge": 3
         },
         "event_counts": {
           "e1_train_missed": 1,
           "e2_blackout_siren": 1,
-          "e3_wrong_handoff": 2,
-          "e4_bridge_lockdown": 1
+          "e3_wrong_handoff": 2
         },
         "first_situation_cycle": {
           "s1_the_run": 1,
@@ -674,8 +667,7 @@
         "first_event_cycle": {
           "e1_train_missed": 1,
           "e2_blackout_siren": 6,
-          "e3_wrong_handoff": 11,
-          "e4_bridge_lockdown": 18
+          "e3_wrong_handoff": 11
         }
       }
     },
@@ -894,22 +886,21 @@
           "c_s3_n03_map_spread_under_tungsten",
           "c_s3_n04_red_string_key_on_hook",
           "c_s3_n05_window_watch",
-          "c_s5_n03_sodium_bridge_view",
-          "c_s5_n05_checkpoint_seen_from_above"
+          "c_s1_n05_fluorescent_waiters",
+          "c_s2_n02_produce_cart_bottleneck"
         ],
         "situation_counts": {
-          "s1_the_run": 3,
-          "s2_the_detour": 1,
+          "s1_the_run": 4,
+          "s2_the_detour": 2,
           "s4_public_spectacle": 2,
-          "s5_the_threshold": 5,
+          "s5_the_threshold": 3,
           "s6_the_exchange": 4,
           "s3_false_refuge": 3
         },
         "event_counts": {
           "e1_train_missed": 1,
           "e2_blackout_siren": 1,
-          "e3_wrong_handoff": 2,
-          "e4_bridge_lockdown": 1
+          "e3_wrong_handoff": 2
         },
         "first_situation_cycle": {
           "s1_the_run": 1,
@@ -922,21 +913,20 @@
         "first_event_cycle": {
           "e1_train_missed": 1,
           "e2_blackout_siren": 6,
-          "e3_wrong_handoff": 11,
-          "e4_bridge_lockdown": 18
+          "e3_wrong_handoff": 11
         }
       }
     }
   ],
   "aggregate": {
-    "seeds_with_distinct_paths": 1,
+    "seeds_with_distinct_paths": 2,
     "spectacle_hold_strengthened": 0,
-    "threshold_drive_strengthened": 0,
+    "threshold_drive_strengthened": 1,
     "refuge_hold_strengthened": 0,
     "exchange_fast_strengthened": 0,
     "spectacle_hold_e2_earlier": 0,
-    "threshold_drive_e4_earlier": 0,
-    "exchange_fast_e3_earlier": 0,
-    "avg_distinct_paths_per_seed": 1.33
+    "threshold_drive_e4_earlier": 1,
+    "exchange_fast_e3_earlier": 1,
+    "avg_distinct_paths_per_seed": 1.67
   }
 }

@@ -13,74 +13,79 @@ City Routes substrate.
 
 ## Result
 
-The contrasting presets produced **some** movement, but not much.
+The contrasting presets produced **real but still limited** movement.
 
 Across seeds `7, 11, 19`:
 
-- seeds with distinct preset paths: `1/3`
-- average distinct paths per seed: `1.33`
+- seeds with distinct preset paths: `2/3`
+- average distinct paths per seed: `1.67`
 
-Only seed `19` showed preset divergence.
+Seeds `11` and `19` showed preset divergence.
 
 The divergent paths came from:
 
-- `spectacle_hold`
-- `refuge_hold`
+- `threshold_drive`
+- `exchange_fast`
 
 Those presets:
 
-- reduced late `s5_the_threshold` reuse
-- removed `e4_bridge_lockdown`
-- kept most of the rest of the route intact
+- either pulled `s5_the_threshold` and `e4_bridge_lockdown` back in
+  earlier (`threshold_drive`)
+- or cut threshold material out and reached `e3_wrong_handoff` earlier
+  (`exchange_fast`)
 
-`threshold_drive` and `exchange_fast` did not produce stronger targeted
-behavior than neutral in this pass.
+`spectacle_hold` and `refuge_hold` stayed much closer to neutral in this
+rerun.
 
 ## What changed from the first targeted pass
 
-This is no longer a total null result.
+This is no longer a weak edge-case result.
 
 The first targeted-conductor experiment in
 `24-city-routes-targeted-conductor-interpretation.md` produced `0/3`
 seeds with distinct preset paths.
 
-This contrasting pass produced `1/3`.
+The first contrasting pass produced `1/3`.
+
+After the overdetermination/scoring cleanup, the rerun now produces
+`2/3`.
 
 So the conductor is not completely washed out by the feature registry.
-It can bend the traversal a little when asked to oppose the default
-route rather than reinforce it.
+It can bend the traversal in more than one direction when asked to
+oppose the default route rather than reinforce it.
 
 ## What this means
 
 The conductor surface on City Routes is:
 
 - real
-- weak
+- moderate but still limited
 - asymmetric
 
 It is real because contrasting presets can change the path.
 
-It is weak because this only happened in one seed.
+It is still limited because one seed (`7`) remained unchanged across all
+presets.
 
-It is asymmetric because suppressive presets moved the traversal more
-than additive ones. The system could prune the late threshold/event pull
-more easily than it could force a stronger alternative route.
+It is asymmetric because only some targeted presets currently earn clear
+structural differences. `threshold_drive` and `exchange_fast` moved the
+route. `spectacle_hold` and `refuge_hold` largely did not.
 
 ## Current diagnosis
 
-The likely issue is not that the conductor hooks are broken.
+The likely issue is still not that the conductor hooks are broken.
 
 The more plausible diagnosis is:
 
 1. arm C's structural feature layer is already strongly shaping the
    route
-2. conductor bias enters too late or too softly to override that shape
-   consistently
-3. suppressive pressure is easier to express than additive rerouting on
-   this graph
+2. conductor bias now has enough leverage to move the route when it
+   aligns with strong alternative graph structure
+3. some requested directions still do not have enough distinct support
+   in the graph/weights to produce a visibly different traversal
 
-So the scheduler can be nudged, but not yet performed with robust range
-on this substrate.
+So the scheduler can now be bent, but it is not yet a broad or mature
+performance surface on this substrate.
 
 ## Conclusion
 
@@ -103,7 +108,7 @@ Treat the L3 scheduler experiment as functionally complete for this
 substrate and move the next questions to the performance lane:
 
 1. render and watch representative arm-B and arm-C runs
-2. test whether conductor control is more legible in the real playback
-   stack than it is in trace-only analysis
+2. test whether the now-partial conductor control is more legible in the
+   real playback stack than it is in trace-only analysis
 3. if live control still matters, revisit conductor mapping at the level
    of performance controls rather than more offline feature tweaking

@@ -56,7 +56,7 @@ class CityRoutesTargetedConductorTests(unittest.TestCase):
             output = Path(tmpdir) / "report.md"
             city_routes_targeted_conductor.write_markdown(payload, output)
             text = output.read_text(encoding="utf-8")
-            self.assertIn("# City Routes Targeted Conductor Sweep", text)
+            self.assertIn("# City Routes Contrasting Conductor Sweep", text)
             self.assertIn("Aggregate", text)
             self.assertIn("Per-run Summary", text)
 

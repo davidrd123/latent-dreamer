@@ -47,7 +47,7 @@ path that first exposed the feature registry's value.
 | neutral | 11 | scheduler | 5 | no | e1_train_missed,e3_wrong_handoff | 1 | no | 0 | 0.90 |
 | neutral | 11 | feature | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 2 | no | 0 | 1.00 |
 | neutral | 19 | scheduler | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 3 | yes | 0 | 1.00 |
-| neutral | 19 | feature | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 3 | no | 0 | 1.00 |
+| neutral | 19 | feature | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff | 2 | no | 0 | 1.00 |
 | neutral | 23 | scheduler | 6 | yes | e1_train_missed,e3_wrong_handoff,e4_bridge_lockdown | 2 | no | 0 | 0.90 |
 | neutral | 23 | feature | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff | 2 | no | 0 | 1.00 |
 | sustained_high | 3 | scheduler | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 3 | no | 0 | 1.00 |
@@ -57,7 +57,7 @@ path that first exposed the feature registry's value.
 | sustained_high | 11 | scheduler | 5 | no | e1_train_missed,e3_wrong_handoff | 1 | no | 0 | 0.90 |
 | sustained_high | 11 | feature | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 2 | no | 0 | 1.00 |
 | sustained_high | 19 | scheduler | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 3 | yes | 0 | 1.00 |
-| sustained_high | 19 | feature | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 3 | no | 0 | 1.00 |
+| sustained_high | 19 | feature | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff | 2 | no | 0 | 1.00 |
 | sustained_high | 23 | scheduler | 6 | yes | e1_train_missed,e3_wrong_handoff,e4_bridge_lockdown | 3 | no | 0 | 1.00 |
 | sustained_high | 23 | feature | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff | 2 | no | 0 | 1.00 |
 | early_release | 3 | scheduler | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 3 | no | 0 | 1.00 |
@@ -67,6 +67,6 @@ path that first exposed the feature registry's value.
 | early_release | 11 | scheduler | 5 | no | e1_train_missed,e3_wrong_handoff | 1 | no | 0 | 0.90 |
 | early_release | 11 | feature | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 2 | no | 0 | 1.00 |
 | early_release | 19 | scheduler | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 3 | yes | 0 | 1.00 |
-| early_release | 19 | feature | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 3 | no | 0 | 1.00 |
+| early_release | 19 | feature | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff | 2 | no | 0 | 1.00 |
 | early_release | 23 | scheduler | 6 | yes | e1_train_missed,e3_wrong_handoff,e4_bridge_lockdown | 2 | no | 0 | 0.90 |
 | early_release | 23 | feature | 6 | yes | e1_train_missed,e2_blackout_siren,e3_wrong_handoff | 2 | no | 0 | 1.00 |

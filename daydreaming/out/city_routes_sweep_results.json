@@ -732,28 +732,27 @@
           "c_s3_n03_map_spread_under_tungsten",
           "c_s3_n04_red_string_key_on_hook",
           "c_s3_n05_window_watch",
-          "c_s5_n03_sodium_bridge_view",
-          "c_s5_n05_checkpoint_seen_from_above"
+          "c_s1_n05_fluorescent_waiters",
+          "c_s2_n02_produce_cart_bottleneck"
         ],
         "unique_nodes": 18,
         "situations_visited": 6,
         "situation_counts": {
-          "s1_the_run": 3,
-          "s2_the_detour": 1,
+          "s1_the_run": 4,
+          "s2_the_detour": 2,
           "s4_public_spectacle": 2,
-          "s5_the_threshold": 5,
+          "s5_the_threshold": 3,
           "s6_the_exchange": 4,
           "s3_false_refuge": 3
         },
-        "situation_switches": 6,
+        "situation_switches": 7,
         "threshold_present": true,
         "event_counts": {
           "e1_train_missed": 1,
           "e2_blackout_siren": 1,
-          "e3_wrong_handoff": 2,
-          "e4_bridge_lockdown": 1
+          "e3_wrong_handoff": 2
         },
-        "prepared_event_visits_any": 3,
+        "prepared_event_visits_any": 2,
         "prepared_event_visits_full": 0,
         "event_prep_details": [
           {
@@ -791,17 +790,6 @@
             ],
             "matched_setup_refs": [
               "receiver_misalignment"
-            ]
-          },
-          {
-            "node_id": "c_s5_n05_checkpoint_seen_from_above",
-            "event_id": "e4_bridge_lockdown",
-            "setup_refs": [
-              "roof_access",
-              "inspection_view"
-            ],
-            "matched_setup_refs": [
-              "inspection_view"
             ]
           }
         ],
@@ -1703,28 +1691,27 @@
           "c_s3_n03_map_spread_under_tungsten",
           "c_s3_n04_red_string_key_on_hook",
           "c_s3_n05_window_watch",
-          "c_s5_n03_sodium_bridge_view",
-          "c_s5_n05_checkpoint_seen_from_above"
+          "c_s1_n05_fluorescent_waiters",
+          "c_s2_n02_produce_cart_bottleneck"
         ],
         "unique_nodes": 18,
         "situations_visited": 6,
         "situation_counts": {
-          "s1_the_run": 3,
-          "s2_the_detour": 1,
+          "s1_the_run": 4,
+          "s2_the_detour": 2,
           "s4_public_spectacle": 2,
-          "s5_the_threshold": 5,
+          "s5_the_threshold": 3,
           "s6_the_exchange": 4,
           "s3_false_refuge": 3
         },
-        "situation_switches": 6,
+        "situation_switches": 7,
         "threshold_present": true,
         "event_counts": {
           "e1_train_missed": 1,
           "e2_blackout_siren": 1,
-          "e3_wrong_handoff": 2,
-          "e4_bridge_lockdown": 1
+          "e3_wrong_handoff": 2
         },
-        "prepared_event_visits_any": 3,
+        "prepared_event_visits_any": 2,
         "prepared_event_visits_full": 0,
         "event_prep_details": [
           {
@@ -1762,17 +1749,6 @@
             ],
             "matched_setup_refs": [
               "receiver_misalignment"
-            ]
-          },
-          {
-            "node_id": "c_s5_n05_checkpoint_seen_from_above",
-            "event_id": "e4_bridge_lockdown",
-            "setup_refs": [
-              "roof_access",
-              "inspection_view"
-            ],
-            "matched_setup_refs": [
-              "inspection_view"
             ]
           }
         ],
@@ -2687,28 +2663,27 @@
           "c_s3_n03_map_spread_under_tungsten",
           "c_s3_n04_red_string_key_on_hook",
           "c_s3_n05_window_watch",
-          "c_s5_n03_sodium_bridge_view",
-          "c_s5_n05_checkpoint_seen_from_above"
+          "c_s1_n05_fluorescent_waiters",
+          "c_s2_n02_produce_cart_bottleneck"
         ],
         "unique_nodes": 18,
         "situations_visited": 6,
         "situation_counts": {
-          "s1_the_run": 3,
-          "s2_the_detour": 1,
+          "s1_the_run": 4,
+          "s2_the_detour": 2,
           "s4_public_spectacle": 2,
-          "s5_the_threshold": 5,
+          "s5_the_threshold": 3,
           "s6_the_exchange": 4,
           "s3_false_refuge": 3
         },
-        "situation_switches": 6,
+        "situation_switches": 7,
         "threshold_present": true,
         "event_counts": {
           "e1_train_missed": 1,
           "e2_blackout_siren": 1,
-          "e3_wrong_handoff": 2,
-          "e4_bridge_lockdown": 1
+          "e3_wrong_handoff": 2
         },
-        "prepared_event_visits_any": 3,
+        "prepared_event_visits_any": 2,
         "prepared_event_visits_full": 0,
         "event_prep_details": [
           {
@@ -2746,17 +2721,6 @@
             ],
             "matched_setup_refs": [
               "receiver_misalignment"
-            ]
-          },
-          {
-            "node_id": "c_s5_n05_checkpoint_seen_from_above",
-            "event_id": "e4_bridge_lockdown",
-            "setup_refs": [
-              "roof_access",
-              "inspection_view"
-            ],
-            "matched_setup_refs": [
-              "inspection_view"
             ]
           }
         ],
@@ -2971,7 +2935,7 @@
       "prepared_any_runs": 15,
       "event_reuse_runs": 12,
       "e2_runs": 15,
-      "e4_runs": 12,
+      "e4_runs": 9,
       "e4_reuse_runs": 3,
       "prepared_full_runs": 3,
       "avg_situations": 6,

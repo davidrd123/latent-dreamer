@@ -72,7 +72,9 @@ class CityRoutesPilotTests(unittest.TestCase):
 
         self.assertEqual(trace_payload["graph_id"], "city_routes_experiment_1_v0")
         self.assertEqual(debug_rows[0]["event_approach_count"], {"e1_train_missed": 1})
+        self.assertEqual(trace_payload["trace"][0]["traversal_intent"], "dwell")
         self.assertIn("event_approach_count", debug_rows[1])
+        self.assertIn("traversal_intent", debug_rows[1])
 
     def test_feature_arm_records_feature_breakdown(self) -> None:
         graph = city_routes_pilot.Graph.load(city_routes_pilot.DEFAULT_GRAPH)
@@ -85,7 +87,10 @@ class CityRoutesPilotTests(unittest.TestCase):
         self.assertIn("feature_score", first_eval)
         self.assertIn("preparation_satisfied", first_eval)
         self.assertIn("structural_tension", first_eval)
+        self.assertIn("overdetermination", first_eval)
+        self.assertIn("matched_pressure_refs", first_eval)
         self.assertIn("manipulation_penalty", first_eval)
+        self.assertNotIn("traversal_intent", first_eval)
 
 
 if __name__ == "__main__":

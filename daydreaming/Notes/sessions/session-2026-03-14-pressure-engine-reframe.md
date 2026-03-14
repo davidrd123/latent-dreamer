@@ -629,24 +629,71 @@ Symbiotic Vault. Connections found:
 
 ## 21. Updated Status (End of Extended Session)
 
-### What's now proven
-- L3 Facade-shaped scheduler produces legible traversal
-- Conductor bias surface is real in both directions
-- Graffito pilot at natural endpoint → move to City Routes
+### Current working hypotheses (pilot-level evidence)
+- L3 Facade-shaped scheduler produces more intentional traversal
+  than baseline (Graffito pilot + City Routes arms support this,
+  but not yet proven at production quality)
+- Conductor bias surface is plausible in both directions (early
+  release bias clearly visible, sustained-high less clear on
+  small graphs)
+- Graffito pilot at natural endpoint → City Routes is the real
+  experiment substrate
 
 ### Concrete next actions
-1. City Routes fixture cleanup (lineage field, setup_refs
-   namespace, option_effect vocabulary)
-2. Freeze graph interface contract in 21-graph-interface-
-   contract.md with three-surface language
-3. Narration from provenance (wiring change, highest LLM
-   priority)
-4. World defect linter (codex queue)
-5. City Routes full three-arm experiment
+1. ~~City Routes fixture cleanup~~ DONE (21-graph-interface-
+   contract.md frozen, fixture updated)
+2. ~~Freeze graph interface contract~~ DONE
+3. ~~City Routes three-arm experiment~~ DONE (arms A/B/C run,
+   robustness sweep, conductor experiments)
+4. Codex patches in flight: fixture vocab tightening,
+   overdetermination scoring, traversal intent enforcement
+5. Narration from provenance (wiring change, highest LLM
+   priority) — not yet started
+6. World defect linter (codex queue) — not yet started
+7. Packet ownership audit (~30 min documentation exercise)
+8. L2 build order correction in refactor synthesis
 
-### 5 Pro reviews still pending
-- first-round-02/02-failure-mode-review
-- first-round-02/03-missing-lineage-scan
-- first-round-02/04-strongest-alternative-architecture
-- first-round-02/05-evaluation-and-falsification
-- first-round-02/06-source-miss-scan
+### 5 Pro round-2 reviews (all received, integrated)
+All seven responses read and integrated. Key findings:
+- Seam audit: three surfaces (graph, L1 sidecar, runtime packet)
+- Failure modes: graph seam, L3 cost, conductor playability
+- Missing lineage: storylets/QBN as L3 comparison, claim atoms
+- Alternative arch: graph-centric two-stage (noted, not acting)
+- Source-miss: overdetermination as scoring criterion, L1 narrower,
+  Mueller backbone harder in L2, intents as seam not ontology
+
+### Deferred-but-real items (don't lose track)
+
+1. ~~**05-stage-integration.md contradicts one-control-plane
+   rule.**~~ DONE — patched during this session.
+
+2. **Packet ownership audit.** One writer per runtime field, one
+   control vocabulary. Make a table of every field in the runtime
+   packet and write down exactly one owner. If both conductor and
+   scheduler can write the same field, that's a bug. ~30 min
+   documentation exercise. Still needed.
+
+3. **L2 build order correction from source-miss (06).** Front-load
+   Mueller harder: explicit concern state + theme rules → appraisal
+   pass → recursive reminding + serendipity + surprise → mutable
+   episode emotion → lightweight practice tags → dashboard metadata
+   → ATMS later. Capture in L2 refactor synthesis before anyone
+   starts building. Still needed.
+
+4. **Event Segmentation Theory** — consult before City Routes
+   graduates from experiment substrate to watched-run content.
+   "What makes one node a node?" matters for granularity.
+
+5. **NIME mapping research** — consult before any serious conductor
+   build. Adding control dimensions can reduce exploration.
+
+6. **Stale Graffito wording** in 13-execution-roadmap.md and
+   08-l3-experiment-1-synthesis.md — still say "add edges and
+   deltas" but those are done. Minor but wastes attention.
+
+### Codex patches in flight
+1. City Routes fixture vocabulary cleanup (setup_refs namespace,
+   option_effect canonicalization)
+2. Overdetermination scoring in arm C feature registry
+3. Traversal intent enforcement (seam output only, not scorer
+   internal logic)

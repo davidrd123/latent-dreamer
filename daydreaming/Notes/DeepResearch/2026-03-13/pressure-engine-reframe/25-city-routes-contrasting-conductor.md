@@ -16,15 +16,15 @@ structural route rather than simply reinforcing it.
 
 ## Aggregate
 
-- seeds with distinct preset paths: `1/3`
-- avg distinct paths per seed: `1.33`
+- seeds with distinct preset paths: `2/3`
+- avg distinct paths per seed: `1.67`
 - spectacle hold increased `s4` presence: `0` seeds
-- threshold drive increased `s5` presence: `0` seeds
+- threshold drive increased `s5` presence: `1` seeds
 - refuge hold increased `s3` presence: `0` seeds
 - exchange fast increased `s6` presence: `0` seeds
 - spectacle hold reached `e2` earlier: `0` seeds
-- threshold drive reached `e4` earlier: `0` seeds
-- exchange fast reached `e3` earlier: `0` seeds
+- threshold drive reached `e4` earlier: `1` seeds
+- exchange fast reached `e3` earlier: `1` seeds
 
 ## Per-run Summary
 
@@ -39,9 +39,9 @@ structural route rather than simply reinforcing it.
 | 11 | spectacle_hold | 3 | 2 | 5 | 4 | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 6 | 12 | 18 |
 | 11 | threshold_drive | 3 | 2 | 5 | 4 | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 6 | 12 | 18 |
 | 11 | refuge_hold | 3 | 2 | 5 | 4 | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 6 | 12 | 18 |
-| 11 | exchange_fast | 3 | 2 | 5 | 4 | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 6 | 12 | 18 |
-| 19 | neutral | 3 | 2 | 5 | 4 | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 6 | 11 | 18 |
+| 11 | exchange_fast | 3 | 3 | 0 | 3 | e1_train_missed,e3_wrong_handoff | - | 10 | - |
+| 19 | neutral | 3 | 2 | 3 | 4 | e1_train_missed,e2_blackout_siren,e3_wrong_handoff | 6 | 11 | - |
 | 19 | spectacle_hold | 3 | 2 | 3 | 4 | e1_train_missed,e2_blackout_siren,e3_wrong_handoff | 6 | 11 | - |
 | 19 | threshold_drive | 3 | 2 | 5 | 4 | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 6 | 11 | 18 |
 | 19 | refuge_hold | 3 | 2 | 3 | 4 | e1_train_missed,e2_blackout_siren,e3_wrong_handoff | 6 | 11 | - |
-| 19 | exchange_fast | 3 | 2 | 5 | 4 | e1_train_missed,e2_blackout_siren,e3_wrong_handoff,e4_bridge_lockdown | 6 | 11 | 18 |
+| 19 | exchange_fast | 3 | 2 | 3 | 4 | e1_train_missed,e2_blackout_siren,e3_wrong_handoff | 6 | 11 | - |

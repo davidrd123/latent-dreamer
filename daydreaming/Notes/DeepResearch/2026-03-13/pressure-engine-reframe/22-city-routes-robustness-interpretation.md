@@ -58,7 +58,8 @@ The real comparison is the weaker arm-B cases:
 
 - in the `seed 7` and `seed 11` families, arm B missed threshold and
   only reached `e1` and `e3`
-- arm C pulled in `e2` and `e4` and increased prepared event visits
+- arm C pulled in `e2`, recovered threshold, and increased prepared
+  event visits without needing as much `e4`
 
 That happened in `6/15` cases.
 
@@ -104,13 +105,16 @@ The sweep shows:
 
 So arm C did **not** solve event-heavy reuse outright.
 
-What it often did instead was shift the reuse pressure:
+But the aggregate is cleaner than the earlier arm-C pass:
 
-- some arm-C runs trade repeated `e4` for repeated `e3`
+- arm C now reaches `e2_blackout_siren` in `15/15` runs
+- arm C reaches `e4_bridge_lockdown` in `9/15` runs rather than
+  making it a nearly universal part of the route
+- some arm-C runs trade late `e4` pressure for earlier `e2` setup and
+  a cleaner `e3` approach
 
-That is still better than pure threshold fixation in some cases, but it
-means the feature layer needs another pass if the goal is cleaner event
-discipline rather than simply more event contact.
+So the remaining issue is not raw event fixation so much as choosing
+which event pressure to emphasize on a given run.
 
 ### 3. Release contour is not well captured by the current metric
 
@@ -133,6 +137,8 @@ The narrow claim we can defend now is:
 
 - the DODM-style feature layer consistently helps recover threshold
   material and broader event structure on the City Routes graph
+- the overdetermination-aware version also shifts arm C toward
+  `e2`-as-setup rather than leaning so hard on `e4`
 - especially in the cases where the Façade-only scheduler underperforms
 
 The narrower claim we **cannot** defend yet is:
@@ -144,11 +150,15 @@ That remains open.
 
 ## Recommended Next Move
 
-Keep the graph fixed and do one more narrow tuning pass on arm C:
+Keep the graph fixed.
 
-1. reduce repeated event-heavy reuse
-2. then retest conductor expressivity with stronger or differently
-   targeted bias terms
+The feature layer is now strong enough that the next real question is
+conductor expressivity, not another round of generic feature polishing.
+
+1. use the contrasting-conductor pass as the next read on whether the
+   feature arm can be bent away from its default route
+2. only revisit reuse tuning if the performance lane shows the repeated
+   event surfaces are actually visible and undesirable
 
 In other words:
 
