@@ -1,0 +1,714 @@
+Interactive Narrative
+
+
+
+
+Declarative
+Optimization-Based
+Drama Management
+                                                                                           Mark J. Nelson, Michael Mateas,
+
+in Interactive Fiction                                                                     David L. Roberts, and Charles L. Isbell Jr.
+                                                                                           Georgia Institute of Technology
+
+
+
+
+                             O   ur work relates to automatically guiding
+                                 experiences in large, open-world inter-
+                 active dramas, story-based experiences where a player
+                                                                                     the author must specify believable rules for every com-
+                                                                                     bination of conditions a player might encounter; a
+                                                                                     tedious burden for stories of any complexity. Further,
+                 interacts with and influences a story. Many modern                  when just specifying local rules, the author will ﬁnd it
+                 computer games have (or would like to have) rich, non-              difﬁcult to both allow the player signiﬁcant control over
+                                      linear plotlines with multiple end-            the story’s direction and simultaneously keep it coher-
+                                      ings, complex story branching and              ent and progressing along some sort of narrative arc.
+The authors investigate               merging, and numerous subplots.                   A drama manager (DM) is one solution to this prob-
+                                      Figure 1 shows an example of an                lem: it’s a system that watches a story as it progresses,
+previous research that used           interactive drama, a screen shot               reconﬁguring the world to fulﬁll the author’s goals. A
+                                      from Façade,1 in which the player              DM might notice a player doing something that ﬁts poor-
+game-tree search to                   interacts with two college friends             ly with the current story and will attempt to dissuade
+                                      whose marriage is falling apart; the           him or her. This is accomplished using soft actions such
+optimize drama-manager                player’s actions influence the way             as having a nonplayer character start a conversation
+                                      events unfold.                                 with a player to lure him or her to something else, or by
+actions in interactive stories           Traditionally, local triggers guide         more direct actions such as locking doors.
+                                      stories in games. Progress in a linear            We present work applying search-based drama man-
+and show that search does             story depends solely on how much               agement (SBDM)2 to the interactive fiction piece
+                                      of the story has unfolded. In slightly         Anchorhead, to further investigate the algorithmic and
+not perform well in general.          more complex situations, the author            authorship issues involved.
+                                      can specify condition–action rules
+                 (for example, “if the player is in the room and if the play-        Approaches
+                 er is carrying a gun, then have the nonplayer character                Declarative optimization-based drama management
+                 hide behind the counter”). To avoid holes in the story,             (DODM) guides the player by projecting possible future
+                                                                                     stories and reconﬁguring the story world based on those
+                                                                                     projections. This approach models stories as a set of pos-
+                                                                                     sible plot points, and an author-speciﬁed evaluation func-
+                                                                                     tion rates the quality of a particular plot-point sequence.
+                                                                                        The DM has a set of actions it can make to modify the
+                                                                                     world to guide the player toward a story that maximizes
+                                                                                     the evaluation function, taking into account any effect
+                                                                                     on evaluation the DM actions might have. DM actions
+                                                                                     might include things such as causing a nonplayer char-
+                                                                                     acter to bring up a particular conversational topic, caus-
+                                                                                     ing certain parts of the world to become inaccessible, or
+                                                                                     leaving items where the player is likely to ﬁnd them. At
+                                                                                     each step, the DM chooses the DM action that maxi-
+                                                                                     mizes projected story quality, subject to a model of a
+                                                                                     player’s likely actions.
+                                                                                        This all takes place in an abstract model, connected to
+                    1 The interactive drama Façade. The player speaks to             the real game by passing messages back and forth, as Fig-
+                    Grace, a nonplayer character. She will respond in a way          ure 2 illustrates. The game tells the DM when plot points
+                    that takes into account the player’s responses as well as        occur, and the DM tells the game when it wishes to take
+                    the story.                                                       a DM action. In the ﬁgure, when the proprietor opens the
+
+
+30                 May/June 2006                                Published by the IEEE Computer Society               0272-1716/06/$20.00 © 2006 IEEE
+puzzle box, the game recognizes this
+as the open_puzzle_box plot point and         You can leave the courtyard to the east, or enter the
+tells the DM. The DM decides on the           little shop to the south.
+temp_deny_get_amulet action and
+sends it to the game, which imple-            >s
+ments it by not allowing the player to
+get the amulet.                               A warm and pleasantly dim light surrounds you and
+   DODM is a generalization of SBDM.          suffuses this cozy little shop. The proprietor watches
+SBDM speciﬁcally uses a modiﬁcation           you quietly from behind the display case.
+of a game-tree search to perform the
+projection, while DODM is agnostic            > show proprietor the puzzle box
+about the projection method. SBDM
+rests on two fundamental assump-              The proprietor takes the puzzle box and turns it over in
+tions: The ﬁrst—which also applies to         his hands carefully. “Now, this is a tricky one,” he says.
+DODM—is that an evaluation func-              “Frightfully difficult, unless you know the catch of course.”
+tion can encode an author’s aesthetic.        His fingers flicker dexterously over the box, sliding a panel
+The second—which DODM doesn’t                 here, pressing a corner in there. Suddenly the lid pops
+assume—is that search can effective-          open with a faint snick.
+ly guide a game’s plot progression to                                                                          open_puzzle_box
+maximize this evaluation function.            He places the box on top of the display case. “And there                              Drama
+Weyhrauch2 demonstrated a proof of                                                                                                 manager
+                                              you have it,” he says. “A present for you.”
+concept for both assumptions in
+a small interactive ﬁction story, Tea                                                                         temp_deny_get_amulet
+                                              > x display case
+for Three, but to what extent these
+results can be generalized, scaled, and
+                                              Inside the display case are a deck of tarot cards, an
+extended isn’t clear. The “Related
+                                              amulet, and a geode.
+Work” sidebar (on the next page) dis-
+cusses other approaches.
+                                              > ask for the amulet
+Anchorhead                                                                                                    2 An excerpt from
+    Anchorhead is an interactive ﬁction         The proprietor reaches in through the back of the case         Anchorhead, showing the
+piece by Michael S. Gentry, in the style        and takes out the amulet. It spins slowly as he holds          relationships between con-
+of H.P. Lovecraft. As compared to the           it up to the light. “Nice, isn’t it?” he says, absent-         crete game-world actions,
+Tea for Three story that Weyhrauch              mindedly returning it to the case.                             abstract plot points, and
+investigated, Anchorhead has a much                                                                            drama-manager actions.
+larger world, in terms of the number
+of plot points and the size of the world
+itself (the locations and objects available to the player).      ■ the townspeople are aloof and secretive; and
+    The full Anchorhead story is quite large, consisting of ■ the real-estate agent who had overseen the inheri-
+well over a hundred signiﬁcant plot points, making it               tance is nowhere to be found.
+somewhat unwieldy for initial experiments. In addition,
+it lacks some features we wished to test, such as the abil- The story then progresses along two interleaved and
+ity for players to reach multiple endings based on their somewhat related subplots.
+actions, and the mixing together of subplots. Fortunate-            In one subplot, the player discovers a safe in which is
+ly, the story is broken into ﬁve relatively separate days of hidden a puzzle box she’s unable to open. The owner of
+action, so we modiﬁed the original second day (the ﬁrst the town’s magic shop will helpfully open it, revealing an
+is short). We removed some subplots that only make odd lens. When the lens is inserted into a telescope in
+sense in the light of subsequent days so that it would the Verlac mansion’s hidden observatory, the player sees
+stand on its own and moved up some events from later an evil god approaching Earth on a comet, reaching the
+days to give a wider variety of potential experiences climax of the subplot and a possible ending.
+within the second day. The end result is a story with two           In the other subplot, the player discovers that giving
+main subplots, each potentially leading to an ending.            a bum a flask of liquor makes him talkative. Through
+    When the story starts, the player has just arrived in questioning, the player discovers the bum knows quite
+the town of Anchorhead, where her husband, Michael, a bit about the Verlac family, including a terrible secret
+recently inherited a mansion from a branch of his fam- about a deformed child, William, who supposedly was
+ily, the Verlacs, that he hadn’t been in contact with. The killed soon after birth. The bum grows anxious and
+player begins to ﬁnd out strange things about the town refuses to give more information until the player ﬁnds
+and the Verlac family, such as                                   that William’s cofﬁn contains an animal skeleton. Upon
+                                                                 being shown the animal skull, the bum confesses that
+■ Edward Verlac, Michael’s brother and previous occu- William is still alive, and confesses his role in the matter.
+    pier of the mansion, killed his family and later com- The bum reveals William’s identity and some of the Ver-
+    mitted suicide in a mental institution;                      lac family’s background. Parallel to this progression, the
+
+
+                                                                             IEEE Computer Graphics and Applications                        31
+Interactive Narrative
+
+
+
+
+  Related Work                                                          DODM, on the other hand, lends itself to more open-ended
+     Bates1 first proposed search-based drama management                story structures.
+  (SBDM) and developed by Weyhrauch2; Lamstein and                         A more detailed review of the drama-management
+  Mateas proposed reviving the technique.3                              literature (as of 1997) is available elsewhere.7
+     Weyhrauch applied SBDM to Tea for Three—a simplified
+  version of the Infocom interactive fiction Deadline—
+  achieving impressive results in an abstract story space with a
+  simulated player. The Mimesis architecture constructs story           References
+  plans for real-time virtual worlds.4 The generated plans are           1. J. Bates, “Virtual Reality, Art, and Entertainment,” Presence: The J.
+  annotated with a rich, causal structure, and the system                   Teleoperators and Virtual Environments, vol. 2, no. 1, 1992, pp.
+  monitors player actions that might threaten causal links in               133-138.
+  the current story plan, either replanning or preventing                2. P. Weyhrauch, Guiding Interactive Drama, doctoral dissertation,
+  player action if a threat is detected.                                    tech. report CMU-CS-97-109., School of Computer Science,
+     The Interactive Drama Architecture takes a prewritten                  Carnegie Mellon Univ., 1997.
+  plot and tries to keep the player on the plot by taking                3. A. Lamstein and M. Mateas, ”A Search-Based Drama Manager,”
+  corrective action according to a state-machine model of                   Proc. AAAI Workshop Challenges in Game AI, AAAI Press, 2004.
+  likely player behavior.5 Declarative optimization-based                4. R.M. Young et al., “An Architecture for Integrating Plan-Based
+  drama management (DODM), by contrast, tries to                            Behavior Generation with Interactive Game Environments,” J.
+  incorporate player action into a quality plot rather than                 Game Development, vol. 1, no. 1, 2004, pp. 51-70.
+  insisting on a prewritten plot.                                        5. B. Magerko and J. Laird, “Building an Interactive Drama Architec-
+     Mateas and Stern developed a beat-based drama                          ture,” Proc. 1st Int’l Conf. Technologies for Interactive Digital Story-
+  manager (DM) for their interactive drama Façade, using the                telling and Entertainment (TIDSE), Fraunhofer IRB Verlag, 2003.
+  concept of a dramatic beat.6 Beats are the smallest unit of            6. M. Mateas and A. Stern, “Integrating Plot, Character, and Natur-
+  change in dramatic value, where dramatic values are                       al Language Processing in the Interactive Drama Façade,” Proc. 1st
+  character and story attributes such as love, trust, and                   Int’l Conf. Technologies for Interactive Digital Storytelling and Enter-
+  tension. At each point in the story, a beat-based DM selects              tainment (TIDSE), Fraunhofer IRB Verlag, 2003.
+  one of the available beat-level actions. We hypothesize that           7. M. Mateas, “An Oz-Centric Review of Interactive Drama and
+  this style of management makes beat-based DMs                             Believable Agents,” AI Today: Recent Trends and Developments,
+  particularly suited to tight story structures, where ideally all          Lecture Notes in AI 1600, M. Woodbridge and M. Veloso, eds.,
+  the activity in the story world contributes to the story.                 Springer, 1999, pp. 297-328.
+
+
+
+
+                   bum is afraid for his life and desires a protective amulet      about_william can only happen once the player has been
+                   the player can get from the shopkeeper. If the player           told of William’s existence, but three different plot points
+                   gives it to him, he’ll in return give the player a key to the   can satisfy this requirement, for which two ORs in the
+                   sewers where she can ﬁnd a book revealing the full fam-         constraint are necessary. (We didn’t use any NOT con-
+                   ily background, and forming the other possible ending.          straints in Anchorhead, but we can easily imagine their
+                                                                                   use in other stories.) Figure 3 shows the 29 plot points
+                   Modeling a story with plot points                               we used to model Anchorhead’s day two, arranged into
+                      The ﬁrst authorial task when applying DODM is to             an AND-OR graph showing their constraints.
+                   abstract the story contents into discrete plot points, each
+                   of which represents some event in the story that the DM         Level of detail
+                   should know about. These plot-point sequences form the             A difﬁcult question is how abstract or speciﬁc to make
+                   abstract plot space in which optimization will take place.      plot points: The more high level and general, the more
+                      The author assigns plot point ordering constraints, so       complex the bits of code that recognize them and signal
+                   that the DM only considers possible sequences that could        the DM that they’ve occurred. We envision those bits of
+                   actually happen. For example, the plot point open_safe          code as simple and easy-to-code triggers. Some small
+                   can only happen after both the plot points discover_safe        amount of complexity might be desirable, so that every
+                   and get_safe_combo have already happened. (These                possible variation in the way events can play out does-
+                   ordering constraints specify only what must happen              n’t need a distinct plot point. However, the amount of
+                   based on the actual mechanics of the game world—                complexity should be kept quite small so that recogniz-
+                   undesirable but possible sequences are another matter.)         ing plot points does not turn into a problem requiring
+                      Weyhrauch specifies these ordering constraints by            signiﬁcant AI of its own.
+                   placing all the plot points in a directed acyclic graph            A similar issue is the question of how ﬁne-grained the
+                   (DAG), with the edges specifying ordering. The possi-           plot points should be. For example, a conversation could
+                   ble sequences of plot points are then just the DAG’s topo-      be a single plot point, conversation_happens, or it could
+                   logical orderings. We extend this representation by             be a set of plot points for the major possible conversa-
+                   allowing constraints to be arbitrary Boolean formulas           tion topics, or in the extreme case there could be a plot
+                   over the other plot points. This is useful in Anchorhead,       point for every possible line of dialogue. As might be
+                   for example, because the plot point talk_to_bum_                expected, tradeoffs exist between ﬁne and coarse mod-
+
+
+32                 May/June 2006
+      discover_safe       get_safe_combo                 leave_house_once                                                  get_crypt_key
+                                                                                        get_flask
+                                  unlock_laptop                         get_card                                      find_williams_coffin
+              open_safe
+                                                                                                               get_skull
+                                discover_birth_pattern                               give_bum_flask
+                                                              read_library_book
+                                                                                                            show_bum_skull
+                                find_magical_shop
+
+
+     get_album                                             get_amulet
+                         open_puzzle_box                                                                                   talk_to_bum_about_himself
+                                                                                    talk_to_bum_about_crypt
+     read_basement_clippings               find_observatory                                                         read_bedroom_pages
+
+                                                              give_bum_amulet      talk_to_bum_about_anna                     OR
+     get_silver_locket
+
+                                 see_evil_god             discover_book_in_sewer                              talk_to_bum_about_william
+
+
+3 Plot points modeling Anchorhead’s day two, with ordering constraints. A directed edge from a to b indicates that a must happen
+before b, unless multiple edges are joined with an OR arc.
+
+
+
+  eling. The DM cannot make decisions about plot com-               story is modeled at a fairly uniform level of detail; oth-
+  ponents not represented as plot points, so the more plot          erwise, parts of the story modeled in more detail (that
+  points, the more decisions the DM can make. However,              is, by more plot points) will be considered more likely
+  each added plot point increases the optimization prob-            (as a whole) to happen.
+  lem’s complexity. More importantly, from an author’s
+  perspective, including many relatively unimportant plot           Choosing a set of DM actions
+  points tends to make evaluating plot sequences more                  The next authorial issue is choosing a set of DM
+  error and noise prone as the important plot points are            actions—that is, the tools the DM will have to work with.
+  obscured among the rest (barring a perfect evaluation             Various types of conceivable actions exist: preventing
+  function). This leads to the heuristic that any plot point        and causing events, giving hints, and so on. Of course,
+  you might conceivably want to change (that is, cause to           an action should not simply make strange things hap-
+  happen, prevent, or otherwise modify) with a DM action            pen in front of the player’s eyes. If the player hasn’t yet
+  should be represented. As should any plot point that will         found the safe, for example, we can just make it disap-
+  have a signiﬁcant impact on the quality of the story (and         pear so the player never finds it, but if the player has
+  so should be visible to the evaluation function); all oth-        already seen it, we need to be more careful. Designing
+  ers should be omitted. This is of course a subjective judg-       unintrusive DM actions depends a lot on the story world.
+  ment, and some experimentation is likely the best way             One generalization is that it’s much easier to accomplish
+  to arrive at a reasonable level of detail.                        with plot points involving characters, since they can
+                                                                    often be plausibly made to start conversations, perform
+  Player modeling                                                   actions, and so on.
+     Finding the action that maximizes expected story
+  quality requires some model of the likelihood that var-           Types of DM actions
+  ious plot points will happen at any given point in the                We’re currently investigating ﬁve types of DM actions:
+  story. We call this a player model, since fundamentally
+  which plot points happen and in what order depends on             ■ permanent deniers,
+  what the player does.                                             ■ temporary deniers,
+     We currently model what we consider a simple but               ■ causers,
+  reasonable player: one who has no particular knowl-               ■ hints, and
+  edge of the story or the author’s goals, and so is acting         ■ game endings.
+  in an essentially random manner to explore the story.
+  Speciﬁcally, at any given point in the story, we assume              Permanent deniers change the world so that a partic-
+  that any of the possible plot points (that is, those whose        ular plot point becomes simply impossible for the dura-
+  ordering constraints are satisﬁed) are equally likely. We         tion of the game. For example, if find_safe hasn’t
+  also test a variant of this in which we assume that the           happened yet, we can prevent it from ever happening
+  player sometimes listens to DM actions that hint at par-          by changing the bookcase with a loose book (behind
+  ticular plot points, making those plot points more like-          which the safe is hidden) into just a normal bookcase.
+  ly than the rest (these are the same player models that              Temporary deniers also change the world so a partic-
+  Weyhrauch uses.)                                                  ular plot point becomes impossible, but only temporar-
+     Player modeling impacts how stories should be                  ily. Each comes with a paired undenier (or reenabler)
+  abstracted into plot points, and is thus important from           DM action that makes the plot point possible again. For
+  an authorship perspective. With the current (close to)            example, find_safe might be reenabled by hiding the
+  random-exploration model, things work better if the               safe in some other location the player hasn’t yet been to.
+
+
+                                                                                   IEEE Computer Graphics and Applications                             33
+Interactive Narrative
+
+
+
+                      Causers simply make a plot point happen. For exam- sary information (such as their location or the subplot
+                   ple, the bum in Anchorhead could volunteer informa- they advance), and the DM tries to guide the story
+                   tion about his past, thereby causing talk_to_bum_ toward one that scores well according to that function.
+                   about_himself to happen.                                   In the process of doing so, the DM makes complex trade-
+                      Hints make a plot point more likely to happen, with an offs—difficult for an author to manually specify in
+                   associated multiplier and duration. For example, if the advance—between possibly conﬂicting authorial goals
+                   bum tells the player that the crypt key is hidden in the (as speciﬁed by components of the evaluation function),
+                   house’s basement, it increases the chances that one of taking into account the player’s actions and incorporat-
+                   the next few plot points will be get_crypt_key.            ing them into the developing story.
+                      Game endings are a special type of DM action that          To ease authoring, DODM can be used with a feature
+                   ends the game. These are included so that stories can toolbox representing common authorial goals. To make
+                   have multiple endings, which the DM triggers by using weighting various goals straightforward, we give all fea-
+                   the same criteria it uses for its other decisions.         tures values within the range of 0.0 to 1.0, so an author
+                      In Anchorhead, we have four per-                                             can specify an overall evaluation
+                   manent deniers, five temporary                                                  function as a weighted feature com-
+                   deniers and the ﬁve corresponding                                               bination. At present, these general-
+                   reenablers, four causers, 10 hints,             To ease authoring,              ized features view the plot point
+                   and two game endings, for a total of                                            space as flat, with each plot point
+                   30 DM actions.                              declarative optimization-           given equal importance. Therefore,
+                                                                                                   portions of the story with more plot
+                   Issues in specifying DM actions            based drama management points will ﬁgure more heavily into
+                      The first issue we ran into was                                              the evaluation function. We might
+                   that in a large world like Anchorhead      can be used with a feature conceivably address this in the
+                   not every DM action is appropriate                                              future by allowing either a hierar-
+                   at any given time. The Tea for Three           toolbox representing             chical space of plot points, or impor-
+                   world is fairly small, so this was a                                            tance values attached to each plot
+                   reasonable assumption, but in               common authorial goals.             point.
+                   Anchorhead, it hardly makes sense                                                 We use seven features in our eval-
+                   for the DM to request, for example, that the bum bring uation function for Anchorhead, all of which we can
+                   up a particular topic in conversation when the player is apply to any story where the goal the feature encodes
+                   not even remotely near the bum in the world. As a ﬁrst would be desirable.
+                   step in remedying this, we added two possible con-
+                   straints on DM actions: must-follow and must-follow- General features
+                   location. A must-follow constraint allows the DM to only      Three features specify general properties we’d like
+                   choose a DM action immediately after a particular plot our stories to have: location flow, thought flow, and
+                   point. This is particularly convenient for endings, which motivation.
+                   usually only make sense to trigger at a speciﬁc point. A      Location ﬂow is a measure of spatial locality of action:
+                   must-follow-location constraint allows the DM to only the more plot point pairs that occur in the same loca-
+                   choose a DM action immediately after a plot point that tion, the higher the score. This feature is based on a judg-
+                   happens in a particular location. For example, we can ment that wandering constantly around the world is
+                   constrain any DM actions that cause the bum to take an undesirable.
+                   action that is legal only following plot points that occur    We calculate thought ﬂow in a similar way as location
+                   in the bum’s vicinity.                                     flow, but it measures the player’s (assumed) thought
+                      An additional issue is that making DM actions too continuity, as speciﬁed by an optional thought annota-
+                   powerful can have negative consequences. This is partic- tion on plot points. This feature prefers short snippets
+                   ularly an issue with permanent deniers, since they force of coherent sub-subplots. For example, get_safe_combo
+                   story choices of potentially major consequence that can- and discover_safe are both annotated with the thought
+                   not then be undone. If a particular plot point denial max- safe, so the thought ﬂow feature would prefer plots in
+                   imizes outcome in, say, 90 percent of cases, but the which the player ﬁnds the safe and then looks for the
+                   player’s playing causes the story to unfold into one of combination (or vice versa), rather than ﬁnding the safe,
+                   the other 10 percent, then there is little choice but to getting distracted by something else, and then ﬁnding
+                   push the story toward a reasonable conclusion. There- the combination later.
+                   fore, temporary deniers are preferable, since they can        Motivation is a measure of whether plot points simply
+                   always be undone if necessary. However, permanent occur out of nowhere or happen after other plot points
+                   deniers are still worth considering, as some potentially that motivated them in the player’s mind (this is a sub-
+                   useful deniers are difﬁcult to make believably undoable. jective determination by the author). For example, ﬁrst
+                                                                              finding the observatory (find_observatory) and then
+                   Specifying an evaluation function                          noticing that the telescope is missing a lens would make
+                      An evaluation function encodes the author’s story aes- opening the puzzle box and finding a lens inside
+                   thetic declaratively, which is one of DODM’s main attrac- (open_puzzle_box) motivated, while opening the puz-
+                   tions. The author speciﬁes the criteria used to evaluate zle box without having found the observatory would
+                   a given story and annotates plot points with any neces- make the discovery of the lens unmotivated.
+
+
+34                 May/June 2006
+Features for stories with multiple endings                      tributions for reinforcement learning from 2,000 simu-
+   With multiple subplots leading to multiple potential lated runs each. All histograms use a bin width of 0.02
+endings, we need two additional features—plot mixing for evaluation function values.
+and plot homing—to evaluate the plot interaction.
+   Plot mixing measures to what extent the initial part Search results
+of the story includes plot points from multiple subplots.          SBDM uses a variant of game-tree search after each
+We’d like the player to explore the world in the begin- plot point to project possible future stories and decide
+ning, rather than ﬁnding one of the plot sequences and which DM action (if any) to take. The search projects
+going straight to one of the endings.                           possible future stories that alternate between the DM
+   Plot homing measures to what extent the latter part choosing its best action and the player choosing a ran-
+of the story includes plot points uniformly from the same dom action. This is essentially the same as standard
+subplot. This is a counterpart to the plot mixing feature: mini-max game-tree search—in which values are
+While we don’t want the player to go straight to one sub- backed up a search tree by choosing the minimum value
+plot and ﬁnish the game right away,                                                  at your opponent’s choice points
+we do want them to do so eventual-                                                   and the maximum value at your
+ly, rather than continually oscillat-                                                own choice points—except that the
+ing between subplots and then                    Drama management’s                  minimizing nodes are replaced with
+stumbling upon one of the endings.                                                   averaging nodes because we model
+                                                    goal is to improve               the player as acting randomly rather
+Metafeatures                                                                         than adversarially.
+   The final two features—choices                   experience quality                  The problem that immediately
+and manipulativity—rate the drama                                                    arises is that actually performing a
+management’s impact on a story                     over a whole range                complete search over all possible
+rather than the story itself.                                                        future combinations of DM actions
+   Choices is a measure of how much                     of possible                  and plot points is computationally
+freedom the player has to affect                                                     infeasible because the search space’s
+what the next plot point will be. The                player behavior.                size grows exponentially with the
+goal is to give the player as many                                                   size of the story.
+action choices at any given time as possible, rather than          In Tea for Three, Weyhrauch implemented a memo-
+achieving a highly rated story by forcing the player into ized full-depth search by creating a lookup table,
+one. Without this feature, a DM with access to a lot of indexed by story states, that contained the drama man-
+causers and deniers would basically linearize the story, agement moves to take in all possible story states. This
+making the best story as judged by the other features was feasible because of symmetries in the search space
+the only possible story, which would defeat the entire that allowed him to collapse the entire search tree into
+purpose of an interactive experience. (This feature is a a table of approximately 2.7 million nodes. However,
+way of trading off just how much guidance the DM the memoized search is relatively difficult to author
+should give the player.)                                        because the way to construct the table depends on the
+   Manipulativity is a measure of how manipulative the particular combination of evaluation features used and
+DM’s changes in the world are. The author speciﬁes a would have to be recoded each time features changed.
+manipulativity score for each DM action, encoding a judg- (This process is less appealing than specifying a declar-
+ment of how likely the player is to notice it as something ative evaluation function for an unchanging search
+suspicious going on (subtle hints might be judged to be process to use.) Weyhrauch noted that even the memo-
+less manipulative than outright causers, for example).          ized search doesn’t scale well: in our model of Anchor-
+                                                                head’s day two, the table would have a minimum of
+Evaluation methodology                                          hundreds of millions of entries, requiring gigabytes of
+   Drama management’s goal is to improve experience memory.
+quality over a whole range of possible player behavior.            More promisingly, Weyhrauch reported surprisingly
+Evaluating drama management therefore requires apply- good results with sampling adversarial search (SAS),
+ing the evaluation function to many stories induced by which performs a sampling version of mini-max search.
+the player model and comparing the distribution of story SAS performs search to a specified depth (in our ver-
+scores between the drama-managed and nondrama- sion, iteratively deepening until a time limit), and then
+managed cases. Successful drama management should obtains a score by averaging together a ﬁxed number of
+shift the distribution of story scores to the right compared complete plot samples that could follow the cutoff point.
+to the distribution with no drama management.                   SAS+ is a variant that allows temporarily denied plot
+   We test whether this is the case by generating and points to appear in the samples, under the assumption
+scoring random plots to construct the unmanaged dis- that they could be reenabled at some point in the future
+tribution and by running drama management with sim- (necessary in order to prevent stories in which no end-
+ulated players to construct the managed distribution. ing is reachable). In Tea for Three, the mean quality of
+In the experiments reported here, we constructed the stories produced through SAS+ with a depth limit of one
+nondrama-managed distributions from 10,000 samples was at the 97th percentile of the unmanaged distribu-
+each; the drama-managed distributions for search from tion, nearly equaling the 99th percentile obtained by
+100 simulated runs each; and the drama-managed dis- the memoized full-depth search.
+
+
+                                                                             IEEE Computer Graphics and Applications         35
+Interactive Narrative
+
+
+                               0.35
+                                                                                                         search of this sort is essentially doing a local, greedy
+                                           No drama manager                                              search, at each point choosing the DM action that max-
+                                0.3        Drama manager,
+                                                                                                         imizes the average future plot score under the assump-
+                                            user ignores hints
+                                           Drama manager, user                                           tion that no further DM actions will be taken. Since the
+                               0.25                                                                      entire point of DODM is to maximize score, taking into
+       Proportion of stories
+
+
+
+
+                                            probabilistically
+                                            follows hints                                                account the possibility of future DM actions, this is a sig-
+                                0.2                                                                      niﬁcant handicap. The limitation is particularly prob-
+                                                                                                         lematic for DM actions that need to be paired to be
+                               0.15                                                                      effective, such as temporary deniers and their corre-
+                                                                                                         sponding reenablers.
+                                0.1                                                                         To determine whether we saw worse results than
+                                                                                                         Weyhrauch due to the set of DM actions we chose, we
+                               0.05                                                                      ran an experiment with causers, temporary deniers, and
+                                                                                                         reenablers for each plot point. These synthetic DM
+                                                                                                         actions (synthetic because only a subset are plausibly
+                                  0
+                                   0.4        0.5           0.6           0.7        0.8          0.9    implementable in the real story world) ought to give the
+                                                                  Score                                  DM as complete control as possible over the story.
+                                                                                                            However, as Figure 5 shows, the performance with this
+4 Plot quality distribution with and without drama management. We ran                                    set of DM actions is actually worse than not using drama
+the drama-managed runs with SAS+, limited to 2 seconds per decision.                                     management at all. This would be impossible with a
+                                                                                                         search reasonably approximating full-depth search,
+                                                                                                         because even in the worst case the DM could avoid actu-
+                                0.2
+                                                                                                         ally worsening a story by simply choosing to never take
+                                            No drama manager                                             any action. Clearly, then, the difference in distribution
+                                            Drama manager,                                               quality is due to SAS+ being ineffective on our story.
+                                             synthetic actions
+                               0.15                                                                         To untangle the multiple ending effects, we also tried
+                                                                                                         each plot separately, turning off the plot-homing and
+     Proportion of stories
+
+
+
+
+                                                                                                         plot-mixing features and keeping only the plot points
+                                                                                                         and DM actions relevant to each subplot. The results in
+                                0.1                                                                      Figure 6 show that the DM is much more successful at
+                                                                                                         improving the quality of the stories with the
+                                                                                                         discover_book_in_sewer ending (see Figure 6a) than
+                                                                                                         those with the see_evil_god ending (see Figure 6b). One
+                               0.05                                                                      possible reason is that the storyline ending with
+                                                                                                         see_evil_god mostly includes temporary deniers and
+                                                                                                         reenablers as its DM moves, which local search is bad at
+                                                                                                         using. Similar to a chess program that searches only
+                                 0
+                                     0.4       0.5         0.6            0.7        0.8          0.9    three moves into the future and can’t plan five-move
+                                                                  Score                                  combinations, SAS-style search can’t effectively plan
+                                                                                                         using spaced-out pairs of temporary deniers and reen-
+5 Distribution of plot qualities with and without drama management,                                      ablers to delay plot points.
+using synthetic DM actions for the drama-managed runs. We ran the
+drama-managed runs with SAS+, limited to 2 seconds per decision.                                         Reinforcement-learning results
+                                                                                                            To address the shortcomings of search, we have been
+                                                                                                         investigating using offline reinforcement learning to
+                                              The performance of SAS+ on our model of Anchor-            precompute a policy, rather than projecting future sto-
+                                           head, on the other hand, is much less impressive. Figure      ries on the ﬂy. There are orders of magnitude more CPU
+                                           4 shows the plot score distribution in an unmanaged           time available to run ofﬂine learning than to run online
+                                           story, a SAS+ managed story with a simulated player           search during actual gameplay, so this allows much
+                                           ignoring hints, and a SAS+ managed story with a simu-         more computation on complex stories than time-limit-
+                                           lated player probabilistically following hints as the DM      ed shallow search does. As an added bonus, DM respons-
+                                           expects. With the player ignoring hints, the mean score       es during gameplay are nearly instant.
+                                           is at the 64th percentile and the median at the 59th;            We train the policy using temporal-difference (TD)
+                                           when the player follows hints probabilistically as expect-    learning,3 speciﬁcally taking as a starting point the
+                                           ed, the mean is still at the 64th percentile and the medi-    approach used by Tesauro4 to learn a policy for playing
+                                           an at the 63rd. This is still successful (the overall curve   backgammon. Essentially, this consists of running many
+                                           is shifted to the right), but less impressively so than in    thousands of simulated games to estimate the values of
+                                           Tea for Three, indicating that the SAS+ results from that     story states—that is, the value that full-depth search
+                                           story aren’t generalizable.                                   would ﬁnd for each state (a story state is a description of
+                                              In general, we wouldn’t expect SAS+ to achieve results     a partly or fully completed story). A full description of
+                                           anywhere near the 97th percentile reported by                 TD learning is beyond the scope of this article. However,
+                                           Weyhrauch. With shallow search depth, a sampling              the general idea is that as a simulation run progresses,
+
+
+36                                         May/June 2006
+                                                                                             0.3
+TD estimates the value of each state encountered based
+                                                                                                                                            No drama manager
+on its successor’s current estimate. This is because at the
+                                                                                                                                            Drama manager,
+end of each story we can use the evaluation function to                                     0.25                                             user ignores hints
+get a real value rather than an estimate for the last state                                                                                 Drama manager, user
+in the sequence. The real values propagate backwards,                                                                                        probabilistically
+
+
+
+
+                                                                 Proportion of stories
+                                                                                             0.2
+and all states’ estimates should eventually converge to                                                                                      follows hints
+the true values.5 The policy is then to simply pick what-
+ever DM action leads to a higher value state. Since there                                   0.15
+are far too many possible story states to store the value
+estimates in a lookup table, we follow Tesauro in train-
+                                                                                             0.1
+ing a neural network as a function approximator to esti-
+mate a function from states to their values.
+   One major difference between backgammon and                                              0.05
+drama management is that there is an adversary in
+backgammon. Some people have hypothesized that this
+                                                                                               0
+allows the reinforcement-learning agent to explore the                                          0.3        0.4         0.5            0.6           0.7           0.8
+edges of and weaknesses in its strategy because the adver-     (a)                                                            Score
+sary constantly exploits these (although precisely how
+                                                                                             0.3
+this works is controversial). With drama management,
+                                                                                                        No drama manager
+the player isn’t modeled as actively working against the
+                                                                                                        Drama manager,
+DM, but, as more or less acting randomly. In our experi-                                    0.25         user ignores hints
+ments, this makes training more difﬁcult, and the resul-                                                Drama manager, user
+tant policies tend to be relatively mediocre and not robust.                                             probabilistically
+                                                                    Proportion of stories
+
+
+
+
+                                                                                             0.2         follows hints
+   To address this problem, we train as if the drama-
+management problem were adversarial: we perform the
+training runs with a simulated player who is actively try-                                  0.15
+ing to work against the DM. Even when the resultant
+policy is evaluated against a random player, results are
+                                                                                             0.1
+good, and signiﬁcantly better than the policies trained
+directly against the random player, as Figure 7 shows.
+This is somewhat surprising, since the standard prac-                                       0.05
+tice in machine learning is to assume that training sam-
+ples should be drawn from the same distribution as the
+                                                                                               0
+test samples. We hypothesize that we get better perfor-                                         0.3        0.4         0.5            0.6           0.7           0.8
+mance by turning the problem into a pseudoadversari-           (b)                                                            Score
+al one because the adversarial player ﬁnds ﬂaws in the
+DM’s policy, which the DM then learns to correct. In the-      6 Distribution of plot qualities with and without drama management on
+ory this could result in a policy specially tuned for the      the subplots considered separately: (a) discover_book_in_sewer ending
+case of an adversarial player, but in practice, the posi-      and (b) see_evil_god ending. We ran the drama-managed runs with SAS+,
+tive results—even when evaluated with a random play-           limited to 2 seconds per decision.
+er—suggest that many of the policy improvements
+learned from training against the adversarial player                                        0.25
+must also improve the policy’s performance in the case                                                                                  Standard temporal
+of a random player.                                                                                                                       difference
+                                                                                             0.2                                        Pseudoadversarial
+   Because the reinforcement-learning results reported                                                                                    temporal difference
+here are still preliminary, we have concentrated on a
+                                                               Proportion of stories
+
+
+
+
+proof of concept using the discover_book_in_sewer sub-
+                                                                                            0.15
+plot. Figure 8 (on the next page) shows story-quality dis-
+tributions for stories that are unguided, guided by
+search (as in Figure 6a), and guided by a reinforcement-
+                                                                                             0.1
+learned policy (using our modiﬁed pseudoadversarial
+training procedure). The reinforcement-learned policy
+performs more consistently well than search, avoiding
+                                                                                            0.05
+the large gap present in the search results, although its
+upper peak is not as tall. In terms of percentiles, Table 1
+shows that the reinforcement-learned policy has a bet-
+                                                                                              0
+ter mean score and a signiﬁcantly better median score.                                         0.3         0.4        0.5             0.6           0.7           0.8
+More importantly, it does this without online (game-                                                                         Score
+time) optimization, so we are conﬁdent that it is much
+more easily scalable to the larger stories on which            7 Plot quality distribution using a policy trained with standard
+search’s performance degrades markedly (although of            temporal-difference learning versus one trained with our pseudoadversarial
+course this should be tested empirically).                     TD training procedure, on the discover_book_in_sewer ending.
+
+
+
+                                                                                                      IEEE Computer Graphics and Applications                           37
+Interactive Narrative
+
+
+                             0.25
+                                                                                                     Future work
+                                                                          No drama manager              The most immediate avenue for future work is to fur-
+                                                                          Search-based               ther develop the reinforcement-learning-based opti-
+                              0.2                                           drama manager
+                                                                          Route-based
+                                                                                                     mization approach and demonstrate that it performs
+                                                                            drama manager            well on a variety of stories of signiﬁcant size and com-
+     Proportion of stories
+
+
+
+
+                                                                                                     plexity.
+                             0.15
+                                                                                                        Ultimately, we need real-world validation to verify
+                                                                                                     that this style of drama management actually impacts a
+                                                                                                     player’s experience in a real game. The current experi-
+                              0.1
+                                                                                                     ments aim at maximizing the plot-score curves, on the
+                                                                                                     assumption that the author has successfully speciﬁed
+                                                                                                     his or her aesthetic in the evaluation function. We could
+                             0.05
+                                                                                                     check the assumption itself by evaluating whether play-
+                                                                                                     ers judge as improved actual drama-managed gameplay.
+                                                                                                     Real-word experimentation might also allow a better
+                               0
+                                0.3      0.4          0.5           0.6          0.7          0.8    understanding of how to develop good evaluation func-
+                                                            Score                                    tions in the ﬁrst place.
+                                                                                                        In addition, development of a more realistic player
+8 Distribution of plot qualities with search-based, reinforcement learning-                          model would allow for more accurate optimization. The
+based, and no drama management, on the discover_book_in_sewer                                        current model of an essentially uniform player is a rea-
+ending.                                                                                              sonable first approximation. However, in many story
+                                                                                                     worlds, features of the story world, such as spatial local-
+                                                                                                     ity or particularly strong motivating goals, will induce
+ Table 1. Summary of results for search and reinforcement                                            nonrandom patterns on plot-point sequences.
+ learning, in percentiles.                                                                              One way of improving the model is to recognize that
+                                                                                                     player behavior depends on both the players themselves
+ Method                                               Mean (%)               Median (%)              and on the structure of a particular story. We already do
+ Search                                               66.40                  57.62                   this to some extent by having plot points annotated with
+ Reinforcement learning                               72.21                  73.80                   ordering constraints, so our player model doesn’t do
+                                                                                                     things that the game simply doesn’t allow.
+                                                                                                        We might build better player models by having the
+                                                                                                     author annotate plot points with more detailed infor-
+                                      Conclusions                                                    mation. For example, if the author provided a rough
+                                         DODM is a conceptually appealing way of casting the         map of the story world with the locations of each plot
+                                      drama-management problem, as it allows an author to            point, we could assume (all else being equal) that plot
+                                      specify what should happen and ofﬂoads the details of          points spatially closer to each other are more likely to
+                                      making complex tradeoffs in speciﬁc cases to an opti-          happen in sequence. We could even have the author
+                                      mization framework. The initial proposal of this style of      annotate plot points with an estimate of their a priori
+                                      drama management as search-based drama manage-                 probability. For example, an optional hidden side quest
+                                      ment, however, reported results that were too optimistic       could be less likely than a conversation with an easily
+                                      in the general case. Exponential explosion in the size of      ﬁndable nonplayer character.
+                                      the search space makes brute-force, full-depth search             Another option would be to sidestep this process
+                                      infeasible. Unfortunately, more tractable shallow sam-         entirely and simply build an empirical model by having
+                                      pling searches don’t always perform well, and in some          players play through the game while logging what they
+                                      cases perform particularly badly. SAS+ does positively         do. This is not without its pitfalls either, though, as it
+                                      impact the quality of Anchorhead, but not as effectively       would require quite a bit of data to build an accurate
+                                      as in Weyhrauch’s Tea for Three, indicating that his pos-      player model, especially on a larger story, and we would
+                                      itive SAS+ results don’t generalize to arbitrary stories. In   have to recollect data if the story were changed in any
+                                      many ways we expected this; the whole point of declar-         but the most minor ways.                                ■
+                                      atively casting the drama-management problem is to
+                                      force the DM rather than the author to perform complex         Acknowledgments
+                                      tradeoffs among story evaluation features. In general,           This research was supported by a grant from the Intel
+                                      deep search will be required to perform such tradeoffs.        Foundation and by graduate research fellowships from
+                                         Reinforcement learning provides a promising alter-          the National Science Foundation and the US Depart-
+                                      native to search, however, especially on larger and more       ment of Homeland Security.
+                                      complex stories. By doing the optimization offline
+                                      instead of during the actual gameplay, it performs more
+                                      extensive optimization than possible with online search.
+                                      However, we need to do more experiments to conclu-             References
+                                      sively show that reinforcement learning can perform             1. M. Mateas and A. Stern, “Integrating Plot, Character, and
+                                      well on a range of stories, including those on which               Natural Language Processing in the Interactive Drama
+                                      search performs particularly badly.                                Façade,” Proc. 1st Int’l Conf. Technologies for Interactive Dig-
+
+
+
+38                                    May/June 2006
+   ital Storytelling and Entertainment (TIDSE), Fraunhofer                           Michael Mateas is an assistant
+   IRB Verlag, 2003.                                                                 professor at the Georgia Institute of
+2. P. Weyhrauch, Guiding Interactive Drama, doctoral disser-                         Technology with a joint appointment
+   tation, tech. report CMU-CS-97-109., School of Computer                           in the College of Computing and the
+   Science, Carnegie Mellon Univ., 1997.                                             School of Literature, Communication,
+3. R.S. Sutton, “Learning to Predict by the Methods of Tem-                          and Culture. His research interests
+   poral Differences,” Machine Learning, vol. 3, no. 1, 1988,                        include AI-based art and entertain-
+   pp. 9-44.                                                                         ment. Mateas has a PhD. in computer
+4. G. Tesauro, “Practical Issues in Temporal Difference Learn-    science from Carnegie Mellon. Contact him at michaelm@
+   ing,” Machine Learning, vol. 8, nos. 3-4, 1992, pp. 257-277.   cc.gatech.edu.
+5. P. Dayan and T.J. Sejnowski, “TD(λ) Converges with Prob-
+   ability 1,” Machine Learning, vol. 14, no. 3, 1994, pp. 295-                      David L. Roberts is pursuing a PhD
+   301.                                                                              at Georgia Institute of Technology’s
+                                                                                     College of Computing. His research
+                                                                                     interests include technical issues relat-
+                                                                                     ed to building intelligent artifacts
+                                                                                     tasked with human interaction.
+                                                                                     Roberts has a BA in computer science
+                                                                                     and math from Colgate University.
+                                                                  Contact him at robertsd@cc.gatech.edu.
+
+                                                                                     Charles L. Isbell Jr. is an assistant
+                    Mark J. Nelson is a National Sci-                                professor at the Georgia Institute of
+                    ence Foundation graduate research                                Technology’s College of Computing.
+                    fellow and is pursuing a PhD at the                              His research interests include develop-
+                    Georgia Institute of Technology’s Col-                           ing machine-learning algorithms and
+                    lege of Computing. His research inter-                           tools to enable life-long learning in
+                    ests include intelligent interactive                             autonomous systems. Isbell has a BS
+                    systems, artificial creativity, and                              in computer science from Georgia Tech
+                    applications of machine learning. Nel-        and a PhD from the Artiﬁcial Intelligence Laboratory at
+son has a BS in computer science from Harvey Mudd Col-            the Massachusetts Institute of Technology. Contact him at
+lege. Contact him at mnelson@cc.gatech.edu.                       isbell@cc.gatech.edu.
+
+
+
+
+                                                                                IEEE Computer Graphics and Applications          39
+

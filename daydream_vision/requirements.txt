@@ -1,0 +1,5 @@
+google-genai>=1.49.0
+pillow
+pyyaml
+python-dotenv
+replicate

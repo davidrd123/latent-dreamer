@@ -21,14 +21,15 @@ This contract is for **Graffito slice v0** only:
 - scenes 3-4
 - hand-authored graph fixture
 - hand-authored trace fixture
-- offline trace-player path (doc 18 Option B)
+- scripted trace-player path into the real-time Scope stage (doc 18
+  Option B)
 
 It does **not** define:
 
 - the full Dreamer engine trace schema from `scope-drd`
 - the renderer prompt itself
 - the narration prompt itself
-- ComfyUI batch job layout
+- the full Scope API adapter implementation
 - the future full-graph traversal logic
 
 Those are downstream consumers of this seam.
@@ -63,8 +64,9 @@ The trace fixture is the canonical source for cycle-local state:
 
 ## Why This Seam Exists
 
-Doc 18 originally only needed `trace -> renderer -> batch YAML`. Doc 20
-adds a second consumer: `trace + graph + Scope frame -> narration`.
+Doc 18 originally only needed `trace -> renderer -> Scope playback`.
+Doc 20 adds a second consumer: `trace + graph + Scope frame ->
+narration`.
 
 That means the authored slice needs one explicit contract in between:
 
@@ -312,7 +314,7 @@ narration: "..."
 The narration layer should use the joined packet as its text grounding
 source and add the live frame as the perceptual grounding source.
 
-### 3. Batch-render projection
+### 3. Real-time stage projection
 
 Input:
 
@@ -326,15 +328,20 @@ Consumes:
 - `scene_ref`
 - `dwell_s`
 - renderer prompt fields
+- `transition_type`
+- optional renderer parameter updates
 
 Produces:
 
-- batch jobs in the ComfyUI/YAML format required by the Graffito
-  pipeline
+- the sequence of Scope API calls needed to play the cycle:
+  - `PUT /api/v1/realtime/prompt`
+  - optional `POST /api/v1/realtime/parameters`
+  - optional `POST /api/v1/realtime/soft-cut` or `hard-cut`
+  - dwell-based wait before the next cycle
 
-This projection is where naming, tags, section/unit, and negative prompt
-policy get resolved. It should not leak backward into the core playback
-packet.
+This projection is where timing, transition policy, and renderer
+parameter application get resolved. It should not leak backward into the
+core playback packet.
 
 ## Failure and Degradation Rules
 
@@ -403,7 +410,7 @@ For the current Graffito v0 state, this doc means:
   one enough once the adapter exists?
 - Should `visit_count` start at `0` or `1` on first visit? This doc
   assumes `1`.
-- Should the batch projection use `cycle` in job names, or preserve only
-  `scene_ref` and node identity?
+- Should the real-time stage projection keep a short history of prior
+  prompts/parameter changes for debugging and replay?
 - When the renderer gets revisit context, should it consume
   `last_seen_cycle` only, or also a short trailing packet history?

@@ -1,0 +1,15 @@
+[project]
+name = "latent-dreamer-vision-tools"
+version = "0.1.0"
+description = "Minimal multimodal CLI helpers for Daydream world-building."
+requires-python = ">=3.12"
+dependencies = [
+  "google-genai>=1.49.0",
+  "pillow",
+  "pyyaml",
+  "python-dotenv",
+  "replicate",
+]
+
+[tool.uv]
+package = false

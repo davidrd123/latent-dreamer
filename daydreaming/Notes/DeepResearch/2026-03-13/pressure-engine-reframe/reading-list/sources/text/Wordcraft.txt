@@ -1,0 +1,878 @@
+            Wordcraft: Story Writing With Large Language Models
+                                   Ann Yuan                                                                             Andy Coenen
+                               Google Research                                                                          Google Research
+                             Cambridge, MA, USA                                                                       Cambridge, MA, USA
+
+                                   Emily Reif                                                                         Daphne Ippolito
+                              Google Research                                                                           Google Research
+                            Cambridge, MA, USA                                                                        Cambridge, MA, USA
+
+ABSTRACT                                                                                                                                                 
+                                                                                                                 
+The latest generation of large neural language models such as GPT-
+3 have achieved new levels of performance on benchmarks for                                                                    
+
+
+language understanding and generation. These models have even
+demonstrated an ability to perform arbitrary tasks without explicit                                                
+
+training. In this work, we sought to learn how people might use
+such models in the process of creative writing. We built Wordcraft,
+a text editor in which users collaborate with a generative language
+model to write a story. We evaluated Wordcraft with a user study                                                          
+
+
+in which participants wrote short stories with and without the
+tool. Our results show that large language models enable novel
+co-writing experiences. For example, the language model is able                                                               
+
+
+to engage in open-ended conversation about the story, respond to
+writers’ custom requests expressed in natural language (such as
+                                                                                        Figure 1: The Wordcraft interface. (left) Shows how a user
+"rewrite this text to be more Dickensian"), and generate suggestions
+                                                                                        can select a passage of text (1), click ‘replace selection’ (2),
+that serve to unblock writers in the creative process. Based on these
+                                                                                        and get suggestions for alternatives (3) from the large lan-
+results, we discuss design implications for future human-AI co-
+                                                                                        guage model. (right) Shows how a user can click ‘generate
+writing systems.
+                                                                                        text’ (4) to get suggestions for continuations from the lan-
+                                                                                        guage model. Demo video: https://youtu.be/HthbABWE-xw
+CCS CONCEPTS
+• Computer systems organization → Technical systems.
+
+                                                                                                prompt: The secret to happiness is
+KEYWORDS
+                                                                                                language model: to find happiness in your work, in
+NLP                                                                                             your passion.
+ACM Reference Format:                                                                   Prompts can also be written in such a way that by continuing the
+Ann Yuan, Andy Coenen, Emily Reif, and Daphne Ippolito. 2022. Wordcraft:                text, the model ends up performing a specific task. In the example
+Story Writing With Large Language Models. In 27th International Conference              below, the prompt turns the language model into an English-to-
+on Intelligent User Interfaces (IUI ’22), March 21–25, 2022, Helsinki, Finland.
+                                                                                        French translator:
+ACM, New York, NY, USA, 12 pages. https://doi.org/10.1145/3490099.3511105
+                                                                                                prompt: English: morning
+                                                                                                French: le matin
+1     INTRODUCTION                                                                              English: afternoon
+The most recent generation of large language models such as GPT-3                               French: de l’après-midi
+[38] demonstrate significant advances in natural language genera-                               English: evening
+tion. At their core, these models have a simple API: given a string                             language model: French: le soir
+of text, known as a prompt [21], they return plausible continuations
+                                                                                        Despite the simplicity of this API, large language models (LLMs)
+for that string. For example:
+                                                                                        have demonstrated proficiency at a wide variety of tasks—from sto-
+                                                                                        rytelling [1, 28] to code synthesis [4, 9] and email auto-completion
+                                                                                        [40]. Such applications are often powered by models trained for a
+                                                                                        particular purpose, such as autocompletion [40], or neutralizing
+This work is licensed under a Creative Commons Attribution International
+4.0 License.                                                                            bias [35]. However, we are rapidly moving toward a future where a
+                                                                                        single large language model such as GPT-3 is able to power a vari-
+IUI ’22, March 21–25, 2022, Helsinki, Finland                                           ety of applications without explicit, application-specific training.
+© 2022 Copyright held by the owner/author(s).
+ACM ISBN 978-1-4503-9144-3/22/03.                                                       While large language models open up many possibilities, there is
+https://doi.org/10.1145/3490099.3511105                                                 still much to learn about how people will interact with them in
+
+
+
+
+                                                                                  841
+IUI ’22, March 21–25, 2022, Helsinki, Finland                                                                                             Yuan, et al.
+
+
+specific domains such as story writing, and whether they will find                  e) Finding the LLM to be helpful does not trade off with
+them useful at all.                                                                     writers’ feelings of ownership over the final story.
+   Motivated by these questions, we developed Wordcraft (Figure 1),                  f) The LLM’s suggestions do not need to be perfect in order
+a web application in which a human collaborates with an LLM for                         to be useful. Writers don’t necessarily accept LLM’s sug-
+the purpose of writing a story. Wordcraft consists of a traditional                     gestions verbatim, but nevertheless find them to be useful
+text editor as well as a set of integrated LLM-powered controls for                     in their creative process.
+writing tasks such as rephrasing or continuing a text passage. We                   g) Writers benefit from having both pre-built controls for
+also developed novel prompting techniques that enable users to                          interacting with the LLM, as well as the ability to define
+build custom controls to fit their needs just-in-time. For example,                     their own custom controls on-the-fly.
+a user may request the LLM to "rewrite the selected text to be more                 h) Writers found it useful to engage in open-ended conversa-
+melodramatic."                                                                          tion with a LLM-powered chatbot about their story.
+   To study how writers might use LLMs in their work, we con-                    (3) Informed by the results of our user study, we discuss design
+ducted a user study in which 25 hobbyist writers were asked to                       implications and future research directions, including:
+write short stories using Wordcraft. As baselines, we also asked                    a) Expanding the evaluative lens for co-writing systems be-
+participants to write stories using (1) an AI-powered assistive editor                  yond the accuracy of an LLM’s suggestions.
+with a single control: continue-my text, and (2) a plain text editor                b) Enabling users to make custom on-the-fly requests of
+with no extra controls shown alongside an LLM-powered chatbot                           LLMs in addition to providing pre-built controls.
+interface . In the study, we also examined participants’ reported
+experiences of using Wordcraft compared to the baseline conditions.          2 BACKGROUND AND RELATED WORK
+In particular, we investigated how participants’ sense of ownership
+                                                                             2.1 Human-AI co-creation
+in the final product was affected by interacting with the AI.
+   Our study results show that Wordcraft led to increased levels of          Recent progress in deep generative neural networks has inspired
+engagement with higher reported ratings of helpfulness than the              substantial research into the question of how humans could collabo-
+baselines, without compromising feelings of ownership. Beyond                rate with artificial agents powered by such networks, particularly in
+these promising signals, several important observations regarding            the creative process [18]. There have been many studies of human-
+how writers use LLMs arose from the study. First, counter to ex-             AI co-creation across domains, including drawing [8, 27, 31], music
+pectations, we found that the output of the model did not need to            [15, 22, 25], video game content creation [24], and design ideation
+be perfect in order to be useful. Though we tend to evaluate exist-          [16]. A recurring theme in this research concerns how to maintain
+ing co-writing technologies such as autocomplete in terms of the             human control and initiative in human-AI co-creation settings. This
+“accuracy” of the generated text, we observed that writers found             question also motivates our work.
+suggestions from the LLM useful despite needing to substantially
+revise the text, or not using the text in their story at all. Thus a key     2.2      Human-AI collaborative writing
+use case for Wordcraft was to produce inspiring text quickly, for            Human-AI co-creation in the writing domain has been widely stud-
+which the metric of success was not the generation of perfect prose,         ied. Indeed, applications such as Gmail’s Smart Reply feature [20]
+but rather the generation of seed text for the creative process. We          have already been deployed to massive audiences. In the human-
+also observed that writers appreciated having the ability to create          computer interaction literature, Buschek et. al. [6] study email writ-
+custom controls for interacting with the LLM. While the interface            ing and the impact of multiple suggested continuations on the user
+provided several built-in controls for writing support, writers often        experience. Gero et. al. [13, 14] study how synonym and metaphor
+preferred to design their own controls on-the-fly.                           generation affect a writer’s process. In Clark et. al [12], the au-
+   In summary, this paper makes the following contributions:                 thors present a system that generates revisions to users tasked with
+                                                                             writing slogans.
+                                                                                 There has also been work studying how natural language gen-
+   (1) We introduce Wordcraft–a tool for collaborating with a LLM            eration systems can be used to aid in story writing in particular.
+       for the purpose of writing a story. We present techniques             Osone et. al. [30] investigate AI-assisted story telling for Japanese
+       that enable users to write and execute custom operations for          novelists. Nader et al. incorporate a bot that makes story sugges-
+       interacting with the LLM, and we develop UX patterns that             tions into Storium, a multiplayer game for collaboratively crafting
+       help users discover the LLM’s capabilities.                           stories. [17] also explore using a neural language model to algorith-
+   (2) In a study with 25 hobbyist writers, we compare Wordcraft             mically create interactive stories for video games. Finally, Shmitt et.
+       to two baselines and find:                                            al. explore using a chatbot to help with fictional character creation
+      a) Wordcraft leads to higher engagement and higher ratings             Schmitt and Buschek [36].
+         of helpfulness.                                                         In the non-academic space, there has been a growth of interactive
+      b) Participants took less time and wrote longer stories using          assisted writing experiences, such as Write With Transformer, AI
+         Wordcraft.                                                          dungeon1 , copy.ai 2 , TextSpark3 , Latitude 4 , among many others.
+      c) Participants made more requests and incorporated more
+                                                                             1 https://play.aidungeon.io last accessed 07.15.2021
+         of the AI agent’s suggestions using Wordcraft.                      2 https://copy.ai/, last accessed 06.06.2021
+      d) Writers who found the LLM helpful also reported greater             3 https://textspark.ai/, last accessed 06.06.2021
+
+         enjoyment and ease writing their story.                             4 https://latitude.io/, last accessed 06.06.2021
+
+
+
+
+                                                                       842
+Wordcraft: Story Writing With Large Language Models                                                          IUI ’22, March 21–25, 2022, Helsinki, Finland
+
+
+However, there is still relatively little empirical analysis of the          user can splice into their story. In Figure 1 (right), Wordcraft can
+efficacy of such tools, or how people actually use them. One notable         be seen suggesting continuations for the user’s story. Wordcraft
+example is Calderwood et. al. [7], who present an exploratory user           also includes controls for rewriting or elaborating on a selection
+study (n=4) of how novelists might use Write With Transformer                of text. In addition to using these pre-built controls, users can also
+in their writing process. Our research builds upon their work by             construct custom operations on the fly.
+conducting a larger scale user study using a system that offers                 The features of Wordcraft are made possible by LaMDA, a neural
+writers more control over how and what text gets generated.                  language model trained at Google [37]. LaMDA is a dense left-
+                                                                             to-right decoder-only transformer language model [3] with 137B
+2.3     Generation with neural language models                               parameters. The model was pre-trained on 17.48 billion examples
+                                                                             extracted from public web documents, including forum, dialog data,
+Most of the work described in the previous section has relied on
+                                                                             and Wikipedia. It was further fine-tuned on high-quality dialog data,
+neural language models for generation. Neural language models,
+                                                                             resulting in a model with a chatbot-like interface. LaMDA takes as
+such as GPT-2 [34] or GPT-Neo [5], are neural networks that are
+                                                                             input a conversation formulated as a sequence of conversational
+trained only to predict the next word in a sequence given the previ-
+                                                                             utterances then makes predictions for what the next utterance in
+ous words (aka a prompt). We use “large language model,” or LLM,
+                                                                             the conversation should be.
+to refer to the recent generation of neural language models that
+                                                                                For example, the prompt below consists of three conversational
+have been trained used the Transformer neural architecture [3] and
+                                                                             turns. LaMDA predicts the next response:
+are capable of generating text that is convincing enough to fool
+human evaluators into thinking it is human-written [10].                             prompt: A: Can you help me write a short story about
+    There has been significant research into adding controls to gen-                 aliens?
+erative language models. For example, Ghazvininejad et. al. [23]                     B: Sure. I’m happy to help.
+introduce a model for poetry generation with controllable parame-                    A: What is a good name for my story?
+ters such as sentiment and repetitiveness. Ippolito et. al. [11] build               LaMDA: B: It depends on the story. If it’s a dark story,
+a fill-in-the-blank model where the words that go in the blank can                   call it The Dark Side.
+be controlled. Tambwekar et. al. [32] introduce a reward scheme to
+enable control over the plot of a generated story. Researchers have          3.1    Prompting methods
+also built story generation models that incorporate event sequences
+[33], desired topic [29], and story title [2] as control signals. Most
+of these prior efforts make use of pre-determined controls requiring
+bespoke models explicitly trained to support those controls. In con-
+trast, our work explores allowing users to make on-the-fly requests
+from a general-purpose LLM.
+    The most natural way to use an LLM is to ask it to continue from
+a provided prompt. For example, one might prompt with “Today I
+took my dog to” and the LLM will propose the continuation “the
+pet store so I could buy him some food.” Accordingly the first LLM-          Figure 2: Excerpts from Wordcraft prompts demonstrating
+powered assisted writing applications typically boiled down to a             the few-shot prompting method. The prompt consists of a
+single form of controllability: continue-my-text. Wordcraft builds           staged conversation between the model (bolded text) and the
+upon this work by offering additional controls designed to facili-           user (regular text). Individual utterances are marked with
+tate the writing process, without the need for training customized           ‘>’.
+models.
+    To get an LLM to perform specific tasks, Brown et al. [38] pro-
+                                                                                When a user triggers a control in Wordcraft, such as replace
+posed the idea of designing a prompt that contains several exam-
+                                                                             selection (Figure 1 - left), Wordcraft provides LaMDA with a prompt
+ples of the target task, written in natural language. These custom
+                                                                             carefully constructed using the context of the current story so that
+prompts allow a model trained only to do continuation to effectively
+                                                                             the model will perform the task – in this case, generating alterna-
+perform a variety of generative tasks. The authors describe their
+                                                                             tives for the selected text. Research has shown that large language
+method as a few-shot learning approach, since the model is being
+                                                                             models are capable of few-shot learning, which means that they
+asked to perform the target task after seeing just a few examples of
+                                                                             can be made to perform a specific task after being prompted with
+it. In Wordcraft, we use this technique to support a variety of text
+                                                                             several exemplars of the task [38]. For LaMDA, we found it effec-
+editing operations, including infilling, elaboration, and rewriting.
+                                                                             tive to phrase these exemplars as a conversational exchange. Each
+                                                                             pre-built control in Wordcraft is supported by a prompt containing
+3     WORDCRAFT                                                              between four and eight examples framed as a conversation. Our
+Wordcraft is a web application for story writing with an LLM. The            prompts are written in such a way that by continuing the conver-
+interface consists of a traditional text editor and a set of controls        sation, LaMDA ends up performing the task associated with the
+that prompt an LLM to perform various writing tasks. For exam-               control. We attempted to select prompts representing a diversity
+ple, Figure 1 (left) shows Wordcraft performing text infilling by            of topics and styles in order to minimize bias over generated text.
+suggesting alternatives for a selected passage of text, which the            Figure 2 shows excerpts from these few-shot prompts, in which the
+
+
+
+
+                                                                       843
+IUI ’22, March 21–25, 2022, Helsinki, Finland                                                                                                       Yuan, et al.
+
+
+                                                                                             prompt: Here’s my story so far: An old man sat crying
+                                                                                             on a bench. Explain why the old man was crying.
+                                                                                      Ideally, users would be able to simply tell the model what they
+                                                                                      want in the manner of the previous example. However, zero-shot
+                                                                                      prompts generally perform worse than few-shot prompts [39]. Thus
+                                                                                      it would seem that in order to enable users to ask the model to
+                                                                                      perform arbitrary tasks, we would either need to anticipate those
+                                                                                      tasks and write few-shot prompts in advance, or ask users to write
+Figure 3: (left) Excerpt from the prompt powering Word-                               few-shot prompts themselves. This is undesirable because of the
+craft’s freeform control, demonstrating the related exam-                             aforementioned difficulty of constructing prompts and the fact that
+ple prompting method. The last user utterance shows the                               it would require the user to understand how the underlying model
+desired task–‘Explain why the old man was crying.’ Note                               works.
+that the related examples vary in format (some refer to                                  Fortunately, we found that by including related prompts before
+‘my story’, some refer to ‘some text’). Nevertheless they                             a zero-shot prompt, it’s possible to steer the model towards per-
+are sufficiently related that LaMDA can complete the de-                              forming the desired task without few-shot examples specific to the
+sired task. (right) Excerpt from the prompt powering Word-                            task. We call this method related example prompting. Figure 3 (left)
+craft’s suggest-a-prompt control, demonstrating the meta-                             shows the zero-shot prompt above rewritten as a related example
+prompting method.                                                                     prompt, and in fact is excerpted from the prompt used in Wordcraft
+                                                                                      to enable users to create custom controls. The final utterance in
+                                                                                      the prompt represents the task the user wants the AI to perform
+                                                                                      on-the-fly: providing the backstory for a scene. The rest of the
+                                    
+                                                                           
+                                                                                      prompt does not contain examples of this particular task, but rather
+                                                                                      contains a collection of related tasks: ‘Describe the tree’, ‘Rewrite it
+                                                                                      to be more intense’, and ‘Give me the next sentence’. These related
+                              
+                                                                                      tasks generally are able to steer the model towards carrying out a
+                                                                                      new, user-generated task. Figure 4 (right) contains a screenshot of
+                                                                                      the custom prompt control in action.
+                                     
+                                                                                    3.1.2 Meta-prompting. We also developed a method for prompting
+                                                                                      the model to generate writing suggestions for the user. For example,
+                                                                                      the model might suggest new details to add or ask questions about a
+                                                 
+                                                                                      character or part of the setting. The writer can use these suggestions
+                                                                                      to guide their own writing, or ask the model to follow through with
+                                                                                      the suggestion and generate text using the suggestion as a prompt.
+Figure 4: (left) Custom prompting in the Wordcraft inter-
+                                                                                      This method, which we call meta-prompting, mimics the process
+face. The user makes a novel request of the AI agent via a
+                                                                                      that a writer might go through with a human collaborator: not
+custom prompt (1), and the model attempts to fulfill the re-
+                                                                                      only does the writer ask their collaborator questions about how to
+quest (2). (right) Meta prompting in the Wordcraft interface.
+                                                                                      improve the story, but their collaborator may also ask questions
+The user asks for suggestions for requests they could make
+                                                                                      that spur the writer to improve the story. To build the meta-prompt
+of the model (3), and browses those suggestions (4).
+                                                                                      control, we present the model with a few-shot prompt containing
+                                                                                      several stories. Each story is followed by a probing question. We
+                                                                                      then append the user’s actual story as the final utterance in the
+model performs various writing tasks over the course of a staged
+                                                                                      prompt, and the model generates a probing question in the style
+conversation with the user. When the user triggers a control, we
+                                                                                      of the examples. Figure 3 (right) shows an excerpt from a meta-
+splice their story into the corresponding prompt and pass the entire
+                                                                                      prompt used in Wordcraft, and Figure 4 (left) shows screenshots of
+staged conversation to LaMDA.
+                                                                                      the meta-prompting control in the interface. The user can select one
+3.1.1 Related example prompting: a method for user-made cus-                          of the model’s proposed questions, which automatically supplies
+tom controls. Writing effective prompts can be tricky and tedious.                    the selected question to the model using a related-example prompt.
+Prompt performance is highly sensitive to word choice, formatting,
+and the content of the exemplars, and it can be quite brittle to small                3.2    UX patterns for controllable text
+changes [39]. We wanted users to be able to quickly use LaMDA to                             generation
+perform arbitrary tasks on-demand without having to compose a
+                                                                                      This section lists all of the controls available in Wordcraft. The
+lengthy few-shot prompt containing exemplars of that task.
+                                                                                      Wordcraft interface provides users a set of pre-built controls (pow-
+   An alternative to few-shot prompting is zero-shot prompting, in
+                                                                                      ered by traditional few-shot prompts) as well as the ability to per-
+which the model is asked to perform a task without any examples
+                                                                                      form more customized tasks (powered by related example prompt-
+to learn from. For example:
+                                                                                      ing).
+
+
+
+
+                                                                                844
+Wordcraft: Story Writing With Large Language Models                                                               IUI ’22, March 21–25, 2022, Helsinki, Finland
+
+
+3.2.1 Infilling. Users can select a region of text and ask the AI to
+suggest alternatives (Figure 1 - left). For example given the passage:
+It bothered him to a certain degree that no matter how much he tried
+to break out of his shell, he couldn’t force himself to make friends.,
+the user can press “replace selection” to receive alternatives
+for the selected text (shown highlighted in blue). The model might
+then produce: It bothered him to a certain degree that no matter how
+much he tried to talk to people, it always came out awkward, he
+couldn’t force himself to make friends.. Figure 2 (left) contains an
+excerpt from the few-shot prompt Wordcraft uses for infilling.                            Figure 5: Writing habits survey results.
+
+3.2.2 Continuation. Wordcraft includes a control, “generate text,”
+that adds text to an existing passage (Figure 1 - right). Text is added     4     USER STUDY
+wherever the user’s cursor is within the passage, so users can add          To evaluate Wordcraft’s effectiveness, we conducted a user study
+text to the end (as is typical in other AI-assisted writing systems),       in which 25 hobbyist writers (whom we refer to as U1-U25) were
+but users can also generate a new sentence to be inserted into the          asked to write stories with and without Wordcraft.
+middle of a passage, or at the beginning.
+                                                                            4.1     Methodology:
+3.2.3 Elaboration. Users can select a region of text and ask the            We recruited participants from our institution via advertisements
+AI to provide more details about the selection. For example, given          on mailing lists. We then screened for individuals who practice
+the passage: The elderly man sat alone in the park holding a letter.,       creative writing on a regular basis, but who had not yet published
+the user can press elaborate selection to ask the AI to provide more        their writing. Participants volunteered for the study and were not
+details about the park, such as: It was a small, well-kept, garden park     compensated. Most of the participants (23 out of 25) did not con-
+that many of the locals knew and frequented. Figure 2 (middle) con-         sider themselves to be machine learning practitioners and had not
+tains an excerpt from Wordcraft’s few-shot prompt for elaboration.          interacted with an LLM previously. We asked participants to com-
+                                                                            plete a pre-study questionnaire about their writing habits (Figure 5).
+3.2.4 Story seeding. Given a writing prompt, users can ask the
+                                                                            Then we carried out a within-subjects study, giving each user three
+AI to generate a plausible first sentence for a story. For example,
+                                                                            writing prompts and asking them to write 100-300 word stories
+given the writing prompt: a horror story about a love triangle, the AI
+                                                                            under the following three experimental conditions (illustrated in
+generates the sentence: Jade lays in bed and stares up at the ceiling
+                                                                            Figure 6):
+from her hotel room. Her heart is broken.
+                                                                               (1) full Wordcraft, as described in Section 3.
+3.2.5 Free-form style transfer. Users can also ask the AI to rewrite a         (2) cont (baseline) a text editor with a single control: LaMDA
+selection of text in an arbitrary way. For example, given the passage:             will propose continuations to the text written so far. The cont
+Jade lays in bed and stares up at the ceiling from her hotel room. Her              condition enables us to evaluate Wordcraft against existing
+heart is broken. the user can specify a custom prompt such as to be                AI-assisted writing applications which most often feature
+more melodramatic, then press “rewrite selection“ to ask the                        continuation as a single control.
+AI to rewrite the passage in a more melodramatic style. The AI                 (3) chat (baseline) a plain text editor shown alongside a chat di-
+responds with suggestions such as: Jade sits curled up in the fetal                 alog window. Users can converse with the LaMDA-powered
+position in her bed at the hotel, wondering what she had done to                    chatbot, but the chatbot only “knows” what the user types
+deserve being dumped. Figure 2 (right) contains an excerpt from                     to it. The chat condition enables us to evaluate the utility of
+Wordcraft’s few-shot prompt for style transfer.                                     the prompt and UX scaffolding we designed for Wordcraft
+                                                                                    against giving users straightforward access to the under-
+3.2.6 Custom prompting. As mentioned in Section 3.1, we also                        lying model, without any scaffolding. An omniscient user
+developed a prompt that enables users to ask the AI to perform                      could theoretically reproduce the functionality of the full
+arbitrary tasks on-the-fly via the “use your own prompt” control.                   condition by replicating Wordcraft’s prompts.
+For example, one participant in our user study was writing a story          Participants were asked to write stories based on the following
+about a character named Daniel. They asked the AI agent: Tell me            three prompts 5 :
+more about Daniel. Figure 4 (right) shows the custom prompt control            (1) You arrive at Grandma’s funeral to find thousands of people
+in the Wordcraft interface. Figure 3 (left) contains an excerpt from                from around the world also in mourning. You are entirely
+Wordcraft’s few-shot prompt for custom prompting.                                   unaware that Grandma had 16.4m followers on Twitter.
+                                                                               (2) All of the ‘No. 1 Dad’ mugs in the world change to show the
+3.2.7 Meta-prompting. Users can also ask the AI for suggestions
+                                                                                    actual ranking of Dads suddenly.
+on what questions to ask via Wordcraft’s meta-prompting feature,
+                                                                               (3) You lost your sight - along with everyone else on Earth - in
+discussed in Section 3.1. These questions can then be then fed to
+                                                                                   The Great Blinding. Two years later, without warning, your
+the AI agent via the aforementioned use your own prompt control.
+                                                                                    sight returns. As you look around, you realize that every
+Figure 3 (right) contains an excerpt from Wordcraft’s few-shot
+prompt for meta-prompting.                                                  5 Prompts were selected from the Writing Prompts subreddit.
+
+
+
+
+                                                                      845
+IUI ’22, March 21–25, 2022, Helsinki, Finland                                                                                             Yuan, et al.
+
+
+
+
+Figure 6: Experimental conditions for the user study. The stories written by participants as part of the study can be viewed here:
+https://storage.googleapis.com/wordcraft-stories/index.html. The website also includes purely machine-generated baselines.
+
+
+       available wall, floor and surface has been painted with the
+       same message - Don’t Tell Them You Can See.
+Participants were given ten minutes to write each story. We felt
+that ten minutes was enough time for users to acquaint themselves
+with the interface and write 100-300 words, while managing users’
+expectations for how much time they would need to spend on the
+study in total. To control for writing ability and prompt difficulty, for
+each user, the three conditions were randomly paired with the three
+prompts, and the user was asked to write a story for each setting. We         Figure 8: Results from exit interview question ‘Which con-
+also randomized the order in which the conditions were presented.             trols did you enjoy using?’
+Users were not given any training for the various conditions“they
+were simply given a website link and asked to write a story with the
+interface. Users were told that they were participating in a study
+                                                                                    • creative goals: I was able to express my creative goals while
+of AI assisted writing, but they were not explicitly asked to solicit
+                                                                                      writing the story.
+help from the AI agent, as we were interested in learning how often
+                                                                                    • uniqueness: The story I wrote feels unique.
+users would want to make use of AI-assisted controls.
+                                                                              They also answered the following free-response questions: (1) When
+4.2     Evaluation                                                            did you get stuck writing your story? (2) What is one thing that
+                                                                              the AI agent did well? (3) What is one thing that the AI agent could
+                                                                              improve on? (4) Which controls did you enjoy using? (Question 4
+                                                                              was only asked for the full condition.)
+
+                                                                              5     RESULTS
+                                                                              In this section we note the overall successes and failures of AI-
+                                                                              powered assistive writing features, before comparing Wordcraft to
+                                                                              the baseline conditions in depth.
+
+Figure 7: Exit interview results. 1: Strongly disagree, 2: Dis-
+                                                                              5.1     The role of AI in co-writing
+agree, 3: Neutral, 4: Agree, 5: Strongly agree.
+                                                                              We observed that users solicited help from the AI agent at every
+                                                                              stage of the writing process–from high-level story concepting down
+After writing each story, users completed an exit interview in which
+                                                                              to rewriting and editing. Thus, we found that the AI agent played
+they indicated their agreement with the following questions on a
+                                                                              many different roles in collaborative writing.
+5-point Likert scale (results in Figure 7):
+    • helpful: I found the AI agent helpful.                                  5.1.1 AI as idea generator. Users asked the AI agent for help in
+    • collaborative: I felt like I was collaborating with the AI agent.       story ideation and brainstorming. For example, nine users at one
+    • ownership: I feel ownership over the final story.                       point presented the AI agent with their story and asked simply:
+    • enjoyment: I enjoyed writing the story.                                 ‘What happens next?’. Another user solicited help developing the
+    • ease: I found it easy to write the story.                               premise for their story: ‘What would happen if we could quantify
+    • pride: I’m proud of the final story.                                    love?’.
+
+
+
+
+                                                                        846
+Wordcraft: Story Writing With Large Language Models                                                                   IUI ’22, March 21–25, 2022, Helsinki, Finland
+
+
+                                                                Table 1: Usage statistics.
+
+                        Property                              chat Chat      cont Continuation   full Wordcraft        Overall
+                        Requests made avg                     6.3 ±1.3       4.3 ±0.52           7.3 ±0.74             6.0 ±0.53
+                        Accepted suggestions avg              N/A            0.17 ±0.08          1.3 ±0.25             0.51 ±0.12
+                        Story word count avg                  233 ±18        237 ±16             267 ±21.6             247 ±11.1
+                        Model word count avg (% of story)     N/A            2.9 ±2 (1.3%)       42.3 ±14.2 (13.2%)    16.2 ±5.7 (5.2%)
+                        Time considering suggestions avg      N/A            67.1s ±8.7s         41s ±4.1s             44.5s ±3.2s
+                        Time to complete avg                  11m ±62.5s     11.52m ±131.5s      9.97m ±37.1s          10.8m ±48.6s
+
+
+Table 2: Usage statistics broken down by request type (Word-                         Many users remarked on the usefulness of the AI agent’s sug-
+craft only).                                                                      gestions, even if they didn’t end up using them verbatim: ‘Multiple
+                                                                                  suggestions around the highlight or next phrasing were very helpful,
+       Request type         Requests made      Suggestions accepted               even if I didn’t use the whole phrase ... it was like having someone
+                                                                                  suggest things that I might have thought of myself’ (U9). Another
+       Rewrite              27                 5 (18.5%)
+       Story seed           22                 12 (54.5%)                         user commented: ‘It was good at generating a bunch of relevant ideas
+       Suggest a prompt     40                 2 (5%)                             that inspire my next lines and get me unstuck. I was never tempted to
+       Fill-in-the-blank    4                  0 (0%)                             use any of the lines verbatim, but it was fun inspiration’ (U4). Some
+       Continue             36                 4 (11.1%)                          also noted the AI agent’s tendency to provide offbeat suggestions
+       Next sentence        7                  1 (14.3%)                          as a strength: ‘the off the wall suggestions were fun to play around
+       Elaborate            3                  0 (0%)                             with and helped shape how the story took form’ (U5).
+       Custom               51                 9 (17.6%)
+
+                                                                                  5.1.2 AI as scene interpolator. We also observed users having ideas
+Table 3: Rewrite requests (user completions of ‘Rewrite                           for events before knowing how they fit into an existing story -
+this...‘)                                                                         and in such cases asking the AI agent to fill in gaps. For example,
+                                                                                  users would build a scene and then ask the AI agent to provide plot
+ to be a little less angsty • to be about mining • to be better written • to      points that would contextualize the scene. One user in their story
+ be less diabolical • to be more absurd • to be more adventurous • to be          described a character being watched, and then asked the AI agent
+ more Dickensian • to be more emotional • to be more magical • to be more         ‘Why were they watching me?’. Many of the custom prompts (Table
+ melodramatic • to be more philosophical • to be more revolutionary • to          4) we collected fall under this use case. These included prompts
+ be more surprising • to be more suspenseful • to be more technical • to be       such as ‘Tell me what the letter says.’ and ‘Tell me about the funeral
+ more whimsical • to be warmer • to fit better grammatically with the rest        home, grandma, the punk kid, and the crowd.’.
+ of the story • to make more sense
+
+                                                                                  5.1.3 AI as copy editor. We also observed users asking the AI agent
+           Table 4: Custom prompts written by users.                              for help in smaller scale edits, for example: ‘Rewrite this sentence to
+                                                                                  fit better grammatically with the rest of the story’, or ‘Rewrite this
+ Tell me more about her twitter account. • More about the dad please. • Tell      sentence to make more sense.’ Many of the requests in Table 3 fall
+ me about Elaine’s amazing twitter account. • Tell me about the father. • Tell    under this category.
+ me about the funeral home, grandma, the punk kid, and the crowd. • Tell
+ me how the man reacted as he found out he could see again. • Tell me more
+ about Daniel. • Tell me more about what it’s like to have to pretend to be       5.2     Shortcomings of AI in co-writing
+ blind when you can see. • Tell me what happens next. • Tell me what the
+                                                                                  5.2.1 Lack of content awareness. Users’ observations of the AI
+ letter says. • What are the words on the floor? What language are they in? •
+ What would happen if we could quantify love? • Why were they watching            agent’s shortcomings mostly center on its lack of contextual aware-
+ me?                                                                              ness. For example, though the assistant might provide several fluent,
+                                                                                  well-written alternatives to a sentence as part of the rewrite con-
+                                                                                  trol, its suggestions do not necessarily make sense given the rest of
+                                                                                  the story. One user whose story mentioned numbers moving on a
+   Another typical use case for soliciting help from the AI was when              coffee mug received suggestions from the AI agent which implied
+just starting a story. The story seed control, in which the AI agent              that ‘live animals (snakes specifically) were moving’.
+provides opening sentences for a story given a writing prompt, had
+the highest success rate of any control: 55% (Table 2) of suggestions
+were accepted by users. In these cases, the AI served to kick-start               5.2.2 Lack of grammatical awareness. Users noted that the AI
+the writing process for users who might have been blocked. Users                  agent’s suggestions were often not in the same tense as the rest of
+also found the AI agent helpful for generating smaller scale details              the story. Some also noted that the AI did not seem aware of their
+for their story, such as names for characters and locations.                      story’s established point of view (first person versus third person).
+
+
+
+
+                                                                            847
+IUI ’22, March 21–25, 2022, Helsinki, Finland                                                                                           Yuan, et al.
+
+
+5.3     Wordcraft versus baseline 1:                                        5.4.1 Users found Wordcraft more helpful. According to a Mann-
+        continuation-only                                                   Whitney U test, users found Wordcraft significantly more helpful
+                                                                            than the chat baseline (p = 0.0134), and also found it to be signifi-
+In this section we compare Wordcraft to the continuation-only
+                                                                            cantly more collaborative (p = 0.00668).
+baseline (cont). This baseline allows us to measure the utility of
+Wordcraft’s prompting methods (Section 3.1) and UX patterns (Sec-           5.4.2 The chatbot is effective at suggesting ideas. Nevertheless, we
+tion 3.2) for the story writing task against the typical experience         observed high user engagement with the chatbot assistant - on
+of continue-my-text seen in existing LLM-powered writing tools.             average users sent 6.3 ±1.3 messages to the chatbot (Table 1). One
+We analyzed the activity logs from each user’s writing session, and         user remarked: The AI agent asked good probing questions that gave
+extract quantitative findings based on the following metrics (results       me inspiration (U22). Many talked to the chatbot the way a writer
+in Table 1):                                                                might discuss a project with a friend, asking for suggestions about
+      • Requests made avg: On average, how many times the user              overall direction as well as story details. For example (U1):
+        requested assistance from the AI while writing a story.
+                                                                                   user: How should I start a story about being blind?
+      • Accepted suggestions avg: On average, how many of the AI’s
+                                                                                   AI agent: It’s a unique perspective, so focus on de-
+        suggestions the user accepted.
+                                                                                   scription. What can you hear, smell, taste, and touch?
+      • Time considering suggestions avg: The average time users
+                                                                                   These should all be used in your story.
+        spent between soliciting help from the AI, and accepting a
+        suggestion or dismissing the suggestions.                           Another user (U4) asked about specific plot elements and character
+      • Model word count avg: The average number of words in the            details:
+        final story that came directly from the AI agent.
+                                                                                   user: what is grandma famous for on twitter?
+      • Time to complete avg: The average time spent to produce the
+                                                                                   AI agent: She is known on Twitter for her love for
+        final story.
+                                                                                   cooking with the great recipe ideas she shares and
+5.3.1 Users solicited and accepted more assistance from the AI using               her love for gardening and giving advice for what you
+Wordcraft. Participants made significantly more requests of the                    can grow in yours.
+AI agent using Wordcraft (7.31 ±0.74) than the continuation-only                   user: what cake recipe is grandma famous for
+baseline (4.35 ±0.52) according to a paired-sample T-test (p = 0.003).             AI agent: She is known for her classic Victoria sponge
+Participants also accepted significantly (p = 0.0003) more of the AI’s             cake recipe. Her recipe has over 5,000 likes which
+suggestions using Wordcraft (1.27 ±0.25 vs 0.17 ±0.079). Accordingly,              makes it one of her most popular.
+the stories written with Wordcraft contained significantly (p =                    user: what is grandma’s twitter handle
+0.0068) more text from the AI agent (13.2% ±3.8%) than stories                     AI agent: Her twitter handle is @mylovelygrandma
+written with continuation-only (1.3% ±0.92%).                                      where she regularly tweets her cooking tips and pho-
+                                                                                   tos of her bountiful garden.
+5.3.2 Users found Wordcraft more helpful. The results from the
+Likert-scale questions in the exit interviews are in Figure 7. Accord-      5.4.3 The chatbot is effective at retrieving information. Users also
+ing to a Mann-Whitney U test, users found Wordcraft significantly           sometimes treated the chatbot as a search box, asking questions
+more helpful than the continuation-only baseline (p = 0.0266).              such as: how many people are fathers around the world. In the exit
+                                                                            interview, one user commented about the chatbot: ”I loved that it
+5.3.3 Users enjoyed using controls aside from continuation. We also         felt like a more targeted version of Google, and I could do background
+note in Figure 8 that more than half of the responses to the question       research while writing” (U21).
+‘Which controls did you enjoy using’ indicate controls other than
+‘generate text’ (aka continuation). ‘Use your own prompt’ was
+the most used control and the second most highly voted control,
+                                                                            5.5    Summary
+suggesting users enjoyed having the ability to design their own             We observe that Wordcraft offers an improved writing experience
+prompts. Table 2 lists the number of times each control was used            over both baselines. Qualitatively, several users also noted in their
+and accepted in Wordcraft, further demonstrating that participants          exit interviews that Wordcraft provided a better experience: ”I don’t
+found utility in a variety of controls other than continuation.             know if the AI functionality was meant to be different between this
+                                                                            prompt [full - Wordcraft] and the first [cont - continuation-only],
+5.4     Wordcraft versus baseline 2: chat                                   but it was different for me. This one had much more functionality and
+                                                                            was fun to use and actually added paragraphs of text at a time to the
+In this section we compare Wordcraft to the chat baseline. This
+                                                                            story. That wasn’t my experience with the first prompt” (U9).
+again allows us to measure the importance of Wordcraft’s prompt-
+ing methods and UX patterns, but also to observe how writers
+might make use of a powerful open-domain LLM-powered chatbot                6     DISCUSSION
+in their creative process. As the two conditions present significantly      In this work we sought to understand how the latest generation of
+different user experiences, many of the metrics from the previous           language models - capable for the first time of responding to arbi-
+section are not applicable. Thus we also analyze the chat transcripts       trary natural language prompts - might be used in future co-writing
+and free-response exit interview questions to extract qualitative           systems. For this we built Wordcraft - a human-AI co-writing inter-
+themes.                                                                     face with novel LLM-powered controls designed to support story
+
+
+
+
+                                                                      848
+Wordcraft: Story Writing With Large Language Models                                                           IUI ’22, March 21–25, 2022, Helsinki, Finland
+
+
+writing. We conducted a user study investigating how hobbyist writ-           their own dialect with certain conventions and syntax. As men-
+ers make use of these controls while writing short stories. Specif-           tioned in Section 3.1.1, LLMs are extremely sensitive to prompt
+ically, we compared Wordcraft to baseline interfaces in which (1)             phrasing - small tweaks can mean the difference between superb
+users can ask a LLM to continue their text, and (2) users can freely          and nonsensical model outputs. Thus designers of co-writing sys-
+chat with a LLM, in order to measure the utility of Wordcraft’s               tems should provide built-in controls backed by pre-written, tested
+unique interface elements in supporting the co-writing task.                  prompts to support users, rather than relying on LLMs to respond
+   While some of the feedback we received as part of the study was            to users’ arbitrary requests. The UX patterns and prompt program-
+a function of details in our interface, we believe the results nev-           ming strategies presented in this work (Section 3.2) could be useful
+ertheless contain important lessons about how to design effective             templates for this purpose.
+human-AI co-writing tools. We now discuss these broader impli-
+cations in hopes that they will be helpful for future tool designers,         6.3    Enabling user autonomy and customization
+especially as LLMs are more widely deployed.                                         in co-writing systems
+                                                                              As discussed in Section 5, we observed that users found Wordcraft
+6.1     LLM-powered co-writing systems require                                significantly more helpful and enjoyable to use than either the cont
+        new evaluative criteria                                               or chat baselines. This accords with the high engagement we mea-
+                                                                              sured with Wordcraft’s full palette of writing controls supporting
+Many of today’s assistive-writing technologies serve a specific,
+                                                                              both pre-determined and custom tasks (Table 2), which are un-
+narrow purpose, for example to enable fast auto-completion of
+                                                                              available in either baseline. Among these controls, we measured
+text, or to suggest synonyms, or to correct grammatical errors, etc.
+                                                                              the highest level of engagement with the custom control (Table 2),
+Evaluating such tools is typically straightforward: do they serve
+                                                                              through which users could design their own prompts on-the-fly
+their intended purpose? For example, in the case of auto-complete,
+                                                                              (made possible by the related-example prompting technique - Sec-
+suggestions can be measured in terms of their accuracy. However as
+                                                                              tion 3.1). This ability to make arbitrary requests of the underlying
+assistive-writing technologies become more powerful and flexible,
+                                                                              AI sets Wordcraft apart from previous AI-assisted writing inter-
+their purpose will be less strictly defined. In the case of Wordcraft,
+                                                                              faces, and may have contributed to Wordcraft’s superior ratings
+a surprising yet prevailing theme in the qualitative feedback we
+                                                                              of helpfulness and enjoyableness. This and the previous section
+received is that merely seeing the LLM’s suggestions was helpful,
+                                                                              taken together suggest that given the current state of LLMs, users of
+even when the text could not be used verbatim. One user remarked:
+                                                                              co-writing systems benefit from a combination of pre-built controls
+”Even if I didn’t use the whole phrase, I was able to edit / combine, and
+                                                                              to scaffold usability, as well as opportunities for customization.
+I felt like that still gave me control and agency over the story... This
+                                                                                 Drilling down into the specific custom requests (Table 4), we
+felt analogous to pair programming almost, when another pair of eyes
+                                                                              observed that participants made use of the LLM across multiple
+is really all you need” (U9). This among other strong testaments
+                                                                              stages of the writing process, from story ideation to text rephrasing,
+(Section 5.1.1) to the utility of the model’s suggestions are not
+                                                                              suggesting that applications featuring only a single continue-my-
+necessarily reflected in quantitative measures such as the ratio of
+                                                                              text control under-utilize LLMs when it comes to story writing.
+accepted versus suggested text from the LLM (Table 2). Just as it
+                                                                                 The breadth of custom prompts observed suggests that as models
+may be difficult to quantitatively characterize the value of a trusted
+                                                                              become increasingly flexible and capable of responding to natural
+writing partner, a truly responsive LLM-powered writing assistant
+                                                                              language commands, designers working with LLMs must prioritize
+may require a different evaluative lens compared to existing systems.
+                                                                              setting users up for success in expressing their own needs to the
+Specifically our evaluation methods will need to be both holistic
+                                                                              system (which cannot be anticipated in advance), in addition to
+and flexible - pre-determined measures may obscure the utility of a
+                                                                              designing features to support predetermined tasks. However, to
+system as writers will find unexpected uses for LLMs.
+                                                                              reiterate a point from the previous section, effectively expressing
+                                                                              ones needs to a LLM is a deceptively difficult task, and requires a
+6.2     LLM-powered co-writing systems should                                 level of expertise with prompt programming. We hope the related-
+        provide prompt and UX scaffolding                                     example prompting technique introduced in this work (Section 3.1),
+                                                                              by which a LLM may be coaxed to respond to natural language
+An important axis to consider in designing a co-writing system is
+                                                                              instructions without strictly related few-shot examples, will be
+how much scaffolding versus flexibility to provide. In our study,
+                                                                              helpful to designers for this purpose.
+writers found Wordcraft significantly more helpful than the chat
+condition, even though in that condition participants could have
+theoretically reproduced the functionality of Wordcraft by compos-
+                                                                              6.4    Open-ended conversation as co-writing
+ing their own few-shot writing prompts and passing them to the                       modality
+chatbot. This suggests that system designers, even those working              A surprising result from our study was the level of engagement
+with today’s state-of-the-art language models, are still faced with           we observed with the chat baseline. Participants used open-ended
+the significant challenge of translating users’ needs into terms the          conversation with the chatbot as a method for auditioning story
+model can understand. Interacting with LLMs through prompt pro-               ideas, getting suggestions for story details such as names of charac-
+gramming is both an incredibly powerful and deceptively tricky                ters and locations, and as a more targeted search engine (Section
+practice. Though LLMs appear fluent, and may sometimes respond                5.4.2). This is yet another example of the LLM playing a more fluid
+perfectly to a natural language request, they nevertheless have               role for which traditional evaluative metrics such as accuracy and
+
+
+
+
+                                                                        849
+IUI ’22, March 21–25, 2022, Helsinki, Finland                                                                                                           Yuan, et al.
+
+
+correctness may be ill-suited. This also presents interesting design         compare to collaborating with another writer? There is still much
+challenges for future co-writing systems: what does an interface             to learn about the mental models that users form about LLMs in the
+that effectively supports the aforementioned use cases look like?            co-writing process, and how these models change across audiences
+Should users have the ability to manipulate the conversational               (professional writers, writers with dyslexia, etc.). It would also be
+memory of a co-writing chatbot? We believe further investigation             worth investigating the extent to which the findings from our study
+into conversational interfaces for co-writing to be a fruitful area          generalize to other writing domains, such as professional writing
+for future research.                                                         or non-fiction writing.
+                                                                                We also believe that tools like Wordcraft can serve as data gath-
+6.5     Preserving ownership in co-writing                                   ering platforms for language model researchers. In addition to the
+        systems                                                              human-AI collaboratively written stories collected as part of our
+                                                                             user study6 , we are gradually building a unique corpus of smaller-
+In this work we also sought to investigate whether finding the LLM
+                                                                             scale user interactions with LLMs. We intend to grow this corpus
+to be helpful trades off with a user’s feelings of ownership over
+                                                                             and eventually share it with the research community so it can be
+the final written product. We failed to find a correlation in exit in-
+                                                                             used for model training and evaluation. For example, it would be
+terviews between ratings of AI helpfulness and ownership. Rather,
+                                                                             useful for researchers developing linguistic style transfer models
+ownership most strongly correlates with how proud the user feels
+                                                                             to be able to evaluate their models on a corpus of real world style
+about the final product (Figure 9). As previously discussed, the
+                                                                             transfer requests.
+LLM’s suggestions were often useful as inspiration without being
+adopted verbatim - this may explain why participants’ feelings of
+ownership were not compromised by engagement with the LLM.
+                                                                             7    CONCLUSION
+While this is reassuring, an interesting question for future investi-        In this paper we introduced Wordcraft - an editor for human-AI
+gation may be whether this finding will hold as LLMs become more             collaborative story writing - which makes use of novel prompting
+powerful. Will writers find themselves playing a role more akin to           techniques and UX patterns for interfacing with a large language
+curator in co-writing workflows?                                             model. We evaluated the interface with a user study in which we
+   We see custom prompting (Section 3.1) as a potential path for             asked hobbyist writers to write short stories with Wordcraft. Partic-
+preserving ownership in such settings: if the writer is able to effec-       ipants found Wordcraft to be more helpful than a continuation-only
+tively express their needs to the LLM or the LLM is able to use more         baseline, as well as a baseline in which they had full access to a
+context specific to the user, perhaps they will feel more responsible        large language model but no prompt or interface scaffolding.
+for its outputs - or even that they have in a sense authored them.              Our results contain lessons and insights for designers of co-
+                                                                             writing systems, and suggest a number of directions for future
+6.6     Limitations of large language models                                 research. In particular, we look forward to seeing new evaluative
+                                                                             methodologies invented to accommodate flexible co-writing tech-
+While we believe our results point to exciting new possibilities in
+                                                                             nologies such as LLMs. We also look forward to seeing research
+human-AI collaborative writing, we also encountered many failure
+                                                                             extending the techniques introduced in this work for effective end-
+modes of LLMs in the course of our investigation. As mentioned,
+                                                                             user programming of LLMs through natural language.
+natural language prompt programming is both powerful and error-
+prone. We also found that for certain tasks such as infilling, LLMs
+can be outperformed by smaller, more specialized language models.            ACKNOWLEDGMENTS
+Thus there may be a tradeoff between flexibility and performance             We would like to thank Carrie Cai, Chris Callison-Burch, Daniel De
+that system designers will need to carefully weigh when choosing             Freitas Adiwardana, Lucas Dixon, Douglas Eck, Meredith Morris,
+a model for a co-writing system.                                             Michael Terry, and Martin Wattenberg for helpful feedback and
+   It is also worth noting that LLMs are generally trained on large          discussion.
+corpora of text from the internet, and thus may inherit biases from
+that text [19]. LLMs have also been found to output memorized                REFERENCES
+passages from their training data [26]. How can system designers              [1] Nader Akoury, Shufan Wang, Josh Whiting, Stephen Hood, Nanyun Peng, and
+                                                                                  Mohit Iyyer. 2020. STORIUM: A Dataset and Evaluation Platform for Machine-
+prevent problematic outputs from surfacing to users? Should users,                in-the-Loop Story Generation. Empirical Methods in Natural Language Processing
+who have different preferences and levels of tolerance for such                   (2020).
+output, have control over which safeguards to put in place? These             [2] Mike Lewis Angela Fan and Yann Dauphin. 2018. Hierarchical neural story gener-
+                                                                                  ation. Proceedings of the 56th Annual Meeting of the Association for Computational
+issues are increasingly active areas of research within both the HCI              Linguistics (Volume 1: Long Papers) (2018).
+and machine learning communities, and will need to be carefully               [3] Niki Parmar Jakob Uszkoreit Llion Jones Aidan N. Gomez Lukasz Kaiser Illia Polo-
+                                                                                  sukhin Ashish Vaswani, Noam Shazeer. 2017. Attention Is All You Need. Neural
+addressed before tools like Wordcraft can be made available to                    Information Processing Systems (2017).
+larger audiences.                                                             [4] Jacob Austin, Augustus Odena, Charles Sutton, David Martin Dohan, Ellen Jiang,
+                                                                                  Henryk Michalewski, Maarten Paul Bosma, Maxwell Nye, Michael Terry, and
+                                                                                  Quoc V Le. 2021. Program Synthesis with Large Language Models. (2021).
+6.7     Directions for future work                                            [5] Sid Black, Leo Gao, Phil Wang, Connor Leahy, and Stella Biderman. 2021. GPT-
+Our work serves as a baseline for research into LLM-powered co-                   Neo: Large Scale Autoregressive Language Modeling with Mesh-Tensorflow. https:
+                                                                                  //doi.org/10.5281/zenodo.5297715 If you use this software, please cite it using
+writing systems, and raises many questions for future investigation.              these metadata..
+How do tools like Wordcraft compare against analog writing aids
+such as story prompt cards? How does collaborating with a LLM                6 https://storage.googleapis.com/wordcraft-stories/index.html
+
+
+
+
+                                                                       850
+Wordcraft: Story Writing With Large Language Models                                                                                 IUI ’22, March 21–25, 2022, Helsinki, Finland
+
+
+ [6] Daniel Buschek, Martin Zurn, and Malin Eiband. 2021. The Impact of Multiple                  System. arXiv preprint arXiv:1906.10188 (2019).
+     Parallel Phrase Suggestions on Email Input and Composition Behavior of Native           [32] Lara J. Martin Animesh Mehta Brent Harrison Pradyumna Tambwekar, Mur-
+     and Non-Native English Writers. ACM (2021).                                                  taza Dhuliawala and Mark O. Riedl. 2018. Controllable Neural Story Plot Gen-
+ [7] Alex Calderwood. 2020. How Novelists Use Generative Language Models: An                      eration via Reinforcement Learning. International Joint Conference on Artificial
+     Exploratory User Study. Intelligent User Interfaces (2020).                                  Intelligence (2018).
+ [8] Jinhan Choi Seonghyeon Kim Sungwoo Lee Changhoon Oh, Jungwoo Song and                   [33] Wesley Cheung Zhaochen Luo William Ma Lara J Martin Prithviraj Ammanabrolu,
+     Bongwon Suh. 2018. I Lead, You Help but Only with Enough Details: Under-                     Ethan Tien and Mark O Riedl. 2020. Story realization: Expanding plot events into
+     standing User Experience of Co-Creation with Artificial Intelligence. Computer               sentences. Proceedings of the AAAI Conference on Artificial Intelligence (2020).
+     Human Interaction (2018).                                                               [34] Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, Ilya Sutskever,
+ [9] Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique Ponde de Oliveira                 et al. 2019. Language models are unsupervised multitask learners. OpenAI blog
+     Pinto, Jared Kaplan, Harri Edwards, Yuri Burda, Nicholas Joseph, Greg Brockman,              1, 8 (2019), 9.
+     et al. 2021. Evaluating large language models trained on code. arXiv preprint           [35] Nathan Dass Sadao Kurohashi Dan Jurafsky Diyi Yang Reid Pryzant, Richard
+     arXiv:2107.03374 (2021).                                                                     Diehl Martinez. 2020. Automatically Neutralizing Subjective Bias in Text. AAAI
+[10] Elizabeth Clark, Tal August, Sofia Serrano, Nikita Haduong, Suchin Gururangan,               (2020).
+     and Noah A Smith. 2021. All That’s ‘Human’Is Not Gold: Evaluating Human                 [36] Oliver Schmitt and Daniel Buschek. 2021. CharacterChat: Supporting the Creation
+     Evaluation of Generated Text. In Proceedings of the 59th Annual Meeting of the As-           of Fictional Characters through Conversation and Progressive Manifestation with
+     sociation for Computational Linguistics and the 11th International Joint Conference          a Chatbot. In Creativity and Cognition. 1–10.
+     on Natural Language Processing (Volume 1: Long Papers). 7282–7296.                      [37] Romal Thoppilan, Daniel De Freitas, Jamie Hall, Noam Shazeer, Apoorv Kul-
+[11] Chris CallisonBurch Daphne Ippolito, David Grangier and Douglas Eck. 2019.                   shreshtha, Heng-Tze Cheng, Alicia Jin, Taylor Bos, Leslie Baker, Yu Du, et al.
+     Unsupervised hierarchical story infilling. Proceedings of the First Workshop on              2022. LaMDA: Language Models for Dialog Applications. arXiv preprint
+     Narrative Understanding (2019).                                                              arXiv:2201.08239 (2022).
+[12] Chenhao Tan Yangfeng Ji Elizabeth Clark, Anne Spencer Ross and Noah A. Smith.           [38] Nick Ryder Melanie Subbiah Jared Kaplan Prafulla Dhariwal Arvind Neelakantan
+     2018. Creative Writing with a Machine in the Loop: Case Studies on Slogans and               Pranav Shyam Girish Sastry Amanda Askell Sandhini Agarwal Ariel Herbert-
+     Stories. Intelligent User Interfaces (2018).                                                 Voss Gretchen Krueger Tom Henighan Rewon Child Aditya Ramesh Daniel M.
+[13] Katy Gero and Lydia Chilton. 2019. How a Stylistic, Machine-Generated The-                   Ziegler Jeffrey Wu Clemens Winter Christopher Hesse Mark Chen Eric Sigler
+     saurus Impacts a Writer’s Process. C&C (2019).                                               Mateusz Litwin Scott Gray Benjamin Chess Jack Clark Christopher Berner Sam
+[14] Katy Gero and Lydia Chilton. 2019. Metaphoria: An Algorithmic Companion for                  McCandlish Alec Radford Ilya Sutskever Tom B. Brown, Benjamin Mann and
+     Metaphor Creation. Computer Human Interaction (2019).                                        Dario Amodei. 2020. Language Models are Few-Shot Learners. arXiv:2005.14165
+[15] Cheng-Zhi Huang. 2020. AI Song Contest: Human-AI Co-Creation in Songwriting.                 (2020).
+     International Society for Music Information Retrieval Conference (2020).                [39] Shi Feng Dan Klein Sameer Singh Tony Z. Zhao, Eric Wallace. 2021. Calibrate
+[16] Lena Hegemann Janin Koch, Andrés Lucero and Antti Oulasvirta. 2019. May                      Before Use: Improving Few-Shot Performance of Language Models. Proceedings
+     AI? Design Ideation with Cooperative Contextual Bandits. Computer Human                      of Machine Learning Research (2021).
+     Interaction (2019).                                                                     [40] Yonghui Wu. 2018. Smart compose: Using neural networks to help write emails.
+[17] Wolfgang Effelsberg Jonas Freiknecht. 2020. Procedural Generation of Interactive             Google AI Blog (2018).
+     Stories using Language Models. International Conference on the Foundations of
+     Digital Games (2020).
+[18] Christian Remy Michael Mose Biskjaer Jonas Frich, Lindsay MacDonald Ver-
+     meulen and Peter Dalsgaard. 2019. Mapping the Landscape of Creativity Support
+     Tools in HCI. Computer Human Interaction (2019).
+[19] Varun Kumar Satyapriya Krishna Yada Pruksachatkun Kai-Wei Chang
+     Jwala Dhamala, Tony Sun and Rahul Gupta. 2021. Bold: Dataset and met-
+     rics for measuring biases in open-ended language generation. arXiv preprint
+     arXiv:2101.11718 (2021).
+[20] Anjuli Kannan, Karol Kurach, and Sujith Ravi. 2016. Smart Reply: Automated
+     Response Suggestion for Emil. International Conference on Knowledge Discovery
+     and Data Mining (2016).
+[21] Kyle McDonell Laria Reynolds. 2021. Prompt Programming for Large Language
+     Models: Beyond the Few-Shot Paradigm. Computer Human Interaction (2021).
+[22] Ryan Louie, Andy Coenen, Cheng Zhi Huang, Michael Terry, and Carrie J Cai.
+     2020. Novice-AI Music Co-Creation via AI-Steering Tools for Deep Generative
+     Models. Computer Human Interaction (2020).
+[23] Jay Priyadarshi Marjan Ghazvininejad, Xing Shi and Kevin Knight. 2017. Hafez: an
+     Interactive Poetry Generation System. Association for Computational Linguistics
+     (2017).
+[24] Jonathan Chen Shao-Yu Chen Shukan Shah-Vishwa Shah Joshua Reno
+     Gillian Smith Matthew Guzdial, Nicholas Liao and Mark O. Riedl. 2019. Friend,
+     Collaborator, Student, Manager: How Design of an AI-Driven Game Level Editor
+     Affects Creators. Computer Human Interaction (2019).
+[25] Michael Terry-Carrie J. Cai Minhyang (Mia) Suh, Emily Youngblom. 2021. AI as
+     Social Glue: Uncovering the Roles of Deep Generative AI during Social Music
+     Composition. Computer Human Interaction (2021).
+[26] Eric Wallace Matthew Jagielski Ariel Herbert-Voss-Katherine Lee Adam Roberts
+     Tom Brown Dawn Song Ulfar Erlingsson et al Nicholas Carlini, Florian Tramer.
+     2020. Extracting training data from large language models. arXiv preprint
+     arXiv:2012.07805 (2020).
+[27] Kunwar Yashraj Singh Lisa Li Nicholas Davis, Chih-PIn Hsiao and Brian Magerko.
+     2016. Empirically Studying Participatory Sense-Making in Abstract Drawing
+     with a Co-Creative Cognitive Agent. Intelligent User Interfaces (2016).
+[28] Eric Nichols, Leo Gao, and Randy Gomez. 2020. Collaborative storytelling with
+     large-scale neural language models. In Motion, Interaction and Games. 1–10.
+[29] Lav R Varshney Caiming Xiong Nitish Shirish Keskar, Bryan McCann and Richard
+     Socher. 2019. Ctrl: A conditional transformer language model for controllable
+     generation. arXiv preprint arXiv:1909.05858 (2019).
+[30] Hiroyuki Osone, Jun-Li Lu, and Yoichi Ochiai. 2021. BunCho: AI Supported Story
+     Co-Creation via Unsupervised Multitask Learning to Increase Writers’ Creativity
+     in Japanese. Computer Human Interaction (2021).
+[31] Nicholas Davis Pegah Karimi, Mary Lou Maher and Kazjon Grace. 2019. Deep
+     Learning in a Computational Model for Conceptual Shifts in a Co-Creative Design
+
+
+
+
+                                                                                       851
+IUI ’22, March 21–25, 2022, Helsinki, Finland                                                                                 Yuan, et al.
+
+
+A     APPENDIX                                                     Table 5: Exit interview results: p values between conditions
+                                                                   according to Mann-Whitney U tests of significance. * indi-
+                                                                   cates p < 0.05.
+
+                                                                      question         cont vs. chat   chat vs. full   cont vs full
+                                                                      helpful          0.368           0.0134*         0.0266*
+                                                                      collaborative    0.154           0.00668*        0.0705
+                                                                      ownership        0.420           0.0804          0.131
+                                                                      enjoyment        0.224           0.340           0.132
+                                                                      ease             0.209           0.205           0.495
+Figure 9: Pearson correlation coefficients between exit inter-        pride            0.353           0.356           0.495
+view questions. Boxes are drawn around uncorrelated ques-             creative goals   0.397           0.303           0.219
+tions (p > 0.05).                                                     uniqueness       0.0330*         0.279           0.0891
+
+
+
+
+                                                                   Figure 10: Requests made to the model for users split by
+                                                                   their response to the question ‘I feel ownership over the fi-
+                                                                   nal story’.
+
+
+
+
+                                                             852
+

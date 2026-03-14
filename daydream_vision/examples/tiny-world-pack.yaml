@@ -1,0 +1,35 @@
+name: Tiny Noir Test Pack
+defaults:
+  numOutputs: 1
+  editModel: gemini-3.1-flash-image-preview
+  analyzeModel: gemini-3.1-flash-lite-preview
+  temperature: 0.7
+  styleTags:
+    - cinematic
+    - neo-noir
+anchors:
+  - anchorId: character:detective-voss
+    label: detective-voss
+    prompt: three-quarter portrait in a rain-soaked alley
+    entityType: character
+    name: Detective Voss
+    brief: a worn private detective in a rain-soaked neo-noir city
+    visualConstraints:
+      - fedora
+      - dark wool coat
+    consistencyNotes:
+      - left cheek scar
+      - tired but alert eyes
+    sourceRefs:
+      - daydreaming/Notes/worlds/noir-voss.md
+  - anchorId: location:alley-night
+    label: alley-night
+    prompt: empty alley at night with wet pavement and deep shadows
+    entityType: location
+    name: Back Alley
+    brief: a narrow city alley with puddles, brick walls, and distant neon spill
+    visualConstraints:
+      - wet reflective pavement
+      - one strong neon accent
+    negativeConstraints:
+      - no people

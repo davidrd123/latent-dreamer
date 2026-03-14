@@ -22,43 +22,53 @@ this layer is specified separately in doc 21
 
 ## Design Intent
 
-The narration should feel like a dreamer's inner voice commenting
-on what they're actually seeing — not a disconnected mood generator.
-This requires grounding Flash in three things:
+The narration is the dreaming mind's inner monologue. The dreamer
+doesn't watch itself dream — it knows *why* it's here, what it's
+feeling, what it's running from. That interiority comes from the
+cognitive state and the authored scene, not from looking at the
+screen.
 
-1. **What was prompted** — the node's `visual_description` from the
-   dream graph (the author's intent for this scene)
-2. **What got rendered** — a screenshot from Scope's live output
-   (what the LoRA and diffusion model actually produced)
-3. **Why we're here** — the cognitive state (family, tension, energy)
-   that drove the Dreamer to this node
+### Grounding hierarchy
 
-The gap between (1) and (2) is where the dream lives. The prompt
-says "feet pounding wet pavement" but the LoRA renders something
-with its own texture, drift, and accumulated visual history. Flash
-sees both and narrates the gap — that's the inner voice noticing
-the dream's distortions.
+1. **Cognitive state (primary)** — family, tension, energy,
+   situation. This is the emotional logic that drove the Dreamer
+   to this node. "I keep coming back to this street" comes from
+   REVERSAL + high tension + revisitation. No screenshot needed.
+2. **Scene text (primary)** — the node's `visual_description`
+   from the dream graph. What the dream intended to show. Gives
+   Flash concrete material (characters, objects, atmosphere) to
+   weave into the inner voice.
+3. **Scope frame (optional enrichment)** — a screenshot of what
+   actually rendered. When present, Flash may draw 1-2 specific
+   visual details from it to make the narration more concrete.
+   But the inner voice should never collapse into image
+   description — the audience already sees the screen.
+
+Text-only narration (state + scene text, no frame) is the **core
+experience**, not a fallback. The screenshot is a bonus that adds
+perceptual specificity when Scope is live.
 
 ### Grounding sources
 
-| Source | What | How acquired | Latency |
-|---|---|---|---|
-| Dream graph | `visual_description`, `characters`, `objects`, `valences` | Loaded at startup via `--graph <path>`, indexed by node id | 0 (dict lookup) |
-| Scope frame | PNG screenshot of current rendered output | `GET /api/v1/realtime/frame/latest` → `image/png` | ~50ms (local HTTP) |
-| Engine JSONL | `graph_node_id`, `mind.*`, `world.*`, `narration.text` | Piped from stdin | 0 (already available) |
+| Source | What | How acquired | Latency | Role |
+|---|---|---|---|---|
+| Engine JSONL | `mind.*`, `world.*`, `graph_node_id` | Piped from stdin | 0 | Primary: emotional logic |
+| Dream graph | `visual_description`, `characters`, `objects`, `valences` | Loaded at startup via `--graph <path>`, indexed by node id | 0 (dict lookup) | Primary: scene content |
+| Scope frame | PNG screenshot of current rendered output | `GET /api/v1/realtime/frame/latest` → `image/png` | ~50ms (local HTTP) | Optional: perceptual detail |
 
-### What Flash receives (proposed)
+### What Flash receives
 
 Per cycle, the bridge assembles:
-- The node's `visual_description` (text, from graph lookup)
-- The current Scope frame (image, from screenshot endpoint)
-- Cognitive state: family, tension, energy, situation
-- The engine's template narration (as optional color, not primary input)
+- Cognitive state: family, tension, energy, situation (always)
+- The node's `visual_description` (text, from graph lookup or
+  engine JSONL — always, if graph is loaded)
+- The current Scope frame (image — only when Scope is running
+  and a frame is available)
+- The engine's template narration (as optional color)
 
-Flash is multimodal — it can read the image and the text together.
-The system prompt tells it to narrate what it sees in the frame,
-informed by the description and emotional state, as the dreamer's
-inner voice.
+Flash is multimodal and can accept text + image together, but the
+text inputs (state + scene) are what produce the inner voice. The
+image, when present, provides concrete visual anchors.
 
 ### The screenshot endpoint
 
@@ -70,7 +80,9 @@ Scope exposes `GET /api/v1/realtime/frame/latest`:
 
 The bridge hits this once per cycle. At 5-10s dwell times, this is
 negligible load. The `--scope-base-url` flag (already used by the
-engine) provides the base URL.
+engine) provides the base URL. If Scope isn't running or returns
+404, narration proceeds without the frame — no degradation in
+inner voice quality.
 
 ## Where Things Live
 
@@ -103,25 +115,34 @@ The contract is the stable seam. The delivery mechanism changes.
 
 ## Current status
 
-This document is now partly a spec and partly a status note. The code
-in `scope-drd` does **not** yet implement the full multimodal design
-described below.
+This document is now partly a spec and partly a status note. The
+`scope-drd` bridge now implements the first grounded pass of the
+design: graph lookup, Scope frame fetch, multimodal Flash request
+path, and the main security/rendering cleanups.
 
 **What exists now:**
 - Standalone bridge script in `scope-drd/tools/narration_bridge.py`
 - Standalone companion page in `scope-drd/tools/narration_companion.html`
-- Text-only Flash call per cycle
+- Bridge CLI: `--graph`, `--scope-base-url`, `--http-port`,
+  `--ws-port`, `--exit-on-eof`
+- Graph lookup by `graph_node_id` against `dream_graph.json`
+- Scope screenshot fetch via `/api/v1/realtime/frame/latest`
+- Multimodal Flash request path: authored scene text + current frame
 - WebSocket broadcast to browser companion
 - Simple HTTP server for serving the companion page
+- Graceful fallback to grounded text when Gemini is unavailable
+- Companion history rendering via DOM/textContent, not `innerHTML`
+- Gemini API key sent via header, with noisy HTTP client logs suppressed
 
-**What is specified here but not yet implemented:**
-- `--graph` flag and node lookup by `graph_node_id`
-- Scope screenshot fetch via `/api/v1/realtime/frame/latest`
-- Multimodal Flash call with image + scene text
+**What is still open:**
 - Shared scene contract between narration bridge and live Director loop
+- End-to-end live validation with real Scope frames and Gemini output
+- Longer-term question of whether the engine should emit scene text
+  directly instead of forcing the bridge to load the graph
 
-Treat the next section as the **target architecture**, not a claim
-about what the code already does.
+Treat the next section as the **stable architecture target**. Most of
+the bridge-side pieces now exist; the remaining work is convergence and
+validation.
 
 ## Target Architecture
 
@@ -146,8 +167,10 @@ narration_bridge.py (scope-drd/tools/)
     │    4. Calls Gemini Flash (multimodal: text + image)
     │    5. Pushes result to browser via WebSocket
     │
-    │  Gemini model: gemini-3-flash-preview
-    │  (same model used by daydream_director.py)
+    │  Gemini model: gemini-3.1-flash-lite-preview (default)
+    │  Configurable via NARRATION_GEMINI_MODEL env var
+    │  (lighter/faster than Director's gemini-3-flash-preview —
+    │   narration needs speed over capability)
     │
     │  Inputs to Flash:
     │    - visual_description (text, from graph)
@@ -315,33 +338,19 @@ instead of a standalone HTML page.
 
 ## Known Issues
 
-### Must fix before next test
+### Still open
 
-- **Spec/code drift (critical).** The document describes a multimodal
-  bridge with graph lookup and screenshot grounding, but the current
-  code is still text-only. The spec should be read as target state;
-  the implementation needs to catch up.
-- **No visual grounding (critical).** The bridge currently sends
-  Flash the engine's template narration text or the bare node id.
-  Flash has nothing scene-specific to narrate. Fix: load dream
-  graph at startup, look up the node's authored prompt by id, and
-  fetch Scope frame via screenshot endpoint. Send both to Flash as a
-  multimodal prompt.
-- **Missing CLI contract.** The doc now assumes `--graph` and
-  `--scope-base-url` flags on the bridge, but the bridge does not yet
-  implement that CLI surface. The runtime contract needs to exist in
-  code before the usage block is accurate.
-- **innerHTML XSS in companion page.** `pushToHistory()` injects
-  `data.narration` via innerHTML. Fix: use `textContent` or DOM
-  API for all user-facing text.
-- **API key exposure in logs.** The current Gemini request path sends
-  the API key in the request URL, and INFO-level HTTP client logging
-  can expose that key in terminal logs. This must be fixed before the
-  bridge is treated as operationally safe.
-- **Director/narration payload mismatch.** The live Director packet
-  and narration bridge currently use different, under-specified scene
-  payloads. Both interpretive layers should converge on one shared
-  scene contract grounded in the node's authored prompt.
+- **Director/narration payload mismatch.** The bridge now resolves
+  authored scene text from the graph, but the live Director packet is
+  still on a different, under-specified scene payload. Both
+  interpretive layers should converge on one shared contract.
+- **Bridge-side graph dependency.** The bridge currently loads the
+  graph at startup and resolves `graph_node_id -> prompt` itself. That
+  is good enough for the slice, but the longer-term contract may be
+  cleaner if the engine emits authored scene text directly.
+- **Live multimodal validation still needed.** The code path is in
+  place, but it still needs a real end-to-end run with Scope frames and
+  Gemini enabled to validate timing, output quality, and failure modes.
 
 ### Open questions (for chorus review)
 
@@ -371,34 +380,27 @@ instead of a standalone HTML page.
   indefinitely. This preserves browser history, but the runtime
   contract should be treated as "manual shutdown with Ctrl-C," not a
   clean process exit.
+- The `--exit-on-eof` flag provides a clean one-shot mode for smoke
+  tests, but the default remains "keep serving until Ctrl-C."
 - The Flash call adds ~200-500ms latency per cycle (text-only).
   With screenshot fetch + multimodal call, expect ~500-1000ms.
-  Still fine for 5-10s dwell times.
+  Still fine for 5-10s dwell times, but this needs live measurement.
 
-## Proposed implementation sequence
+## Remaining implementation sequence
 
-1. **Stabilize the bridge contract.**
-   Add explicit bridge CLI flags for `--graph` and `--scope-base-url`.
-   Keep the bridge standalone for now; do not move it into Scope yet.
-
-2. **Ground narration in authored scene text.**
-   Load the graph at bridge startup, index nodes by id, and resolve
-   `graph_node_id -> prompt` (or `visual_description`) per cycle.
-   This is the highest-leverage quality fix.
-
-3. **Add screenshot grounding as a second pass.**
-   Fetch `/api/v1/realtime/frame/latest` once per cycle and feed it to
-   Flash alongside the node prompt. If no frame is available, degrade
-   cleanly to text-only mode.
-
-4. **Fix security and rendering hygiene.**
-   Remove key leakage from logs and replace `innerHTML` with plain-text
-   DOM rendering in the companion.
-
-5. **Unify scene payloads across repos.**
+1. **Unify scene payloads across repos.**
    Define one shared scene contract for narration and Director
    interpretation so both layers consume the same grounded material.
 
-6. **Only then tune prompt quality and cadence.**
-   After the bridge is grounded and safe, tune system prompt wording,
-   context window, and narration cadence. TTS remains Phase 2.
+2. **Run a real live validation pass.**
+   Test with Scope rendering, Gemini enabled, and the Graffito graph so
+   we can inspect frame timing, narration quality, and fallback
+   behavior under actual runtime conditions.
+
+3. **Decide whether scene text should move upstream.**
+   If bridge-side graph loading feels too indirect, move authored scene
+   text into the engine payload and make the bridge a thinner consumer.
+
+4. **Only then tune prompt quality and cadence.**
+   After the bridge is grounded and validated, tune system prompt
+   wording, context window, and narration cadence. TTS remains Phase 2.

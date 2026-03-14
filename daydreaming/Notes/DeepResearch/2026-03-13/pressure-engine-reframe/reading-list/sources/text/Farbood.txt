@@ -1,0 +1,1955 @@
+                                                                                              A Parametric, Temporal Model of Musical Tension     387
+
+
+
+                 A P arametric , T emporal M odel of M usical T ension
+
+
+M orwaread M. F arbood                                                        instrumental timbre or dynamics. This flux inherent in
+New York University                                                           music is what defines it as an immediate, temporal experi-
+                                                                              ence. It is also a key element in the perception of musical
+tension in music is a high-level concept that is                              tension, a sensation that arises from the combined interac-
+difficult to formalize due to its complex, multidimen-                        tion of various musical parameters. The phenomenon of
+sional nature. This paper proposes a quantitative model                       tension is evident to listeners and is relatively easy to define
+of musical tension that takes into account the dynamic,                       in informal, qualitative terms; for example, increasing ten-
+temporal aspects of listening. The model is based on                          sion can be described as a feeling of rising intensity or
+data from two experiments. The first was a web-based                          impending climax, while decreasing tension can be
+study that was designed to examine how individual                             described as a feeling of relaxation or resolution. However,
+musical parameters contribute directly to a listener’s                        formalizing and quantifying such a description is a diffi-
+overall perception of tension and how those parameters                        cult problem.
+interact. The second study was an in-lab experiment in                           Tension as a concept is an emergent phenomenon that
+which listeners were asked to provide continuous                              previous studies have shown to be judged with consider-
+responses to longer, more complex musical stimuli.                            able consistency by listeners. Fredrickson (1999) found
+Both studies took into account a number of musical                            that having extensive familiarity with the music—even
+parameters including harmony, pitch height, melodic                           to the extent of performing it—does not greatly affect
+expectation, dynamics, onset frequency, tempo, meter,                         listeners’ perception of tension. Nielsen (1987) noted
+rhythmic regularity, and syncopation. As an initial step,                     that tension is immanent in the music itself, as opposed
+linear and nonlinear models were explored for predict-                        to “real” tension (e.g., emotion) experienced by the
+ing tension given analytical descriptions of various                          listener, which may be due to outside causes or reasons
+musical parameters. These models were tested on the                           particular to the person. Another indicator of the
+continuous-response data from Experiment 2 and                                perceptual objectivity of tension is that it does not
+shown to be insufficient. An alternate model was pro-                         appear to be dependent on the interest of the listener; it
+posed based on the notion of a moving perceptual                              can thus be assessed independently from a listener’s aes-
+window in time and the concept of trend salience. High                        thetic preferences (Lychner, 1998). This is also indicated
+correlation with empirical data indicates that this para-                     empirically by the high within-subject and intersubject
+metric, temporal model accurately predicts tension                            correlations for tension judgments in previous studies
+judgments for complex musical stimuli.                                        (Bigand, Parncutt, & Lerdahl, 1996; Krumhansl, 1996).
+                                                                              Given the seemingly self-evident nature of tension and
+Received May 21, 2009, accepted August 10, 2011.
+                                                                              the wide range of musical parameters that might con-
+Key words: musical tension, temporal dynamics,                                tribute to it, most previous studies have opted not to
+change perception, trend salience, web study                                  define tension in precise terms to participants
+                                                                              (Fredrickson, 1997, 1999; Krumhansl, 1996, 1997;
+                                                                              Madsen & Fredrickson, 1993). One exception is Bigand
+                                                                              and Parncutt (1999), who defined tension quite specifi-
+
+
+T
+         he aggregate experience of listening to music                        cally as the “feeling that there must be a continuation of
+        requires the integration of many disparate auditory                   the sequence.” This particular description, given to their
+        components. At any given moment in time, a par-                       subjects, is likely the reason why their results differed
+ticular musical feature can stand out, attracting and focus-                  from Lerdahl and Krumhansl’s (2007) results; both stud-
+ing the listener’s attention. Musical aspects can also                        ies utilized some of the same stimuli but Lerdahl and
+combine to create a powerful effect; a sudden change in                       Krumhansl did not provide subjects with a specific
+harmony might be accompanied by a parallel change in                          definition of tension.
+
+
+
+Music Perception volume 29, issue 4, pp . 387–428. issn 0730-7829, electronic issn 1533-8312. © 2012 by the regents of the university of california all
+ rights reserved . please direct all requests for permission to photocopy or reproduce article content through the university of california press ’ s
+                   rights and permissions website , http :// www . ucpressjournals . com / reprintinfo . asp .DOI: 10.1525/ mp .2012.29.4.387
+388   Morwaread M. Farbood
+
+
+
+
+   Aspects of music contributing to tension explored in          Although expectation and emotional response to
+prior work can be roughly placed into two general catego-     music have been linked to tension, the precise nature of
+ries: the domain-general psychological, and the domain-       this relationship has not been determined. Lychner
+specific musical. The domain-general category includes        (1998) explored how subjects interpreted the terms
+studies that explore both low-level perceptual aspects of     “aesthetic response,” “felt emotional response,” and
+auditory perception as well as higher-level features that     “musical tension.” He found that while subjects did not
+can be linked to general cognitive functions. In the former   differentiate between the terms “aesthetic response” and
+category are psychoacoustic features such as loudness,        “felt emotional response,” they did apply the term
+timbre, and pitch register. Dynamics has been discussed       “musical tension” in a different way. Tension has often
+frequently as a contributor to tension (Burnsed &             been discussed in the context of emotional response and
+Sochinski, 1998-2001; Granot & Eitan, 2011; Ilie &            expectation with little attempt to differentiate it as a
+Thompson, 2006; Krumhansl, 1996; Misenhelter, 2001;           separate phenomenon. It is possible that there is an
+Nielsen 1983, 1987). From a biological perspective, loud-     inverse relationship between expectancy and tension;
+ness is a potential warning sign of danger and is subject     Margulis’s model of melodic expectation (2005) de-
+to reflexive response (Granot & Eitan, 2011; Huron,           scribes three kinds of tension responses, one of which is
+2006). Unlike the case for loudness, relatively few studies   surprise-tension, which correlates inversely with expec-
+have examined pitch register explicitly (Granot & Eitan       tancy ratings—that is, highly predictable events generate
+2011; Ilie & Thompson, 2006). Pitch register may also be      little surprise-tension. Margulis also links surprise-
+classified under the category of timbre change. Other         tension and other types of expectancy-related tension to
+prior work focusing on timbral elements have looked at        affective response. In comparing emotion and tension
+features such as roughness, brightness, and density           responses, Schubert and Dunsmuir (2004) found some
+(Helmholtz, 1877/1954; Hutchinson & Knopoff, 1978;            evidence that the resting points in tension judgments
+Krumhansl, 1996; Nielsen 1987; Plomp & Levelt, 1965;          corresponded to increasing happiness (valence). Another
+Pressnitzer, McAdams, Winsberg, & Fineberg, 2000).            possible relationship between tension and emotion is
+   Included in the domain-general category of features        that tension response is equivalent to affective arousal
+contributing to tension are factors relating to Gestalt       (Kruhmansl, 1997; Trolio, 1976). Rozin, Rozin, and
+psychology. These principles are arguably not specific to     Goldberg (2004) measured “affective intensity,” which
+musical style and can be applied to any type of auditory      could be equated with tension, although the authors do
+stimuli at different time-span levels ranging from event-     not explicitly make the connection. Huron’s model of
+level auditory-scene analysis (Bregman, 1990) to phrase-      expectation (2006) has an arousal-related tension com-
+level musical parsing (Lerdahl & Jackendoff, 1983; Meyer,     ponent, although in his case it refers specifically to the
+1956; cf. Tenney & Polansky, 1980). In musical contexts,      physiological response in preparation for an imminent
+group boundaries are highly correlated with tension           event.
+responses curves (Krumhansl, 1996; Nielsen 1987).                Obtaining continuous judgments in 2D arousal-
+   Perhaps the broadest domain-general features ex-           valence space is a commonly used methodology for col-
+plored in the context of tension pertain to expectation       lecting data on emotional response to music. Continuous
+and emotion (Huron, 2006; Krumhansl, 1997; Madsen,            arousal data from a 2D space might be a less precise,
+1998; Margulis, 2005; Meyer, 1956). Expectation is a          noisier measure of 1D tension judgments. Others have
+phenomenon “known to be a basic strategy of the human         proposed that there is a need to differentiate between
+mind; it underlies the ability to bring past experience to    tension arousal and energy arousal (Ilie & Thompson,
+bear on the future” (Margulis, 2005). The way these ex-       2006; Schimmack & Reisenzein, 2002). However, this
+pectancies are utilized consciously or unconsciously by       could be a function of how the task is specifically de-
+composers influences the way listeners perceive tension       scribed—given that “tension” is under-defined in many
+in music. Whether those aspects are deeply schematic          experiments, it is likely that listeners instinctively use
+expectations or situational expectations, both short- and     both percepts to define what tension is. More recently,
+long-term memories of past auditory experiences are the       Eerola and Vuoskoski (2011) explored a 3D space for
+primary sources for tension judgments. Huron, among           emotion in music that consisted of valence, tension, and
+others, has proposed that the manner in which expecta-        energy. Observing that tension and energy had a strong
+tions are satisfied or denied triggers prediction response    positive correlation, they concluded that a 2D space was
+mechanisms in the brain. It is the process of evaluating      probably sufficient to describe emotion.
+and assessing the success of a prediction that then gives        One feature that has been little explored, perhaps due
+rise to emotions.                                             to its lack of direct connection with features inherent in
+                                                                          A Parametric, Temporal Model of Musical Tension   389
+
+
+
+the auditory stimulus itself, is semantic meaning.            affect tension judgments (Ilie & Thompson, 2006;
+Hackworth and Fredrickson (2010) examined whether             Krumhansl, 1996) while rubato does not (Fredrickson
+knowledge of a text translation in a choral work by           & Johnson, 1996). The contributions of rhythm and
+Debussy had an effect on tension judgments. Their             meter to tension are mostly unexplored perhaps
+results indicated that there was no meaningful difference     because rhythm is harder to conceive of as a continu-
+between responses of listeners who understood the text        ous process. A change in loudness or pitch height can
+and listeners who did not. Given that a composer setting      be readily defined; the concept of a change in har-
+words to music naturally attempts to compose in a man-        monic tension is considerably more complex but still
+ner that best reflects the meaning of the words, perhaps      possible to model, as shown in Lerdahl’s work.
+the only way to determine whether semantic meaning            However, an increase in rhythmic tension does not
+actually has some effect on tension would be to compose       readily lend itself to formalization. There has been
+a piece that did not have an intentional relationship to      some music-theoretic work done in this domain
+the text.                                                     (Hasty, 1997; London, 2004), but it does not directly
+   Domain-specific features explored in previous studies      relate to empirical research on tension.
+are less broad than those described above and primarily          The musical parameters explored in relation to tension
+focus on the discrete-pitched and rhythmic elements of        are not the only aspects of prior work that are diverse—
+music, and by definition are exclusive to musical stimuli.    experimental methodologies have varied as well. Data
+Pitched aspects include melodic contour, harmony, and         collection methods fall into two general categories:
+tonal perception. Technically speaking, any of these fea-     asking listeners to make continuous, online ratings or
+tures can also be linked to expectation of schematic          obtaining discrete, retrospective judgments. Previous
+structures, so could in an indirect way fall under the        studies have utilized both hardware and software con-
+domain-general category. Nonetheless, they are placed         tinuous-input interfaces to record listener judgments of
+in this category because they are features that distinguish   tension in real time. Nielsen (1983, 1987) used a tech-
+music from other auditory stimuli such as speech (cf.         nique he described as a “simenon method,” short for
+Patel, 2008). Pitch height is one such feature explored in    “simultaneous” and “nonverbal.” He had subjects squeeze
+tension studies (Bigand et al., 1996; Granot & Eitan,         a pair of tongs with spring resistance while listening to
+2011; Krumhansl, 1996; Nielsen, 1983, 1987). Although         music. The tongs were instrumented with a potentiom-
+there are speech analogs to melodic contour, even tonal       eter to measure the compression. In a follow-up study
+languages do not have the fixed-interval nature of musi-      replicating Nielsen’s work, Madsen and Fredrickson
+cal lines. Work that focuses on melodic “attraction” in       (1993) used a device called a Continuous Response
+the voice-leading or tonal sense (Bharucha, 1984; Larson,     Digital Interface (CRDI), which consisted of a potenti-
+2004, Larson & VanHandel, 2005; Margulis, 2005;               ometer mounted in a dial interfaced with a computer.
+Narmour, 1990, 1992) is also relevant to tension, al-         The CRDI was used in several subsequent experiments
+though the percept itself is not necessarily discussed        by Fredrickson and others and its reliability appears to
+explicitly.                                                   be high (Capperella, 1989; Fredrickson, 1997, 1999;
+   Other domain-specific aspects examined in past work        Fredrickson & Coggiola, 2003; Frego, 1999; Gregory,
+pertain to harmonic tension (Bigand & Parncutt, 1999;         1989, 1995; Hackworth & Fredrickson, 2010). Vines,
+Bigand et al., 1996; Krumhansl, 1996; Lerdahl &               Krumhansl, Wanderley, and Levitin (2006) used a con-
+Kruhmhansl, 2007; Nielsen, 1983, 1987; Toivianen &            tinuously adjustable linear slider on a MIDI controller
+Krumhansl, 2003); all of these studies, with the exception    to collect continuous data for their experiments.
+of Toivianen and Krumhansl’s and Nielsen’s work, ex-          Software applications with a slider component have also
+plored the empirical validity of Lerdahl’s tonal tension      been implemented (Burnsed & Sochinski, 1998-2001;
+model (1996, 2001) in various ways. The general results       Krumhansl, 1996). Data collected with Burnsed and
+indicate that the model accurately predicts harmonic          Sochinski’s interface, called the Tensiometer, appear to
+tension and that its hierarchical component is an essen-      correlate highly to those gathered using the CRDI and
+tial element in describing listener judgments of tonal        the original device designed by Nielsen (Fredrickson &
+tension. Given the empirically proven descriptive power       Coggiola, 2003). Rozin et al. (2004) used a pressure-
+of Lerdahl’s model, it is employed to calculate quantita-     sensitive button attached to the arm of a reclining chair.
+tive values for harmonic tension in the work described        They chose to use this type of interface instead of a dial
+in this paper.                                                or slider because they felt pressure-sensitivity was a
+   Past work that has examined the effect of rhythm           better metaphor for affective intensity than left-right or
+and timing on tension has shown that tempo changes            up-down motions.
+390   Morwaread M. Farbood
+
+
+
+
+   Despite the prevalence of continuous methods of data     Table 1. Music From the Classical Repertoire Used in Tension Studies
+collection, there have been studies that have employed      Composer               Study
+retrospective judgment measures as well. Bigand et al.
+                                                            Stradella              Ilie & Thompson, 2006
+(1996) had subjects give single tension ratings to pairs
+                                                            Purcell                Rozin et al., 2004
+of chords. Bigand & Parncutt (1999) played fragments
+                                                            Albinoni               Krumhansl, 1997
+of chord progressions and asked listeners to rate the
+                                                            Vivaldi                Krumhansl, 1997; Frego, 1999; Ilie &
+tension at the end of each fragment; the fragments                                   Thompson, 2006
+started at the beginning of the excerpt and progressively   Bach                   Lychner, 1998; Toiviainen & Krumhansl,
+grew longer until the end was reached. This “stop-                                   2003; Lerdahl & Krumhansl, 2007
+tension” method was also used in Lerdahl and                Handel                 Ilie & Thompson, 2006
+Krumhansl’s tonal tension study (2007). Granot and          Alberti                Ilie & Thompson, 2006
+Eitan (2011) asked listeners to give discrete overall       Haydn                  Nielsen, 1987; Fredrickson, 1995, Fredrick-
+tension ratings for short melodic sequences and select                               son, 1997; Burnsed & Sochinski, 1998-
+text responses that best described how tension was                                   2001; Ilie & Thompson, 2006
+changing during the course of the sequence.                 Mozart                 Fredrickson & Johnson, 1996; Krumhansl,
+                                                                                     1996; Rozin et al., 2004; Ilie & Thompson,
+   Granot and Eitan (2011) chose to use discrete judg-                               2006
+ments instead of online judgments due to the brief          Beethoven              Lychner, 1998; Misenhelter, 2001; Rozin et
+nature of their stimuli. Their materials consisted of                                al., 2004
+short, melodic sequences that were composed specifi-        Bellini                Frego, 1999
+cally for the experiment. In regard to the stimuli, they    Chopin                 Bigand & Parncutt, 1999; Rozin et al., 2004;
+mentioned that although ecological validity of the                                   Lerdahl & Krumhansl, 2007
+materials might be questioned, constructing them is         Wagner                 Rozin et al., 2004; Lerdahl & Krumhansl,
+the only reliable means to systematically control the                                2007
+musical parameters examined. Two other studies              Brahms                 Rozin et al., 2004
+mentioned previously have also employed researcher-         Borodin                Rozin et al., 2004
+composed music: three-chord harmonic sequences              Mussorgsky             Krumhansl, 1997
+(Bigand et al., 1996) and a 31-chord harmonic               Sousa                  Lychner, 1998
+progression (Bigand & Parncutt, 1999).                      Puccini                Lychner, 1998
+   Researcher-composed stimuli are uncommon, how-           Debussy                Hackworth & Fredrickson, 2010
+ever. Most studies have used excerpts from the Western      R. Strauss             Nielsen, 1987
+classical repertoire ranging from the mid-Baroque era       Hugo Alfvén            Krumhansl, 1997
+through the late twentieth century (see Table 1). There     Holst                  Krumhansl, 1997; Fredrickson, 1999; Rozin
+are only a few examples of non-classical music that have                             et al., 2004
+been used in tension studies: “St. Louis Blues” by W. C.    Stravinsky             Vines et al., 2006
+Handy sung by Nat King Cole and Ella Fitzgerald             Shostakovich           Fredrickson, 2000
+(Fredrickson & Coggiola, 2003), “We are the Champions”      Messiaen               Lerdahl & Krumhansl, 2007
+by Queen, and “I Feel Good” by James Brown (Rozin           Barber                 Krumhansl, 1997
+et al., 2004).                                              Cage                   Frego, 1999
+   Regarding the participants in tension experiments,       Note: Composers are listed in order of birth date.
+many previous studies have examined differences in
+tension responses between musicians and nonmusicians.          However, results from studies examining the relative
+Generally speaking, results indicate that both groups       contributions of various musical parameters to tension
+respond similarly (Bigand & Parncutt, 1999; Fredrickson,    have indicated some differences between musicians and
+2000; Fredrickson & Coggiola, 2003; Frego, 1999;            nonmusicans. One general observation has been that
+Lychner, 1998). Fredrickson (1997) noted that even be-      intersubject agreement is higher among musicians than
+tween two very different groups—second graders and          nonmusicians (Bigand & Parncutt, 1999; Krumhansl,
+professional musicians—correlation of tension responses     1996). Granot and Eitan (2011) found pitch contour
+was high. Tension judgments also appear to be remark-       contributed only weakly to tension and that it affected
+ably consistent for repeated trials; Bigand and Parcutt     musicians more than nonmusicians. The latter group
+(1999) noted in one of their experiments that the ratings   only appeared to respond to melodic contour in interac-
+for the first hearing of an excerpt did not differ much     tion with other parameters. Bigand et al. (1996), on the
+from the fourth hearing.                                    other hand, had the opposite finding: melodic contour
+                                                                            A Parametric, Temporal Model of Musical Tension   391
+
+
+
+(“horizontal motion”) affected nonmusicans consider-           two experiments: the first was a web-based study
+ably more than musicians.                                      designed to gather data from thousands of subjects
+   Granot and Eitan (2011) found that with regard to both      from different musical and cultural backgrounds, and
+dynamics and tempo, responses did not differ between           the second was a smaller study designed to obtain real-
+musicians and nonmusicians. They further concluded             time, continuous responses to complex musical stimuli.
+that dynamics was the most influential parameter, fol-         The goal of this work was to propose a cognitive
+lowed by pitch register. Granot and Eitan found that lower     framework for the tension model, formalize it mathe-
+register is more strongly associated with higher tension       matically, and then use the empirical data to estimate
+values, but only for nonmusicians. They theorized that the     the value of a number of variables including the weights
+“normative” pitch range is extended for musicians due to       of the relative contributions of individual musical
+instrumental training and wider exposure to the expres-        parameters and the influence of previous events on
+sive capabilities of music. On the other hand, Ilie and        current tension perception.
+Thompson (2006) found that low-pitched music was
+rated more pleasant and less tense. However, their stimuli                            Experiment 1
+were polyphonic and tonal, and the “low” versions were
+only four semitones below the “high” versions. In contrast,    The primary purpose of Experiment 1 was to determine
+Granot and Eitan used atonal, arrhythmic melodic               or verify whether several disparate musical parameters
+sequences with far larger changes in pitch register. Another   individually contributed to the perception of tension and
+area of difference between musicians and nonmusicians          gauge the relative contributions of each parameter. An
+appears to be sensitivity to harmony; musicians tend to        additional goal was to confirm the directionality of each
+be more influenced by tonal hierarchies and key regions        parameter—in other words, what types of changes in the
+than nonmusicians (Bigand & Parncutt, 1999; Bigand             feature would cause a decrease versus an increase in
+et al., 1996).                                                 tension. The stimuli composed for the study examined
+   Despite the fact that previous studies have explored        onset frequency, tempo, dynamics (loudness), pitch
+many aspects of music that contribute to the perception        height, harmony, rhythmic regularity, and meter.
+of tension, there is no universal framework or theory          Although these were not the only possible features that
+that describes how these disparate parameters combine          could be evaluated, they formed an adequately diverse
+to produce a global evaluation of tension. Nielsen (1987)      foundation for analyzing score-based music.
+noted that no particular feature was decisive in the              Onset frequency, rhythmic regularity, and meter are
+experience of tension. Granot and Eitan concluded that         features that have not been explored systematically in
+neither a model of simple additivity nor “noncongru-           previous work. Onset frequency is not necessarily mutu-
+ence”—the theory that parameters at odds with each             ally exclusive with other features; for example, it might
+other elicit tension increases—could explain the results.      overlap with tempo when a ritard or accelerando is rhyth-
+They suggested a model in which “the various parame-           mically written out; in other cases, it might be classified
+ters interact, their mutual influences depending, among        as a subtype of texture or density. It was assumed that an
+other variables, on the relative strength or importance        increase in onset frequency would result in an increase in
+of the parameter, on music training, and on specific task      tension. On the other hand, it was unclear whether rhyth-
+demands.” They proposed an ecological model in which           mic regularity and meter would affect tension perception
+perceived musical tension is affected by auditory cues for     at all. The initial hypotheses were (1) an increase in rhyth-
+impending threat. While this theory could plausibly            mic irregularity would result in an increase in tension and
+account for the parameters they explored in their study        (2) a shifting of meter in which perceived strong beats
+(dynamics, pitch register, pitch contour, and tempo), it       occurred more frequently would also result in an increase
+does not account for features such as rhythm, meter, har-      in tension. In the latter case, meter was hypothesized to
+mony, and tonality.                                            be a hierarchical case of onset frequency.
+   The objective of this paper is to propose a quantita-
+tive model that can predict real-time tension judgments                                    Method
+for complex musical stimuli based on the interaction
+of any variable number of musical parameters. This             The format of Experiment 1 was modeled after the
+parametric, temporal model of tension takes into               Moral Sense Test, a web-based study that explored the
+account the real-time dynamics of listening, and more          nature of human moral judgment (Hauser, Cushman,
+generally, the limitations of short-term memory. The           Young, Jin, & Mikhail, 2005). The design of the Moral
+empirical basis for the tension model was derived from         Sense Test allowed for a very extensive set of stimuli—
+392   Morwaread M. Farbood
+
+
+
+
+far more than could normally be presented to a single            tension. It must be assumed that most subjects were cog-
+subject in a typical experimental session. Given that the        nizant of the task. Furthermore, as will be discussed in
+Moral Sense Test had thousands of participants, only a           detail later, a comparison of responses to stimuli used in
+subset of the stimuli needed to be presented to each             both Experiments 1 and 2 shows that the results of this
+subject in order to obtain statistically significant results.    new methodology correlate highly with results obtained
+Likewise, the web-based tension study was brief and              through more typical methods.
+utilized a fraction of the total possible stimuli for each          Participants. A total of 2,661 subjects from 108 dif-
+participant. The nature of the methodology also                  ferent countries took part in the study. The participants’
+allowed for new stimuli to be added at any time. For             top five countries of residence were the U.S. (52%),
+example, the stimuli exploring meter and rhythmic                Italy (8%), Canada (6%), Russia (3%), and Japan (3%).
+regularity were added a few months after the study was           While there was substantial variety in the musical back-
+made available to the public. The web interface was              grounds of the subjects, there were considerably more
+implemented in collaboration with Josh McDermott;                musically untrained subjects and novices than musi-
+the first two parts of the study were designed by                cians. Based on self-rated musical experience, 17% of
+McDermott and are not related to the research described          the subjects were categorized as musicians and 83% as
+here, and the third part was the tension experiment.             nonmusicians. Participants who self-rated a 4 out of
+The interface was written in PHP with Flash for sound            5 or higher on overall level of music training were
+playback, and the data was stored in a MySQL database,           classified as musicians, and those who self-rated 3 or
+all of which ran on a dedicated Linux server.                    lower were classified as nonmusicians. The median age
+   The study employed retrospective, discrete judgments          was 33 and the average age 38 (SD = 14.7). Subjects
+of tension for relatively short stimuli, in a similar man-       were recruited through links on other websites such as
+ner to other work (Bigand et al., 1996; Granot & Eitan,          the Moral Sense Test as well as the author’s personal
+2011). The main difference was that graphical shapes             website. The URL for the study was also announced at
+were used to depict tension changes instead of verbal            conference presentations of other work. The study was
+descriptions (Figure 1). Two major reasons for this              publically accessible on the internet and data collection
+methodology were to (1) provide participants with more           proceeded for two years and seven months.
+intuitive responses to choose from rather than wordy                It is possible that some subjects repeated the study
+descriptions, and (2) to enable test takers without exper-       multiple times since there was no way of verifying the
+tise in English to take part in the study. The changes in        identities of the participants. However, given that each
+tension depicted by the graphical response choices were          subject was presented with a small subset of the stimuli,
+linear or curvilinear in shape. From a theoretically             it was unlikely that there would be multiple ratings for
+perspective, the shapes provided an intuitive, visual            the same stimulus from the same subject even if the per-
+analog of musical gestures that the tension variations           son took the study multiple times.
+were meant to evoke. On the other hand, this type of                Stimulus materials. The stimuli were composed so
+visual analog also presented some problems, namely, the          that each feature was isolated in at least one case and
+possibility that listeners would choose shapes that simply       combined with other parameters moving in the same
+corresponded to change of any sort, not necessarily              or opposite direction in various other cases. For
+increase or decrease in tension. However, the instructions       example, a single tone repeating in absence of any
+for the trials did ask participants to listen specifically for   change except a progressive increase in tempo was a
+                                                                 parameter-in-isolation stimulus for tempo (e.g.,
+                                                                 Figure 2, stimulus A15); the hypothesis was in this
+                                                                 case that the listener would perceive an increase in
+                                                                 tension. An example of a stimulus constructed to
+                                                                 isolate dynamics was a single repeating tone that
+                                                                 steadily decreased in loudness (Figure 2, A21). In this
+                                                                 case, the hypothesis was that the opposite would
+                                                                 occur—the listener would perceive tension decreas-
+                                                                 ing. Other stimuli were designed to have two or more
+                                                                 diverging features, for example, a decrease in onset
+                                                                 frequency accompanied by an increase in dynamics
+                                                                 (Figure 2, A30). This is an example of what Granot
+FIGURE 1. Response choices for Experiment 1.                     and Eitan (2011) describe as “noncongruence.” In
+                                                                                             A Parametric, Temporal Model of Musical Tension      393
+
+
+
+
+FIGURE 2. Stimuli and the response profiles from Experiment 1. All stimuli were rendered in both piano and orchestral strings timbres except those
+that are starred. A star (*) indicates the stimulus was only rendered in piano timbre. A plus (+) indicates that the stimulus was rendered in unpitched
+percussion timbre in addition to piano and strings timbres. If no metronome marking is indicated, the tempo for the stimulus is quarter note equals
+96 beats per min. (Continued)
+394   Morwaread M. Farbood
+
+
+
+
+FIGURE 2. (Continued)
+                        A Parametric, Temporal Model of Musical Tension   395
+
+
+
+
+FIGURE 2. (Continued)
+396   Morwaread M. Farbood
+
+
+
+
+FIGURE 2. (Continued)
+                                                                          A Parametric, Temporal Model of Musical Tension   397
+
+
+
+
+FIGURE 2. (Continued)
+
+
+these cases, the resulting change in overall tension was      without the melodic attraction component. Melodic
+difficult to predict and there was no hypothesized            attraction was excluded because it overlapped to some ex-
+“correct” response for this type of stimulus. The intent      tent with pitch height. Figure 3 illustrates a stimulus that
+was to ascertain how the responses differed and how           was designed to isolate harmony along with its correspond-
+uncertain the listeners were.                                 ing prolongational analysis and hypothesized response
+  Harmony as a parameter was more difficult to define due     curve. See Appendix A for a detailed description of how
+to its multidimensional nature. In order to determine the     harmonic tension was calculated using Lerdahl’s model.
+harmonic contour of a stimulus, hierarchical tension values      The stimuli ranged from 2 to 60 s in duration, and
+were calculated using Lerdahl’s tonal tension model (2001)    were recorded using MIDI piano, strings, and unpitched
+398   Morwaread M. Farbood
+
+
+
+
+                                                                    24 measures as well as various smaller sections that
+                                                                    encompassed whole and partial phrases, transitions, and
+                                                                    portions with altered tempo and dynamics.
+                                                                       Task. Subjects navigated to the homepage of the study
+                                                                    (a Massachusetts Institute of Technology website), where
+                                                                    they were initially asked to choose between an English and
+                                                                    Chinese version of the test. From the main page, subjects
+                                                                    navigated to different tabs describing the research, the re-
+                                                                    searchers involved, and the study itself (labeled “Start
+                                                                    Now!”). Upon clicking on the last tab, a popup window
+                                                                    appeared that contained the test materials. A series of six
+                                                                    sine tones ranging from 200 Hz to 3,500 Hz were played
+                                                                    repeatedly at loud and soft volume levels to help subjects
+                                                                    calibrate their speakers properly. This was necessary since
+                                                                    observers were not present to ensure listeners heard the
+                                                                    stimuli with minimal distortion. Subjects were then asked
+                                                                    to listen to audio files and choose graphical shapes that
+                                                                    best corresponded to how they perceived tension chang-
+                                                                    ing throughout each given audio excerpt. The graphical
+                                                                    choices were always ordered as shown in Figure 1. Each
+FIGURE 3. (a) An example from Experiment 1 that tested subjects’    stimulus was played twice and all questions were multiple
+responses to harmony. The prolongational reduction is shown above   choice. Two hearings ensured that the subject had another
+the staff; (b) the hypothesized response to the stimulus.
+                                                                    chance to listen to the stimulus if they were distracted or
+                                                                    interrupted during the course of study—something that
+percussion sounds. Each stimulus was entered in Finale              cannot be controlled for in an unproctored experimental
+(a notation editor) and recorded using two MIDI                     setting. It is possible that hearing the stimuli a second time
+synthesizers, a Kurzweil K2500 and Roland 5080. The                 might have affected the subjects’ responses in some way,
+volume scaling for stimuli with changes in loudness was             but prior work on the consistency of tension responses to
+done in an audio editing program. Due to perceptual                 multiple hearings discussed above indicates this was not
+differences in loudness sensitivity depending on the fre-           a problem. Finally, subjects were asked to rate the confi-
+quency range, some stimuli were adjusted by hand to                 dence level of their response on a scale from “1” (“least
+sound more perceptually consistent. There were a total              confident”) to “5” (“most confident”).
+of 207 unique audio files created for the experiment. In               Each subject was presented with 11 trials, only the first
+some cases, several versions of the same stimulus were              of which was not chosen randomly: stimulus A52. This
+recorded, varying only in the choice of timbre (piano,              first trial was considered to have an “obvious” solution.
+strings, or percussion) or modality (major or minor).1              It served as a practice trial and helped familiarize the
+   Each stimulus was categorized by group type (Table 2).           participants with the task. Trials 2 through 9 were
+Stimuli within the same group were similar and explored             selected by randomly choosing a group number
+the same musical parameters in slightly different ways.             excluding 111 and 112 (the Bach-Vivaldi excerpts) and
+For example, there were multiple versions of a simple               then randomly selecting a stimulus from within that
+I-V7-I harmonic progression in which the contour of the             group. If the stimulus chosen had been recorded with
+melodic line differed slightly or the mode was altered              different instrumental sounds, the timbre was selected
+(e.g., Figure 2, A03-A08). In addition to stimuli com-              randomly as well. Only one stimulus per group could be
+posed specifically for the study, there were fragments              chosen for any given subject. Previously selected groups
+from a J. S. Bach organ transcription (BWV 594) of the              could not be chosen again in subsequent trials; in other
+Vivaldi D Major concerto (RV 208) shown in Figure 4.                words, if a stimulus from Group 2 (onset frequency) was
+This particular excerpt was chosen because it was a rela-           chosen, no subsequent trial presented another stimulus
+tively obscure work and contained clear changes in har-             from Group 2 again. A stimulus from Group 111
+mony and key. Furthermore, it was a richer and more                 (Bach-Vivaldi) was always chosen for trial 10 and a
+ecologically valid stimulus than the other materials.
+Segments selected from the piece were taken from mm.                   1
+                                                                         All of the stimuli for Experiment 1 and complete response profiles
+81-104 of the first movement and included the entire                are available at http://www.media.mit.edu/~mary/tension_exp1.
+                                                                                              A Parametric, Temporal Model of Musical Tension   399
+
+
+
+Table 2. Classification of Stimuli in Experiment 1
+
+  Group        Number of
+                stimuli*          Description
+    1                 7           Simple harmonic progressions with subtle changes in voicing
+    2                 1           Changes in onset frequency
+    3                 1           Changes in pitch height
+    4                 1           Changes in harmony and pitch height corresponding
+    5                 4           Changes in harmony against changes in onset frequency
+    6                 1           Changes in harmony and onset frequency against loudness
+    7                 4           Changes in harmony with differing degrees of changes pitch height
+    8                 4           Different combination of changes in onset frequency, harmony, and pitch height
+    9                 1           Changes in onset frequency, harmony, and pitch height against loudness
+   10                 1           Changes in onset frequency, pitch height, and loudness against harmony
+   11                 2           Changes in onset frequency, harmony, pitch height, and loudness all increasing in intensity
+   12                 1           Changes in harmony, pitch height, and loudness against onset frequency
+   13                 1           Onset frequency, harmonic tension, pitch height, and loudness all decreasing in intensity
+   14                 1           Changes in onset frequency, harmony, and loudness against pitch height
+   15                 1           Increasing dissonance
+   16                 2           Changes in rhythmic regularity
+   17                 1           Changes in loudness
+   20                 2           Changes in tempo
+   21                 2           Changes in tempo, some examples having notes with shorter articulation
+   22                 9           Changes in rhythmic patterns (or rhythmic regularity) coupled with slight changes in onset frequency
+   23                 4           Simpler changes in rhythm (than in group 22) coupled with slight changes in onset frequency
+   24                 4           Changes in accent placement or meter (related to onset frequency)
+  111                26           Excerpts from Bach-Vivaldi concerto
+  112                 5           Excerpts from Bach-Vivaldi concerto with tempo and dynamics changes
+*Note: Does not include versions that are different only in timbre or modality.
+
+
+stimulus from Group 112 (Bach-Vivaldi with altered                                directional changes or because those two graphs depicted
+tempo and dynamics) was always chosen for trial 11.                               more changes in tension than subjects could recall with
+   One result of having varying numbers of stimuli for                            certainty in a single retrospective judgment. This is fur-
+each group was an uneven distribution of responses per                            ther supported by the fact that subjects chose the curve
+trial. With so many subjects, however, this again was not                         shown in Figure 1h, a sinusoid shape depicting a large
+a significant problem. Another reason for the unbal-                              number of changes, far more often. Statistical signifi-
+anced response distribution was due to the addition of                            cance was determined by a chi-square goodness-of-fit
+some stimuli midway through the data collection pro-                              test on two or more categories. An equal distribution
+cess. In particular, these included stimuli in Groups 20                          across all nine response choices was assumed and
+and higher, which mostly covered stimuli that featured                            responses to curve types that did not correspond to the
+rhythmic irregularity, meter, and Bach-Vivaldi excerpts.                          feature or features being examined were combined. For
+                                                                                  example, if dynamics was being examined for a particu-
+                                     Results                                      lar stimulus, the expected null hypothesis response rate
+                                                                                  for the curve type matching dynamics was 1/9 the total
+The strategy employed to analyze the data focused on                              number of responses, and the expected number of
+determining whether subjects chose a response curve                               responses for all other choices were combined into one
+that corresponded to an individual feature. For all                               category, or 8/9 of the total number of responses. If two
+parameters, subjects were considered to be responsive to                          conflicting features were compared, each feature had
+that feature if they selected a tension curve that matched                        expected response rates of 1/9 the total responses, and
+the tension contour of that particular feature. The curves                        all the other responses were combined for an expected
+in Figures 1f and 1g were rarely selected either because                          response rate of 7/9 the total responses. When multiple
+there were very few stimuli that had more than two                                stimuli were examined with respect to a particular
+400   Morwaread M. Farbood
+
+
+
+
+FIGURE 4. Measures 81-104 of J. S. Bach’s organ transcription, BWV 594, of the Antonio Vivaldi’s D Major Concerto, RV 208. Segments of this
+excerpt were used in Experiment 1 (stimuli B01-B31) and in Experiment 2 as Excerpt 5.
+                                                                             A Parametric, Temporal Model of Musical Tension   401
+
+
+
+feature, all of the responses that corresponded to the         profiles for pitched versus unpitched versions of the A18
+tension curve of that feature for each stimulus were put       and A20 are given in Figure 5. A chi-square test of
+into one category, and the combined responses for all          independence for the differences between the two condi-
+other response types into another category for each            tions are significant, χ2(2, N = 1174) = 37.78, p < .001.
+stimulus. Each category was then combined across the           These results indicate the pitched versions of the stimuli
+different stimuli before a chi-square test was performed       did not isolate tempo and onset frequently as effectively
+on the two categories. In addition to the goodness-of-fit      when the note events were pitched. As a result, some
+tests, chi-square tests of independence were used for          subjects responded to the lack of change in pitch more
+comparisons between factors such as differences in             than the change in tempo or onset frequency.
+responses between musicians and nonmusicians.                     Pitch height and harmony. Perhaps more than for any
+   There are several primary conclusions that can be           other feature, visual curves as analogs for tension were
+drawn from the data. First, all parameters with the            most directly applicable in the case of pitch height,
+exception of the rhythmic features had an impact on lis-       particular if envisioned in staff notation. Results indi-
+teners’ perception of tension. Second, the parameters that     cated that an increase in pitch height corresponded to
+had the clearest effect on tension in isolation were           an increase in tension; stimulus A14 was designed to
+dynamics and pitch height. Musicians responded more            isolate pitch height, and the responses highly correlated
+strongly than nonmusicians to all features with the            with the rising then falling curve of the pitch contour,
+exception of pitch height. In tonal contexts, musicians        χ2(1, N = 937) = 4197.95, p < .001. Unlike pitch height,
+were more sensitive to harmonic changes while nonmu-           harmony proved more difficult to relate directly to indi-
+sicians responded more to pitch height changes. In the         vidual curves due to its abstract nature, as well as the fact
+case of more complex stimuli where features counter-           that it was impossible to isolate changes in harmony
+acted each other, the results tended to be ambiguous;          from changes in pitch height. In order to address the
+when multiple features were combined in parallel, they         latter issue, the results were divided into two categories:
+considerably strengthened the feeling of tension changing      stimuli where the harmonic movement coincided with
+in a particular direction. In general, responses selected      the change in pitch height of the melodic line (A05, A06,
+more frequently by listeners had higher confidence             A46) and stimuli where change in harmony diverged
+ratings. There was a positive correlation between the          from the pitch contour (A03, A04, A07, A08). Stimuli
+average confidence value for each response choice for          A03-A08 all contain the same simple three-chord har-
+each stimulus and the corresponding frequency of that          monic progression, I-V7-I in major or minor mode.
+choice, r(868) = .41, p < .001 (Pearson’s correlation).        However, the response to harmony was stronger when
+   Onset frequency and tempo. Stimuli A18 and A20 are          the melodic contour corresponded with the harmonic
+two examples of stimuli designed to isolate onset fre-         tension curve, χ2(1, N = 266) = 3.04, p = .08 for A03,
+quency and tempo, respectively (for consistency, A19 is        A04, A07, and A08 combined (diverging melodic
+not included here because it did not have an unpitched         contour), χ2(1, N = 141) = 190.63, p < .001 for A05 and
+percussion version unlike A18 and A20). Results indi-          A06 combined (parallel contour).
+cated that a decrease in both features resulted in a              Although changes in pitch height interacted with har-
+decrease in tension. A chi-square goodness-of-fit test         mony, increasing the amount of change in pitch height
+with regard to tempo for A18 and onset frequency for
+A20 are significant: χ2(1, N = 529) = 157.98, p < .001 for
+A18, χ2(1, N = 645) = 248.21, p < .001 for A20. The
+response profiles for the two stimuli are strikingly simi-
+lar; however, this is not particularly surprising given that
+A20 is effectively a written-out ritard. Likewise, A15 and
+A16 are designed similarly except for a reversal in direc-
+tion of onset frequency and tempo change. The response
+profiles correspond closely to their directional opposites
+with “increasing” selected about as frequently for A15 an
+A16 as “decreasing” for A18, A19, and A20.
+   Other than “increasing” or “decreasing,” the most fre-
+quently chosen response was “no change.” A closer look
+at pitch-related effects reveals that the response to onset
+frequency and tempo is more evident when the timbre            FIGURE 5. A comparison of combined responses to pitched and
+of the stimulus is unpitched percussion. The response          unpitched versions of stimuli A18 and A20.
+402    Morwaread M. Farbood
+
+
+
+
+                                  Responses to changes in falling pitch contours
+
+
+
+      70%                                        63%                                                                Minimal change
+                                         64%
+                                                                                                                    Down by thirds
+                                     60%
+      60%                                                                                                           Down by MPfths
+                                                                                                                    Down by ninthZ+
+
+      50%
+
+
+      40%                         38%
+
+      30%
+
+       20%
+
+       10%
+
+         0%                                                                                               Down by ninthZ+
+                                                                                                        Down by MPfths
+                                                                                                     Down by thirds
+                                                                                                   Minimal change
+
+
+
+
+                          Perceived Tension (Subject Responses)
+
+
+FIGURE 6. Response profiles for stimuli A22-A29 combined by size of melodic interval change.
+
+
+
+only increased its effect up to a certain point. Stimuli                 to influence the perception of tension. Stimuli A53 and A62
+A22-A29 all have the same harmonic progression and                       explored the idea that unpredictability of rhythmic onsets
+same change in loudness but different degrees of change                  contributed to tension. They were designed to either start
+in pitch height. Given the responses to all four melodic                 or end with predictable isochronous onset events and
+contours (Figure 6), it appears that an increase in interval             morph to or from highly irregular rhythmic patterns. The
+size between the second and last note corresponded to an                 response profiles for both A53 and A62 have the highest
+increase in tension only for intervals of a third or smaller,            response frequencies for either no change or highly variable
+χ2(3, N = 931) = 69.25, p < .001). The response rate for                 change—there does not appear to be any indication of
+interval descents of a third, fifth, and ninth are fairly close.         directionality. Stimuli A54-A61 and A63-A66 were designed
+   Dynamics. As expected, an increase in loudness corre-                 to further explore rhythmic regularity by utilizing syncopa-
+sponded to an increase in tension. Stimulus A21 was de-                  tion and simple alterations in repeated rhythmic patterns.
+signed to isolate the effect of loudness, and its response               At first glance, there seems to be some sensitivity to rhyth-
+profile with dynamics as the target feature is statistically             mic changes for A54 and A57, indicating higher than chance
+significant: χ2(1, N = 1120) = 987.56, p < .001. Much like               selection of increasing tension. If only unpitched versions
+the case for onset frequency, there were almost as many “no              of these stimuli are examined, it becomes more evident,
+change” responses (39%) as “decreasing” responses (41%),                 with 31% of subjects selecting “increasing” for A54 and
+most likely due to the rendering of the stimuli with pitched             22% selecting “increasing” for A57, χ2(1, N = 136) = 24.28,
+strings and piano sounds instead of unpitched percussion.                p < .001 for a target response of “increasing” with responses
+   Rhythm and meter. Rhythmic regularity, syncopation, and               to both stimuli folded together. However, these results are
+meter were the only features examined that did not appear                complicated by the fact that rhythmic alterations cannot be
+                                                                              A Parametric, Temporal Model of Musical Tension   403
+
+
+
+completely isolated from changes in onset frequency much         between musicians’ and nonmusicans’ responses were
+in the same way harmony cannot be completely separate            significant, χ2(2, N = 395) = 17.86, p < .001.
+from pitch-contour changes. Therefore, it is possible that          A comparison between the response profiles of musi-
+what has been observed is listener response to onset             cians and nonmusicans for onset frequency, tempo, and
+frequency rather than rhythmic regularity.                       dynamics indicated that musicians had greater sensitivity
+   Stimuli designed to test tension changes resulting            to all three features. A16, A17, A19, and A20 were used to
+from accent placements (A67-A70), some of which                  compare responses to onset frequency, χ2(1, N = 2193) =
+attempted to simulate metrical changes, yielded weak             24.30, p < .001 (Figure 8a), A15 and A18 to compare
+results as well. The most frequently chosen responses            responses to tempo, χ2(1, N = 1032) = 9.34, p = .002
+for all of them were either “no change” or “changes              (Figure 8b), and A21 to compare results for dynamics,
+frequently.” There were a statistically significant num-         χ2(1, N = 1120) = 15.13, p < .001 (Figure 8c).
+ber of responses indicating increasing tension for A67,             General conclusions for isolated features. Regardless of the
+χ2(1, N = 268) = 48.65, p < .001. However, this might            musical backgrounds of the participants, the two features
+have been a result of perceived increase in onset fre-           that listeners responded to most strongly in isolation ap-
+quency of the accented notes, similar to the rhythmic            peared to be dynamics and pitch height, followed by onset
+regularity examples discussed above. It is worth noting          frequency and tempo. Given the stimuli used in the
+though that for A67, there was no significant difference         experiment, it was not possible to determine the difference
+in sensitivity between pitched and unpitched versions,           in sensitivity between tempo and onset frequency. The type
+unlike the previous cases discussed.                             of onset frequency changes explored in this study resembled
+   Musicians vs. nonmusicians. Comparisons between               written-out tempo changes that increased or decreased lin-
+responses from musicians and nonmusicians indicated              early. In most musical passages, onset frequency does not
+that musicians had greater sensitivity to harmony,               tend to vary linearly in such a clear manner. From an
+tempo, onset frequency, and dynamics—all features with           ecological perspective, onset frequency is probably more
+the exception of pitch height. In order to differentiate         analogous in effect to rubato-like tempo fluctuations rather
+between musician and nonmusician responses to pitch              than ritards and accelerandos. It was also not clear how the
+height versus harmony, all responses to stimuli contain-         influence of harmony compared with the effect of other
+ing harmonic progressions with pitch height profiles             features since pitch height was always an added factor.
+diverging from the harmonic profiles (A03, A04, A07,             However, even in the cases where small changes in pitch
+A08, A11, and A12) were folded together by response              height contour matched harmonic tension (e.g., A05-A06),
+type: all responses that matched the tension curve of the        listeners did not respond to harmony as strongly as pitch-
+harmonic progression were then put into one category,            height alone (A14) or dynamics changes alone (A21).
+all responses that corresponded to the tension curve of             Conflicts and convergences. For stimuli with two or more
+the pitch-height contour into the second category, and           conflicting parameters, the presence of conflicting features
+all other responses into a third category (Figure 7).            appears to have created ambiguity. The opposite effect
+Musicians responded more strongly to harmony while               occurred when two or more features were changing in the
+nonmusicians responded to pitch height; differences              same direction—multiple features in parallel resulted in
+                                                                 stronger effects than single features in isolation. The
+                                                                 ambiguous/reinforcing effects stemming from diverging
+                                                                 or converging parameters is evident in the harmony versus
+                                                                 melodic contour analysis discussed above. Another
+                                                                 example of this can be observed for stimuli A47 and A50.
+                                                                 In A47, harmonic tension, pitch height, and loudness are
+                                                                 all increasing in parallel, yielding a response frequency for
+                                                                 “increasing” of 80% across all subjects. In the case of A50,
+                                                                 harmonic tension and onset frequency are increasing
+                                                                 while pitch height is decreasing, yielding highly mixed
+                                                                 results: 15% for “increasing” and 26% for “decreasing.”
+                                                                 Responses to A50 also reveal that descending pitch con-
+                                                                 tour contributed more to perceived tension in this case
+                                                                 than both harmony and onset frequency combined. This
+FIGURE 7. A comparison between musicians and nonmusicians        supports the previous observation that pitch height is a
+showing responses to pitch height versus responses to harmony.   particularly influential component.
+404    Morwaread M. Farbood
+
+
+
+
+                                                                              parameters involved. Salience of any feature is depen-
+                                                                              dent on the number of changes in a given time span. It
+                                                                              can be assumed that this time span is restricted to some
+                                                                              extent by short-term memory, but it cannot be assumed
+                                                                              that there is a straightforward mapping between
+                                                                              increase in change of a particular feature and increase
+                                                                              in salience. The nonlinear response to change in pitch
+                                                                              height is one example of this. That example also might
+                                                                              reflect a ceiling effect: increase in pitch height only
+                                                                              resulted in a corresponding increase in tension up to
+                                                                              some maximal point.
+                                                                                 Furthermore, salience is not just a matter of amount
+                                                                              of change over time; it is also a function of whether there
+                                                                              is an evident trend. This can be observed in the Bach-
+                                                                              Vivaldi examples, where tempo and dynamics have been
+                                                                              added to some passages. For the most part, it was diffi-
+                                                                              cult to draw conclusions from the Bach-Vivaldi excerpts
+                                                                              due to the complex nature of the stimuli. In most cases,
+                                                                              only added changes in dynamics or tempo enabled lis-
+                                                                              teners to converge on a response other than “changes
+                                                                              frequently.” The exceptions were excerpts taken from
+                                                                              mm. 97-104, in which there were no changes in dynam-
+                                                                              ics, tempo, or onset frequency, but a clear increase in
+                                                                              harmonic tension accompanied by a rise in pitch height
+                                                                              (Figure 2, B26-B31; Figure 4, mm. 97-104). Made further
+                                                                              salient by the lack of change in onset frequency, the har-
+                                                                              monic motion strengthened by increasing pitch height
+                                                                              appears to have induced a feeling of rising tension. This
+                                                                              concept of salience, particularly in the context of com-
+                                                                              plex musical textures, was an important consideration
+                                                                              in the development of the quantitative, parametric
+                                                                              tension model to be discussed later.
+
+                                                                                                   Experiment 2
+
+                                                                              One advantage of collecting data in the form of retro-
+                                                                              spective judgments is that it allows for a relatively simple
+                                                                              experimental interface, useful in the case of a web-based
+                                                                              experiment. However, it does have some limitations;
+                                                                              judgments made by listeners after an excerpt has ended
+                                                                              may not reflect the experience while the music is playing.
+                                                                              It is also difficult to use long excerpts that change over
+                                                                              time since these dynamic qualities are not well repre-
+FIGURE 8. A comparison between musicians and nonmusicians for (a)             sented by a single retrospective judgment. In Experiment
+sensitivity to onset frequency for stimuli A16, A17, A19, and A20, (b) sen-
+                                                                              2, continuous, real-time judgments of tension were col-
+sitivity to tempo for A15 and A18, and (c) sensitivity to dynamics for A21.
+                                                                              lected through a software interface. The data collected in
+                                                                              this study was essential to realizing a model that could
+  In general, it was difficult to evaluate relative contri-                   predict a tension response based on descriptions of the
+butions of each feature in interactive situations because                     way each musical feature changed over time. Assuming
+in most cases there was no way to measure the impact                          these feature descriptions were accurate, the goal was to
+of salience. Most of the stimuli were designed to have                        build a model that could predict overall tension by tak-
+changes that were as obvious as possible for the various                      ing into account how individual features influenced or
+                                                                             A Parametric, Temporal Model of Musical Tension   405
+
+
+
+contributed to changes in perceived tension at any point        tension responses were recorded for all iterations. After
+in a musical passage.                                           listening and responding to an excerpt, subjects were
+                                                                asked to select a confidence value for their response. The
+                          Method                                playback of each trial was preceded by visual cues (num-
+                                                                bers counting down from 3) that appeared on the inter-
+Participants. Thirty-five subjects, recruited from the          face to prepare the subject.
+faculty and student body at the Massachusetts Institute            At the beginning of each trial, participants were asked
+of Technology, participated in the experiment on a vol-         to position the slider at a spot approximately one quarter
+untary basis. Ages ranged from 19 to 59, with a mean            of the way from the bottom (marked with arrows) and
+age of 30. Participants who self-rated themselves a “3”         to try to use the space above that point for their judg-
+or less on a music training scale of “1” (“no training”)        ments. This position was determined through a series of
+to “5” (“professional”) or who had less than 10 years of        pilot studies that explored various initial slider positions.
+training in instrumental or vocal performance were              These tests revealed that subjects tended to run out of
+categorized as “nonmusicians.” The rest of the subjects         space at the bottom of the slider. Although this precau-
+(45%), who self-rated a “4” or higher on the music              tion was taken, recent work has shown that the initial
+training scale and had at least 10 years of formal train-       position of a continuous input device ultimately does
+ing were categorized as “musicians.” Two of the 35 data         not make a difference (Hackworth & Fredrickson, 2010).
+sets were thrown out due to confusion or admitted
+error on the part of the subject.                                                           Results
+   Stimulus materials. Ten musical stimuli were used for
+the experiment. Six of these were short (10 s or less); two     Quantifying musical parameters. Since the ultimate goal
+were carried over from Experiment 1 (A03 and A13,               was to define a tension model in terms of multiple mu-
+although the latter was rendered with strings timbre for        sical parameters, all of these parameters had to be ade-
+Experiment 2 as opposed to only piano timbre for                quately described and quantified first before their
+Experiment 1), and four of them were composed spe-              contribution to the subject responses could be assessed.
+cifically for this study (Figure 9). The members of the         All of the parameters confirmed in Experiment 1 as
+latter group were similar in design to those from               well as one additional parameter, melodic expectation,
+Experiment 1 and were intended to clarify certain para-         were quantified for each stimulus in Experiment 2.
+metric interactions that were not entirely clear from the       None of the excerpts required all of the features to be
+results of the previous study. In addition to these shorter     quantified. For example, if there was no change in
+stimuli, there were four excerpts taken from the classical      tempo throughout an excerpt, the graph representing it
+repertoire: the Bach-Vivaldi passage from Experiment 1          (a flat line) was not used in the subsequent analyses.
+(Figure 4), Schoenberg Klavierstück, Op. 11 No. 12, mm.            Some features were easy to quantify; for example,
+1-8 (Figure 9), Beethoven Symphony No. 1, first move-           tempo, a one-dimensional parameter, was described in
+ment, mm. 1-4 (Figure 9), and Brahms Piano Concerto             terms of beats per minute with respect to time. Harmony
+No. 2, first movement, mm. 146-162 (Figure 10). The             and melodic expectation, on the other hand, were com-
+longer stimuli were 20 s to 1 min in length. All of the         plex enough to require more sophisticated methods of
+stimuli, both long and short, were rendered in MIDI and         quantification. Even though there were some descriptive
+converted to audio (wav) format. Dynamics were added            overlaps, tempo and onset frequency were treated sepa-
+after the conversion to audio and were not added by             rately and given individual graphs. Most stimuli did not
+changing MIDI velocity values.                                  require more than one or two pitch height graphs—
+   Task. Test subjects were presented with a computer           melody and bass lines for the most part—although if
+interface written in C++ with the Win32 API. Moving             there existed a prominent inner line, that was included
+the mouse caused a slider bar to move up and down               as well. The individual pitch-height values were not con-
+without requiring the subject to press the mouse button.        nected by linear interpolation; since the x-axis of the
+This was done so that participants would not tire from          graphs spanned the time of the excerpt, the values were
+constantly holding the mouse down or worry about an             extended for their respective durations, resulting in step
+extra action that might distract from the listening expe-       functions. This graph format was the same for other fea-
+rience. Subjects were instructed to raise the slider if they    tures with values that changed at discrete time intervals.
+felt tension increasing, and to lower it if they felt tension      As shown in Experiment 1, pitch height is an impor-
+lessening. The slider values were collected at a sample         tant factor in how listeners perceive tension. However, it
+rate of 60 Hz. Each stimulus was played four times, and         is also a somewhat crude metric that does not take into
+406   Morwaread M. Farbood
+
+
+
+
+FIGURE 9. Stimuli from Experiment 2.
+                                                                                       A Parametric, Temporal Model of Musical Tension   407
+
+
+
+
+FIGURE 10. Excerpt 10 from Experiment 2: Brahms Piano Concerto No. 2, first movement, mm. 146-162.
+
+
+account the tonal context or the deeply schematic expec-                1992). So in addition to pitch height, a graph of melodic
+tations of melodic contour described in Narmour’s                       expectation values was generated using Margulis’ (2005)
+Implication-Realization (I-R) model (Narmour, 1990,                     melodic expectation model, which takes into account the
+408   Morwaread M. Farbood
+
+
+
+
+schematic expectations discussed in the I-R model and                   in cases where tempo was altered (Excerpts 2, 6, and 9).
+measures of proximity and distance between intervals.                   This downsampling was done to avoid a problem inher-
+Stability, an additional factor in Margulis’s model, is                 ent in slider values sampled at a high rate: the points are
+derived from Lerdahl’s tonal pitch space and melodic                    not independent of each other given that any two
+attraction models, thus addressing tonal relationships as               adjacent values (at time t = n and t = n+1) change very
+well as melodic interval relationships. For more details                little, and independence is a requirement for statistics
+on how these values were calculated, see Appendix B.                    such as Pearson’s r. A graph containing all of the feature
+   Harmonic tension values for the tonal stimuli were                   analyses along with the mean tension response for
+quantified using Lerdahl’s (2001) tonal tension model in                Excerpt 3 (Beethoven) is shown in Figure 11 to provide
+the same manner as Experiment 1 (see Appendix A for                     an idea of what the processed data looked like.
+details). The harmonic tension graph for the Schoenberg                    Correlation and multiple regression analysis. The first
+excerpt was calculated in a different way because it was                step in the analysis process was to evaluate how each
+atonal. Each chord was given a tension value based on                   feature graph for each excerpt correlated with the subject
+the interval classes it contained; this was done by                     data. Given that the correlation between beat-sampled
+assigning each interval class (six total) a rank value cor-             subject responses was high, mean r(1006) = .47, mean
+responding to its relative psychoacoustic dissonance. The               p = .003 (Pearson’s correlation), the mean of the
+final tension value consisted of the sum of the values                  responses across subjects was used for all subsequent
+associated with the interval classes found in that chord.               analyses. Within-subject correlation for repeated listen-
+   The graphs for loudness were derived directly from the               ings indicated that there was a marked difference
+audio files. The values were produced by Jehan’s (2005)                 between the first listening and the later listenings and
+psychoacoustic loudness model, which takes into ac-                     high consistency between the last three (see Table 3).
+count outer and inner ear filtering (more or less the                   This is possibly due to the initial uncertainty of listening
+equivalent of the Fletcher-Munson curves at an average                  to something unfamiliar; by the second listening, sub-
+pressure level), frequency warping into a cochlear-like                 jects have some veridical knowledge of the music and
+frequency distribution, frequency masking, and tempo-                   can predict events and react with greater deliberation.
+ral masking (Glasberg & Moore, 2002; Moore & Glasberg,                     The next step was to understand how the individual
+1995; Zwicker & Fastl, 1999). The graph values are mea-                 musical features contributed to the tension judgments.
+sured in dB with a reference silence at -60 dB. A point                 Results of correlation analysis for the feature graphs and
+was computed every 256 samples at 44,100 Hz with a                      mean tension responses are shown in Tables 4 and 5, and
+window length of 4096 samples. The results were then                    the multiple regression results are shown in Table 6.
+filtered to obtain a smoother curve.                                    Although the data was downsampled to minimize serial
+   Data preprocessing. The subject data and feature graphs              dependence, Spearman’s r was computed in addition to
+were resampled to 50Hz and then normalized to zero                      Pearson’s r as a comparative measure. Spearman’s r was
+mean and unit standard deviation (Z-score). The feature                 utilized in this case because it has been shown to be more
+graphs were slightly smoothed using a raised-cosine,                    accurate than Pearson’s r for serial correlation (Schubert,
+moving-average filter to remove the sharp edges and                     2002; Vines et al., 2006).
+discontinuities. For correlation purposes, an additional                   These correlation and regression results give an indica-
+step was taken: the subject data and feature graphs were                tion of how much each musical feature contributed to
+down-sampled again so that each point selected occurred                 the perception of tension for individual excerpts. For
+in the middle of every beat or note event. Since these                  Excerpts 1, 2, and 4, the feature with the highest correla-
+sampled points were evenly distributed throughout each                  tion to tension was pitch height. In Excerpt 1, there were
+excerpt, they did not correspond precisely to note events               just two competing features: pitch height and harmony.
+
+           Table 3. Average Within-Subject Correlation Values for Repeated Listenings
+
+                                    Trial 2                            Trial 3                          Trial 4
+             Trial    Mean r (Pearson’s)      Mean p    Mean r (Pearson’s)       Mean p   Mean r (Pearson’s)      Mean p
+               1              .68              .09               .62              .12             .61              .13
+               2               1                0                .82              .04             .79              .05
+               3               –                –                 1                0              .85              .04
+               4                                                                                   1                0
+                                                                                        A Parametric, Temporal Model of Musical Tension   409
+
+
+
+                                     0HDQ7HQVLRQDQG)HDWXUH*UDSKVIRU%HHWKRYHQ([FHUSW
+                                                                                                                                        
+
+
+
+
+           
+
+
+          
+
+
+           
+
+
+          
+7HQVLRQ
+
+
+
+
+           
+
+
+                                                                             7HQVLRQFXUYH
+                                                                                6DPSOHGHYHQWV
+                                                                               +DUPRQ\
+                                                                                /RXGQHVV
+                                                                                0HORGLFH[S
+                                                                             2QVHWIUHT
+                                                                                3LWFKKHLJKW EDVV
+                                                                                3LWFKKHLJKW PHORG\
+           
+                                                                                                                                   
+                                                                7LPH VHFRQGV
+
+ FIGURE 11. Graphs showing the musical features and mean tension response for Excerpt 3 (Beethoven) from Experiment 2.
+
+
+
+ Excerpt 1 was also used in Experiment 1 (A03), and the                  bass contributed roughly about the same, while harmony
+ response profile from the previous study matches the                    was slightly less influential. Excerpt 9 consisted of three
+ results from Experiment 2. This appears to be the case                  features—harmony, pitch height of melody, and
+ for musicians versus nonmusicians as well; while pitch                  tempo—moving in a decreasing direction against
+ height was an important contributor to tension for both                 dynamics moving in an increasing direction; the dynam-
+ groups, musicians appeared to be more sensitive to har-                 ics in this case “won,” despite the fact that it was in
+ mony than nonmusicians. Excerpt 2 was also designed                     opposition to three features combined. The effect of
+ to examine two competing features, in this case pitch                   looming sounds on attention, mentioned previously in
+ height and tempo, with tempo appearing to have little                   the context of Excerpts 4 and 6, might be the reason for
+ effect. In Excerpt 4, the effect of pitch height predomi-               this. For Excerpt 10 (Brahms), onset frequency was the
+ nated over the decrease in dynamics. The results might                  only other positive contributor, although it was a far
+ have been the opposite if the directions were reversed: if              second to dynamics.
+ dynamics were increasing while pitch height was                            Harmony was the strongest contributing feature in
+ decreasing, the tension response might have been                        Excerpts 5 (Bach-Vivaldi) and 7. In the Bach-Vivaldi,
+ increasing given that looming sounds elicit more atten-                 harmony was followed by pitch height of the inner line,
+ tion than fading sounds (Granot & Eitan, 2011; Neuhoff,                 distinctive particularly in the first part of the excerpt,
+ 1998, 2001). The same argument could be made for                        and onset frequency, which increases suddenly to
+ Excerpt 6, where increasing tempo correlated more                       sixteenth notes in the latter half of the excerpt. In the
+ highly with tension than decreasing dynamics.                           case of Excerpt 7, there was only one real changing
+    Dynamics was the most significant contributor to                     feature—harmonic dissonance—and not surprisingly, it
+ tension in Excerpts 3 (Beethoven), 9 (cadence with ritard               was highly correlated with tension judgments.
+ and crescendo), and 10 (Brahms). In the case of the                       Excerpt 8 (Schoenberg) had several features with high
+ Beethoven, dynamics was followed by harmony as the                      correlations: harmony, dynamics, onset frequency, pitch
+ feature with the highest correlation. However, the beta                 height of the inner voice, and pitch height of the bass.
+ values from the regression analysis indicate something                  This can be explained by the fact that those features are
+ rather different: all features except pitch height of the               highly correlated with each other, thus combining to
+410   Morwaread M. Farbood
+
+
+
+
+                Table 4. Correlations Between Mean Tension Data and Musical Features For Each Excerpt in Experiment 2.
+
+                                     Excerpt 1: I-V7-I progression with rising melody, df = 4
+                                                       Nonmusicians                             Musicians
+
+                                                  Pearson’s r      Spearman’s r        Pearson’s r     Spearman’s r
+                Harmony                               .28                .43              .53                 .71
+                Pitch height - Melody                 .94**              .89*             .79                 .71
+                                        Excerpt 2: Chromatic scale up with ritard, df = 10
+                                                       Nonmusicians                             Musicians
+                                                  Pearson’s r      Spearman’s r        Pearson’s r     Spearman’s r
+                Pitch height - Melody                1.00**             1.00**            .99**              1.00**
+                Tempo                                -.99**            -1.00**           -.98**             -1.00**
+                                         Excerpt 3: Beethoven Symphony No. 1, df = 16
+                                                       Nonmusicians                             Musicians
+
+                                                  Pearson’s r      Spearman’s r        Pearson’s r     Spearman’s r
+                Harmony                               .43                .51*             .48*                .57*
+                Dynamics                              .62**              .59*             .55*                .53*
+                Melodic expectation                   .01                .05             -.001                .04
+                Onset frequency                       .19                .36              .35                 .43
+                Pitch height - Bass                   .34                .46              .24                 .35
+                Pitch height - Melody                 .24                .42              .10                 .26
+                                    Excerpt 4: Chromatic scale up with decrescendo, df = 10
+                                                       Nonmusicians                             Musicians
+
+                                                  Pearson’s r      Spearman’s r        Pearson’s r     Spearman’s r
+                Dynamics                             -.55               -.80**           -.24                -.36
+                Pitch height - Melody                 .94**             1.00**            .77**               .64*
+                                            Excerpt 5: Bach-Vivaldi concerto, df = 93
+                                                       Nonmusicians                             Musicians
+
+                                                  Pearson’s r      Spearman’s r        Pearson’s r     Spearman’s r
+                Harmony                               .63**              .68**            .45**               .36**
+                Dynamics                             -.0002              .10              .02                 .06
+                Melodic expectation                  -.29**             -.25*            -.17                -.10
+                Onset frequency                       .36**              .33**            .27**               .21*
+                Pitch height - Bass                  -.30**             -.38**           -.06                 .02
+                Pitch height - Inner                  .54**              .05              .45**               .25*
+                Pitch height - Melody                -.28**             -.28**           -.11                -.03
+
+                                                                                                         (Continued)
+                                                                                    A Parametric, Temporal Model of Musical Tension   411
+
+
+
+               Table 4. Continued.
+
+                                          Excerpt 6: Accelerando plus diminuendo, df = 4
+                                                        Nonmusicians                             Musicians
+
+                                                   Pearson’s r    Spearman’s r         Pearson’s r      Spearman’s r
+               Dynamics                               -.09             -.37               -.04               .03
+               Tempo                                   .78              .83                .76               .60
+                                          Excerpt 7: Increasingly dissonant harmony, df = 4
+                                                        Nonmusicians                             Musicians
+
+                                                   Pearson’s r    Spearman’s r         Pearson’s r      Spearman’s r
+               Harmony                                 .95**           1.00**              .96**             1.00**
+                                                   Excerpt 8: Schoenberg, df = 21
+                                                        Nonmusicians                             Musicians
+
+                                                   Pearson’s r    Spearman’s r         Pearson’s r      Spearman’s r
+               Harmony                                 .55**            .16                 .46*              .19
+               Dynamics                                .69**            .73**               .64**             .62**
+               Onset frequency                         .69**            .69**               .71**             .73**
+               Pitch height - Bass                     .76**            .37                 .65**             .41
+               Pitch height - Inner                    .74**            .41*                .63**             .36
+               Pitch height - Melody                  -.41             -.14                -.29              -.10
+                                 Excerpt 9: Resolving progression with ritard and crescendo, df = 6
+                                                        Nonmusicians                             Musicians
+
+                                                   Pearson’s r    Spearman’s r         Pearson’s r      Spearman’s r
+               Harmony                                -.56             -.55                -.73*             -.71
+               Dynamics                                .96**            .79*                .93**             .62
+               Pitch height - Melody                  -.66             -.55                -.79*             -.71
+               Tempo                                  -.69             -.40                -.82*             -.62
+                                                    Excerpt 10: Brahms, df = 64
+                                                        Nonmusicians                             Musicians
+
+                                                   Pearson’s r    Spearman’s r         Pearson’s r      Spearman’s r
+               Harmony                                -.23             -.23                -.32**            -.33**
+               Dynamics                                .77**            .73**               .82**             .73**
+               Melodic expectation                     .02              .01                 .06               .01
+               Onset frequency                         .23              .37**               .25*              .35**
+               Pitch height - Bass                     .29*             .22                 .22               .11
+               Pitch height - Melody                  -.17             -.27*               -.29*             -.35**
+               Note: *p ≤ .05 **p ≤ .01
+
+
+create strong cues for tension changes. On the other                  Although we can get an idea of the relative importance
+hand, beta values from the regression analysis are largest          of musical features for each excerpt, ascertaining a
+for pitch height of the bass and are considerably smaller           more global perspective requires some understanding
+for the other features.                                             of context. In excerpts where a certain feature had a
+412   Morwaread M. Farbood
+
+
+
+
+                Table 5. Correlations Between Musical Features For All Excerpts in Experiment 2.
+
+                                                     Excerpt 1: I-V7-I progression with rising melody, df = 4
+                                                 D          M         O        PH-B       PH-I      PH-M       TM
+                H             Pearson            –          –          –         –          –        .13        –
+                              Spearman           –          –          –         –          –        .54        –
+                PH-M          Pearson            –          –          –         –          –         –         –
+                              Spearman           –          –          –         –          –         –         –
+                                                        Excerpt 2: Chromatic scale up with ritard, df = 10
+                                                 D          M         O        PH-B       PH-I      PH-M       TM
+                PH-M          Pearson            –          –          –         –          –         –       -1.00**
+                              Spearman           –          –          –         –          –         –          –
+                TM            Pearson            –          –          –         –          –         –          –
+                              Spearman           –          –          –         –          –         –          –
+                                                         Excerpt 3: Beethoven Symphony No. 1, df = 16
+                                                 D          M         O        PH-B       PH-I      PH-M       TM
+                H             Pearson            .34       -.56*      .35        .44        –       -.22        –
+                              Spearman           .25       -.30       .52*       .44        –       -.06        –
+                D             Pearson             –        -.51*     -.29        .54*       –        .48*       –
+                              Spearman            –        -.52*     -.09        .57*       –        .64**      –
+                M             Pearson             –          –        .05       -.56*       –       -.11        –
+                              Spearman            –          –        .08       -.37        –       -.05        –
+                O             Pearson             –          –         –        -.28        –       -.80**      –
+                              Spearman            –          –         –         .11        –       -.23        –
+                PH-B          Pearson             –          –         –          –         –        .50*       –
+                              Spearman            –          –         –          –         –        .48*       –
+                PH-S          Pearson             –          –         –          –         –         –         –
+                              Spearman            –          –         –          –         –         –         –
+                                                     Excerpt 4: Chromatic scale up with decrescendo, df = 10
+                                                 D          M         O        PH-B       PH-I      PH-M       TM
+                D             Pearson            –           –         –         –          –       -.79**      –
+                              Spearman           –           –         –         –          –       -.79**      –
+                PH-M          Pearson            –           –         –         –          –          –        –
+                              Spearman           –           –         –         –          –          –        –
+                                                            Excerpt 5: Bach-Vivaldi concerto, df = 93
+                                                 D          M         O        PH-B       PH-I      PH-M       TM
+                H             Pearson           -.13       -.50**     .54**     -.49**      .36**   -.62**      –
+                              Spearman          -.08       -.54**     .50**     -.53**     -.04     -.65**      –
+                D             Pearson             –         .31**    -.31**     -.05        .19      .28**      –
+                              Spearman            –         .28**    -.23*      -.12        .24*     .31**      –
+                M             Pearson             –          –       -.26**      .30**     -.23*    -.52**      –
+                              Spearman            –          –       -.20        .28**      .002    -.53**      –
+                O             Pearson             –          –         –        -.23*       .20*    -.67**      –
+                              Spearman            –          –         –        -.17       -.02     -.56**      –
+                PH-B          Pearson             –          –         –          –        -.46**    .48**      –
+                              Spearman            –          –         –          –        -.01      .48**      –
+                                                                                                           (Continued)
+                                                               A Parametric, Temporal Model of Musical Tension   413
+
+
+
+
+Table 5. Continued.
+PH-I         Pearson        –         –          –         –          –        -.43**       –
+             Spearman       –         –          –         –          –        -.08         –
+PH-M         Pearson        –         –          –         –          –          –          –
+             Spearman       –         –          –         –          –          –          –
+                                  Excerpt 6: Accelerando plus diminuendo, df = 4
+                            D         M          O       PH-B       PH-I      PH-M        TM
+D            Pearson        –         –          –         –          –          –        -.67
+             Spearman       –         –          –         –          –          –        -.60
+TM           Pearson        –         –          –         –          –          –          –
+             Spearman       –         –          –         –          –          –          –
+                                  Excerpt 7: Increasingly dissonant harmony, df = 4
+                            D         M          O       PH-B       PH-I      PH-M        TM
+H            Pearson        –         –          –         –          –          –          –
+             Spearman       –         –          –         –          –          –          –
+                                             Excerpt 8: Schoenberg, df = 21
+                            D         M          O       PH-B       PH-I      PH-M        TM
+H            Pearson       .14        –          .18     .85**      .86**      -.42*        –
+             Spearman      -.09       –          .03      .14        .35        -.07        –
+D            Pearson         –        –         .74**     .37        .37        -.09        –
+             Spearman        –        –         .53**     .18        .31        -.11        –
+O            Pearson         –        –           –       .38        .36        -.01        –
+             Spearman        –        –           –       .14        .06         .05        –
+PH-B         Pearson         –        –           –        –        .99**     -.70**        –
+             Spearman        –        –           –        –         .37      -.62**        –
+PH-I         Pearson         –        –           –        –          –       -.68**        –
+             Spearman        –        –           –        –          –        -.44*        –
+PH-M         Pearson         –        –           –        –          –           –         –
+             Spearman        –        –           –        –          –           –         –
+                         Excerpt 9: Resolving chord progression with ritard and crescendo,
+                                                       df = 6
+                            D         M          O       PH-B       PH-I      PH-M        TM
+H             Pearson      -.47       –          –         –          –       .98**       .89**
+              Spearman     -.48       –          –         –          –       1.00**       .86*
+D             Pearson        –        –          –         –          –        -.57       -.70*
+              Spearman       –        –          –         –          –        -.48        -.62
+PH-M          Pearson        –        –          –         –          –          –        .91**
+              Spearman       –        –          –         –          –          –         .86*
+TM            Pearson        –        –          –         –          –          –           –
+              Spearman       –        –          –         –          –          –           –
+                                              Excerpt 10: Brahms, df = 64
+                            D         M          O       PH-B       PH-I      PH-M         TM
+H             Pearson      -.23       -.11      -.08      .16         –        .37**        –
+              Spearman    -.24*       -.09      -.17      .12         –        .39**        –
+D             Pearson        –       .33**      .25*     .26**        –        -.35**       –
+              Spearman       –       .33**       .21      .19         –        -.42**       –
+                                                                                     (Continued)
+414   Morwaread M. Farbood
+
+
+
+
+                 Table 5. Continued.
+                 M                Pearson               –            –          .10         .11           –           -.18         –
+                                  Spearman              –            –          .04         .08           –           -.20         –
+                 O                Pearson               –            –           –         .34**          –           -.20         –
+                                  Spearman              –            –           –          .08           –          -.33**        –
+                 PH-B             Pearson               –            –           –           –            –            .10         –
+                                  Spearman              –            –           –           –            –            .03         –
+                 PH-M             Pearson               –            –           –           –            –             –          –
+                                  Spearman              –            –           –           –            –             –          –
+                 Note: H = harmony, D = dynamics, M = melodic expectancy, O = onset frequency, PH-B = pitch height of bass, PH-I = pitch
+                 height of inner voice, PH-M = pitch height of melody, TM = tempo. *p ≤ .05 **p ≤ .01
+
+
+          Table 6. Multiple Regression Results For All Excerpts in Experiment 2.
+
+          MODEL                                                                                     b            F            df   R2      R2adj
+          Excerpt 1                                                                                –           10.47*         4    .88     .79
+          (I-V7-I with rising melody)                          Harmony                           0.27
+                                                               Pitch height - Melody             0.83*
+          Excerpt 2                                                                                –          587.6**         10   .99     .99
+          (Chromatic scale up with ritard)                     Pitch height - Melody             1.30**
+                                                               Tempo                             0.31
+          Excerpt 3                                                                                –           20.65**        16   .92     .87
+          (Beethoven)                                          Harmony                           0.47**
+                                                               Dynamics                          0.72**
+                                                               Melodic expectation               0.68**
+                                                               Onset frequency                   0.76**
+                                                               Pitch height - Bass              -0.02
+                                                               Pitch height - Melody             0.65**
+          Excerpt 4                                                                                –          188.03**        10   .98     .97
+          (Chromatic scale up with decrescendo)                Dynamics                          0.73**
+                                                               Pitch height - Melody             1.49**
+          Excerpt 5                                                                                –           15.95**        93   .56     .53
+          (Bach-Vivaldi)                                       Harmony                           0.62**
+                                                               Dynamics                         -0.07
+                                                               Melodic expectation              -0.08
+                                                               Onset frequency                   0.26*
+                                                               Pitch height - Bass               0.20*
+                                                               Pitch height - Inner              0.55**
+                                                               Pitch height - Melody             0.52**
+          Excerpt 6                                                                                –           50.68**        4    .97     .95
+          (Accelerando with diminuendo)                        Harmony
+                                                               Dynamics                          0.77**
+                                                               Tempo                             1.26**
+          Excerpt 7                                                                                –           44.16**        4    .92     .90
+          (Increasingly dissonant harmony)                     Harmony                           0.85**
+          Excerpt 8                                                                                –            7.79**        21   .75     .65
+          (Schoenberg)                                         Harmony                          -0.11
+                                                               Dynamics                          0.22
+                                                               Onset frequency                   0.32
+                                                               Pitch height - Bass               1.03
+                                                               Pitch height - Inner             -0.35
+                                                               Pitch height - Melody             0.12
+                                                                                                                                   (Continued)
+                                                                              A Parametric, Temporal Model of Musical Tension   415
+
+
+
+          Table 6. Continued.
+
+          MODEL                                                                 b          F        df     R2    R2adj
+          Excerpt 9                                                             –        92.24**     6    .99    .98
+          (Resolving chord progression with
+                                                    Harmony                  -0.52
+           ritard and crescendo)
+                                                    Dynamics                  1.07**
+                                                    Pitch height - Melody    -0.08
+                                                    Tempo                     0.50
+          Excerpt 10                                                            –        24.31**    64    .71    .68
+          (Brahms)                                  Harmony                  -0.14
+                                                    Dynamics                  0.86**
+                                                    Melodic expectation      -0.41**
+                                                    Onset frequency           0.04
+                                                    Pitch height - Bass       0.07
+                                                    Pitch height - Melody     0.08
+          Note: *p ≤ .05 **p ≤ .01
+
+clear trend rather than subtle fluctuations, the correla-           The prediction results for both the linear and quadratic
+tion values were higher, regardless of the inherent              models were quite poor, even when more than three-quarters
+listener sensitivity to that feature. For example, the           of the empirical data was used to train the models. In most
+loudness graph does not correlate at all with the subject        cases, the linear models performed better than the quadratic
+data for the Bach-Vivaldi while it does so significantly         models. While the quadratic models were able to fit the train-
+for the Beethoven. This coincides with the qualitative           ing data more accurately, the prediction results were often
+observation that there are almost unnoticeable                   highly inaccurate due to overfitting. The results for the
+fluctuations in dynamics in the Bach-Vivaldi but very            Brahms excerpt, shown in Figure 12, is a typical example. The
+obvious changes in the Beethoven. In general, the                problem here is a common one: given enough degrees of
+results reflect the salient features of each excerpt;            freedom (or in this case, enough features), it is possible to
+likewise, in the case of the Brahms, loudness was the            model anything, as is indicated by how well the quadratic
+strongest factor contributing to tension. This can be            model fit the training data for a complex excerpt like the
+explained by the fact that the melodic, harmonic, and            Brahms. The question remains whether what has been
+rhythmic aspects are quite complex and change                    modeled is the relevant data or the noise. In this case, the
+frequently in an irregular manner.                               answer appears to be that little of what was actually captured
+   Linear and nonlinear predictive models. The next step         in those models was musically relevant. Another problem,
+was to explore the process of building a predictive model        especially for the short excerpts, was that the training data
+of tension by attempting to fit linear and nonlinear mod-        were insufficient to capture the musical dynamics necessary
+els to a portion of the empirical data given the musical         to make accurate tension predictions. It is possible that given
+features, and then trying to predict the remaining data          more diverse and longer excerpts, predictions might be more
+using the resulting model. The assumption was that ten-          accurate. Nonetheless, a very different approach was subse-
+sion could be expressed as time-varying function of a set        quently adopted due to the poor results.
+of musical parameters. The goal was to approximate this             A parametric, temporal model for predicting tension. The
+function so that it matched the subject data as accurately       primary problem with the method just described was the
+as possible. Each model was trained on the first portion         fact that the models were unable to capture the moment-
+of the data for each excerpt and then tested on the              to-moment experience of music listening. Listening is a
+remaining part in order to evaluate the resulting model’s        dynamic process, and trying to build a successful model
+analytical usefulness.                                           that did not take this into account was perhaps, in
+   In preparation, the feature graphs were further smoothed      hindsight, an impossible task. The next method took into
+in order to eliminate any sharp edges and discontinuities.       account the real-time nature of music perception. This
+This was necessary because the empirical data itself was         new approach included three major components:
+smooth due to the relatively gradual slider motions used by
+the listeners to indicate tension changes. It would be diffi-    1. An attentional window that models a perceptual
+cult for a model—particularly a linear model—to estimate            moving window in time and extracts a current
+smooth data with graphs containing abrupt changes.                  tension trend.
+416    Morwaread M. Farbood
+
+
+
+
+FIGURE 12. The results of (a) linear regression and (b) polynomial regression for Excerpt 10 (Brahms) from Experiment 2. The vertical line indicates
+the division between training data for the model and out of sample data used for prediction.
+
+
+
+2. A memory window, defined simply as the direction                         directionality of the attentional window’s trend or not;
+   of the tension trend in a window of time immedi-                         if they match, the magnitude of the tension trend is
+   ately preceding the attentional window.                                  additionally increased. Tension trends for each atten-
+3. Differing weights for the influence of various musical                   tional window are then integrated over time to generate
+   parameters.                                                              a final tension prediction.
+                                                                                The musical feature graphs serving as inputs to the
+The model essentially defines tension as a function of                      prediction model are identical to the ones used for the
+musical features by estimating the combined directional                     correlation and regression analysis; the only feature that
+change of all of the features in each attentional window                    was not included was melodic expectation, because it did
+and using this information to generate tension predic-                      not correlate in a clear directional way with tension. The
+tions. The combined directional change, or tension                          slope of an individual feature over a particular time
+trend, for an attentional window is weighted both by                        interval is defined as the slope of the best linear fit of that
+what immediately precedes it in the memory window                           section of the feature graph. This function is defined as
+and the perceptual weights of the individual musical                        sf (t), the slope of the interval from t to t + d of feature f,
+parameters. The influence of the memory window                              where t is time, and d is the window duration; d is a mul-
+is dependent on whether its trend matches the                               tiple of the sampling interval (in this case, 0.02 s for
+                                                                            A Parametric, Temporal Model of Musical Tension   417
+
+
+
+50 Hz). The slope of a tension trend is determined by          windows weighted more strongly to simulate memory
+summing all of the weighted slopes of the individual fea-      decay. Thus, the slope of the tension curve at time t is
+ture graphs over that discrete time window. If all features    defined as
+have positive slopes, the sum of those slopes would indi-                                   d
+                                                                                              −1
+                                                                                            h
+cate a clear increase in tension for that window. However,
+                                                                                    S(t ) = ∑ s ′(t − τ h)kτ                 (2)
+if the slopes conflict, they would to some degree cancel                                    τ =0
+each other out. The relative weights for each feature were
+estimated from the results of Experiment 1: dynamics           where d is the attentional window duration and k is a
+and pitch height of the melody were given the highest          decay constant for a moving average filter with ∑ ki = 1.
+weight (weight = 3) followed by tempo and onset fre-                                                                    i
+quency (weight = 2), and finally harmony, pitch height         Given this equation for the slope of the predicted ten-
+of bass, and pitch height of inner lines (weight = 1). These   sion curve, the actual tension value Ften at time t is de-
+values were then normalized to sum to one.                     fined as
+   Qualitative observation of the data from Experiments 1
+                                                                                                          T −1
+and 2 indicated that listeners were drawn to salient trends
+in tension, and that the magnitude of the tension judg-                  Ften (t ) = S(T )(t − hT ) + h∑ S(i)                (3)
+                                                                                                          i =0
+ments increased as the trends progressed. In other words,
+a clear trend generated the expectancy that the trend would    where h is the step size of the moving window increment
+continue in the current direction. The model implements
+                                                               (0.25 s) and T =  t  . Note that this equation simplifies to
+this observation by multiplying the magnitude of the slope                       h 
+of a tension trend by the memory constant b, if the cumu-                         
+                                                                                                   T −1
+lative slope of the immediately preceding memory window
+matches the direction (increase/decrease) of the trend in                             Ften (t ) = h∑ S(i)                    (4)
+                                                                                                   i =0
+the attentional window. The cumulative slope of a tension
+trend at time t is thus defined as                             when t is a multiple of h. This falls out of the fact that
+                                                               time is continuous, but the model calculates the tension
+                     s ′(t ) = β ∑ w f s f (t )        (1)    values in discrete segments.
+                                  f
+                                                                  One final addition to the model was not a function of
+where sf(t) is the slope of best linear fit of feature f at    the features. Observation of the data made it clear that
+time t, as described above; b = 1 if the sign of s(t -d)       the initial tension change for all responses, regardless of
+does not equal the sign of s(t); b is some positive value,     the excerpt, was an upward sweep of the slider. This
+empirically determined, if the sign of s(t -d) is the same     might be due in part to the nature of the interface or to
+as the sign of s(t); wf is the weight of feature f with        the fact that going from silence to some sound always
+                                                               results in a natural, sudden increase in tension. This
+∑ w = 1 . The ideal b value for the case where the
+     f                                                         slider movement was accounted for by adding a uniform
+ f
+                                                               upward tension motion at the beginning of each
+attentional window trend continues in the same direc-          prediction curve.
+tion as the memory window trend was determined to                 Predictions generated with attentional windows ranging
+be 5, given the empirical data from Experiment 2.              from d = 1-8 s and memory windows ranging from 0-8 s
+Significantly larger values than 5, up to 100, resulted in     were tested with the data from Experiment 2 in order to
+predictions that were also highly correlated to the data,      determine which values provided the most accurate pre-
+but lacking in detail; values less than 5 resulted in much     dictions. Accuracy of predictions was evaluated by corre-
+poorer results.                                                lating the empirical judgments with the predicted tension
+   In order to model moment-to-moment integration of           curve. As shown in Figure 13, a 3 s attentional window
+auditory perception, the tension trends for attentional        resulted in the most accurate tension predictions overall,
+windows are evaluated every step size h = 0.25 s.              although some of the excerpts were too short to be in-
+Although in reality cognitive processing is continuous,        cluded in the data for the larger window sizes. To get a
+discrete evaluation of these windows at the resolution of      better picture of the effect of the memory windows, the
+250 ms was deemed sufficient given that it allowed for         results were broken down by individual memory window
+sub-beat time resolution; h also had to divide d evenly.       sizes for the Brahms and Bach-Vivaldi excerpts, the only
+The attentional window trends evaluated every 250 ms           two excerpts long enough to test window durations up to
+are averaged with previous trends, resulting in recent         8 s. These results, shown in Figure 14, indicate that the
+418                Morwaread M. Farbood
+
+
+
+
+                                Attentional Window Correlation Results                      have total durations of 6 s or longer), and slightly shorter
+              1
+                                                                                            2 s window sizes were used for the two shortest excerpts
+            0.95                                                                            (Excerpts 4 and 6). All of the correlations are high; the only
+             0.9                                                                            result that is not significant is Spearman’s r for Excerpt 4.
+            0.85
+                                                                                                                    Discussion
+             0.8
+Average r
+
+
+
+
+            0.75                                                                            The first part of this paper described a web-based ex-
+                                                                                            periment that presented listeners with short, simply
+             0.7
+                                                                                            constructed stimuli that attempted to isolate and
+            0.65                                                                            combine changes in different musical features that
+             0.6                                                                            hypothetically contributed to tension. These features
+                                                                                            included dynamics, tempo, onset frequency, pitch
+            0.55
+                                                                                            height, harmony, rhythmic regularity, and meter. There
+             0.5
+                0       1         2       3       4   5     6       7        8          9
+                                                                                            were several conclusions reached from the results of
+                                 Attentional Window Duration (seconds)                      Experiment 1:
+FIGURE 13. Average correlation values (Pearson’s r) for tension
+prediction across all excerpts for different attentional window sizes.
+                                                                                            1. All parameters examined with the exception of
+Error bars indicate standard error.                                                            rhythmic features had an impact on listeners’ per-
+                                                                                               ception of tension.
+                        Correlation Results by Memory Window Size                           2. In isolation, dynamics and pitch height had a clearer
+             1
+                                                                                               effect on tension than other parameters.
+            0.9                                                                             3. Musicians responded more strongly than nonmusi-
+            0.8
+                                                                                               cians to all features with the exception of pitch
+                                                                                               height in tonal contexts, where musicians responded
+            0.7
+                                                                                               more to harmony changes while nonmusicians
+            0.6                                                                                responded more to pitch height changes.
+Average r
+
+
+
+
+                                                                                            4. In the case of more complex stimuli, where features
+            0.5
+                                                                                 0.0s          counteracted each other, the results were often
+            0.4                                                                  1.0s          ambiguous.
+                                                                                 2.0s
+            0.3                                                                  3.0s       5. When multiple features were combined in parallel,
+                                                                                 4.0s
+                                                                                 5.0s
+                                                                                               they considerably strengthened the feeling of tension
+            0.2
+                                                                                 6.0s          changing in a particular direction.
+            0.1                                                                  7.0s
+                                                                                 8.0s
+                                                                                            Conclusion 1 is a new finding, since rhythmic regular-
+             0
+              1             2         3       4       5         6        7              8   ity, meter, syncopation, and onset frequency have not
+                                Attentional Window Duration (seconds)
+                                                                                            been explored before. High sensitivity to dynamics
+FIGURE 14. Correlation results (Pearson’s r) by memory window size                          (Conclusion 2) is consistent with previous findings
+for Excerpts 5 (Bach-Vivaldi) and 10 (Brahms) combined.                                     (Burnsed & Sochinski, 1998-2001; Granot & Eitan,
+                                                                                            2011; Ilie & Thompson, 2006; Krumhansl, 1996;
+optimal memory window size is also 3 s. Note the sharp                                      Misenhelter, 2001; Nielsen 1987), but the considerable
+difference in results between having no memory window                                       influence of pitch height is more consistent with results
+(graph depicting 0.0 s) and a memory window of any size.                                    of Bigand et al. (1996) than Eitan and Granot (2011).
+When there is no memory window at all, the accuracy of                                      Conclusion 3 also confirms Bigand et al. (1996) and
+the model differs very little regardless of the size of the                                 Bigand and Parncutt’s (1999) findings that musicians
+attentional window. The prediction results for the Bach-                                    are more sensitive to tonal context than nonmusicians.
+Vivaldi and Brahms excerpts with attentional and memory                                     Conclusions 4 and 5 align with the observations of
+window sizes of 3 s are shown in Figure 15. Results of                                      Eitan and Granot that “noncongruence” does not result
+correlation between the model outputs and the empirical                                     in an increase of tension and that there are interactions
+data are shown for all stimuli in Table 7. Attentional and                                  among parameters.
+memory window durations of 3 s were used for eight out                                         The web-based, curve selection methodology employed
+of the ten excerpts that could accommodate them (i.e.,                                      in Experiment 1 does not have a precedent in previous
+                                                                                      A Parametric, Temporal Model of Musical Tension   419
+
+
+
+
+FIGURE 15. Predicted tension for (a) Excerpt 5, Bach-Vivaldi and (b) Excerpt 10, Brahams produced using a 3 s attentional window and a 3 s
+memory window.
+
+
+
+
+           Table 7. Correlations For the Empirical Data From Experiment 2 and Tension Curves Predicted by the Temporal Model
+
+                                                                                        Pearson’s r       Spearman’s r
+
+                                                                                        r        p        r        p
+           Excerpt 1: I-V7-I progression with rising melody (A03), df = 4              .93     .008      .83      .058
+           Excerpt 2: Chromatic scale up with ritard, df = 10                          .86   < .001     1       < .001
+           Excerpt 3: Beethoven Symphony No. 1, df = 16                                .67     .002       .65     .004
+           Excerpt 4: Chromatic scale up with decrescendo, df = 10                     .99   < .001       .89   < .001
+           Excerpt 5: Bach-Vivaldi concerto, df = 93                                   .88   < .001       .81   < .001
+           Excerpt 6: Accelerando plus diminuendo, df = 4                              .90     .015       .60     .24
+           Excerpt 7: Increasingly dissonant harmony (A13), df = 4                     .92     .009     1         .003
+           Excerpt 8: Schoenberg, df = 21                                              .93   < .001       .85   < .001
+           Excerpt 9: Resolving progression with ritard and crescendo, df = 6          .98   < .001       .93     .002
+           Excerpt 10: Brahms, df = 64                                                 .95   < .001       .92   < .001
+420   Morwaread M. Farbood
+
+
+
+
+studies on musical tension. The graphical nature of the re-       The third method entailed choosing only the curve
+sponse choices was in part intended to present the user with      with the highest response rate for each two-bar seg-
+an intuitive depiction of changing tension within a short         ment, represented by a single term wmax fmax . The final
+time span. In addition to the artificially constructed stimuli,   reconstituted curves were created by joining together
+short segments taken from an excerpt from a Bach-Vivaldi          all of the two-bar reconstructions in the correct order;
+concerto were added to include more complex, ecologically         the curves generated with the three methods are shown
+valid stimuli. The use of the Bach-Vivaldi excerpt in both        in Figure 16 along with the mean continuous response
+Experiments 1 and 2 provided a means to compare the               from Experiment 2. The three reconstructed graphs
+web-based methodology of Experiment 1 with the con-               were sampled twice every measure.
+tinuous response methodology from Experiment 2. This                 Correlations between the continuous graph from
+comparison entailed the reconstruction of a continuous            Experiment 2 and the reconstructions were high: for the
+curve from the discrete responses to the short, two-bar           graph consisting of weighted curves with the “no change”
+Bach-Vivaldi stimuli from Experiment 1, then comparing            responses included, r(26) = .66, p < .001 (Pearson’s
+this reconstructed curve to the analogous continuous re-          correlation); for weighted curves without the “no change”
+sponse from Experiment 2. Since the Bach-Vivaldi excerpt          responses, r(26) = .73, p < .001; for only the most
+in Experiment 2 was rendered in a MIDI orchestral strings         frequently chosen curves, r(26) = .64, p < .001. While the
+timbre, only responses to the strings version of the Bach-        correlation results indicate that the data from Experiment
+Vivaldi in Experiment 1 were considered in the analysis.          1 are similar to the data from Experiment 2, despite
+   The largest connected series of two-bar excerpts               significant differences in methodology, there do appear
+from Experiment 1 encompassed mm. 91-104 of the                   to be some discrepancies between the reconstructed
+excerpt, thus this particular section of the excerpt was          graphs (all three of which are quite similar), and the
+utilized for the comparison. There was a mean of 52               Experiment 2 continuous data. One prominent example
+responses per two-bar segment rendered in strings                 is the sharp drop in tension in m. 93 in the Experiment 2
+timbre (SD = 9.8). Three versions of the reconstructed            data that is not evident in the Experiment 1 data. This
+curve were pieced together: the first consisted of the            difference can be explained by the fact that the A minor
+sum of all of the curve choices (excluding the nonspe-            chord on the downbeat of m. 93 is the resolution of a
+cific “changes frequently” and “none of the above”                cadential figure. Since the stimuli are only presented in
+responses), each weighted by response frequency; the              two-bar segments in Experiment 1, there can be no con-
+second reconstruction was identical to the first except           nection made between the preceding chords in m. 92 and
+flat responses were not included; the third reconstruc-           the downbeat of m. 93. This reveals a natural limitation
+tion consisted of only the most frequently chosen                 of the methodology used in Experiment 1: the fact that
+curve for each two-bar segment, also weighted by                  musical context cannot be adequately represented by
+response frequency.                                               joining temporally unrelated segments together. However,
+   In the first method, each two-measure segment was              for judging short, independent musical excerpts, this
+reconstructed as a sum of the response curves,                    problem does not apply. The problem inherent in string-
+                                7                                 ing together responses to individual segments taken out
+                        1
+                              ∑w f 
+                     100 − w1 c = 2 c c
+                                                           (5)    of musical context is directly related to the importance
+                                                                  of the memory window in the temporal, predictive model
+                                                                  derived from the results of Experiment 2. Encoding past
+where fc is one of seven possible response choices
+                                                                  events that are no longer present in an attentional win-
+(shown in Figure 1a-g) and wc is the percentage of sub-
+                                                                  dow, but still exist in some abstract form in working
+jects who selected that particular curve. The multiplier
+                                                                  memory, is a crucial aspect of the listening experience. In
+    1                                                             summary, although the results of Experiment 1 provided
+           represents the “no change” responses by
+ 100 − w1                                                         a means for directly comparing the influence of impor-
+                                                                  tant musical parameters on the perception of tension, the
+essentially smoothing the summed curves by attenuat-
+                                                                  methodology did not inherently allow for a real-time
+ing the amplitude of the contours. The formula in the
+                                                                  accounting of parameter interaction. The continuous
+second reconstruction method was identical to the first
+                                                                  data from Experiment 2, on the other hand, did provide
+with the exception of the excluded multiplier term for
+                                                                  the means for this type of analysis.
+the “no change” responses:
+                              7                                      Standard correlation and regression analysis of the data
+                             ∑w f  c c                    (6)    from Experiment 2 did not yield any new insights into
+                             c= 2                                 parametric interaction. They did offer some idea of the
+                                                                                           A Parametric, Temporal Model of Musical Tension   421
+
+
+
+                                                   &RPSDULVRQEHWZHHQ([SHULPHQWVDQG
+                                                                                                                                              
+
+                               ([SFRQWLQXRXVGDWD
+                                  ([SZHLJKWHGFXUYHVZLWKIODWUHVSRQVHV
+                                 ([SZHLJKWHGFXUYHVZLWKRXWIODWUHVSRQVHV
+                                  ([SPRVWIUHTXHQWO\VHOHFWHGFXUYHVRQO\
+1RUPDOL]HG7HQVLRQ
+
+
+
+
+                      
+
+                       
+
+                      
+
+                       
+
+                     ï
+
+                      ï
+
+                     ï
+
+                      ï 
+                                                                                                       
+                                                                    0HDVXUH1XPEHU
+     FIGURE 16. Curves reconstructed from Experiment 1 responses to mm. 91-104 of the Bach-Vivaldi excerpt graphed alongside the mean response
+     from Experiment 2.
+
+     contribution of individual parameters in a given excerpt,                 memory while the “attentional” window represents
+     but did not provide a way to determine how tension is                     encoding of previous musical processing in working
+     derived from changes in those parameters. The first step                  memory. While it is difficult to determine a fixed length
+     taken toward building a predictive model involved using                   for short-term memory store, the combined attentional
+     part of the empirical data to train linear and quadratic                  and memory window durations do fall in that range.
+     models that were then tested on the remaining portion of                     The optimal window sizes and the value of b, the
+     the data. The results were poor due to several reasons:                   trend multiplier, were determined empirically by find-
+     there were not enough training data, particularly in the                  ing the highest correlation to the Experiment 2 data.
+     short excerpts, to come up with a viable predictive model;                However, correlation as a measure of accuracy has cer-
+     the polynomial models resulted in overfitting of the train-               tain problems. For example, high correlations can be
+     ing data; and most significantly, the whole idea of building              obtained for predictions that are very smooth and lack
+     a model without regard to the cognitive implications of                   detail. This was the case for predictions generated
+     real-time listening was problematic to begin with.                        through the use of larger window sizes. Although the
+        Given these observations, a temporal, parametric model                 correlation values for these larger windows were on
+     was conceived based on the concept of a perceptual moving                 average lower than those for the 3 s windows, they were
+     window in time. The model consisted of a moving                           still quite high. Very short window sizes appeared to
+     attentional window in which a tension trend was extracted                 reflect the local details of the tension changes more ac-
+     over the course of a fixed time span. This trend, generally               curately in some cases, but failed on the longer excerpts
+     speaking, was defined as the sum of the weighted slopes of                since they were unable to predict the larger trends
+     all the concurrent musical features. The magnitude of the                 adequately. One such example is the Beethoven excerpt,
+     trend was further influenced by the slope of the immedi-                  which was perhaps just short enough (24 s) for large-
+     ately preceding memory window; the incline or decline of                  scale trends to be less of an issue. The 3 s attentional
+     the slope was increased if the direction of the current trend             and memory windows resulted in high correlations
+     continued the previous trend of the memory window. Both                   with the empirical data, but the predicted curves were
+     attentional and memory window durations of 3 s were                       lacking in contour detail. The 0.5 s attentional and
+     found to best fit the empirical data from Experiment 2.                   memory windows (Figure 17) yielded a tension
+        Although the two window types have distinct designa-                   prediction that better matched the detailed changes in
+     tions, they are in a sense both memory windows. The                       the empirical data, but might not have tracked large-
+     “memory” window represents the contents of echoic                         scale changes in tension had the excerpt been any
+422    Morwaread M. Farbood
+
+
+
+
+                                                                            The model’s success in predicting the two longest and
+                                                                         most complex excerpts, the Bach-Vivaldi and Brahms,
+                                                                         indicates that the basic cognitive concepts underlying the
+                                                                         model are sound; it presents a first systematic attempt to
+                                                                         predict tension given descriptions of disparate musical
+                                                                         features. Elements of the model also touch upon the
+                                                                         concepts of end significance and slope significance that
+                                                                         Rozin et al. (2004) discuss in the context of recall of affec-
+                                                                         tive intensity in music. Rozin et al. found that recall of
+                                                                         overall affective intensity in music had little to do with the
+                                                                         sum of all the moments of intensity; rather, it was the
+                                                                         perceived intensity at the end of a listening excerpt and
+                                                                         the clear trends or slopes in intensity that contributed
+                                                                         most. While arguably “affective intensity” is not precisely
+                                                                         musical tension, there is a fair amount of overlap between
+                                                                         these two perceptual phenomena. Although Rozin et al.
+                                                                         focused on predicting recalled affect and do not offer real-
+                                                                         time predictions of how musical features contribute to
+                                                                         affective intensity, these concepts can be applied to the
+                                                                         memory window aspect of the predictive model presented
+                                                                         here, as it relates to the general recall of previously heard
+                                                                         music in time. Whether the listening experience is con-
+                                                                         tinuing or has concluded, it can be assumed that the cog-
+                                                                         nitive mechanisms that encode previous processing of
+                                                                         musical information are still at work. Rozin et al. supports
+                                                                         this idea of an evident trend or slope resulting in better
+                                                                         encoding by citing work on the evaluation of past experi-
+                                                                         ences (Hsee & Abelson, 1991), preference of commercials
+                                                                         (Baumgartner, Sujan, & Padgett, 1997), and pain percep-
+FIGURE 17. Predicted tension for Excerpt 3 (Beethoven) produced          tion (Ariely, 1998; Loewenstein & Prelec, 1993). The
+using (a) 0.5 s attentional and memory windows and (b) 3 s attentional   results of the predictive model described here appear to
+and memory windows.
+                                                                         confirm these findings.
+                                                                            The success of the model also suggests that judgment of
+longer. It is also possible that shorter window durations                “absolute” tension is malleable and partially dependent on
+worked better in this case because the lengthy rests in                  context. The salience of detectable trends is by definition
+the first part of the excerpt caused listeners to interpret              a function of relative changes in perceived tension. Two
+the musical surface in a discontinuous manner.                           separate components can be distinguished from one
+   These observations suggest that several improve-                      another: the percept of change itself and the absolute per-
+ments to the model can be made. In particular, com-                      ception of tension. The model attempts to account for
+bining a contour generated at a finer time resolution                    absolute tension through the weighting of individual
+with the results of the optimal 3 s windows might                        parameters while treating the combined, relative percep-
+provide better predictions at a local level while main-                  tion of tension change as a key factor. While a sforzando or
+taining accuracy at a global level. Another way the                      an unexpectedly dissonant chord might result in a sudden
+model can be improved, especially in the case of                         spike in tension, such changes constitute isolated cases and
+shorter excerpts, is to find a better way to predict the                 are perhaps not as fundamental to the understanding
+initial upsweep of the slider at the start of each                       tension as the concept of trends. This is further exemplified
+excerpt. The current model simply uses a fixed linear                    in the model by the influence of the memory window in
+increase over a 2 s duration. This slider movement is                    determining the slope of the trend in the attentional
+probably best modeled as a function of the loudness                      window. When there is no memory window, an important
+contour of the initial note onset. Alternatively, a sim-                 part of how tension trends are perceived by the listener is
+pler way to deal with this issue would be to trim the                    absent. The memory window in essence helps determine
+first two seconds of the data.                                           the salience of a trend, and it is this concept of salience,
+                                                                               A Parametric, Temporal Model of Musical Tension      423
+
+
+
+whether determined by relative or absolute means, that is       1. A representation of hierarchical event structure
+a critical factor in the perception of tension.                 2. A model of tonal pitch space and all distances within it
+                                                                3. A treatment of surface dissonance
+                      Author Note                               4. A model of voice-leading attractions
+
+Thanks to Fred Lerdahl, who provided feedback in the            The first component is equivalent to GTTM’s prolon-
+early stages of this work and on the prolongational             gational reduction and can be represented in tree nota-
+reductions. The contents of this paper were also                tion. The second component describes the internalized
+improved by helpful comments from David Temperley               knowledge of listeners concerning distances of pitches,
+and three anonymous referees.                                   chords, and tonal regions from one another, beyond the
+  A preliminary analysis of the empirical data discussed        pattern of any particular piece. It consists of three
+in this article was presented at the 10th International         embedded spaces, the first two representing within-key
+Conference on Music Perception & Cognition                      hierarchies, and the third one between-key distances.
+(ICMPC10), Sapporo, Japan in August 2008, and                   The diatonic chord distance between chords x and y is
+reported in the conference proceedings.                         defined as
+  Correspondence concerning this article should be ad-
+dressed to Mary Farbood, Department of Music and                                       δ (x , y) = i + j + k                      (A1)
+Performing Arts Professions, 35 W. 4th St., Suite 777,
+New York University, New York, NY 10012. e-mail:                where i is the number of steps between two regions on
+mfarbood@nyu.edu                                                the chromatic fifths circle (i.e., distance between two
+                                                                chords with regard to key), j is the number of steps
+                       Appendix A                               between two chords on the diatonic fifths circle (dis-
+                                                                tance with regard to chord function), and k is the num-
+  Calculating Harmonic Tension Using Lerdahl’s (2001)           ber of distinctive pitch classes in the basic space of y
+                        Model                                   compared to those in the basic space of x. The basic
+                                                                space for a chord consists of its pitch classes at the chro-
+Lerdahl and Jackendoff’s (1983) generative theory of tonal      matic, diatonic, triadic, fifths, and root (Figure A1).
+music (hereafter GTTM) formalizes the way listeners per-          The third component, treatment of surface disso-
+ceive hierarchical structures in tonal music. These struc-      nance, is largely psychoacoustic. For example,
+tures are intended to model musical intuition and take the      nonharmonic tones are less stable, therefore more tense.
+form of explicit rules that assign or “generate” structures     A chord is more stable in root position than in inversion,
+that listeners unconsciously infer from the musical surface     and more stable with the root note in the melody. The
+of a piece. There are four components to their theory:          surface tension associated with a chord is defined by
+grouping structure, which segments music into motives,
+phrases, and sections; metrical structure, a hierarchy of                              Tdiss = f + g + h                          (A2)
+alternating strong and weak beats; time-span reduction, a
+hierarchy of structural importance of pitches with respect      where f is the chord voicing (1 if the melody is not the
+to their position in the grouping and metrical structures;      chord root, 0 otherwise), g is the inversion (2 if
+and prolongational reduction, a hierarchy that expresses        the chord is not in root position, 0 if it is), and h is the
+harmonic and melodic tension and relaxation. Lerdahl            sum of all nonharmonic tones (sevenths = 1, diatonic
+(2001) has significantly extended GTTM by developing a          nonharmonic tones = 3, and chromatic nonharmonic
+precise model of how a piece is heard as it unfolds har-        tones = 4).
+monically at multiple hierarchical levels. His theories stem      For the purposes of quantifying harmonic tension for
+from empirical evidence that listeners of varying musical       both Experiments 1 and 2, the fourth component,
+backgrounds and different cultures hear pitches, chords,
+and regions as relatively close or distant from a given tonic
+in an orderly way.
+   Lerdahl approaches tonal tension in a systematic way
+by defining a formula for computing quantitative
+predictions of tension and attraction for events in any
+passage of tonal music. In order to calculate these values,     FIGURE A1. Diatonic basic space, set to I/C (C =0, C# =1,... B =11). Taken
+the following four components are required:                     from Lerdahl & Krumhansl (2007).
+424    Morwaread M. Farbood
+
+
+
+
+voice-leading attractions, was excluded. Only the first                    from Lerdahl’s tonal pitch space and melodic attraction
+three components were included in the calculations,                        models, thus addressing tonal relationships as well as
+resulting in the following formula:                                        melodic interval relationships.
+                   T = δ (x , y) + h + T        (A3)                        The core formula defining the expectancy of a melodic
+                        hier                   diss
+                                                                           event is defined as follows:
+where h is the inherited tension value derived from a
+GTTM prolongational analysis. The prolongational                                                 z = (smp) + d                   (B1)
+reduction for the first several measures of the
+Bach-Vivaldi excerpt is shown in Figure A2. Table A1                       where z is the amount by which pitch x is expected to fol-
+lists the numerical values for each component and the                      low pitch y, s is the stability rating of x (see Table B1), m
+calculated harmonic tension values for the excerpt.                        is the mobility rating of x (2/3 if x repeats y and 1 in all
+                                                                           other cases), p is the proximity rating of x (see Table B2),
+                           Appendix B                                      and d is the direction rating of x (see Table B3).
+                                                                              When calculating stability ratings, the context is I
+Calculating Melodic Expectation Using Margulis’ (2005) Model               (tonic) in the current key unless the following apply:
+
+Margulis’ (2005) melodic expectation model is in part                      1. The current chord is a secondary chord, in which
+an extension of Narmour’s Implication-Realization                             case the new context is I in the new tonicized key.
+(I-R) theory (1990 1992). As in the case of the I-R                        2. The current melody note is a not a chord tone, in which
+model, the concept of purely schematic expectations as                        case the context shifts to the current chord.
+well as a systematic way of accounting for the effect of                   3. The previous melody note was the seventh of its
+proximity between melodic events and direction of                             chord, in which case the current note is promoted to
+melodic intervals are of central importance. An                               the highest stability rating if it is the lower diatonic
+additional factor in Margulis’ model, stability, is derived                   neighbor of the previous note.
+
+
+
+
+FIGURE A2. Prolongational reduction of the first 24 events in the Bach-Vivaldi excerpt.
+                                                                                      A Parametric, Temporal Model of Musical Tension   425
+
+
+
+ Table A1. Values Summed to Calculate the Hierarchical Tension Values For the Bach-Vivaldi Excerpt Shown in Figure A2.
+
+                                                    Total chord                                                   Non-         Total
+                                                      distance       Inherited    Scale degree     Inversion     harmonic     harmonic
+    Event     Chord pair      i      J      k        (i + j + k)       values         value           value        tones       tension
+      1        δ(1)          0       0      0             0              0              0              0            0             0
+      2        δ(2,1)        0       0      0             0              0              1              0            0             1
+      3        δ(3,4)        0       1      4             5              0              1              0            0             6
+      4        δ(4,2)        0       0      0             0              0              1              0            0             1
+      5        δ(5,6)        0       1      4             5              0              1              0            0             6
+      6        δ(6,4)        0       0      0             0              0              1              0            0             1
+      7        δ(7,1)        0       0      0             0              0              1              0            0             1
+      8        δ(8,9)        0       1      4             5              0              1              0            0             6
+      9        δ(9,7)        0       0      0             0              0              1              0            0             1
+     10        δ(10,11)      0       1      4             5              0              1              0            0             6
+     11        δ(11,9)       0       0      0             0              0              1              0            0             1
+     12        δ(12,1)       0       0      0             0              0              1              0            0             1
+     13        δ(13,14)      0       1      5             6              5              1              2            1            15
+     14        δ(14,1)       0       1      4             5              5              1              0            0            11
+     15        δ(15,14)      0       0      0             0              5              1              0            0             6
+     16        δ(16,17)      0       1      4             5              5              0              0            0            10
+     17        δ(17,15)      0       0      0             0              5              1              0            0             6
+     18        δ(18,19)      0       1      4             5              5              0              0            0            10
+     19        δ(19.17)      0       0      0             0              5              1              0            0             6
+     20        δ(20,14)      0       0      0             0              5              1              0            0             6
+     21        δ(21,22)      0       1      4             5              5              0              0            0            10
+     22        δ(22,20)      0       0      0             0              5              1              0            0             6
+     23        δ(23,24)      0       1      4             5              5              0              0            0            10
+     24        δ(24,22)      0       0      0             0              5              1              0            0            6
+
+
+4. The current chord is a predominant chord with                        note-to-note level, up to and including time spans 2 s in
+   strong voice-leading tendencies such as an                           duration, receive a weight of 5. Ratings at levels with time-
+   augmented sixth or Neapolitan, in which case the                     span durations from 2 to 6 s receive a weight of 2. No levels
+   context shifts to V in the current key.
+                                                                                      Table B2. Proximity Ratings For
+                                                                                      Melodic Events in Margulis’ (2005)
+  The total expectation value is calculated by averaging the                          Melodic Expectation Model
+weighted values of expectations at each hierarchical level
+defined by Lerdahl and Jackendoff’s time-span reduction,                              Pitch distance in        Proximity
+                                                                                       semitones                 rating
+described in GTTM (1983). The weight given to each level
+depends on the length of time between the notes. At the                                       1 (m2)              36
+note-to-note level (lowest level) the expectation ratings                                     2 (M2)              32
+receive a weight of 15. Ratings at levels beyond the                                          3 (m3)              25
+                                                                                              4 (M3)              20
+                                                                                              5 (P4)              16
+Table B1. Stability Ratings For Melodic Events in Margulis’ (2005)                            6 (d5)              12
+Melodic Expectation Model
+                                                                                              7 (P5)               9
+Stability rating              Key and chord context                                           8 (m6)               6
+                   Chord root (and, after a seventh in the                                    9 (M6)               4
+          6         melody, the pitch one diatonic step down                                 10 (m7)               2
+                    from it                                                                  11 (M7)               1
+          5        Chord third and fifth                                                     12 (P8)             0.25
+          4        Other diatonic pitches                                                    13 (m9)             0.02
+          2        Chromatic pitches                                                        ≥14 (M9)             0.01
+426    Morwaread M. Farbood
+
+
+
+
+          Table B3. Direction Ratings For Melodic Events                  where i is the level under consideration, n is the highest
+          in Margulis’ (2005) Melodic Expectation Model
+                                                                          level, wi is the weight of the level under consideration,
+             Interval in                                                  and zi is the expectancy rating for the pitch at that level.
+             semitones           Direction rating                           For the purposes of this study, only the lowest two
+              0 (P1)            6 for continuation                        levels of expectation values were calculated, resulting in
+              1 (m2)           20 for continuation                        the following formula:
+              2 (M2)           12 for continuation                                                15i + 5 j
+              3 (m3)            6 for continuation                                                          ,                   (B3)
+                                                                                                     20
+              4 (M3)                      0
+              5 (P4)               6 for reversal                         where i is the expectation value at the lowest level, and j is
+              6 (d5)              12 for reversal                         the expectation value at the second-lowest level. The
+              7 (P5)              25 for reversal                         melodic expectation calculations for the first two mea-
+              8 (m6)              36 for reversal                         sures of the Bach-Vivaldi excerpt are shown in Figure B1.
+              9 (M6)              52 for reversal                         The numbers above the staves show the four main param-
+                                                                          eters (stability, mobility, proximity, and distance) and the
+with durations longer than 6 s are considered. Thus the                   total expectation values for the first-level, note-to-note
+formula for overall expectedness of a note is defined as                  events displayed on the upper staff. The numbers below
+                                                                          the staves show the calculations for the second hierarchical
+                            ∑ w z ,
+                                n
+                                                                          level displayed in the lower staff. The numbers in between
+                                i =1   i i
+                                                               (B2)       the two staves are the final expectation values, consisting
+                             ∑w        i                                  of the weighted sum of the two levels.
+
+
+
+
+FIGURE B1. Melodic expectation values for the first two measures of the Bach-Vivaldi excerpt.
+                                                                                      A Parametric, Temporal Model of Musical Tension   427
+
+
+
+                                                                References
+
+Ariely, D. (1998). Combining experiences over time: The effects        Glasberg, B., & Moore, B. C. J. (2002). A model of loudness
+  of duration, intensity changes and on-line measurements on              applicable to time-varying sounds. Journal of the Audio
+  retrospective pain evaluations. Journal of Behavioral Decision          Engineering Society, 50, 331–342.
+  Making, 11, 19–45.                                                   Granot, R. Y., & Eitan, Z. (2011). Tension and dynamic
+Baumgartner, H., Sujan, M., & Padgett, D. (1997). Patterns of             auditory parameters. Music Perception, 28, 219-246.
+  affective reactions to advertisements: The integration of            Gregory, D. (1989). Using computers to measure continuous
+  moment-to-moment responses into overall judgments.                      music responses. Psychomusicology, 8, 127-134.
+  Journal of Marketing Research, 34, 219–232.                          Gregory, D. (1995). The Continuous Response Digital
+Bharucha, J. J. (1984). Anchoring effects in music: The resolu-           Interface: An analysis of reliability issues. Psychomusicology,
+  tion of dissonance. Cognitive Psychology, 16, 485-518.                  14, 197-208.
+Bigand, E., & Parncutt, R. (1999). Perception of musical               Hackworth, R. S., & Fredrickson, W. E. (2010). Effect of text
+  tension in long chord sequences. Psychological Research,                translation on perceived musical tension in Debussy’s Nöel
+  62, 237-254.                                                            des enfants qui n’ont plus de maisons. Journal of Research in
+Bigand, E., Parncutt, R., & Lerdahl, F. (1996). Perception of             Music Education, 58, 184–195.
+  musical tension in short chord sequences: The influence of           Hasty, C. (1997). Meter as rhythm. Oxford, UK: Oxford
+  harmonic function, sensory dissonance, horizontal motion,               University Press.
+  and musical training. Perception and Psychophysics, 58, 125-141.     Hauser, M., Cushman, F., Young, L., Jin, R. K.-X., & Mikhail, J.
+Bregman, A. S. (1990). Auditory scene analysis. Cambridge, MA:            (2007). A dissociation between moral judgments and justifi-
+  MIT Press.                                                              cations. Mind and Language, 22, 1-21.
+Burnsed, V., & Sochinski, J. (1998-2001). The relationship             Helmholtz, H. L. F. (1954). On the sensations of tone as a
+  between dynamics and tension in Haydn’s Symphony No.                    physiological basis for the theory of music (A. J. Ellis, Trans.).
+  104: A developmental study. Psychomusicology, 17, 19-35.                New York: Dover. (Original work published 1877)
+Capperella, D. A. (1989). Reliability of the Continuous                Hsee, C. K., & Abelson, R. P. (1991). Velocity relation: Satisfaction
+  Response Digital Interface for data collection in a study of            as a function of the first derivative of outcome over time. Journal
+  auditory perception. Southeastern Journal of Research in Music          of Personality and Social Psychology, 60, 341–347.
+  Education, 45, 245-258.                                              Huron, D. (2006). Sweet anticipation: Music and the psychology
+Eerola, T., & Vuoskoski, J. (2011). A comparison of the discrete          of expectation. Cambridge, MA: MIT Press.
+  and dimensional models of emotion in music. Psychology of            Hutchinson, W., & Knopoff, L. (1978). The acoustical compo-
+  Music, 39, 18-49.                                                       nent of western consonance. Interface, 7, 1-29.
+Fredrickson, W. E. (1995). A comparison of perceived musical           Ilie, G., & Thompson, W. F. (2006). A comparison of acoustic
+  tension and aesthetic response. Psychology of Music, 23, 81-87.         cues in music and speech for three dimensions of affect.
+Fredrickson, W. E. (1997). Elementary, middle, and high school            Music Perception, 23, 319–329.
+  students’ perception of tension in music. Journal of Research        Jehan, T. (2005). Creating music by listening (Unpublished
+  in Music Education, 45, 626-635.                                        doctoral dissertation). Massachusetts Institute of Technology,
+Fredrickson, W. E. (1999). The effect of musical performance              Cambridge, MA.
+  on perception of tension in Gustav Holst’s First Suite in            Krumhansl, C. L. (1996). A perceptual analysis of Mozart’s
+  E-flat. Journal of Research in Music Education, 47, 44-52.              Piano Sonata, K. 282: Segmentation, tension and musical
+Fredrickson, W. E. (2000). Perception of tension in music: Musicians      ideas. Music Perception, 13, 401-432.
+  versus nonmusicians. Journal of Music Therapy, 37, 40–50.            Krumhansl, C. L. (1997). An exploratory study of musical
+Fredrickson, W. E., & Coggiola, J. C. (2003). A comparison of             emotions and psychophysiology. Canadian Journal of
+  music majors’ and nonmajors’ perception of tension for two              Experimental Psychology, 51, 336-353.
+  selections of jazz music. Journal of Research in Music               Krumhansl, C. L. (2002). Music: A link between cognition and
+  Education, 51, 259–270.                                                 emotion. Current Directions in Psychological Science, 11, 45-50.
+Fredrickson, W. E., & Johnson, C. M. (1996). The effect of             Krumhansl, C. L., & Schenk, D. L. (1997). Can dance reflect the
+  performer use of rubato on listener perception of tension in            structural and expressive qualities of music? Musicae
+  Mozart. Psychomusicology, 15, 78-86.                                    Scientiae, 1, 63-83.
+Frego, R. J. D. (1999). Effects of aural and visual conditions on      Larson, S. (2004). Musical forces and melodic expectations:
+  response to perceived artistic tension in music and dance.              Comparing computer models with experimental results.
+  Journal of Research in Music Education, 47, 31-43.                      Music Perception. 21, 457-498.
+428   Morwaread M. Farbood
+
+
+
+
+Larson, S., & VanHandel, L. (2005). Measuring musical forces.      Nielsen, F. V. (1987). Musical “tension” and related concepts. In
+  Music Perception, 23, 119-136.                                     T. A. Sebeok & J. Umiker-Sebeok (Eds.), The semiotic web ‘86:
+Lerdahl, F. (1996). Calculating tonal tension. Music Perception,     An international yearbook (pp. 491-514). Berlin: Mouton de
+  13, 319-363.                                                       Gruyter.
+Lerdahl, F. (2001). Tonal pitch space. New York: Oxford            Neuhoff, J. G. (1998). Perceptual bias for rising tones. Nature,
+  University Press.                                                  395, 123-124.
+Lerdahl, F., & Jackendoff, R. (1983). A generative theory of       Neuhoff, J. G. (2001). An adaptive bias in the perception of
+  tonal music. Cambridge, MA: MIT Press.                             looming auditory motion. Ecological Psychology, 13, 87-110.
+Lerdahl F., & Krumhansl, C. L. (2007). Modeling tonal tension.     Patel, A. D. (2008). Music, language, and the brain. Oxford, UK:
+  Music Perception, 24, 329–366.                                     Oxford University Press.
+Loewenstein, G. F., & Prelec, D. (1993). Preferences for           Plomp, R., & Levelt, W. J. M. (1965). Tonal consonance and
+  sequences of outcomes. Psychological Review, 100, 91–108.          critical bandwidth. Journal of the Acoustical Society of
+London, J. (2004). Hearing in time: Psychological aspects of         America, 38, 548-560.
+  musical meter. New York: Oxford University Press.                Pressnitzer, D., McAdams, S., Winsberg, S., & Fineberg, J.
+Lychner, J. A. (1998). An empirical study concerning terminol-       (2000). Perception of music tension for nontonal orchestral
+  ogy relating to aesthetic response to music. Journal of            timbres and its relation to psychoacoustic roughness.
+  Research in Music Education, 46, 303-319.                          Perception and Psychophysics, 62, 66-80.
+Madsen, C. K. (1998). Emotion versus tension in Haydn’s            Rozin, A., Rozin, P., & Goldberg, E. (2004). The feeling of
+  Symphony No. 104 as measure by the two-dimensional                 music past: How listeners remember musical affect. Music
+  continuous response digital interface. Journal of Research in      Perception, 22, 15–39.
+  Music Education, 46, 546-554.                                    Schimmack, U., & Reisenzein, R. (2002). Experiencing activa-
+Madsen, C. K., & Fredrickson, W. E. (1993). The experience of        tion: Energetic arousal and tense arousal are not mixtures of
+  musical tension: A replication of Nielsen’s research using the     valence and activation. Emotion, 2, 412–417.
+  continuous response digital interface. Journal of Music          Schubert, E. (2002). Correlation analysis of continuous emo-
+  Therapy, 30, 46-63.                                                tional response to music: Correcting for the effects of serial
+Margulis, E. H. (2005). A model of melodic expectation. Music        correlation. Musicae Scientiae, Special Issue, 213–236.
+  Perception, 22, 663-714.                                         Schubert, E., & Dunsmuir, W. T. M. (2004). Introduction to
+Meyer, L. B. (1956). Emotion and meaning in music. Chicago, IL:      interrupted time series analysis of emotion in music. In S.
+  University of Chicago Press.                                       Lipscomb, R. Ashley, R. O. Gjerdingen, & P. Webster (Eds.),
+Misenhelter, D. (2001). An investigation of music and nonmu-         Proceedings of the 8th International Conference on Music
+  sic majors’ responses to musical tension and dynamics in           Perception and Cognition (pp. 445-448). Evanston, IL.
+  Beethoven’s Symphony No. 7. Missouri Journal of Research in      Tenney, J., & Polansky, L. (1980). Temporal gestalt perception
+  Music Education, 38, 56-67.                                        in music. Journal of Music Theory, 24, 205-241.
+Moore, B. C. J., & Glasberg, B. R. (1995). A revision of           Toiviainen, P., & Krumhansl, C. L. (2003). Measuring and mod-
+  Zwicker’s loudness model. Acta Acustica, 82, 335–345.              eling real-time responses to music: The dynamics of tonality
+Narmour, E. (1990). The analysis and cognition of basic melodic      induction. Perception, 32, 741–766.
+  structures. Chicago, IL: University of Chicago Press.            Trolio, M. (1976). Theories of affective response to music.
+Narmour, E. (1992). The analysis and cognition of melodic            Contributions to Music Education, 4, 1-20.
+  complexity: The implication-realization model. Chicago, IL:      Vines, B. W., Krumhansl, C. L., Wanderley, M. M., & Levitin,
+  University of Chicago Press.                                       D. J. (2006). Cross-modal interactions in the perception of
+Nielsen, F. V. (1983). Oplevelse af musikalsk spaending [The         music performance. Cognition, 101, 80–113.
+  experience of musical tension]. Copenhagen: Akademisk            Zwicker, E., & Fastl, H. (1999). Psychoacoustics: Facts and
+  Forlag.                                                            models. Berlin: Springer Verlag.
+

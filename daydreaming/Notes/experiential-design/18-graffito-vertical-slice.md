@@ -70,18 +70,17 @@ Also available as skill references:
 - `.claude/skills/prompt-engineering-toolkit/references/pws-05-graffito-lexicon.md`
 - `.claude/skills/prompt-engineering-toolkit-standalone/strategies/pws-05-graffito-lexicon.md`
 
-### Generation Pipeline (the machine)
+### Render Assets (reference material, not the v0 runtime path)
 
 | Asset | Location | What it is |
 |---|---|---|
-| T2V workflow template | `Templates/Graffito/Graffito-wan2_2_t2v_template_vramhog.json` | ComfyUI template: WanVideo T2V, dual samplers, LoRA node 114, CFG 3.5, UnicPC scheduler |
-| API variant | `Templates/Graffito/other-formats/Graffito-wan2_2_t2v_api.json` | API-compatible T2V template |
-| Seed search template | `Graffito/Prompts/Templates/seed_search_t2v.yaml` | T2V exploration batch (1312x576, 81 frames) |
-| Soul transfer template | `Graffito/Prompts/Templates/soul_transfer_i2v.yaml` | I2V performance iteration, seed-locked |
-| Reference alignment | `Graffito/Prompts/Templates/reference_alignment.yaml` | I2V alignment search with assessment criteria |
+| T2V workflow template | `Templates/Graffito/Graffito-wan2_2_t2v_template_vramhog.json` | Earlier Graffito ComfyUI workflow using WanVideo T2V |
+| API variant | `Templates/Graffito/other-formats/Graffito-wan2_2_t2v_api.json` | API-compatible export of the earlier T2V workflow |
+| Seed search template | `Graffito/Prompts/Templates/seed_search_t2v.yaml` | Earlier prompt exploration template (1312x576, 81 frames) |
+| Soul transfer template | `Graffito/Prompts/Templates/soul_transfer_i2v.yaml` | Earlier I2V performance iteration template, seed-locked |
+| Reference alignment | `Graffito/Prompts/Templates/reference_alignment.yaml` | Earlier I2V alignment search template |
 | Model | `wan2.2_t2v_high_noise_14B_fp16.safetensors` | WanVideo 14B, fp16_fast, sageattn |
 | Text encoder | `umt5-xxl-enc-bf16.safetensors` | T5 encoder for prompt processing |
-| Batch manifest (ready) | `WorkingSpace/Projects/Graffito/Sessions/S03-S04-T2V-OneBatch/out/t2v_batch.yaml` | Pre-built batch for scenes 3-4 |
 
 ### Clip Library (Mark's selects)
 
@@ -107,7 +106,6 @@ Also available as skill references:
 | `Sessions/S02-MonkIsBack-Overpass/` | Scene 2 exploration |
 | `Sessions/S03-NearMiss/` | Scene 3 near-miss animatic |
 | `Sessions/S03-S04-StreetToStudio/` | Scenes 3-4 transition |
-| `Sessions/S03-S04-T2V-OneBatch/` | Multi-scene T2V batch (ready to run) |
 | `Sessions/S03S04-T2V-QuickTest/` | Rapid iteration |
 
 ### Feedback with Mark
@@ -183,8 +181,8 @@ destination. The first slice is narrow:
 
 **Scene window:** Scenes 3-4 (street montage → Grandma's apartment)
 **Why these:** Strongest existing material — Mark's selects in
-SC003_STREETS and SC004_APARTMENT, existing batch manifest
-(S03-S04-T2V-OneBatch), director's notes for these scenes.
+SC003_STREETS and SC004_APARTMENT, earlier prompt/render experiments
+for these scenes, and director's notes.
 
 **Situations:** 2
 - s1: Street / overwhelm (scene 3 — running, graffiti, legs, cab)
@@ -200,10 +198,11 @@ SC003_STREETS and SC004_APARTMENT, existing batch manifest
 - ROVING (escape from street dread to apartment warmth) — natural
   transition between the two situations
 
-**This is an offline batch implementation of the doc 17 runtime
-model.** Not a live performance. Not the full game engine. The
-goal is to answer one question: does dream-driven scene selection
-produce output that feels like anything when you watch it?
+**This is a scripted real-time implementation of the doc 17 runtime
+model.** Not the full live performance stack. Not the full game
+engine. The goal is to answer one question: does dream-driven
+scene selection produce output that feels like anything when you
+watch it?
 
 ## What Needs to Be Built
 
@@ -260,28 +259,30 @@ quality question without any Dreamer integration.
 (same pattern as Puppet Knows/Arctic/Zone). Most faithful to
 Mueller, but adds integration work. Save for slice v1 comparison.
 
-Recommended: **start with Option B** (trace player) to get clips
-in front of Mark as fast as possible. Then try Option A or C to
-see if dynamic traversal produces more interesting sequences.
+Recommended: **start with Option B** (trace player) to get a first
+watchable run in front of Mark as fast as possible. Then try Option A
+or C to see if dynamic traversal produces more interesting sequences.
 
-### 4. Renderer → Pipeline Wiring
+### 4. Renderer → Live Scope Wiring
 
-The rendered Scope prompts need to flow into the existing ComfyUI
-pipeline:
-- The T2V template exists (`Graffito-wan2_2_t2v_template_vramhog.json`)
-- The batch YAML format exists
-- The generation pipeline exists
-- What's needed: an adapter from renderer output → batch YAML → ComfyUI
+The rendered prompts need to flow into the existing Scope real-time
+stage:
+- `PUT /api/v1/realtime/prompt`
+- `POST /api/v1/realtime/soft-cut` or `hard-cut`
+- `POST /api/v1/realtime/parameters`
+- What's needed: an adapter from renderer output + playback packet →
+  Scope API calls with the right dwell/transition timing
 
 The shared join between graph fixture + trace fixture + consumer packet
 is defined in doc 21 (`21-graffito-v0-playback-contract.md`).
 
-Offline batch path for slice v0:
+Scripted real-time path for slice v0:
 1. Trace (hand-authored or Dreamer-generated) → cycle sequence
-2. Renderer processes each cycle → sequence of Scope prompts
-3. Prompts assembled into batch YAML
-4. ComfyUI renders the batch
-5. Watch the clips in sequence
+2. Playback join resolves each cycle against the graph fixture
+3. Renderer processes each joined cycle → Scope prompt + transition +
+   dwell
+4. Trace player sends the cycle to Scope in real time
+5. Watch or capture the run in sequence
 
 ### 5. Parametric Music (parallel track, not blocking)
 
@@ -294,18 +295,19 @@ visual-only watchable run.
 1. **Author slice graph** — 12-15 nodes for scenes 3-4
 2. **Build renderer** — system prompt from rubrics + captioning spec
 3. **Author or generate trace** — 12-20 cycle sequence through the graph
-4. **Batch render** — trace → renderer → batch YAML → ComfyUI → clips
-5. **Watch** — does it feel like anything?
+4. **Run the slice** — trace → playback join → renderer → Scope
+   real-time stage
+5. **Watch/capture** — does it feel like anything?
 6. **Show Mark** — his reaction is the evaluation
 
 Steps 1 and 2 can run in parallel. Step 3 is fast (hand-authorable
 in an hour, or auto-generated from a simple walk). Step 4 depends
-on 1+2+3. The first watchable run is visual-only (no music, no
-feedback loop, no live performance).
+on 1+2+3. The first watchable run is visual-only and scripted
+(no music, no feedback loop, no manual live control yet).
 
-**What "done" looks like:** 12-20 rendered clips that form a
+**What "done" looks like:** a 12-20 cycle real-time run that forms a
 coherent dream-driven sequence through scenes 3-4 of Graffito,
-using the trained LoRA, that Mark can watch and react to.
+using the trained LoRA via Scope, that Mark can watch and react to.
 
 ## After Slice v0
 
@@ -314,7 +316,7 @@ If the visual output is compelling:
 2. Wire the Clojure kernel as Dreamer (comparison against trace player)
 3. Add Director feedback loop (does it improve traversal?)
 4. Add parametric music
-5. Wire to live stage (Scope real-time + Lyria + APC Mini)
+5. Add manual live-stage control (Scope + Lyria + APC Mini)
 
 If the visual output is flat:
 1. Diagnose — is it the nodes (bland descriptions), the renderer

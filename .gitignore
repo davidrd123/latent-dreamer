@@ -2,6 +2,20 @@
 __pycache__/
 *.pyc
 .env
+.venv/
+.venv-daydream-vision/
 .claude/
 .obsidian/
 team-repos/
+
+# Reading list source material (large binary/intermediate files)
+**/reading-list/sources/raw/
+**/reading-list/sources/human-fetched/
+**/reading-list/sources/markdown/*/page-review-images/
+**/reading-list/sources/markdown/*/raw.html
+**/reading-list/sources/markdown/*/layout.txt
+**/reading-list/sources/markdown/*/plain.txt
+**/reading-list/sources/markdown/*/page-classification.csv
+
+# Generated visual anchors (large image output)
+daydreaming/out/visual-anchors/
