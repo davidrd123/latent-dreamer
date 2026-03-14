@@ -9,6 +9,7 @@ Inputs:
 - `03-authorial-leverage-extraction.md`
 - `04-suspenser-extraction.md`
 - `../11-settled-architecture.md`
+- `../21-graph-interface-contract.md`
 
 ---
 
@@ -111,6 +112,9 @@ Judge the scheduler on:
 
 ## Minimal graph annotation burden
 
+Canonical contract note:
+- `../21-graph-interface-contract.md`
+
 Each candidate node should have:
 
 | Field | Source |
@@ -138,7 +142,7 @@ contexts.
 
 ## Proposed comparison arms
 
-Compare three traversers over the same graph.
+Compare the baseline arms plus an ablated C arm over the same graph.
 
 All three arms should share the same minimum traversal state:
 
@@ -167,21 +171,33 @@ real state.
 - target trajectory slope
 - soft weighting from recency / continuity / conductor bias
 
-### C. Proposed Experiment 1 scheduler
+### C1. Façade + DODM feature registry
 
 - Façade pipeline
 - DODM-style weighted feature sum
-- Suspenser-style structural tension feature
-- optional shallow lookahead only if needed
+- no structural tension yet
+- no lookahead
 
-If C does not clearly beat A and B on leverage and run quality,
-then the extra machinery is not justified.
+### C2. C1 + Suspenser structural tension
+
+- C1
+- Suspenser-style structural tension feature
+- no lookahead
+
+### C3. C2 + optional shallow lookahead
+
+- C2
+- shallow lookahead only if immediate-node scoring proves too weak
+
+If the richer arms do not clearly beat the simpler ones on leverage and
+run quality, then the extra machinery is not justified.
 
 The specific comparison question is:
 
 - does B beat A because tiered trajectory control matters?
-- does C beat B because the feature registry and structural tension
-  matter?
+- does C1 beat B because the feature registry matters?
+- does C2 beat C1 because structural tension matters?
+- does C3 earn its keep, or just add complexity?
 
 ---
 
@@ -245,7 +261,8 @@ Add the Suspenser refinement:
 
 ### Phase 4
 
-Evaluate with the Authorial Leverage scorecard.
+Evaluate with the Authorial Leverage scorecard and keep the richer arms
+ablated long enough to see which addition actually paid for itself.
 
 This order matters. It keeps the experiment falsifiable and stops
 the scheduler from becoming a research sink before it proves

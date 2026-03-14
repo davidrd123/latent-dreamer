@@ -53,7 +53,7 @@ class CityRoutesPilotTests(unittest.TestCase):
         graph = city_routes_pilot.Graph.load(city_routes_pilot.DEFAULT_GRAPH)
         with tempfile.TemporaryDirectory() as tmpdir:
             args = self._args(Path(tmpdir))
-            for mode, label in [("baseline", "baseline"), ("pilot", "scheduler")]:
+            for mode, label in [("baseline", "baseline"), ("pilot", "scheduler"), ("feature", "feature")]:
                 trace_path, debug_path, playlist_path = city_routes_pilot.run_arm(
                     graph, args, mode, label
                 )
@@ -73,6 +73,19 @@ class CityRoutesPilotTests(unittest.TestCase):
         self.assertEqual(trace_payload["graph_id"], "city_routes_experiment_1_v0")
         self.assertEqual(debug_rows[0]["event_approach_count"], {"e1_train_missed": 1})
         self.assertIn("event_approach_count", debug_rows[1])
+
+    def test_feature_arm_records_feature_breakdown(self) -> None:
+        graph = city_routes_pilot.Graph.load(city_routes_pilot.DEFAULT_GRAPH)
+        config = city_routes_pilot.config_for("feature", self._args(Path("/tmp")))
+        trace_payload, debug_rows = city_routes_pilot.run_pilot(graph, config)
+
+        self.assertEqual(trace_payload["graph_id"], "city_routes_experiment_1_v0")
+        self.assertEqual(debug_rows[1]["selection"]["arm"], "feature")
+        first_eval = debug_rows[1]["selection"]["evaluations"][0]
+        self.assertIn("feature_score", first_eval)
+        self.assertIn("preparation_satisfied", first_eval)
+        self.assertIn("structural_tension", first_eval)
+        self.assertIn("manipulation_penalty", first_eval)
 
 
 if __name__ == "__main__":

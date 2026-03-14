@@ -125,6 +125,14 @@ The graph is a human-authored, human-curated creative asset.
 Engine-assisted authoring is a research direction that must prove
 itself in A/B testing before displacing hand-authoring.
 
+Three surfaces, not one:
+- authored graph (human-curated)
+- `L1` annotation/proposal sidecar (machine-proposed, human-gated)
+- runtime playback packet (downstream of the adapter)
+
+The minimum cross-lane field contract for that graph/interface seam is
+frozen in `21-graph-interface-contract.md`.
+
 ---
 
 ## Level 2: Character Exploration Engine (Proven)

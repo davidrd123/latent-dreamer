@@ -32,8 +32,8 @@ def config_for(mode: str, args: argparse.Namespace) -> PilotConfig:
         revisit_penalty=args.revisit_penalty,
         continuity_bias=args.continuity_bias,
         temperature=args.temperature,
-        conductor_tension_bias=args.conductor_tension_bias if mode == "pilot" else 0.0,
-        conductor_energy_bias=args.conductor_energy_bias if mode == "pilot" else 0.0,
+        conductor_tension_bias=args.conductor_tension_bias if mode in {"pilot", "feature"} else 0.0,
+        conductor_energy_bias=args.conductor_energy_bias if mode in {"pilot", "feature"} else 0.0,
         initial_tension=args.initial_tension,
         initial_energy=args.initial_energy,
         release_start_progress=args.release_start_progress,
@@ -64,14 +64,14 @@ def run_arm(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run baseline and Façade-shaped pilot arms on the City Routes graph."
+        description="Run baseline, Façade, and feature-registry arms on the City Routes graph."
     )
     parser.add_argument("--graph", type=Path, default=DEFAULT_GRAPH)
     parser.add_argument("--start-node", default=DEFAULT_START)
     parser.add_argument("--cycles", type=int, default=18)
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--output-dir", type=Path, default=Path("daydreaming/out"))
-    parser.add_argument("--prefix", default="city_routes_run_1")
+    parser.add_argument("--prefix", default="city_routes_run_3")
     parser.add_argument("--skip-render", action="store_true")
     parser.add_argument("--activation-decay", type=float, default=0.86)
     parser.add_argument("--activation-boost", type=float, default=0.32)
@@ -98,6 +98,7 @@ def main() -> None:
     results = [
         ("baseline", "baseline"),
         ("pilot", "scheduler"),
+        ("feature", "feature"),
     ]
     for mode, label in results:
         trace_path, debug_path, playlist_path = run_arm(graph, args, mode, label)

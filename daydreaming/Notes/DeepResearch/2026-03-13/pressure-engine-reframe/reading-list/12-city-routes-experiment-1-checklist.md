@@ -8,6 +8,7 @@ properly rather than merely pilot the scheduler shape.
 Inputs:
 - `08-l3-experiment-1-synthesis.md`
 - `../11-settled-architecture.md`
+- `../21-graph-interface-contract.md`
 - `../../../experiential-design/22-traversal-sandbox-candidates.md`
 - `../../../experiential-design/23-brief-city-night-pursuit.md`
 
@@ -15,12 +16,12 @@ Inputs:
 
 ## Goal
 
-Run the full three-arm L3 experiment on a graph that is large enough
-to test:
+Run the full L3 experiment on a graph that is large enough to test:
 
 - traversal pipeline quality
 - feature-registry value
 - structural-tension value
+- whether shallow lookahead is actually needed
 - authorial leverage
 
 This is the experiment that should falsify or strengthen the narrow
@@ -83,7 +84,7 @@ Boundary rule:
 - these must stay graph-readable scheduler tags
 - do not import L2 concern objects, appraisal records, or contexts
 
-### 3. Implement the three experiment arms
+### 3. Implement the experiment arms
 
 All arms must share:
 
@@ -110,11 +111,22 @@ All arms must share:
 - soft weighting
 - no DODM feature registry
 
-#### C. Full Experiment 1 scheduler
+#### C1. Façade + DODM feature registry
 
 - Façade pipeline
 - DODM-style weighted feature sum
+- no structural tension yet
+- no lookahead
+
+#### C2. C1 + structural tension
+
+- C1
 - Suspenser-style structural tension term
+- no lookahead
+
+#### C3. C2 + shallow lookahead only if needed
+
+- C2
 - optional shallow lookahead only if immediate-node scoring proves too weak
 
 ### 4. Implement the feature registry
@@ -234,11 +246,14 @@ claim is too ambitious.
 The experiment succeeds if:
 
 - arm B clearly beats arm A on movement legibility
-- arm C clearly beats arm B on at least some combination of
+- arm C1 clearly beats arm B on at least some combination of
+  event approach, recall timing, and leverage
+- arm C2 clearly adds value over C1 on at least some combination of
   event approach, recall timing, structural tension, and leverage
+- arm C3 is only retained if it adds clear marginal value over C2
 - the feature registry remains understandable
 - graph changes are absorbed mostly locally
 - different conductor bias produces meaningful, legible differences
 
-If arm C does not clearly beat arm B, stop expanding L3 and keep the
-shipping path narrow.
+If the richer C arms do not clearly beat the simpler ones, stop
+expanding L3 and keep the shipping path narrow.

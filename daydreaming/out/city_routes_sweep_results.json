@@ -1,0 +1,2988 @@
+{
+  "graph_id": "city_routes_experiment_1_v0",
+  "cycles": 18,
+  "seeds": [
+    3,
+    7,
+    11,
+    19,
+    23
+  ],
+  "presets": [
+    {
+      "name": "neutral",
+      "tension_bias": 0.0,
+      "energy_bias": 0.0
+    },
+    {
+      "name": "sustained_high",
+      "tension_bias": 0.15,
+      "energy_bias": 0.1
+    },
+    {
+      "name": "early_release",
+      "tension_bias": -0.15,
+      "energy_bias": -0.1
+    }
+  ],
+  "results": [
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 3,
+      "preset": {
+        "name": "neutral",
+        "tension_bias": 0.0,
+        "energy_bias": 0.0
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n02_wrong_receiver_silhouette",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 2,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n02_wrong_receiver_silhouette",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 3,
+      "preset": {
+        "name": "neutral",
+        "tension_bias": 0.0,
+        "energy_bias": 0.0
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n02_wrong_receiver_silhouette",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 2,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n02_wrong_receiver_silhouette",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 7,
+      "preset": {
+        "name": "neutral",
+        "tension_bias": 0.0,
+        "energy_bias": 0.0
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through",
+          "c_s4_n04_side_door_exit",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s1_n05_fluorescent_waiters",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through"
+        ],
+        "unique_nodes": 15,
+        "situations_visited": 5,
+        "situation_counts": {
+          "s1_the_run": 4,
+          "s2_the_detour": 5,
+          "s4_public_spectacle": 3,
+          "s6_the_exchange": 3,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 7,
+        "threshold_present": false,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 1,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          }
+        ],
+        "max_event_reuse": 1,
+        "reused_events": [],
+        "peak_tension": 1.0,
+        "end_tension": 0.9,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 7,
+      "preset": {
+        "name": "neutral",
+        "tension_bias": 0.0,
+        "energy_bias": 0.0
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 16,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 2,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 3,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e4_bridge_lockdown": 2,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e4_bridge_lockdown"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 11,
+      "preset": {
+        "name": "neutral",
+        "tension_bias": 0.0,
+        "energy_bias": 0.0
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through",
+          "c_s4_n04_side_door_exit",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s1_n05_fluorescent_waiters",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through"
+        ],
+        "unique_nodes": 15,
+        "situations_visited": 5,
+        "situation_counts": {
+          "s1_the_run": 4,
+          "s2_the_detour": 5,
+          "s4_public_spectacle": 3,
+          "s6_the_exchange": 3,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 7,
+        "threshold_present": false,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 1,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          }
+        ],
+        "max_event_reuse": 1,
+        "reused_events": [],
+        "peak_tension": 1.0,
+        "end_tension": 0.9,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 11,
+      "preset": {
+        "name": "neutral",
+        "tension_bias": 0.0,
+        "energy_bias": 0.0
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 1,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 2,
+        "prepared_event_visits_full": 1,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 1,
+        "reused_events": [],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 19,
+      "preset": {
+        "name": "neutral",
+        "tension_bias": 0.0,
+        "energy_bias": 0.0
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above",
+          "c_s6_n03_silver_case_under_headlight_sweep"
+        ],
+        "unique_nodes": 15,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 7,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e4_bridge_lockdown": 2,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e4_bridge_lockdown"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 19,
+      "preset": {
+        "name": "neutral",
+        "tension_bias": 0.0,
+        "energy_bias": 0.0
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n02_wrong_receiver_silhouette",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 2,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n02_wrong_receiver_silhouette",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 23,
+      "preset": {
+        "name": "neutral",
+        "tension_bias": 0.0,
+        "energy_bias": 0.0
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch"
+        ],
+        "unique_nodes": 15,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 3,
+          "s4_public_spectacle": 1,
+          "s3_false_refuge": 6,
+          "s5_the_threshold": 2,
+          "s6_the_exchange": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e4_bridge_lockdown": 1,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 2,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          }
+        ],
+        "max_event_reuse": 1,
+        "reused_events": [],
+        "peak_tension": 1.0,
+        "end_tension": 0.9,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 23,
+      "preset": {
+        "name": "neutral",
+        "tension_bias": 0.0,
+        "energy_bias": 0.0
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n02_wrong_receiver_silhouette",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 2,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 4,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 2
+        },
+        "prepared_event_visits_any": 2,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n02_wrong_receiver_silhouette",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 3,
+      "preset": {
+        "name": "sustained_high",
+        "tension_bias": 0.15,
+        "energy_bias": 0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n02_wrong_receiver_silhouette",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 2,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n02_wrong_receiver_silhouette",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 3,
+      "preset": {
+        "name": "sustained_high",
+        "tension_bias": 0.15,
+        "energy_bias": 0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n02_wrong_receiver_silhouette",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 2,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n02_wrong_receiver_silhouette",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 7,
+      "preset": {
+        "name": "sustained_high",
+        "tension_bias": 0.15,
+        "energy_bias": 0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through",
+          "c_s4_n04_side_door_exit",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s1_n05_fluorescent_waiters",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through"
+        ],
+        "unique_nodes": 15,
+        "situations_visited": 5,
+        "situation_counts": {
+          "s1_the_run": 4,
+          "s2_the_detour": 5,
+          "s4_public_spectacle": 3,
+          "s6_the_exchange": 3,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 7,
+        "threshold_present": false,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 1,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          }
+        ],
+        "max_event_reuse": 1,
+        "reused_events": [],
+        "peak_tension": 1.0,
+        "end_tension": 0.9,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 7,
+      "preset": {
+        "name": "sustained_high",
+        "tension_bias": 0.15,
+        "energy_bias": 0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 16,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 2,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 3,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e4_bridge_lockdown": 2,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e4_bridge_lockdown"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 11,
+      "preset": {
+        "name": "sustained_high",
+        "tension_bias": 0.15,
+        "energy_bias": 0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through",
+          "c_s4_n04_side_door_exit",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s1_n05_fluorescent_waiters",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through"
+        ],
+        "unique_nodes": 15,
+        "situations_visited": 5,
+        "situation_counts": {
+          "s1_the_run": 4,
+          "s2_the_detour": 5,
+          "s4_public_spectacle": 3,
+          "s6_the_exchange": 3,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 7,
+        "threshold_present": false,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 1,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          }
+        ],
+        "max_event_reuse": 1,
+        "reused_events": [],
+        "peak_tension": 1.0,
+        "end_tension": 0.9,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 11,
+      "preset": {
+        "name": "sustained_high",
+        "tension_bias": 0.15,
+        "energy_bias": 0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 1,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 2,
+        "prepared_event_visits_full": 1,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 1,
+        "reused_events": [],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 19,
+      "preset": {
+        "name": "sustained_high",
+        "tension_bias": 0.15,
+        "energy_bias": 0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above",
+          "c_s6_n03_silver_case_under_headlight_sweep"
+        ],
+        "unique_nodes": 15,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 7,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e4_bridge_lockdown": 2,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e4_bridge_lockdown"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 19,
+      "preset": {
+        "name": "sustained_high",
+        "tension_bias": 0.15,
+        "energy_bias": 0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n02_wrong_receiver_silhouette",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 2,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n02_wrong_receiver_silhouette",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 23,
+      "preset": {
+        "name": "sustained_high",
+        "tension_bias": 0.15,
+        "energy_bias": 0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through",
+          "c_s4_n04_side_door_exit",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff"
+        ],
+        "unique_nodes": 16,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 3,
+          "s4_public_spectacle": 2,
+          "s6_the_exchange": 5,
+          "s3_false_refuge": 3,
+          "s5_the_threshold": 2
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e3_wrong_handoff": 2,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 23,
+      "preset": {
+        "name": "sustained_high",
+        "tension_bias": 0.15,
+        "energy_bias": 0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n02_wrong_receiver_silhouette",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 2,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 4,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 2
+        },
+        "prepared_event_visits_any": 2,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n02_wrong_receiver_silhouette",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 3,
+      "preset": {
+        "name": "early_release",
+        "tension_bias": -0.15,
+        "energy_bias": -0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n02_wrong_receiver_silhouette",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 2,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n02_wrong_receiver_silhouette",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 3,
+      "preset": {
+        "name": "early_release",
+        "tension_bias": -0.15,
+        "energy_bias": -0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n02_wrong_receiver_silhouette",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 2,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n02_wrong_receiver_silhouette",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 7,
+      "preset": {
+        "name": "early_release",
+        "tension_bias": -0.15,
+        "energy_bias": -0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through",
+          "c_s4_n04_side_door_exit",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s1_n05_fluorescent_waiters",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through"
+        ],
+        "unique_nodes": 15,
+        "situations_visited": 5,
+        "situation_counts": {
+          "s1_the_run": 4,
+          "s2_the_detour": 5,
+          "s4_public_spectacle": 3,
+          "s6_the_exchange": 3,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 7,
+        "threshold_present": false,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 1,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          }
+        ],
+        "max_event_reuse": 1,
+        "reused_events": [],
+        "peak_tension": 1.0,
+        "end_tension": 0.9,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 7,
+      "preset": {
+        "name": "early_release",
+        "tension_bias": -0.15,
+        "energy_bias": -0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 16,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 2,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 3,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e4_bridge_lockdown": 2,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e4_bridge_lockdown"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 11,
+      "preset": {
+        "name": "early_release",
+        "tension_bias": -0.15,
+        "energy_bias": -0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through",
+          "c_s4_n04_side_door_exit",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s1_n05_fluorescent_waiters",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through"
+        ],
+        "unique_nodes": 15,
+        "situations_visited": 5,
+        "situation_counts": {
+          "s1_the_run": 4,
+          "s2_the_detour": 5,
+          "s4_public_spectacle": 3,
+          "s6_the_exchange": 3,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 7,
+        "threshold_present": false,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 1,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          }
+        ],
+        "max_event_reuse": 1,
+        "reused_events": [],
+        "peak_tension": 1.0,
+        "end_tension": 0.9,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 11,
+      "preset": {
+        "name": "early_release",
+        "tension_bias": -0.15,
+        "energy_bias": -0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 1,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 2,
+        "prepared_event_visits_full": 1,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 1,
+        "reused_events": [],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 19,
+      "preset": {
+        "name": "early_release",
+        "tension_bias": -0.15,
+        "energy_bias": -0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above",
+          "c_s6_n03_silver_case_under_headlight_sweep"
+        ],
+        "unique_nodes": 15,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 7,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e4_bridge_lockdown": 2,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e4_bridge_lockdown"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 19,
+      "preset": {
+        "name": "early_release",
+        "tension_bias": -0.15,
+        "energy_bias": -0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n02_wrong_receiver_silhouette",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 1,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 5,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 2,
+          "e4_bridge_lockdown": 1
+        },
+        "prepared_event_visits_any": 3,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n02_wrong_receiver_silhouette",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "scheduler",
+      "mode": "pilot",
+      "seed": 23,
+      "preset": {
+        "name": "early_release",
+        "tension_bias": -0.15,
+        "energy_bias": -0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s2_n03_tarp_corridor",
+          "c_s4_n02_back_room_cut_through",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view",
+          "c_s5_n05_checkpoint_seen_from_above",
+          "c_s6_n03_silver_case_under_headlight_sweep",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch"
+        ],
+        "unique_nodes": 15,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 3,
+          "s4_public_spectacle": 1,
+          "s3_false_refuge": 6,
+          "s5_the_threshold": 2,
+          "s6_the_exchange": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e4_bridge_lockdown": 1,
+          "e3_wrong_handoff": 1
+        },
+        "prepared_event_visits_any": 2,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s5_n05_checkpoint_seen_from_above",
+            "event_id": "e4_bridge_lockdown",
+            "setup_refs": [
+              "roof_access",
+              "inspection_view"
+            ],
+            "matched_setup_refs": [
+              "inspection_view"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "object_visibility_peak"
+            ]
+          }
+        ],
+        "max_event_reuse": 1,
+        "reused_events": [],
+        "peak_tension": 1.0,
+        "end_tension": 0.9,
+        "release_moves": 0
+      }
+    },
+    {
+      "arm": "feature",
+      "mode": "feature",
+      "seed": 23,
+      "preset": {
+        "name": "early_release",
+        "tension_bias": -0.15,
+        "energy_bias": -0.1
+      },
+      "summary": {
+        "path": [
+          "c_s1_n01_last_train_doors_shut",
+          "c_s1_n02_platform_sprint",
+          "c_s1_n03_track_edge_hesitation",
+          "c_s2_n01_alley_squeeze",
+          "c_s2_n02_produce_cart_bottleneck",
+          "c_s4_n01_strobe_crowd_swallow",
+          "c_s4_n03_stage_light_freeze",
+          "c_s5_n01_ladder_climb",
+          "c_s5_n02_roof_gap_commit",
+          "c_s5_n04_wire_fence_scrape",
+          "c_s6_n01_river_edge_loading_bay",
+          "c_s6_n02_wrong_receiver_silhouette",
+          "c_s6_n04_almost_handoff",
+          "c_s6_n05_corrected_transfer",
+          "c_s3_n03_map_spread_under_tungsten",
+          "c_s3_n04_red_string_key_on_hook",
+          "c_s3_n05_window_watch",
+          "c_s5_n03_sodium_bridge_view"
+        ],
+        "unique_nodes": 18,
+        "situations_visited": 6,
+        "situation_counts": {
+          "s1_the_run": 3,
+          "s2_the_detour": 2,
+          "s4_public_spectacle": 2,
+          "s5_the_threshold": 4,
+          "s6_the_exchange": 4,
+          "s3_false_refuge": 3
+        },
+        "situation_switches": 6,
+        "threshold_present": true,
+        "event_counts": {
+          "e1_train_missed": 1,
+          "e2_blackout_siren": 1,
+          "e3_wrong_handoff": 2
+        },
+        "prepared_event_visits_any": 2,
+        "prepared_event_visits_full": 0,
+        "event_prep_details": [
+          {
+            "node_id": "c_s1_n01_last_train_doors_shut",
+            "event_id": "e1_train_missed",
+            "setup_refs": [],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s4_n03_stage_light_freeze",
+            "event_id": "e2_blackout_siren",
+            "setup_refs": [
+              "wrong_instruction_glow",
+              "siren_pressure"
+            ],
+            "matched_setup_refs": []
+          },
+          {
+            "node_id": "c_s6_n02_wrong_receiver_silhouette",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          },
+          {
+            "node_id": "c_s6_n04_almost_handoff",
+            "event_id": "e3_wrong_handoff",
+            "setup_refs": [
+              "receiver_misalignment",
+              "object_visibility_peak"
+            ],
+            "matched_setup_refs": [
+              "receiver_misalignment"
+            ]
+          }
+        ],
+        "max_event_reuse": 2,
+        "reused_events": [
+          "e3_wrong_handoff"
+        ],
+        "peak_tension": 1.0,
+        "end_tension": 1.0,
+        "release_moves": 0
+      }
+    }
+  ],
+  "aggregate": {
+    "scheduler": {
+      "runs": 15,
+      "threshold_runs": 9,
+      "prepared_any_runs": 15,
+      "event_reuse_runs": 7,
+      "e2_runs": 6,
+      "e4_runs": 9,
+      "e4_reuse_runs": 3,
+      "avg_situations": 5.6,
+      "avg_release_moves": 0
+    },
+    "feature": {
+      "runs": 15,
+      "threshold_runs": 15,
+      "prepared_any_runs": 15,
+      "event_reuse_runs": 12,
+      "e2_runs": 15,
+      "e4_runs": 12,
+      "e4_reuse_runs": 3,
+      "prepared_full_runs": 3,
+      "avg_situations": 6,
+      "avg_release_moves": 0
+    },
+    "comparisons": {
+      "feature_threshold_advantage_runs": 6,
+      "feature_prepared_event_advantage_runs": 6,
+      "feature_more_event_diversity_runs": 6,
+      "feature_same_path_runs": 3,
+      "feature_more_release_moves_runs": 0
+    }
+  }
+}

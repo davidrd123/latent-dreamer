@@ -16,13 +16,16 @@ Related:
 ## Top-line sequence
 
 1. **Graffito L3 pilot** (shipping lane, first)
-2. **City Routes full L3 experiment** (research lane, second)
-3. **L1 authoring critic test** (research lane, third)
-4. **L2 internal refactor** (research lane, fourth)
+2. **Conductor mapping spike** (small, before full L3 claim)
+3. **City Routes full L3 experiment** (research lane, third)
+4. **L1 authoring critic test** (research lane, fourth)
+5. **L2 internal refactor** (research lane, fifth)
 
 This order is deliberate:
 
 - Graffito already exists and touches the watched run.
+- The conductor mapping needs one small playability spike before the
+  full expressivity claim is taken seriously.
 - City Routes is the first graph large enough to test the narrow L3
   thesis properly.
 - L1 and L2 remain important, but they are not the next falsifier.
@@ -89,11 +92,13 @@ See:
 
 ## 2. City Routes Full L3 Experiment
 
-Goal: test the narrow L3 thesis on a graph large enough to support a
-real comparison.
+Goal: validate the full narrow L3 claim with explicit ablations rather
+than one bundled rich arm.
 
 ### Why second
 
+- It comes after a small conductor-mapping spike, so `conductor
+  expressivity` is not purely theoretical.
 - Graffito is only a pilot substrate.
 - City Routes is explicitly designed to stress traversal:
   `28-32` nodes, `6` situations, `4` events, `30-40` edges.
@@ -102,21 +107,15 @@ real comparison.
 
 - Author the City Routes graph from
   `daydreaming/Notes/experiential-design/23-brief-city-night-pursuit.md`.
-- Add graph-native scheduler annotations:
-  - `availability_test`
-  - `priority_tier`
-  - `delta_tension`
-  - `delta_energy`
-  - `setup_refs[]` / `payoff_refs[]`
-  - `line_id` / `situation_id`
-  - `event_id`
-  - `event_commit_potential`
-  - `option_effect`
-  - `resolution_path_count`
-- Run three arms:
+- Freeze graph-native scheduler annotations via
+  `21-graph-interface-contract.md`.
+- Run the ablated comparison:
   - weighted-random baseline
   - Façade baseline
-  - Façade + DODM-style features + Suspenser structural tension
+  - C1 = Façade + DODM-style feature registry
+  - C2 = C1 + Suspenser structural tension
+  - C3 = C2 + shallow lookahead only if immediate-node scoring proves
+    too weak
 - Evaluate:
   - run quality
   - controlled variety
@@ -127,12 +126,15 @@ real comparison.
 ### Success condition
 
 - The Façade baseline beats the naive baseline.
-- The full scheduler clearly beats the Façade baseline.
-- The feature registry remains understandable.
+- C1 beats the Façade baseline clearly enough to justify the feature
+  registry.
+- C2 adds value beyond C1 rather than merely increasing complexity.
+- C3 is only kept if it adds clear marginal value.
 
 ### Failure condition
 
-- The full scheduler does not clearly beat the simpler scheduler.
+- The richer arms do not beat the simpler ones clearly.
+- Or the wins are not attributable because the additions remain bundled.
 
 ### Checklist
 
@@ -141,7 +143,8 @@ See:
 
 ---
 
-## 3. L1 Authoring Critic Test
+## 3. City Routes Full L3 Experiment
+## 4. L1 Authoring Critic Test
 
 Goal: test whether a narrow deficiency-driven authoring critic beats
 one-shot structured prompting.
@@ -164,7 +167,7 @@ It should not be confused with the City Routes L3 traversal test.
 
 ---
 
-## 4. L2 Internal Refactor
+## 5. L2 Internal Refactor
 
 Goal: improve concern/appraisal/provenance clarity without changing the
 stage-facing output.
@@ -182,12 +185,41 @@ This remains later because it is not the next falsifier.
 
 ---
 
+## 2. Conductor Mapping Spike
+
+Goal: validate that the APC Mini can produce a playable, legible bias
+surface before the full `conductor expressivity` claim is used in the
+City Routes evaluation.
+
+### Concrete work
+
+- map a minimal subset of conductor controls:
+  - situation boosts
+  - hold / release bias
+  - escalation bias
+  - recall bias
+  - intensity envelope
+- drive those against the pilot scheduler or a trace-replay harness
+- note which controls collapse together or feel physically unusable
+
+### Success condition
+
+- the performer can reliably produce intended scheduler biases
+- the mapping feels playable rather than theoretically elegant
+
+### Failure condition
+
+- multiple dimensions collapse together
+- intended bias changes are hard to produce on the instrument
+- scheduler expressivity claims outrun instrument reality
+
+---
+
 ## Cross-cutting questions
 
 These matter, but they are not the current bottleneck:
 
 - cross-level pressure propagation
-- conductor-state mapping vs APC Mini
 - multimodal world-building expansion
 - deeper L2 theory pass
 - richer visual-anchor workflows

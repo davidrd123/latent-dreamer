@@ -57,6 +57,62 @@ situations:
     resolution_path_count: 2
     description: The run becomes a question of transfer, identity, and mistake.
 
+origin_pressures:
+  - id: p_route_integrity
+    description: Pressure to keep the route coherent after timing loss and forced rerouting.
+  - id: p_object_visibility
+    description: Pressure from the silver case becoming readable under the wrong light.
+  - id: p_concealment_exposure
+    description: Pressure between temporary concealment and sudden exposure in public space.
+  - id: p_threshold_pressure
+    description: Pressure created by crossings, checkpoints, and narrowing passage.
+  - id: p_borrowed_refuge
+    description: Pressure between temporary shelter and the cost of staying sheltered.
+  - id: p_handoff_truth
+    description: Pressure around receiver identity, transfer correctness, and mistaken commitment.
+
+reference_markers:
+  - id: bridge_wristband
+    description: The wristband that once counted as crossing proof and now hangs over threshold scenes.
+  - id: dead_pager_glow
+    description: The pager's late or unreliable glow as a recurring route signal.
+  - id: silver_case_visibility
+    description: The silver case becoming readable to watchers before the courier can hide it.
+  - id: route_rewritten
+    description: The route has been materially reconfigured by detours, refuge, or exchange.
+  - id: borrowed_anonymity
+    description: Temporary concealment borrowed from a crowd or weather surface.
+  - id: wrong_instruction_glow
+    description: The pager flashes an instruction too late or at the wrong moment.
+  - id: siren_pressure
+    description: Rising exposure pressure created by blackout and siren spill.
+  - id: roof_access
+    description: A viable vertical path onto the roofs has been established.
+  - id: threshold_crossed
+    description: The courier has crossed a narrowing threshold that changes the route logic.
+  - id: inspection_view
+    description: The checkpoint or crossing has become readable as an inspection surface.
+  - id: borrowed_table
+    description: A temporary domestic surface is available for pause, map spread, or inspection.
+  - id: silver_case_inspected
+    description: The case has been set down and examined rather than merely carried.
+  - id: temporary_shelter
+    description: The route has entered a brief, unstable shelter state.
+  - id: red_string_key
+    description: The red-string key has become active as a route or refuge signal.
+  - id: apartment_key_red_string
+    description: The apartment key on red string is available as a portable refuge token.
+  - id: receiver_misalignment
+    description: The expected receiver and the visible receiver no longer align cleanly.
+  - id: object_visibility_peak
+    description: The silver case is at maximum readability in the current exchange space.
+  - id: correct_transfer
+    description: The transfer has been corrected back toward the intended handoff.
+
+ref_resolution:
+  setup_payoff_refs_resolve_against: [events.id, situations.id, reference_markers.id]
+  option_effect_vocabulary: [close, open, clarify, none]
+
 nodes:
   - id: c_s1_n01_last_train_doors_shut
     name: Last train doors shut
@@ -68,6 +124,7 @@ nodes:
     situation_ids: [s1_the_run]
     line_id: line_route
     subplot_id: route_integrity
+    origin_pressure_refs: [p_route_integrity]
     availability_test: start_or_return
     priority_tier: 1
     delta_tension: 0.24
@@ -77,7 +134,7 @@ nodes:
     event_id: e1_train_missed
     event_commit_potential: 1.0
     pressure_tags: [timing_loss, exposure, route_collapse, train]
-    option_effect: reroute
+    option_effect: open
     importance: 0.92
     resolution_path_count: 1
     dwell_s: 4.5
@@ -99,6 +156,7 @@ nodes:
     situation_ids: [s1_the_run]
     line_id: line_route
     subplot_id: route_integrity
+    origin_pressure_refs: [p_route_integrity]
     availability_test: after_e1_or_return
     priority_tier: 0
     delta_tension: 0.12
@@ -108,7 +166,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.0
     pressure_tags: [movement, urgency, exposure]
-    option_effect: escalate
+    option_effect: close
     importance: 0.68
     resolution_path_count: 2
     dwell_s: 4.0
@@ -129,6 +187,7 @@ nodes:
     situation_ids: [s1_the_run]
     line_id: line_route
     subplot_id: route_integrity
+    origin_pressure_refs: [p_route_integrity]
     availability_test: always
     priority_tier: 0
     delta_tension: 0.14
@@ -138,7 +197,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.1
     pressure_tags: [threshold, hesitation, exposure]
-    option_effect: choose
+    option_effect: clarify
     importance: 0.64
     resolution_path_count: 2
     dwell_s: 4.5
@@ -159,6 +218,7 @@ nodes:
     situation_ids: [s1_the_run]
     line_id: line_route
     subplot_id: route_integrity
+    origin_pressure_refs: [p_route_integrity]
     availability_test: always
     priority_tier: 0
     delta_tension: -0.02
@@ -168,7 +228,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.2
     pressure_tags: [afterimage, route_loss, exposure]
-    option_effect: reflect
+    option_effect: clarify
     importance: 0.56
     resolution_path_count: 2
     dwell_s: 4.0
@@ -189,6 +249,7 @@ nodes:
     situation_ids: [s1_the_run]
     line_id: line_route
     subplot_id: object_visibility
+    origin_pressure_refs: [p_object_visibility]
     availability_test: always
     priority_tier: 0
     delta_tension: 0.16
@@ -198,7 +259,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.15
     pressure_tags: [visibility, watchers, object_readability]
-    option_effect: expose
+    option_effect: clarify
     importance: 0.62
     resolution_path_count: 3
     dwell_s: 4.0
@@ -219,6 +280,7 @@ nodes:
     situation_ids: [s2_the_detour]
     line_id: line_route
     subplot_id: route_integrity
+    origin_pressure_refs: [p_route_integrity]
     availability_test: after_e1_train_missed
     priority_tier: 1
     delta_tension: 0.10
@@ -228,7 +290,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.1
     pressure_tags: [detour, squeeze, concealment, drag]
-    option_effect: reroute
+    option_effect: open
     importance: 0.75
     resolution_path_count: 3
     dwell_s: 4.5
@@ -249,6 +311,7 @@ nodes:
     situation_ids: [s2_the_detour]
     line_id: line_route
     subplot_id: object_visibility
+    origin_pressure_refs: [p_object_visibility]
     availability_test: always
     priority_tier: 0
     delta_tension: 0.18
@@ -258,7 +321,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.15
     pressure_tags: [bottleneck, crowd_drag, visibility]
-    option_effect: expose
+    option_effect: clarify
     importance: 0.66
     resolution_path_count: 3
     dwell_s: 4.0
@@ -279,6 +342,7 @@ nodes:
     situation_ids: [s2_the_detour]
     line_id: line_route
     subplot_id: concealment_exposure
+    origin_pressure_refs: [p_concealment_exposure]
     availability_test: always
     priority_tier: 0
     delta_tension: -0.04
@@ -288,7 +352,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.0
     pressure_tags: [concealment, weather, drift]
-    option_effect: conceal
+    option_effect: open
     importance: 0.58
     resolution_path_count: 4
     dwell_s: 4.5
@@ -309,6 +373,7 @@ nodes:
     situation_ids: [s2_the_detour]
     line_id: line_route
     subplot_id: route_integrity
+    origin_pressure_refs: [p_route_integrity]
     availability_test: always
     priority_tier: 0
     delta_tension: 0.22
@@ -318,7 +383,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.35
     pressure_tags: [wrong_turn, reroute, confusion, siren_pressure]
-    option_effect: escalate
+    option_effect: close
     importance: 0.73
     resolution_path_count: 3
     dwell_s: 4.5
@@ -339,6 +404,7 @@ nodes:
     situation_ids: [s2_the_detour]
     line_id: line_route
     subplot_id: threshold_pressure
+    origin_pressure_refs: [p_threshold_pressure]
     availability_test: after_wrong_turn
     priority_tier: 1
     delta_tension: 0.12
@@ -348,7 +414,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.25
     pressure_tags: [threshold, workaround, climb]
-    option_effect: prepare
+    option_effect: open
     importance: 0.69
     resolution_path_count: 2
     dwell_s: 4.0
@@ -369,6 +435,7 @@ nodes:
     situation_ids: [s5_the_threshold]
     line_id: line_route
     subplot_id: threshold_pressure
+    origin_pressure_refs: [p_threshold_pressure]
     availability_test: after_detour_or_spectacle
     priority_tier: 1
     delta_tension: 0.16
@@ -378,7 +445,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.2
     pressure_tags: [threshold, climb, exposure]
-    option_effect: escalate
+    option_effect: close
     importance: 0.76
     resolution_path_count: 2
     dwell_s: 4.5
@@ -399,6 +466,7 @@ nodes:
     situation_ids: [s5_the_threshold]
     line_id: line_route
     subplot_id: threshold_pressure
+    origin_pressure_refs: [p_threshold_pressure]
     availability_test: after_ladder_climb
     priority_tier: 0
     delta_tension: 0.26
@@ -408,7 +476,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.3
     pressure_tags: [commitment, gap, threshold, exposure]
-    option_effect: commit
+    option_effect: close
     importance: 0.78
     resolution_path_count: 1
     dwell_s: 4.0
@@ -429,6 +497,7 @@ nodes:
     situation_ids: [s5_the_threshold]
     line_id: line_route
     subplot_id: threshold_pressure
+    origin_pressure_refs: [p_threshold_pressure]
     availability_test: always
     priority_tier: 0
     delta_tension: 0.04
@@ -438,7 +507,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.45
     pressure_tags: [inspection, bridge, visibility, jurisdiction]
-    option_effect: reveal
+    option_effect: clarify
     importance: 0.71
     resolution_path_count: 2
     dwell_s: 4.5
@@ -459,6 +528,7 @@ nodes:
     situation_ids: [s5_the_threshold]
     line_id: line_route
     subplot_id: threshold_pressure
+    origin_pressure_refs: [p_threshold_pressure]
     availability_test: after_roof_gap
     priority_tier: 0
     delta_tension: 0.14
@@ -468,7 +538,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.35
     pressure_tags: [constraint, scrape, exposure]
-    option_effect: constrain
+    option_effect: close
     importance: 0.6
     resolution_path_count: 1
     dwell_s: 4.0
@@ -489,6 +559,7 @@ nodes:
     situation_ids: [s5_the_threshold]
     line_id: line_route
     subplot_id: threshold_pressure
+    origin_pressure_refs: [p_threshold_pressure]
     availability_test: after_bridge_view
     priority_tier: 1
     delta_tension: 0.20
@@ -498,7 +569,7 @@ nodes:
     event_id: e4_bridge_lockdown
     event_commit_potential: 1.0
     pressure_tags: [checkpoint, lockdown, inspection, reroute]
-    option_effect: reroute
+    option_effect: open
     importance: 0.88
     resolution_path_count: 1
     dwell_s: 5.0
@@ -519,6 +590,7 @@ nodes:
     situation_ids: [s4_public_spectacle]
     line_id: line_spectacle
     subplot_id: concealment_exposure
+    origin_pressure_refs: [p_concealment_exposure]
     availability_test: after_detour
     priority_tier: 0
     delta_tension: -0.02
@@ -528,7 +600,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.1
     pressure_tags: [spectacle, concealment, crowd_current]
-    option_effect: mix
+    option_effect: open
     importance: 0.67
     resolution_path_count: 4
     dwell_s: 5.0
@@ -549,6 +621,7 @@ nodes:
     situation_ids: [s4_public_spectacle]
     line_id: line_spectacle
     subplot_id: route_integrity
+    origin_pressure_refs: [p_route_integrity]
     availability_test: after_strobe_crowd
     priority_tier: 0
     delta_tension: -0.06
@@ -558,7 +631,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.15
     pressure_tags: [cut_through, concealment, borrowed_route]
-    option_effect: recover
+    option_effect: open
     importance: 0.58
     resolution_path_count: 3
     dwell_s: 4.0
@@ -579,6 +652,7 @@ nodes:
     situation_ids: [s4_public_spectacle]
     line_id: line_spectacle
     subplot_id: concealment_exposure
+    origin_pressure_refs: [p_concealment_exposure]
     availability_test: after_strobe_crowd
     priority_tier: 1
     delta_tension: 0.24
@@ -588,7 +662,7 @@ nodes:
     event_id: e2_blackout_siren
     event_commit_potential: 1.0
     pressure_tags: [blackout, siren, exposure, freeze]
-    option_effect: expose
+    option_effect: clarify
     importance: 0.84
     resolution_path_count: 2
     dwell_s: 4.5
@@ -609,6 +683,7 @@ nodes:
     situation_ids: [s4_public_spectacle]
     line_id: line_spectacle
     subplot_id: route_integrity
+    origin_pressure_refs: [p_route_integrity]
     availability_test: always
     priority_tier: 0
     delta_tension: 0.04
@@ -618,7 +693,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.1
     pressure_tags: [exit, jurisdiction_shift, route_change]
-    option_effect: reroute
+    option_effect: open
     importance: 0.55
     resolution_path_count: 3
     dwell_s: 4.0
@@ -639,6 +714,7 @@ nodes:
     situation_ids: [s3_false_refuge]
     line_id: line_shelter
     subplot_id: borrowed_refuge
+    origin_pressure_refs: [p_borrowed_refuge]
     availability_test: after_detour_or_spectacle
     priority_tier: 1
     delta_tension: -0.16
@@ -648,7 +724,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.2
     pressure_tags: [refuge, table, inspection, pause]
-    option_effect: inspect
+    option_effect: clarify
     importance: 0.82
     resolution_path_count: 2
     dwell_s: 5.0
@@ -669,6 +745,7 @@ nodes:
     situation_ids: [s3_false_refuge]
     line_id: line_shelter
     subplot_id: borrowed_refuge
+    origin_pressure_refs: [p_borrowed_refuge]
     availability_test: after_table
     priority_tier: 0
     delta_tension: -0.18
@@ -678,7 +755,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.0
     pressure_tags: [recovery, breath, shelter]
-    option_effect: recover
+    option_effect: open
     importance: 0.57
     resolution_path_count: 1
     dwell_s: 4.5
@@ -699,6 +776,7 @@ nodes:
     situation_ids: [s3_false_refuge]
     line_id: line_shelter
     subplot_id: borrowed_refuge
+    origin_pressure_refs: [p_borrowed_refuge]
     availability_test: after_table_or_sink
     priority_tier: 0
     delta_tension: -0.06
@@ -708,7 +786,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.15
     pressure_tags: [map, plan, shelter_cost]
-    option_effect: reflect
+    option_effect: clarify
     importance: 0.72
     resolution_path_count: 2
     dwell_s: 5.0
@@ -729,6 +807,7 @@ nodes:
     situation_ids: [s3_false_refuge]
     line_id: line_shelter
     subplot_id: borrowed_refuge
+    origin_pressure_refs: [p_borrowed_refuge]
     availability_test: after_map
     priority_tier: 0
     delta_tension: -0.02
@@ -738,7 +817,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.0
     pressure_tags: [portable_refuge, threshold, choice]
-    option_effect: prepare
+    option_effect: open
     importance: 0.6
     resolution_path_count: 2
     dwell_s: 4.0
@@ -759,6 +838,7 @@ nodes:
     situation_ids: [s3_false_refuge]
     line_id: line_shelter
     subplot_id: borrowed_refuge
+    origin_pressure_refs: [p_borrowed_refuge]
     availability_test: after_map_or_key
     priority_tier: 0
     delta_tension: 0.10
@@ -768,7 +848,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.25
     pressure_tags: [watch, threshold, shelter_cost]
-    option_effect: return
+    option_effect: clarify
     importance: 0.67
     resolution_path_count: 2
     dwell_s: 4.5
@@ -789,6 +869,7 @@ nodes:
     situation_ids: [s6_the_exchange]
     line_id: line_exchange
     subplot_id: handoff_truth
+    origin_pressure_refs: [p_handoff_truth]
     availability_test: after_threshold
     priority_tier: 1
     delta_tension: -0.04
@@ -798,7 +879,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.25
     pressure_tags: [arrival, exchange, river_edge]
-    option_effect: approach
+    option_effect: clarify
     importance: 0.82
     resolution_path_count: 2
     dwell_s: 4.5
@@ -819,6 +900,7 @@ nodes:
     situation_ids: [s6_the_exchange]
     line_id: line_exchange
     subplot_id: handoff_truth
+    origin_pressure_refs: [p_handoff_truth]
     availability_test: after_loading_bay
     priority_tier: 0
     delta_tension: 0.22
@@ -828,7 +910,7 @@ nodes:
     event_id: e3_wrong_handoff
     event_commit_potential: 0.8
     pressure_tags: [mistake, identity, exchange, suspicion]
-    option_effect: suspect
+    option_effect: clarify
     importance: 0.86
     resolution_path_count: 1
     dwell_s: 4.5
@@ -849,6 +931,7 @@ nodes:
     situation_ids: [s6_the_exchange]
     line_id: line_exchange
     subplot_id: object_visibility
+    origin_pressure_refs: [p_object_visibility]
     availability_test: after_loading_bay
     priority_tier: 0
     delta_tension: 0.18
@@ -858,7 +941,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.35
     pressure_tags: [visibility, object, exchange]
-    option_effect: reveal
+    option_effect: clarify
     importance: 0.7
     resolution_path_count: 2
     dwell_s: 4.5
@@ -879,6 +962,7 @@ nodes:
     situation_ids: [s6_the_exchange]
     line_id: line_exchange
     subplot_id: handoff_truth
+    origin_pressure_refs: [p_handoff_truth]
     availability_test: after_wrong_receiver_or_headlight
     priority_tier: 1
     delta_tension: 0.28
@@ -888,7 +972,7 @@ nodes:
     event_id: e3_wrong_handoff
     event_commit_potential: 1.0
     pressure_tags: [handoff, mistake, commitment, exposure]
-    option_effect: commit
+    option_effect: close
     importance: 0.9
     resolution_path_count: 1
     dwell_s: 5.0
@@ -909,6 +993,7 @@ nodes:
     situation_ids: [s6_the_exchange]
     line_id: line_exchange
     subplot_id: handoff_truth
+    origin_pressure_refs: [p_handoff_truth]
     availability_test: after_almost_handoff
     priority_tier: 1
     delta_tension: -0.10
@@ -918,7 +1003,7 @@ nodes:
     event_id: null
     event_commit_potential: 0.7
     pressure_tags: [handoff, correction, aftermath]
-    option_effect: release
+    option_effect: close
     importance: 0.88
     resolution_path_count: 2
     dwell_s: 5.0

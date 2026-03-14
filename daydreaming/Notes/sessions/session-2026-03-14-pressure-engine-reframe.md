@@ -498,3 +498,155 @@ Advised: keep L1 vocabulary soft until it beats a baseline.
 Completed character enrichment + tests + prompt shaping. Pipeline
 fully tested against real briefs. Priority queue: comparison prompt
 tightening next.
+
+## 14. Graffito L3 Pilot (Codex, completed during session)
+
+Codex built and ran the entire Graffito Phase 1 pilot while the
+architecture review was happening.
+
+### Run 1
+- Added edges + delta_tension/delta_energy to graffito fixture
+- Built graffito_pilot.py scheduler harness
+- Two arms: baseline vs Facade-shaped scheduler
+- Result: scheduler produced cross-situation moves with legible
+  tension/release; baseline trapped in one situation cluster
+
+### Run 2
+- Widened crossing seam (more edges between s1/s2)
+- Exposed target-trajectory knobs
+- Result: improved cross-situation movement, uses both release
+  and escalation transitions
+
+### Trajectory Presets (conductor test)
+- Three presets: neutral, sustained high, early release
+- Result: asymmetric conductor expressivity — downward bias
+  clearly bends traversal, upward bias initially identical to
+  neutral (graph lacked high-pressure apartment options)
+
+### High-Pressure Variant Pass
+- Added one hot apartment node (tony_still_spun_up)
+- Result: all three presets now diverge. Conductor surface is
+  real in both directions. But Graffito substrate at saturation.
+
+### Conclusion
+Graffito pilot reached natural endpoint. Scheduler produces more
+intentional traversal than baseline. Conductor bias is real.
+Recommended: move to City Routes for full experiment.
+
+## 15. City Routes Substrate (Codex)
+
+- Authored city_routes_experiment_1_v0.yaml from brief 23
+- 29 nodes, 6 situations, 4 events, 40 edges
+- Built city_routes_pilot.py harness
+- Initial baseline + scheduler arms run
+- Tests for fixture validation
+
+## 16. L2 and L1 Synthesis Docs (Codex)
+
+### 13-l2-refactor-synthesis.md
+Five modules: concern controller, appraisal engine, practice-
+gated operator selector, reminding/serendipity layer, realization
+layer. Five-step build order: Mueller kernel → appraisal → practice
+gates → observable reminding → dashboard.
+
+### 14-l1-critic-test-synthesis.md
+Graph-native deficiency classes (dangling_setup, unsupported_
+transition, isolated_cluster, etc). Proposal unit is small graph
+edits (add node, add edge, retag, insert bridge). MINSTREL-style
+mutation over rejected proposals. Cheap rejection rules from
+Sentient Sketchbook.
+
+## 17. 5 Pro Review Round 2
+
+### Coherence review (00-l1-l2-l3-review)
+Six "must fix now" items:
+1. L2→graph seam should export residue, not live refs
+2. Deprecate/rewrite stale 05-stage-integration.md
+3. Freeze one canonical graph schema
+4. Split City Routes C arm into ablations
+5. Prune L1 deficiency classes to computable detectors
+6. Preserve missing Mueller machinery in L2 refactor
+
+### Graph/interface seam audit (01)
+**Most operationally useful response.** Answered the hardest
+open question (the graph seam):
+
+Three surfaces, not one:
+- Authored graph (human-curated)
+- L1 annotation/proposal sidecar (machine-proposed, human-gated)
+- Runtime playback packet (downstream of adapter)
+
+Four "must fix now":
+1. Add one lineage field (origin_pressure_refs[]) for L1/L2→graph
+   provenance — solves cross-level propagation
+2. Make setup_refs[]/payoff_refs[] mechanically resolvable (City
+   Routes mixes real IDs with undeclared symbolic tokens)
+3. Canonicalize option_effect vocabulary (fixture and notes
+   disagree)
+4. Update stale Graffito notes
+
+Key finding: the missing seam is cross-lane lineage, not missing
+ontology. L3 can schedule material but can't read which nodes are
+residues of which character pressures.
+
+## 18. LLM Roles Reference Doc
+
+Created and updated reading-list/13-llm-roles-in-architecture.md:
+- Model tier table (Flash Lite ~1.5s, Flash ~2-3s, Pro ~5-10s)
+- Three-category split (language model, generative media, eval)
+- Five decision gates (latency, replayability, graph contract,
+  inspectability, semantic drift)
+- Mueller-backbone-first constraint on L2 appraisal
+- Graph annotation validation as new LLM role
+- Narration from provenance promoted to highest implementation
+  priority
+- Governing principle: "LLMs generate content and evaluate
+  meaning; deterministic systems handle control, scheduling,
+  and state management"
+
+## 19. John Collaboration Prep
+
+Created questions-for-john.md — discussion prep for verbal
+conversation, not a cold question pack. Six topics (A-F):
+traversal intents, what makes sequences feel intentional,
+inner-life dashboard, conductor control surfaces, visual
+world-building, what to look for in watched run.
+
+Key framing: his reactions to what he sees are more valuable
+than responses to abstract questions. Show him the cognitive
+visualizer and narration traces.
+
+## 20. Knowledge Coupling / Symbiotic Vault Connection
+
+Explored daydreaming/Notes/knowledge-coupling/ and John's
+Symbiotic Vault. Connections found:
+- The Membrane concept maps to the inner-life dashboard
+- Design bidirectionality = the conductor problem
+- Claims-as-atoms parallels typed world state
+- Salience/surfacing problem is shared across projects
+- Both projects explore human + autonomous system co-navigating
+  structured space
+
+## 21. Updated Status (End of Extended Session)
+
+### What's now proven
+- L3 Facade-shaped scheduler produces legible traversal
+- Conductor bias surface is real in both directions
+- Graffito pilot at natural endpoint → move to City Routes
+
+### Concrete next actions
+1. City Routes fixture cleanup (lineage field, setup_refs
+   namespace, option_effect vocabulary)
+2. Freeze graph interface contract in 21-graph-interface-
+   contract.md with three-surface language
+3. Narration from provenance (wiring change, highest LLM
+   priority)
+4. World defect linter (codex queue)
+5. City Routes full three-arm experiment
+
+### 5 Pro reviews still pending
+- first-round-02/02-failure-mode-review
+- first-round-02/03-missing-lineage-scan
+- first-round-02/04-strongest-alternative-architecture
+- first-round-02/05-evaluation-and-falsification
+- first-round-02/06-source-miss-scan

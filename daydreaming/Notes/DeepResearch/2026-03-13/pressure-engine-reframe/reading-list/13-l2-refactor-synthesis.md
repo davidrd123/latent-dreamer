@@ -58,7 +58,32 @@ The core loop remains:
 This is still the right answer to "what is pressing right now?" for
 `L2`.
 
-### 2. Contexts stay
+### 2. Concern kinds and write-back semantics stay
+
+Mueller's concern split matters because different concern kinds write
+back differently. The refactor should preserve:
+
+- concern kind
+- write-back kind
+- the distinction between personal-goal and daydreaming-goal concerns
+
+This should not be flattened into one generic priority queue.
+
+### 3. Theme-rule concern initiation stays
+
+Concern initiation should remain explicitly rule-driven rather than
+being hand-waved into generic activation. The refactor should preserve
+the fact that concerns are born from structured triggers, not just from
+ambient pressure values.
+
+### 4. Cycle decay stays
+
+The kernel should keep per-cycle decay as part of concern control. The
+important point is not "everything decays equally," but that the loop
+includes decay discipline rather than letting every activated pressure
+persist indefinitely.
+
+### 5. Contexts stay
 
 Contexts are not optional bookkeeping. They do two jobs:
 
@@ -69,7 +94,7 @@ This is the right near-term substrate for alternate local worlds.
 `ATMS` remains a later representational upgrade, not a prerequisite for
 the refactor.
 
-### 3. Reminding stays and should become explicit
+### 6. Reminding stays and should become explicit
 
 Reminding is not just retrieval. It is associative reactivation:
 
@@ -82,7 +107,7 @@ Reminding is not just retrieval. It is associative reactivation:
 This deserves to be a named subsystem in the refactor, not an implicit
 side effect.
 
-### 4. Serendipity stays, but in its stronger form
+### 7. Serendipity stays, but in its stronger form
 
 Serendipity is not "random good idea generation." It is:
 
@@ -93,7 +118,7 @@ Action mutation is subordinate to this. Mutate only when needed, and
 treat the mutation as a candidate that still has to be validated by
 serendipity recognition.
 
-### 5. English generation stays as a realization layer
+### 8. English generation stays as a realization layer
 
 Mueller's Appendix B matters because it proves that the internal stream
 can be rendered in a disciplined way:
@@ -101,7 +126,7 @@ can be rendered in a disciplined way:
 - template-driven realization
 - hypothetical and remembered forms
 - belief-path-sensitive narration
-- pruning
+- rule-level pruning
 - paragraph breaks on branch or concern shifts
 
 This should inform the dashboard and trace narration layer, not the core
@@ -231,10 +256,14 @@ The refactor should make these state objects explicit:
 ### 1. Concern state
 
 - concern id
+- concern kind
+- write-back kind
 - target
+- theme-rule or source-rule
 - current priority
 - dominant motivation
 - active or dormant status
+- decay profile
 
 ### 2. Appraisal state
 
@@ -302,20 +331,30 @@ state without dumping every internal assertion.
 
 ## Minimal Graph Seam from `L2`
 
+Canonical contract note:
+- `../21-graph-interface-contract.md`
+
 `L2` should write a narrow, inspectable projection into the shared
 graph/interface layer. Not its whole internals.
 
-The first useful projection is:
+The graph should receive only stable graph-readable residue such as:
+
+- `origin_pressure_refs[]`
+- `pressure_tags[]`
+- `practice_tags[]`
+- `appraisal_summary_tags[]`
+- `branch_outcome_tags[]`
+- `contrast_tags[]`
+
+Do **not** export live runtime objects such as:
 
 - active concern refs
-- dominant emotion type and intensity
-- appraisal summary tags
-- active practice tags
 - reminded episode refs
-- branch outcome or pressure shift tags
+- full appraisal objects
+- current context trees
 
-This gives `L3` and the dashboard something legible without making the
-graph pretend to be the whole `L2` machine.
+Those belong to `L2` runtime state and the dashboard feed, not to the
+shared graph contract.
 
 ---
 
@@ -340,7 +379,11 @@ Those either belong elsewhere or can wait.
 ### Step 1. Re-state the Mueller kernel in explicit state objects
 
 Do this before adding new theory. Make concerns, contexts, reminding,
-and traces first-class.
+and traces first-class, while explicitly preserving:
+
+- concern kind / write-back distinction
+- theme-rule concern initiation
+- cycle decay discipline
 
 ### Step 2. Insert the appraisal layer
 
@@ -355,12 +398,14 @@ socially situated.
 ### Step 4. Make reminding and serendipity observable
 
 Expose what was reminded, why, and what verified cross-connection was
-found.
+found. Keep raw reminder refs in runtime traces; export only stable
+graph-readable residue into the shared seam.
 
 ### Step 5. Build the inner-life dashboard on top
 
 Use the Appendix B lesson: render selected internal state cleanly and
-economically, with real narration choices rather than raw dumps.
+economically, with rule-level pruning and real narration choices rather
+than raw dumps.
 
 ---
 

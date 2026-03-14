@@ -1,5 +1,11 @@
 # Stage Integration: Concrete Architecture
 
+> Status: this note remains valid for the Scope-facing stage contract
+> and actuator surfaces. Where it conflicts with
+> `11-settled-architecture.md`, the canonical control semantics in doc
+> 11 win. In particular: there is one control plane. The conductor
+> biases, the scheduler chooses, the stage executes.
+
 ## Source
 
 Distilled from a deep research report that examined both the
@@ -167,17 +173,21 @@ contract is stable regardless of what drives decisions.
 In **batch mode:** the engine runs autonomously, emitting directives.
 The DreamDirective stream is the session artifact.
 
-In **conducted mode:** the APC Mini performer can:
-- Override concern priorities (faders → situation activation weights)
-- Force operator selection (buttons → trigger specific operators)
-- Modulate stage parameters directly (knobs → tension, energy, dwell)
-- Trigger commits (button → realize a hypothetical)
+In **conducted mode:** the APC Mini performer updates scheduler bias
+state rather than acting as a parallel chooser. The useful control
+surface is:
 
-The conductor's inputs enter the same DreamDirective pipeline. The
-engine and the conductor are parallel control sources that must not
-both drive the same parameters simultaneously — the ControlBus
-ordering handles this at the stage level, but arbitration policy
-(who wins when both want to act) is an engine-level concern.
+- Boost situation activation weights
+- Bias hold / release behavior
+- Bias escalation vs recall
+- Shape the intensity envelope
+- Confirm or veto explicit commits
+
+The conductor's inputs enter the same DreamDirective pipeline, but
+there is still one chooser upstream. The conductor biases the engine or
+scheduler before scoring; the engine or scheduler emits one decision;
+the stage executes that decision. The stage layer does not arbitrate
+between independent performer and engine selections.
 
 ---
 

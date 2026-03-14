@@ -370,7 +370,7 @@ Minimum useful node metadata to add or preserve:
 - `place_id`
 - `stakes`
 - `pressure_tags`
-- `derived_from_concerns[]` or `origin_pressure_refs[]`
+- `origin_pressure_refs[]`
 - `setup_refs[]`
 - `payoff_refs[]`
 - `event_commit_potential`

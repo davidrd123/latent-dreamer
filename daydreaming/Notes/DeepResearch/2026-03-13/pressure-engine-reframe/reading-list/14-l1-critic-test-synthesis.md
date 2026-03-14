@@ -81,24 +81,47 @@ That means `L1` should operate on deficiency classes, not on a vague
 
 ---
 
+## Detector Discipline
+
+Every schedulable `L1` deficiency must have:
+
+- a detector over typed fields or graph-readable tags
+- a clear before/after test
+- a proposal grammar that compiles to a typed diff
+
+If a deficiency cannot meet those conditions, it is a lint or human
+review prompt, not a schedulable pressure.
+
+---
+
 ## Recommended Deficiency Classes
 
 The first critic test should stay narrow and computable.
 
+### Schedulable v1 deficiencies
+
 Useful first-pass deficiency types:
 
-- dangling setup: a seeded element has no plausible payoff path
+- setup without payoff: seeded material has no reachable payoff path
 - unsupported transition: edge or beat transition lacks enough bridge
-- under-motivated node: event or node exists without enough pressure
-  attachment
-- pressure dead-end: active pressure has no authored continuation
+- pressure dead-end: active pressure tag has no authored continuation
 - duplicate function: two nearby nodes do the same structural work
 - isolated cluster: locally interesting material does not connect to the
   main graph trajectory
-- weak escalation: pressure rises are too flat or repetitive
-- premature closure: a tension resolves before earning it
+- goal without resistance: a goal or stake has no blocker or opposing
+  structure
 
 These are narrow enough to score and broad enough to matter.
+
+### Human-review lints, not schedulable yet
+
+Do not schedule these until detectors are frozen:
+
+- under-motivated node
+- weak escalation
+- premature closure
+- tonal monotony
+- backstory vacuum
 
 ---
 
@@ -107,7 +130,7 @@ These are narrow enough to score and broad enough to matter.
 `L1` should propose **small graph edits**, not whole rewritten
 structures.
 
-The right proposal unit is something like:
+The right proposal unit is a typed world-state or graph diff such as:
 
 - add node
 - add edge
@@ -118,7 +141,8 @@ The right proposal unit is something like:
 - add alternate continuation
 - defer or reroute a resolution
 
-This keeps `L1` critic work local and inspectable.
+These must compile to explicit structural diffs, not fuzzy prose
+suggestions. This keeps `L1` critic work local and inspectable.
 
 ---
 
