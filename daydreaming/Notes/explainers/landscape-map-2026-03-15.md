@@ -6,13 +6,17 @@ A map of where the project stands and what's visible from here.
 
 ## The current plateau
 
-A working authoring-time generation pipeline. Characters described
+A working authoring-time generation prototype. Characters described
 in a page of text produce graph-compilable candidate moments through
-a Mueller-shaped cognitive loop. Three operator families validated
-(avoidance, rehearsal, rationalization in progress), concern
-inference from primitives works, multi-step accumulation produces
-sequences where each step feeds the next. The L3 traversal scheduler
-is proven on two substrates. The architecture is settled.
+a Mueller-shaped cognitive loop. Avoidance and rehearsal validated
+on the derived path; rationalization fixture drafted, not yet proven.
+Benchmark-scale primitive-to-concern inference works (theme-rule
+concern birth, not yet the fuller abductive compiler from the later
+research notes). Multi-step accumulation produces sequences where
+each step feeds the next, but this is still prototype-fragile. The
+L3 traversal scheduler is proven enough on two substrates to stop
+broad architecture churn. The lane-level architecture is settled;
+individual mechanisms are not all final.
 
 Codex is scaling from "one good candidate" to "batches a human can
 curate." If that works, you have a material supply pipeline.
