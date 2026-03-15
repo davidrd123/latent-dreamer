@@ -158,6 +158,24 @@ def resolve_situation(fixture: Dict[str, Any], situation_id: Optional[str] = Non
     return deepcopy(situation_map(fixture)[resolved_id])
 
 
+def is_threshold_situation(situation: Dict[str, Any]) -> bool:
+    current_state = situation.get("current_state", {})
+    threshold_keys = {"meeting_started", "door_opened", "message_sent", "conversation_started"}
+    if threshold_keys & set(current_state.keys()):
+        return True
+    text = " ".join(
+        filter(
+            None,
+            [
+                situation.get("id", ""),
+                situation.get("description", ""),
+                situation.get("place_id", ""),
+            ],
+        )
+    ).lower()
+    return any(token in text for token in ("threshold", "outside", "door", "hallway"))
+
+
 def normalize_concern_rules(fixture: Dict[str, Any]) -> Dict[str, Any]:
     extraction = fixture.get("concern_extraction", {})
     theme_rules = extraction.get("theme_rules") or extraction.get("concern_extraction_rules") or []
@@ -274,6 +292,72 @@ def infer_concerns_from_primitives(fixture: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def summarize_practice_biases(fixture: Dict[str, Any], concern_inference: Dict[str, Any]) -> Dict[str, Any]:
+    normalized = normalize_concern_rules(fixture)
+    fired_ids = set(concern_inference.get("fired_practice_bias_rules", []))
+    practice_votes: Dict[str, float] = {}
+    family_votes: Dict[str, float] = {}
+    fired_rules: List[Dict[str, Any]] = []
+
+    for rule in normalized["practice_bias_rules"]:
+        if rule["id"] not in fired_ids:
+            continue
+        biases = rule.get("biases", {})
+        weight = float(max(1, len(rule.get("when", []))))
+        practice_type = biases.get("practice_type")
+        family_bonus = biases.get("family_bonus")
+        if practice_type:
+            practice_votes[practice_type] = practice_votes.get(practice_type, 0.0) + weight
+        if family_bonus:
+            family_votes[family_bonus] = family_votes.get(family_bonus, 0.0) + weight
+        fired_rules.append(
+            {
+                "id": rule["id"],
+                "weight": weight,
+                "practice_type": practice_type,
+                "family_bonus": family_bonus,
+            }
+        )
+
+    return {
+        "practice_votes": practice_votes,
+        "family_votes": family_votes,
+        "fired_rules": fired_rules,
+    }
+
+
+def resolve_practice_context_from_fixture(
+    fixture: Dict[str, Any],
+    practice_type: str,
+) -> Dict[str, Any]:
+    expected = fixture["benchmark_step"]["expected_practice_context"]
+    alternate = fixture.get("benchmark_step", {}).get("alternate_practice_context")
+    if expected.get("practice_type") == practice_type:
+        return deepcopy(expected)
+    if alternate and alternate.get("practice_type") == practice_type:
+        return deepcopy(alternate)
+    if practice_type == "anticipated-confrontation":
+        return {
+            "practice_type": "anticipated-confrontation",
+            "role": "approacher",
+            "phase": "precontact",
+            "affordance_tags": ["draft-opening-line", "brace-for-accusation"],
+        }
+    if practice_type == "evasion":
+        return {
+            "practice_type": "evasion",
+            "role": "evader",
+            "phase": "precontact",
+            "affordance_tags": ["delay-contact", "ritual-distraction", "prepare-excuse"],
+        }
+    return {
+        "practice_type": practice_type,
+        "role": "participant",
+        "phase": "precontact",
+        "affordance_tags": [],
+    }
+
+
 def build_causal_slice(
     fixture: Dict[str, Any],
     concern: Dict[str, Any],
@@ -320,6 +404,23 @@ def build_causal_slice(
             "self_options": ["draft-opening-line", "enter-room"],
             "other_options": ["target-rejects-repair"],
         }
+    if concern_type == "obligation":
+        threshold = is_threshold_situation(active_situation)
+        return {
+            "focal_situation_id": active_situation["id"],
+            "concern_id": concern["id"],
+            "target_ref": concern["target_ref"],
+            "affected_goal": {
+                "goal": "make-credible-first-approach" if threshold else "respond-before-deadline",
+                "sign": "threatens",
+                "weight": 0.80 if threshold else 0.70,
+            },
+            "attribution": {"actor": actor_id, "intentional": True},
+            "temporal_status": "prospective",
+            "likelihood_bucket": "high",
+            "self_options": ["draft-opening-line", "enter-room"] if threshold else ["reply-now", "prepare-response"],
+            "other_options": ["target-hardens"] if threshold else ["request-lapses"],
+        }
 
     return {
         "focal_situation_id": active_situation["id"],
@@ -342,12 +443,25 @@ def likelihood_bucket_to_float(bucket: str) -> float:
     return {"low": 0.32, "medium": 0.58, "high": 0.82}[bucket]
 
 
+def controllability_bucket(value: float) -> str:
+    if value < 0.4:
+        return "low"
+    if value < 0.7:
+        return "medium"
+    return "high"
+
+
+def controllability_bucket_rank(bucket: str) -> int:
+    return {"low": 0, "medium": 1, "high": 2}[bucket]
+
+
 def derive_appraisal_frame(
     fixture: Dict[str, Any],
     causal_slice: Dict[str, Any],
     ablation: str = "none",
     *,
     use_expected_reference: bool = False,
+    practice_bias_summary: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     expected = fixture.get("worked_trace_reference", {}).get("expected_appraisal_frame")
     if expected and ablation == "none" and use_expected_reference:
@@ -369,17 +483,39 @@ def derive_appraisal_frame(
     weight = float(affected_goal["weight"])
     threatens = affected_goal["sign"] == "threatens"
     likelihood = likelihood_bucket_to_float(causal_slice["likelihood_bucket"])
+    concern_lookup = {item["id"]: item for item in fixture["concern_extraction"]["extracted_concerns"]}
+    concern_type = concern_lookup.get(causal_slice["concern_id"], {}).get("concern_type", "attachment_threat")
+    active_situation = resolve_situation(fixture, causal_slice.get("focal_situation_id"))
+    threshold = is_threshold_situation(active_situation)
+    practice_votes = (practice_bias_summary or {}).get("practice_votes", {})
 
     desirability = round((-0.92 * weight) if threatens else (0.92 * weight), 2)
-    controllability = 0.28
+    controllability = {
+        "attachment_threat": 0.32,
+        "obligation": 0.38,
+        "status_damage": 0.43,
+    }.get(concern_type, 0.35)
+    if threshold:
+        controllability += 0.06
+    if len(causal_slice.get("self_options", [])) >= 2:
+        controllability += 0.04
+    if practice_votes.get("anticipated-confrontation", 0.0) > practice_votes.get("evasion", 0.0):
+        controllability += 0.10
+    elif practice_votes.get("evasion", 0.0) > practice_votes.get("anticipated-confrontation", 0.0):
+        controllability -= 0.08
     if ablation == "high_controllability":
         controllability = 0.68
     elif ablation == "low_controllability":
         controllability = 0.18
+    controllability = max(0.1, min(0.9, controllability))
     changeability = round(min(1.0, controllability + 0.06), 2)
     intentional = bool(causal_slice["attribution"].get("intentional"))
-    praiseworthiness = -0.52 if intentional and threatens else -0.18
-    expectedness = 0.76 if causal_slice["temporal_status"] == "prospective" else 0.50
+    praiseworthiness = {
+        "attachment_threat": -0.52,
+        "obligation": -0.44,
+        "status_damage": -0.61,
+    }.get(concern_type, -0.18) if intentional and threatens else -0.18
+    expectedness = 0.72 if threshold and causal_slice["temporal_status"] == "prospective" else 0.76 if causal_slice["temporal_status"] == "prospective" else 0.50
 
     return {
         "desirability": round(desirability, 2),
@@ -425,6 +561,7 @@ def derive_practice_context(
     ablation: str = "none",
     *,
     use_expected_reference: bool = False,
+    practice_bias_summary: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     expected = fixture["benchmark_step"]["expected_practice_context"]
     if ablation == "swap_practice_context":
@@ -447,20 +584,31 @@ def derive_practice_context(
             "affordance_tags": ["delay-contact", "do-something-else"],
         }
 
-    if float(appraisal["controllability"]) >= 0.55:
-        return {
-            "practice_type": "anticipated-confrontation",
-            "role": "approacher",
-            "phase": "precontact",
-            "affordance_tags": ["draft-opening-line", "brace-for-accusation"],
-        }
+    practice_votes = (practice_bias_summary or {}).get("practice_votes", {})
+    if practice_votes:
+        ranked = sorted(practice_votes.items(), key=lambda item: (-item[1], item[0]))
+        top_practice, top_score = ranked[0]
+        runner_up = ranked[1][1] if len(ranked) > 1 else None
+        if runner_up is None or top_score > runner_up:
+            return resolve_practice_context_from_fixture(fixture, top_practice)
 
-    return {
-        "practice_type": "evasion",
-        "role": "evader",
-        "phase": "precontact",
-        "affordance_tags": ["delay-contact", "ritual-distraction", "prepare-excuse"],
-    }
+    if float(appraisal["controllability"]) >= 0.55:
+        return resolve_practice_context_from_fixture(fixture, "anticipated-confrontation")
+
+    return resolve_practice_context_from_fixture(fixture, "evasion")
+
+
+def infer_policy_post_controllability(
+    appraisal: Dict[str, Any],
+    operator_family: str,
+    practice_context: Dict[str, Any],
+) -> float:
+    current = float(appraisal["controllability"])
+    if operator_family == "rehearsal" or practice_context.get("practice_type") == "anticipated-confrontation":
+        return min(1.0, current + 0.15)
+    if operator_family == "avoidance" or practice_context.get("practice_type") == "evasion":
+        return max(0.0, current - 0.05)
+    return current
 
 
 def retrieve_episodes(
@@ -1522,6 +1670,7 @@ def reappraise_concerns(
     commit_type: str,
     dominant_concern_id: str,
     affected_concern_ids: Optional[List[str]] = None,
+    post_controllability: Optional[float] = None,
 ) -> List[Dict[str, Any]]:
     updated = deepcopy(concerns)
     affected = set(affected_concern_ids or [dominant_concern_id])
@@ -1542,7 +1691,14 @@ def reappraise_concerns(
                 concern["base_intensity"] = round(i_app, 2)
         elif commit_type == "policy":
             if concern["id"] in affected:
-                concern["base_intensity"] = round(max(0.0, min(1.0, old - 0.15)), 2)
+                before_bucket = controllability_bucket(float(appraisal["controllability"]))
+                after_bucket = controllability_bucket(post_controllability if post_controllability is not None else float(appraisal["controllability"]))
+                if controllability_bucket_rank(after_bucket) > controllability_bucket_rank(before_bucket):
+                    concern["base_intensity"] = round(max(0.0, min(1.0, old - 0.15)), 2)
+                elif controllability_bucket_rank(after_bucket) < controllability_bucket_rank(before_bucket):
+                    concern["base_intensity"] = round(max(0.0, min(1.0, old + 0.05)), 2)
+                else:
+                    concern["base_intensity"] = round(old, 2)
         elif commit_type == "salience":
             if concern["id"] == dominant_concern_id:
                 concern["base_intensity"] = round(max(0.0, min(1.0, old + 0.10)), 2)
@@ -1775,6 +1931,7 @@ def run_arm_middle(
 ) -> ArmResult:
     seeded_concerns = fixture["concern_extraction"]["extracted_concerns"]
     concern_inference = infer_concerns_from_primitives(fixture)
+    practice_bias_summary = summarize_practice_biases(fixture, concern_inference)
     concerns = concerns_override or (concern_inference["inferred_concerns"] if use_inferred_concerns else seeded_concerns)
     dominant_concern = (
         select_runtime_dominant_concern(fixture, concerns)
@@ -1799,12 +1956,14 @@ def run_arm_middle(
         ),
         ablation,
         use_expected_reference=use_expected_reference,
+        practice_bias_summary=practice_bias_summary,
     )
     practice_context = derive_practice_context(
         fixture,
         appraisal,
         ablation,
         use_expected_reference=use_expected_reference,
+        practice_bias_summary=practice_bias_summary,
     )
     retrieved, all_scored = retrieve_episodes(
         fixture,
@@ -1876,6 +2035,7 @@ def run_arm_middle(
         "use_expected_reference": use_expected_reference,
         "sequence_step": sequence_step,
         "concern_inference": concern_inference,
+        "practice_bias_summary": practice_bias_summary,
         "retrieval_scores": all_scored,
         "selected_retrieved_episode_ids": [item["episode_id"] for item in retrieved],
         "reminder_episode_id": reminder_episode["episode_id"] if reminder_episode else None,
@@ -1921,6 +2081,11 @@ def run_arm_middle(
                     commit_type,
                     dominant_concern["id"],
                     affected_concern_ids=graph_projection.get("origin_pressure_refs", [dominant_concern["id"]]),
+                    post_controllability=(
+                        infer_policy_post_controllability(appraisal, operator_family, practice_context)
+                        if commit_type == "policy"
+                        else None
+                    ),
                 ),
             }
         )

@@ -3,21 +3,32 @@ from pathlib import Path
 
 from daydreaming.authoring_time_generation_prototype import (
     ArmResult,
+    build_causal_slice,
     classify_temporal_relation,
+    choose_commit_type,
     compile_candidate_set,
     default_active_situation_id,
+    derive_appraisal_frame,
+    derive_practice_context,
     detect_boundary_transition,
+    infer_concerns_from_primitives,
     load_yaml,
+    reappraise_concerns,
+    summarize_practice_biases,
 )
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 KAI_FIXTURE = REPO_ROOT / "daydreaming/fixtures/authoring_time_generation_kai_letter_v1.yaml"
+RHEA_FIXTURE = REPO_ROOT / "daydreaming/fixtures/authoring_time_generation_rhea_credit_meeting_v1.yaml"
+MAREN_FIXTURE = REPO_ROOT / "daydreaming/fixtures/authoring_time_generation_maren_opening_line_v1.yaml"
 
 
 class AuthoringTimeGenerationPrototypeTests(unittest.TestCase):
     def setUp(self) -> None:
         self.fixture = load_yaml(KAI_FIXTURE)
+        self.rhea_fixture = load_yaml(RHEA_FIXTURE)
+        self.maren_fixture = load_yaml(MAREN_FIXTURE)
 
     def test_single_candidate_compilation_keeps_prior_distinctiveness(self) -> None:
         result = compile_candidate_set(
@@ -119,6 +130,101 @@ class AuthoringTimeGenerationPrototypeTests(unittest.TestCase):
         self.assertEqual(boundary["segment_decision"], "new_segment")
         self.assertIn("situation_changed", boundary["reasons"])
         self.assertEqual(classify_temporal_relation(previous, current), "after")
+
+    def test_choose_commit_type_prefers_derived_effect_by_default(self) -> None:
+        commit_type = choose_commit_type(
+            self.fixture,
+            {"option_effect": "none"},
+            use_expected_reference=False,
+        )
+        self.assertEqual(commit_type, "none")
+
+    def test_choose_commit_type_can_use_expected_reference_in_calibration_mode(self) -> None:
+        commit_type = choose_commit_type(
+            self.fixture,
+            {"option_effect": "none"},
+            use_expected_reference=True,
+        )
+        self.assertEqual(commit_type, self.fixture["benchmark_step"]["expected_commit_type"])
+
+    def test_policy_reappraisal_only_updates_affected_concerns(self) -> None:
+        concerns = [
+            {"id": "cc_attachment_threat", "base_intensity": 0.72},
+            {"id": "cc_obligation", "base_intensity": 0.64},
+        ]
+        updated = reappraise_concerns(
+            concerns,
+            {"desirability": -0.4, "likelihood": 0.7, "controllability": 0.5},
+            "policy",
+            "cc_attachment_threat",
+            affected_concern_ids=["cc_attachment_threat"],
+            post_controllability=0.72,
+        )
+        self.assertEqual(updated[0]["base_intensity"], 0.57)
+        self.assertEqual(updated[1]["base_intensity"], 0.64)
+
+    def test_policy_reappraisal_uses_controllability_bucket_shift(self) -> None:
+        concerns = [{"id": "cc_status_damage", "base_intensity": 0.76}]
+        unchanged = reappraise_concerns(
+            concerns,
+            {"desirability": -0.4, "likelihood": 0.7, "controllability": 0.57},
+            "policy",
+            "cc_status_damage",
+            affected_concern_ids=["cc_status_damage"],
+            post_controllability=0.63,
+        )
+        improved = reappraise_concerns(
+            concerns,
+            {"desirability": -0.4, "likelihood": 0.7, "controllability": 0.57},
+            "policy",
+            "cc_status_damage",
+            affected_concern_ids=["cc_status_damage"],
+            post_controllability=0.71,
+        )
+        worsened = reappraise_concerns(
+            concerns,
+            {"desirability": -0.4, "likelihood": 0.7, "controllability": 0.57},
+            "policy",
+            "cc_status_damage",
+            affected_concern_ids=["cc_status_damage"],
+            post_controllability=0.32,
+        )
+        self.assertEqual(unchanged[0]["base_intensity"], 0.76)
+        self.assertEqual(improved[0]["base_intensity"], 0.61)
+        self.assertEqual(worsened[0]["base_intensity"], 0.81)
+
+    def test_rhea_practice_bias_prefers_anticipated_confrontation(self) -> None:
+        concern_inference = infer_concerns_from_primitives(self.rhea_fixture)
+        bias_summary = summarize_practice_biases(self.rhea_fixture, concern_inference)
+        practice_context = derive_practice_context(
+            self.rhea_fixture,
+            {"controllability": 0.28},
+            ablation="none",
+            use_expected_reference=False,
+            practice_bias_summary=bias_summary,
+        )
+        self.assertEqual(practice_context["practice_type"], "anticipated-confrontation")
+
+    def test_maren_obligation_slice_uses_threshold_actions(self) -> None:
+        concern = self.maren_fixture["concern_extraction"]["extracted_concerns"][0]
+        concern_inference = infer_concerns_from_primitives(self.maren_fixture)
+        bias_summary = summarize_practice_biases(self.maren_fixture, concern_inference)
+        causal_slice = build_causal_slice(
+            self.maren_fixture,
+            concern,
+            active_situation_id=default_active_situation_id(self.maren_fixture),
+            use_expected_reference=False,
+        )
+        appraisal = derive_appraisal_frame(
+            self.maren_fixture,
+            causal_slice,
+            ablation="none",
+            use_expected_reference=False,
+            practice_bias_summary=bias_summary,
+        )
+        self.assertEqual(causal_slice["self_options"], ["draft-opening-line", "enter-room"])
+        self.assertEqual(causal_slice["other_options"], ["target-hardens"])
+        self.assertGreaterEqual(appraisal["controllability"], 0.5)
 
 
 if __name__ == "__main__":
