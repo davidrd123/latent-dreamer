@@ -99,6 +99,10 @@ def fixture_order_map(fixture: Dict[str, Any]) -> Dict[str, int]:
     }
 
 
+def episode_order_map(episodes: List[Dict[str, Any]]) -> Dict[str, int]:
+    return {ep["id"]: index for index, ep in enumerate(episodes, start=1)}
+
+
 def concern_map(fixture: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     concerns = fixture["concern_extraction"]["extracted_concerns"]
     return {item["id"]: item for item in concerns}
@@ -130,6 +134,18 @@ def select_dominant_concern(fixture: Dict[str, Any], concerns: Optional[List[Dic
         concerns = fixture["concern_extraction"]["extracted_concerns"]
     concern_lookup = {item["id"]: item for item in concerns}
     return deepcopy(concern_lookup[dominant_id])
+
+
+def select_runtime_dominant_concern(
+    fixture: Dict[str, Any],
+    concerns: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    preferred_id = fixture["benchmark_step"]["dominant_concern_id"]
+    ranked = sorted(
+        concerns,
+        key=lambda item: (-float(item["base_intensity"]), item["id"] != preferred_id, item["id"]),
+    )
+    return deepcopy(ranked[0])
 
 
 def normalize_concern_rules(fixture: Dict[str, Any]) -> Dict[str, Any]:
@@ -414,6 +430,7 @@ def retrieve_episodes(
     active_situation_id: str,
     practice_context: Dict[str, Any],
     ablation: str = "none",
+    episode_pool: Optional[List[Dict[str, Any]]] = None,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     retrieval_cfg = fixture["prototype_contract"]["retrieval"]
     keys = retrieval_cfg["keys_in_order"]
@@ -421,7 +438,8 @@ def retrieve_episodes(
         keys = [key for key in keys if key != "practice_type"]
     min_score = int(retrieval_cfg["min_score"])
     max_episodes = int(retrieval_cfg["max_retrieved_episodes"])
-    order = fixture_order_map(fixture)
+    pool = episode_pool if episode_pool is not None else fixture.get("backstory_episodes", [])
+    order = episode_order_map(pool)
 
     request_values = {
         "concern_type": concern["concern_type"],
@@ -431,7 +449,7 @@ def retrieve_episodes(
     }
 
     scored: List[Dict[str, Any]] = []
-    for episode in fixture.get("backstory_episodes", []):
+    for episode in pool:
         tags = episode.get("retrieval_tags", {})
         matched = [key for key in keys if tags.get(key) == request_values.get(key)]
         score = len(matched)
@@ -443,6 +461,8 @@ def retrieve_episodes(
                 "recency_rank": int(episode.get("recency_rank", 0)),
                 "fixture_order": order[episode["id"]],
                 "summary": episode["summary"],
+                "practice_type": tags.get("practice_type"),
+                "episode_kind": episode.get("episode_kind", "backstory"),
             }
         )
 
@@ -486,8 +506,7 @@ def score_operators(
 
     resonance = {name: 0.0 for name in family_names}
     for item in retrieved:
-        episode = episode_map(fixture)[item["episode_id"]]
-        episode_practice = episode.get("retrieval_tags", {}).get("practice_type")
+        episode_practice = item.get("practice_type")
         if episode_practice == "evasion":
             resonance["avoidance"] += 0.34
             resonance["rationalization"] += 0.20
@@ -738,7 +757,7 @@ def build_middle_prompt(
     retrieved: List[Dict[str, Any]],
     fixture: Dict[str, Any],
 ) -> str:
-    retrieved_summaries = [episode_map(fixture)[item["episode_id"]]["summary"] for item in retrieved]
+    retrieved_summaries = [item["summary"] for item in retrieved]
     appraisal_read = (
         f"bad if faced directly (desirability {appraisal['desirability']}), "
         f"likely to matter soon (likelihood {appraisal['likelihood']}), "
@@ -1065,6 +1084,74 @@ def build_sidecar(
     }
 
 
+def retrieve_one_hop_reminder(
+    fixture: Dict[str, Any],
+    episode_pool: List[Dict[str, Any]],
+    anchor_episode: Optional[Dict[str, Any]],
+    exclude_episode_ids: List[str],
+) -> Optional[Dict[str, Any]]:
+    if not anchor_episode:
+        return None
+    keys = fixture["prototype_contract"]["retrieval"]["keys_in_order"]
+    anchor_tags = anchor_episode.get("retrieval_tags", {})
+    candidates: List[Tuple[int, int, int, Dict[str, Any]]] = []
+    for episode in episode_pool:
+        if episode["id"] in exclude_episode_ids or episode["id"] == anchor_episode["id"]:
+            continue
+        tags = episode.get("retrieval_tags", {})
+        matched = [key for key in keys if tags.get(key) == anchor_tags.get(key)]
+        score = len(matched)
+        if score <= 0:
+            continue
+        candidates.append(
+            (
+                -score,
+                -int(episode.get("recency_rank", 0)),
+                episode_order_map(episode_pool)[episode["id"]],
+                {
+                    "episode_id": episode["id"],
+                    "score": score,
+                    "matched_keys": matched,
+                    "recency_rank": int(episode.get("recency_rank", 0)),
+                    "fixture_order": episode_order_map(episode_pool)[episode["id"]],
+                    "summary": episode["summary"],
+                    "practice_type": tags.get("practice_type"),
+                    "episode_kind": episode.get("episode_kind", "backstory"),
+                },
+            )
+        )
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: (item[0], item[1], item[2]))
+    return candidates[0][3]
+
+
+def build_generated_episode(
+    fixture: Dict[str, Any],
+    step_index: int,
+    graph_projection: Dict[str, Any],
+    candidate_text: str,
+    dominant_concern: Dict[str, Any],
+    practice_context: Dict[str, Any],
+    episode_pool: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    max_recency = max((int(ep.get("recency_rank", 0)) for ep in episode_pool), default=0)
+    return {
+        "id": f"gen_step_{step_index:02d}_{graph_projection['node_id']}",
+        "summary": candidate_text,
+        "place_id": situation_map(fixture)[graph_projection["situation_id"]].get("place_id"),
+        "involved_targets": [dominant_concern["target_ref"]],
+        "retrieval_tags": {
+            "concern_type": dominant_concern["concern_type"],
+            "target_ref": dominant_concern["target_ref"],
+            "situation_id": graph_projection["situation_id"],
+            "practice_type": practice_context["practice_type"],
+        },
+        "recency_rank": max_recency + 1,
+        "episode_kind": "generated",
+    }
+
+
 def choose_commit_type(
     fixture: Dict[str, Any],
     graph_projection: Dict[str, Any],
@@ -1323,11 +1410,20 @@ def run_arm_middle(
     model: Optional[str],
     ablation: str = "none",
     use_inferred_concerns: bool = False,
+    concerns_override: Optional[List[Dict[str, Any]]] = None,
+    episode_pool: Optional[List[Dict[str, Any]]] = None,
+    reminder_episode: Optional[Dict[str, Any]] = None,
+    sequence_step: Optional[int] = None,
+    use_runtime_dominance: bool = False,
 ) -> ArmResult:
     seeded_concerns = fixture["concern_extraction"]["extracted_concerns"]
     concern_inference = infer_concerns_from_primitives(fixture)
-    concerns = concern_inference["inferred_concerns"] if use_inferred_concerns else seeded_concerns
-    dominant_concern = select_dominant_concern(fixture, concerns)
+    concerns = concerns_override or (concern_inference["inferred_concerns"] if use_inferred_concerns else seeded_concerns)
+    dominant_concern = (
+        select_runtime_dominant_concern(fixture, concerns)
+        if use_runtime_dominance
+        else select_dominant_concern(fixture, concerns)
+    )
     active_situation_id = fixture["situations"][0]["id"]
     causal_slice = None if ablation == "no_causal_slice" else build_causal_slice(fixture, dominant_concern)
     appraisal = derive_appraisal_frame(fixture, causal_slice or build_causal_slice(fixture, dominant_concern), ablation)
@@ -1338,7 +1434,10 @@ def run_arm_middle(
         active_situation_id,
         practice_context,
         ablation,
+        episode_pool=episode_pool,
     )
+    if reminder_episode and all(item["episode_id"] != reminder_episode["episode_id"] for item in retrieved):
+        retrieved = list(retrieved) + [reminder_episode]
     score_breakdown = score_operators(fixture, dominant_concern, appraisal, practice_context, retrieved, ablation)
     operator_family = select_operator(score_breakdown)
     affordance_tags = default_affordance_tags(practice_context, operator_family)
@@ -1384,8 +1483,13 @@ def run_arm_middle(
         "timestamp": utc_now_iso(),
         "concern_driver": "inferred" if use_inferred_concerns else "seeded",
         "dominant_concern_id": dominant_concern["id"],
+        "dominant_concern_type": dominant_concern["concern_type"],
+        "dominant_target_ref": dominant_concern["target_ref"],
+        "sequence_step": sequence_step,
         "concern_inference": concern_inference,
         "retrieval_scores": all_scored,
+        "selected_retrieved_episode_ids": [item["episode_id"] for item in retrieved],
+        "reminder_episode_id": reminder_episode["episode_id"] if reminder_episode else None,
         "selected_operator_family": operator_family,
         "selected_affordance_tags": affordance_tags,
         "operator_score_breakdown": score_breakdown,
@@ -1436,6 +1540,94 @@ def run_arm_middle(
         sidecar=sidecar,
         trace=trace,
     )
+
+
+def run_middle_sequence(
+    fixture: Dict[str, Any],
+    provider: str,
+    model: Optional[str],
+    *,
+    steps: int,
+    use_inferred_concerns: bool,
+) -> Tuple[List[ArmResult], Dict[str, Any]]:
+    concerns = deepcopy(
+        infer_concerns_from_primitives(fixture)["inferred_concerns"]
+        if use_inferred_concerns
+        else fixture["concern_extraction"]["extracted_concerns"]
+    )
+    episode_pool = deepcopy(fixture.get("backstory_episodes", []))
+    accepted_episode: Optional[Dict[str, Any]] = None
+    results: List[ArmResult] = []
+    sequence_trace: Dict[str, Any] = {
+        "arm": "middle-sequence",
+        "timestamp": utc_now_iso(),
+        "concern_driver": "inferred" if use_inferred_concerns else "seeded",
+        "steps": [],
+    }
+
+    for step_index in range(1, steps + 1):
+        reminder_episode = retrieve_one_hop_reminder(
+            fixture,
+            episode_pool,
+            accepted_episode,
+            exclude_episode_ids=[ep["id"] for ep in episode_pool if ep.get("episode_kind") == "generated"],
+        )
+        result = run_arm_middle(
+            fixture,
+            provider,
+            model,
+            "none",
+            use_inferred_concerns=use_inferred_concerns,
+            concerns_override=concerns,
+            episode_pool=episode_pool,
+            reminder_episode=reminder_episode,
+            sequence_step=step_index,
+            use_runtime_dominance=(step_index > 1),
+        )
+        result.arm = f"middle-step-{step_index:02d}"
+        results.append(result)
+
+        semantic_checks = result.trace.get("semantic_checks", {})
+        accepted = bool(result.graph_validation["valid"]) and semantic_checks.get("no_cross_fixture_contamination", True)
+        step_record: Dict[str, Any] = {
+            "step_index": step_index,
+            "dominant_concern_id": result.trace.get("dominant_concern_id"),
+            "selected_operator_family": result.trace.get("selected_operator_family"),
+            "selected_retrieved_episode_ids": result.trace.get("selected_retrieved_episode_ids", []),
+            "reminder_episode_id": result.trace.get("reminder_episode_id"),
+            "accepted": accepted,
+        }
+        if result.parsed_response is not None:
+            step_record["graph_projection"] = result.parsed_response["graph_projection"]
+        if result.trace.get("updated_concerns") is not None:
+            step_record["updated_concerns"] = result.trace["updated_concerns"]
+        sequence_trace["steps"].append(step_record)
+
+        if not accepted or result.parsed_response is None:
+            accepted_episode = None
+            continue
+
+        concerns = deepcopy(result.trace["updated_concerns"])
+        accepted_episode = build_generated_episode(
+            fixture,
+            step_index,
+            result.parsed_response["graph_projection"],
+            result.parsed_response.get("candidate_text", ""),
+            {
+                "id": result.trace["dominant_concern_id"],
+                "concern_type": result.trace["dominant_concern_type"],
+                "target_ref": result.trace["dominant_target_ref"],
+            },
+            result.sidecar["practice_context"] if result.sidecar else fixture["benchmark_step"]["expected_practice_context"],
+            episode_pool,
+        )
+        episode_pool.append(accepted_episode)
+
+    sequence_trace["final_concerns"] = concerns
+    sequence_trace["generated_episode_ids"] = [
+        ep["id"] for ep in episode_pool if ep.get("episode_kind") == "generated"
+    ]
+    return results, sequence_trace
 
 
 def build_summary(
@@ -1522,6 +1714,12 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Drive the middle arm from inferred concerns instead of seeded concerns.",
     )
+    parser.add_argument(
+        "--sequence-steps",
+        type=int,
+        default=1,
+        help="Run the middle arm as a multi-step sequence of this length.",
+    )
     return parser.parse_args()
 
 
@@ -1542,30 +1740,43 @@ def main() -> int:
     results: List[ArmResult] = []
     if args.arm in {"baseline", "both"}:
         results.append(run_arm_baseline(fixture, args.provider, args.model))
+    sequence_trace: Optional[Dict[str, Any]] = None
     if args.arm in {"middle", "both"}:
-        results.append(
-            run_arm_middle(
+        if args.sequence_steps > 1:
+            sequence_results, sequence_trace = run_middle_sequence(
                 fixture,
                 args.provider,
                 args.model,
-                args.ablation,
+                steps=args.sequence_steps,
                 use_inferred_concerns=args.use_inferred_concerns,
             )
-        )
-        if args.run_ablation_suite:
-            for ablation in ("no_causal_slice", "high_controllability", "low_controllability", "swap_practice_context"):
-                results.append(
-                    run_arm_middle(
-                        fixture,
-                        args.provider,
-                        args.model,
-                        ablation,
-                        use_inferred_concerns=args.use_inferred_concerns,
-                    )
+            results.extend(sequence_results)
+        else:
+            results.append(
+                run_arm_middle(
+                    fixture,
+                    args.provider,
+                    args.model,
+                    args.ablation,
+                    use_inferred_concerns=args.use_inferred_concerns,
                 )
+            )
+            if args.run_ablation_suite:
+                for ablation in ("no_causal_slice", "high_controllability", "low_controllability", "swap_practice_context"):
+                    results.append(
+                        run_arm_middle(
+                            fixture,
+                            args.provider,
+                            args.model,
+                            ablation,
+                            use_inferred_concerns=args.use_inferred_concerns,
+                        )
+                    )
 
     dump_text(output_dir / "fixture-path.txt", str(fixture_path))
     dump_json(output_dir / "fixture-snapshot.json", fixture)
+    if sequence_trace is not None:
+        dump_json(output_dir / "sequence.trace.json", sequence_trace)
 
     for result in results:
         suffix = result.trace.get("ablation", "none")
