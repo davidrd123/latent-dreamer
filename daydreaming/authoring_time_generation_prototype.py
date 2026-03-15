@@ -149,6 +149,15 @@ def select_runtime_dominant_concern(
     return deepcopy(ranked[0])
 
 
+def default_active_situation_id(fixture: Dict[str, Any]) -> str:
+    return fixture.get("benchmark_step", {}).get("active_situation_id") or fixture["situations"][0]["id"]
+
+
+def resolve_situation(fixture: Dict[str, Any], situation_id: Optional[str] = None) -> Dict[str, Any]:
+    resolved_id = situation_id or default_active_situation_id(fixture)
+    return deepcopy(situation_map(fixture)[resolved_id])
+
+
 def normalize_concern_rules(fixture: Dict[str, Any]) -> Dict[str, Any]:
     extraction = fixture.get("concern_extraction", {})
     theme_rules = extraction.get("theme_rules") or extraction.get("concern_extraction_rules") or []
@@ -265,12 +274,19 @@ def infer_concerns_from_primitives(fixture: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def build_causal_slice(fixture: Dict[str, Any], concern: Dict[str, Any]) -> Dict[str, Any]:
+def build_causal_slice(
+    fixture: Dict[str, Any],
+    concern: Dict[str, Any],
+    *,
+    active_situation_id: Optional[str] = None,
+    use_expected_reference: bool = False,
+) -> Dict[str, Any]:
     expected = fixture.get("worked_trace_reference", {}).get("expected_causal_slice")
-    if expected:
+    if expected and use_expected_reference:
         return deepcopy(expected)
 
-    active_situation = fixture["situations"][0]
+    active_situation = resolve_situation(fixture, active_situation_id)
+    actor_id = fixture["characters"][0]["id"]
     concern_type = concern["concern_type"]
     if concern_type == "attachment_threat":
         return {
@@ -282,11 +298,27 @@ def build_causal_slice(fixture: Dict[str, Any], concern: Dict[str, Any]) -> Dict
                 "sign": "threatens",
                 "weight": 0.85,
             },
-            "attribution": {"actor": "kai", "intentional": True},
+            "attribution": {"actor": actor_id, "intentional": True},
             "temporal_status": "prospective",
             "likelihood_bucket": "high",
             "self_options": ["open-letter", "delay-contact"],
             "other_options": ["sister-withdraws"],
+        }
+    if concern_type == "status_damage":
+        return {
+            "focal_situation_id": active_situation["id"],
+            "concern_id": concern["id"],
+            "target_ref": concern["target_ref"],
+            "affected_goal": {
+                "goal": "preserve-working-credibility",
+                "sign": "threatens",
+                "weight": 0.83,
+            },
+            "attribution": {"actor": actor_id, "intentional": True},
+            "temporal_status": "prospective",
+            "likelihood_bucket": "high",
+            "self_options": ["draft-opening-line", "enter-room"],
+            "other_options": ["target-rejects-repair"],
         }
 
     return {
@@ -298,7 +330,7 @@ def build_causal_slice(fixture: Dict[str, Any], concern: Dict[str, Any]) -> Dict
             "sign": "threatens",
             "weight": 0.70,
         },
-        "attribution": {"actor": "kai", "intentional": True},
+        "attribution": {"actor": actor_id, "intentional": True},
         "temporal_status": "prospective",
         "likelihood_bucket": "high",
         "self_options": ["open-letter", "reply-later"],
@@ -314,9 +346,11 @@ def derive_appraisal_frame(
     fixture: Dict[str, Any],
     causal_slice: Dict[str, Any],
     ablation: str = "none",
+    *,
+    use_expected_reference: bool = False,
 ) -> Dict[str, Any]:
     expected = fixture.get("worked_trace_reference", {}).get("expected_appraisal_frame")
-    if expected and ablation == "none":
+    if expected and ablation == "none" and use_expected_reference:
         return deepcopy(expected)
 
     if ablation == "no_causal_slice":
@@ -362,9 +396,11 @@ def derive_appraisal_frame(
 def derive_emotion_vector(
     fixture: Dict[str, Any],
     appraisal: Dict[str, Any],
+    *,
+    use_expected_reference: bool = False,
 ) -> Dict[str, float]:
     expected = fixture.get("worked_trace_reference", {}).get("expected_emotion_vector_topk")
-    if expected:
+    if expected and use_expected_reference:
         return deepcopy(expected)
 
     likelihood = float(appraisal["likelihood"])
@@ -387,6 +423,8 @@ def derive_practice_context(
     fixture: Dict[str, Any],
     appraisal: Dict[str, Any],
     ablation: str = "none",
+    *,
+    use_expected_reference: bool = False,
 ) -> Dict[str, Any]:
     expected = fixture["benchmark_step"]["expected_practice_context"]
     if ablation == "swap_practice_context":
@@ -399,7 +437,7 @@ def derive_practice_context(
             "phase": "precontact",
             "affordance_tags": ["draft-opening-line", "brace-for-accusation"],
         }
-    if ablation == "none":
+    if ablation == "none" and use_expected_reference:
         return deepcopy(expected)
     if ablation == "no_causal_slice":
         return {
@@ -482,9 +520,11 @@ def score_operators(
     practice_context: Dict[str, Any],
     retrieved: List[Dict[str, Any]],
     ablation: str = "none",
+    *,
+    use_expected_reference: bool = False,
 ) -> Dict[str, Dict[str, float]]:
     expected = fixture.get("worked_trace_reference", {}).get("expected_operator_score_breakdown")
-    if expected and ablation == "none":
+    if expected and ablation == "none" and use_expected_reference:
         return deepcopy(expected)
 
     family_names = fixture["prototype_contract"]["operator_families"]
@@ -694,10 +734,10 @@ def build_operator_behavior_description(operator_family: str) -> str:
     )
 
 
-def build_baseline_prompt(fixture: Dict[str, Any]) -> str:
+def build_baseline_prompt(fixture: Dict[str, Any], *, active_situation_id: Optional[str] = None) -> str:
     character = fixture["characters"][0]
     target = fixture["targets"][0]
-    situation = fixture["situations"][0]
+    situation = resolve_situation(fixture, active_situation_id)
     episodes = fixture["backstory_episodes"]
     return (
         build_shared_generation_frame()
@@ -757,8 +797,11 @@ def build_middle_prompt(
     affordance_tags: List[str],
     retrieved: List[Dict[str, Any]],
     fixture: Dict[str, Any],
+    *,
+    active_situation_id: Optional[str] = None,
 ) -> str:
     retrieved_summaries = [item["summary"] for item in retrieved]
+    active_situation = resolve_situation(fixture, active_situation_id)
     appraisal_read = (
         f"bad if faced directly (desirability {appraisal['desirability']}), "
         f"likely to matter soon (likelihood {appraisal['likelihood']}), "
@@ -771,7 +814,7 @@ def build_middle_prompt(
         fixture["characters"][0]["description"],
         "",
         "THE SITUATION:",
-        fixture["situations"][0]["description"],
+        active_situation["description"],
         "",
         "WHAT THE SYSTEM HAS DETERMINED:" if causal_slice is not None else "COARSE SYSTEM READ (explicit causal interpretation withheld in this run):",
         f"- Dominant concern: {concern['concern_type']} aimed at {concern['target_ref']}.",
@@ -1011,14 +1054,24 @@ def validate_graph_projection(
     graph_projection: Dict[str, Any],
 ) -> Dict[str, Any]:
     errors: List[str] = []
+    allowed_situations = situation_ids(fixture)
+    allowed_pressures = {item["concern_type"] for item in fixture["concern_extraction"]["extracted_concerns"]}
+    allowed_origin_refs = {item["id"] for item in fixture["concern_extraction"]["extracted_concerns"]}
+    allowed_practices = set(fixture["prototype_contract"]["practice_types"])
 
     required_fields = fixture["prototype_contract"]["graph_requirements"]["required_graph_fields"]
     for field in required_fields:
         if field not in graph_projection:
             errors.append(f"missing required field: {field}")
 
+    if graph_projection.get("node_type") != "beat":
+        errors.append(f"invalid node_type: {graph_projection.get('node_type')!r}")
+    if graph_projection.get("situation_id") not in allowed_situations:
+        errors.append(f"invalid situation_id: {graph_projection.get('situation_id')!r}")
     if graph_projection.get("option_effect") not in VALID_OPTION_EFFECTS:
         errors.append(f"invalid option_effect: {graph_projection.get('option_effect')!r}")
+    if graph_projection.get("confidence") not in {"low", "medium", "high"}:
+        errors.append(f"invalid confidence: {graph_projection.get('confidence')!r}")
 
     for field in ("delta_tension", "delta_energy"):
         try:
@@ -1028,16 +1081,26 @@ def validate_graph_projection(
 
     pressure_tags = graph_projection.get("pressure_tags", [])
     origin_refs = graph_projection.get("origin_pressure_refs", [])
+    practice_tags = graph_projection.get("practice_tags", [])
     if not pressure_tags:
         errors.append("pressure_tags[] must be non-empty")
     if not origin_refs:
         errors.append("origin_pressure_refs[] must be non-empty")
+    bad_pressure_tags = [item for item in pressure_tags if item not in allowed_pressures]
+    if bad_pressure_tags:
+        errors.append(f"pressure_tags contains invalid entries: {bad_pressure_tags}")
+    bad_practice_tags = [item for item in practice_tags if item not in allowed_practices]
+    if bad_practice_tags:
+        errors.append(f"practice_tags contains invalid entries: {bad_practice_tags}")
+    bad_origin_refs = [item for item in origin_refs if item not in allowed_origin_refs]
+    if bad_origin_refs:
+        errors.append(f"origin_pressure_refs contains invalid entries: {bad_origin_refs}")
 
-    if graph_projection.get("source_lane") not in VALID_SOURCE_LANES:
+    if graph_projection.get("source_lane") != "L2":
         errors.append(f"invalid source_lane: {graph_projection.get('source_lane')!r}")
-    if graph_projection.get("scope") not in VALID_SCOPES:
+    if graph_projection.get("scope") != "proposal":
         errors.append(f"invalid scope: {graph_projection.get('scope')!r}")
-    if graph_projection.get("revisability") not in VALID_REVISABILITY:
+    if graph_projection.get("revisability") != "ephemeral_candidate":
         errors.append(f"invalid revisability: {graph_projection.get('revisability')!r}")
 
     allowed_setup_refs = event_ids(fixture) | situation_ids(fixture) | reference_marker_ids(fixture)
@@ -1155,7 +1218,7 @@ def build_generated_episode(
 
 def normalize_candidate_node_id(
     result: ArmResult,
-    used_node_ids: Set[str],
+    existing_node_ids: Set[str],
     *,
     sequence_step: Optional[int],
     candidate_index: int,
@@ -1165,13 +1228,13 @@ def normalize_candidate_node_id(
     graph_projection = result.parsed_response["graph_projection"]
     original = graph_projection["node_id"]
     candidate = original
-    if candidate in used_node_ids:
+    if candidate in existing_node_ids:
         suffix = []
         if sequence_step is not None:
             suffix.append(f"s{sequence_step:02d}")
         suffix.append(f"c{candidate_index:02d}")
         candidate = f"{original}_{'_'.join(suffix)}"
-        while candidate in used_node_ids:
+        while candidate in existing_node_ids:
             candidate = f"{candidate}_dup"
         graph_projection["node_id"] = candidate
         if result.sidecar is not None:
@@ -1274,9 +1337,12 @@ def compile_candidate_set(
     used_node_ids: Set[str],
     accepted_texts: List[str],
     covered_refs: Set[str],
+    active_situation_id: Optional[str],
+    use_expected_reference: bool,
 ) -> ArmResult:
     candidates: List[ArmResult] = []
     candidate_rows: List[Dict[str, Any]] = []
+    candidate_seen_ids: Set[str] = set(used_node_ids)
     for candidate_index in range(1, candidates_per_step + 1):
         result = run_arm_middle(
             fixture,
@@ -1289,14 +1355,18 @@ def compile_candidate_set(
             reminder_episode=reminder_episode,
             sequence_step=sequence_step,
             use_runtime_dominance=use_runtime_dominance,
+            active_situation_id=active_situation_id,
+            use_expected_reference=use_expected_reference,
         )
         result.trace["candidate_index"] = candidate_index
         renamed_to = normalize_candidate_node_id(
             result,
-            used_node_ids,
+            candidate_seen_ids,
             sequence_step=sequence_step,
             candidate_index=candidate_index,
         )
+        if result.parsed_response is not None:
+            candidate_seen_ids.add(result.parsed_response["graph_projection"]["node_id"])
         compilation_score = score_candidate_for_compilation(
             result,
             covered_refs=covered_refs,
@@ -1328,11 +1398,14 @@ def compile_candidate_set(
             sibling_diversity = 0.0
         score = row["compilation_score"]
         against_accepted = score["distinctiveness"]
-        combined_distinctiveness = (
-            sibling_diversity
-            if not accepted_texts
-            else (0.6 * against_accepted + 0.4 * sibling_diversity)
-        )
+        if not accepted_texts:
+            combined_distinctiveness = (
+                sibling_diversity
+                if len(token_sets) > 1
+                else against_accepted
+            )
+        else:
+            combined_distinctiveness = 0.6 * against_accepted + 0.4 * sibling_diversity
         score["against_accepted"] = round(against_accepted, 3)
         score["sibling_diversity"] = round(sibling_diversity, 3)
         score["distinctiveness"] = round(combined_distinctiveness, 3)
@@ -1409,7 +1482,7 @@ def detect_boundary_transition(previous_result: ArmResult, current_result: ArmRe
         reasons.append("dominant_concern_changed")
     if current_result.trace.get("selected_operator_family") != previous_result.trace.get("selected_operator_family"):
         reasons.append("operator_family_changed")
-    if current_graph.get("practice_tags") != previous_graph.get("practice_tags"):
+    if set(current_graph.get("practice_tags", [])) != set(previous_graph.get("practice_tags", [])):
         reasons.append("practice_context_changed")
     if (
         current_graph.get("option_effect") in {"open", "close"}
@@ -1687,6 +1760,8 @@ def run_arm_middle(
     reminder_episode: Optional[Dict[str, Any]] = None,
     sequence_step: Optional[int] = None,
     use_runtime_dominance: bool = False,
+    active_situation_id: Optional[str] = None,
+    use_expected_reference: bool = False,
 ) -> ArmResult:
     seeded_concerns = fixture["concern_extraction"]["extracted_concerns"]
     concern_inference = infer_concerns_from_primitives(fixture)
@@ -1696,24 +1771,53 @@ def run_arm_middle(
         if use_runtime_dominance
         else select_dominant_concern(fixture, concerns)
     )
-    active_situation_id = fixture["situations"][0]["id"]
-    causal_slice = None if ablation == "no_causal_slice" else build_causal_slice(fixture, dominant_concern)
-    appraisal = derive_appraisal_frame(fixture, causal_slice or build_causal_slice(fixture, dominant_concern), ablation)
-    practice_context = derive_practice_context(fixture, appraisal, ablation)
+    resolved_active_situation_id = active_situation_id or default_active_situation_id(fixture)
+    causal_slice = None if ablation == "no_causal_slice" else build_causal_slice(
+        fixture,
+        dominant_concern,
+        active_situation_id=resolved_active_situation_id,
+        use_expected_reference=use_expected_reference,
+    )
+    appraisal = derive_appraisal_frame(
+        fixture,
+        causal_slice
+        or build_causal_slice(
+            fixture,
+            dominant_concern,
+            active_situation_id=resolved_active_situation_id,
+            use_expected_reference=use_expected_reference,
+        ),
+        ablation,
+        use_expected_reference=use_expected_reference,
+    )
+    practice_context = derive_practice_context(
+        fixture,
+        appraisal,
+        ablation,
+        use_expected_reference=use_expected_reference,
+    )
     retrieved, all_scored = retrieve_episodes(
         fixture,
         dominant_concern,
-        active_situation_id,
+        resolved_active_situation_id,
         practice_context,
         ablation,
         episode_pool=episode_pool,
     )
     if reminder_episode and all(item["episode_id"] != reminder_episode["episode_id"] for item in retrieved):
         retrieved = list(retrieved) + [reminder_episode]
-    score_breakdown = score_operators(fixture, dominant_concern, appraisal, practice_context, retrieved, ablation)
+    score_breakdown = score_operators(
+        fixture,
+        dominant_concern,
+        appraisal,
+        practice_context,
+        retrieved,
+        ablation,
+        use_expected_reference=use_expected_reference,
+    )
     operator_family = select_operator(score_breakdown)
     affordance_tags = default_affordance_tags(practice_context, operator_family)
-    emotion_vector = derive_emotion_vector(fixture, appraisal)
+    emotion_vector = derive_emotion_vector(fixture, appraisal, use_expected_reference=use_expected_reference)
     prompt = build_middle_prompt(
         dominant_concern,
         causal_slice,
@@ -1723,6 +1827,7 @@ def run_arm_middle(
         affordance_tags,
         retrieved,
         fixture,
+        active_situation_id=resolved_active_situation_id,
     )
 
     raw_response: Optional[str]
@@ -1757,6 +1862,8 @@ def run_arm_middle(
         "dominant_concern_id": dominant_concern["id"],
         "dominant_concern_type": dominant_concern["concern_type"],
         "dominant_target_ref": dominant_concern["target_ref"],
+        "active_situation_id": resolved_active_situation_id,
+        "use_expected_reference": use_expected_reference,
         "sequence_step": sequence_step,
         "concern_inference": concern_inference,
         "retrieval_scores": all_scored,
@@ -1822,6 +1929,7 @@ def run_middle_sequence(
     steps: int,
     use_inferred_concerns: bool,
     candidates_per_step: int,
+    use_expected_reference: bool,
 ) -> Tuple[List[ArmResult], Dict[str, Any]]:
     concerns = deepcopy(
         infer_concerns_from_primitives(fixture)["inferred_concerns"]
@@ -1842,9 +1950,10 @@ def run_middle_sequence(
     accepted_texts: List[str] = []
     covered_refs: Set[str] = set()
     current_segment_index = 1
+    previous_accepted_result: Optional[ArmResult] = None
+    current_active_situation_id = default_active_situation_id(fixture)
 
     for step_index in range(1, steps + 1):
-        previous_result = results[-1] if results else None
         reminder_episode = retrieve_one_hop_reminder(
             fixture,
             episode_pool,
@@ -1866,14 +1975,20 @@ def run_middle_sequence(
             used_node_ids=used_node_ids,
             accepted_texts=accepted_texts,
             covered_refs=covered_refs,
+            active_situation_id=current_active_situation_id,
+            use_expected_reference=use_expected_reference,
         )
         result.arm = f"middle-step-{step_index:02d}"
         results.append(result)
 
         semantic_checks = result.trace.get("semantic_checks", {})
         accepted = bool(result.graph_validation["valid"]) and semantic_checks.get("no_cross_fixture_contamination", True)
-        boundary = detect_boundary_transition(previous_result, result) if previous_result is not None else None
-        if boundary and boundary["segment_decision"] == "new_segment":
+        boundary = (
+            detect_boundary_transition(previous_accepted_result, result)
+            if accepted and previous_accepted_result is not None
+            else None
+        )
+        if accepted and boundary and boundary["segment_decision"] == "new_segment":
             current_segment_index += 1
         step_record: Dict[str, Any] = {
             "step_index": step_index,
@@ -1903,6 +2018,7 @@ def run_middle_sequence(
         covered_refs.update(graph_projection.get("setup_refs", []))
         covered_refs.update(graph_projection.get("payoff_refs", []))
         accepted_texts.append(result.parsed_response.get("candidate_text", ""))
+        current_active_situation_id = graph_projection["situation_id"]
         accepted_episode = build_generated_episode(
             fixture,
             step_index,
@@ -1917,6 +2033,7 @@ def run_middle_sequence(
             episode_pool,
         )
         episode_pool.append(accepted_episode)
+        previous_accepted_result = result
 
     sequence_trace["final_concerns"] = concerns
     sequence_trace["generated_episode_ids"] = [
@@ -2026,6 +2143,11 @@ def parse_args() -> argparse.Namespace:
         default=1,
         help="Generate this many middle-arm candidates per step, then greedily compile to one accepted candidate.",
     )
+    parser.add_argument(
+        "--use_expected_reference",
+        action="store_true",
+        help="Use fixture worked-trace reference values as calibration shortcuts instead of deriving all middle-layer state.",
+    )
     return parser.parse_args()
 
 
@@ -2056,6 +2178,7 @@ def main() -> int:
                 steps=args.sequence_steps,
                 use_inferred_concerns=args.use_inferred_concerns,
                 candidates_per_step=args.candidates_per_step,
+                use_expected_reference=args.use_expected_reference,
             )
             results.extend(sequence_results)
         else:
@@ -2075,6 +2198,8 @@ def main() -> int:
                     used_node_ids=set(),
                     accepted_texts=[],
                     covered_refs=set(),
+                    active_situation_id=default_active_situation_id(fixture),
+                    use_expected_reference=args.use_expected_reference,
                 )
                 results.append(selected)
             else:
@@ -2085,6 +2210,8 @@ def main() -> int:
                         args.model,
                         args.ablation,
                         use_inferred_concerns=args.use_inferred_concerns,
+                        active_situation_id=default_active_situation_id(fixture),
+                        use_expected_reference=args.use_expected_reference,
                     )
                 )
             if args.run_ablation_suite:
@@ -2096,6 +2223,8 @@ def main() -> int:
                             args.model,
                             ablation,
                             use_inferred_concerns=args.use_inferred_concerns,
+                            active_situation_id=default_active_situation_id(fixture),
+                            use_expected_reference=args.use_expected_reference,
                         )
                     )
 
