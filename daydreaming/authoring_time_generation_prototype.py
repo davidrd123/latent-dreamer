@@ -1462,6 +1462,18 @@ def semantic_pass_ratio(checks: Dict[str, Any]) -> float:
     return passed / len(relevant)
 
 
+def has_batch_semantic_pass(checks: Dict[str, Any]) -> bool:
+    relevant = [
+        bool(value)
+        for key, value in checks.items()
+        if key != "no_cross_fixture_contamination"
+    ]
+    if not relevant:
+        return True
+    failed = len([value for value in relevant if not value])
+    return failed <= 1 and (sum(1 for value in relevant if value) / len(relevant)) >= 0.75
+
+
 def score_candidate_for_compilation(
     result: ArmResult,
     *,
@@ -2371,6 +2383,7 @@ def score_pool_row_for_admission(
     admitted_operators: Set[str],
     admitted_pressures: Set[str],
     admitted_practices: Set[str],
+    admitted_sequences: Set[int],
 ) -> Dict[str, Any]:
     hard_errors: List[str] = []
     node_id = row["node_id"]
@@ -2383,6 +2396,8 @@ def score_pool_row_for_admission(
         hard_errors.append("missing_graph_projection")
     if semantic_checks.get("no_cross_fixture_contamination") is False:
         hard_errors.append("cross_fixture_contamination")
+    if not has_batch_semantic_pass(semantic_checks):
+        hard_errors.append("semantic_expectations_failed")
     if node_id in admitted_node_ids:
         hard_errors.append("duplicate_node_id")
 
@@ -2409,13 +2424,15 @@ def score_pool_row_for_admission(
     practice_tags = set(row.get("practice_tags", []))
     practice_diversity = 1.0 if practice_tags - admitted_practices else 0.0
     semantic_quality = semantic_pass_ratio(semantic_checks)
+    sequence_diversity = 1.0 if row.get("sequence_index") not in admitted_sequences else 0.0
     total = round(
-        0.30 * compiler_total
-        + 0.20 * coverage
-        + 0.20 * distinctiveness
-        + 0.10 * operator_diversity
-        + 0.10 * pressure_diversity
-        + 0.05 * practice_diversity
+        0.25 * compiler_total
+        + 0.18 * coverage
+        + 0.18 * distinctiveness
+        + 0.10 * sequence_diversity
+        + 0.09 * operator_diversity
+        + 0.08 * pressure_diversity
+        + 0.07 * practice_diversity
         + 0.05 * semantic_quality,
         3,
     )
@@ -2425,6 +2442,7 @@ def score_pool_row_for_admission(
         "compiler_total": round(compiler_total, 3),
         "coverage": round(coverage, 3),
         "distinctiveness": round(distinctiveness, 3),
+        "sequence_diversity": round(sequence_diversity, 3),
         "operator_diversity": round(operator_diversity, 3),
         "pressure_diversity": round(pressure_diversity, 3),
         "practice_diversity": round(practice_diversity, 3),
@@ -2446,6 +2464,7 @@ def admit_candidate_pool(
     admitted_operators: Set[str] = set()
     admitted_pressures: Set[str] = set()
     admitted_practices: Set[str] = set()
+    admitted_sequences: Set[int] = set()
 
     while remaining and len(admitted) < admit_max:
         scored_rows: List[Tuple[Dict[str, Any], Dict[str, Any]]] = []
@@ -2458,6 +2477,7 @@ def admit_candidate_pool(
                 admitted_operators=admitted_operators,
                 admitted_pressures=admitted_pressures,
                 admitted_practices=admitted_practices,
+                admitted_sequences=admitted_sequences,
             )
             scored_rows.append((row, score))
 
@@ -2467,6 +2487,7 @@ def admit_candidate_pool(
         hard_passes.sort(
             key=lambda item: (
                 -item[1]["total"],
+                -item[1]["sequence_diversity"],
                 -item[1]["coverage"],
                 -item[1]["distinctiveness"],
                 item[0]["sequence_index"],
@@ -2485,6 +2506,7 @@ def admit_candidate_pool(
             admitted_operators.add(selected["selected_operator_family"])
         admitted_pressures.update(selected.get("pressure_tags", []))
         admitted_practices.update(selected.get("practice_tags", []))
+        admitted_sequences.add(selected["sequence_index"])
         remaining = [row for row in remaining if row["node_id"] != selected["node_id"] or row["sequence_index"] != selected["sequence_index"] or row["step_index"] != selected["step_index"]]
 
     rejected: List[Dict[str, Any]] = []
@@ -2497,6 +2519,7 @@ def admit_candidate_pool(
             admitted_operators=admitted_operators,
             admitted_pressures=admitted_pressures,
             admitted_practices=admitted_practices,
+            admitted_sequences=admitted_sequences,
         )
         rejected.append(
             {

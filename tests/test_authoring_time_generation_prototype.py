@@ -3,6 +3,7 @@ from pathlib import Path
 
 from daydreaming.authoring_time_generation_prototype import (
     ArmResult,
+    admit_candidate_pool,
     build_causal_slice,
     classify_temporal_relation,
     choose_commit_type,
@@ -285,6 +286,118 @@ class AuthoringTimeGenerationPrototypeTests(unittest.TestCase):
             default_affordance_tags(practice_context, "rationalization"),
             ["justify-simplification", "minimize-harm-framing"],
         )
+
+    def test_batch_admission_rejects_rows_failing_semantic_gate(self) -> None:
+        pool = [
+            {
+                "sequence_index": 1,
+                "step_index": 1,
+                "node_id": "good_row",
+                "candidate_text": "Kai scrubs the counter and leaves the envelope untouched while the harbor stays in his head.",
+                "graph_projection": {"option_effect": "clarify"},
+                "coverage_refs": ["ev_harbor_meeting_tonight"],
+                "pressure_tags": ["attachment_threat"],
+                "practice_tags": ["evasion"],
+                "semantic_checks": {
+                    "delay ritual is present": True,
+                    "the letter is not opened": True,
+                    "the harbor remains psychologically active": True,
+                    "avoidance sharpens rather than resolves the choice": True,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "avoidance",
+                "compiler_selected_score": {"total": 0.9},
+            },
+            {
+                "sequence_index": 2,
+                "step_index": 1,
+                "node_id": "bad_row",
+                "candidate_text": "Tessa stands there, thinking.",
+                "graph_projection": {"option_effect": "clarify"},
+                "coverage_refs": ["ev_toast_credit_cut"],
+                "pressure_tags": ["status_damage"],
+                "practice_tags": ["confession"],
+                "semantic_checks": {
+                    "rationalization is present": False,
+                    "the apology has not been sent": True,
+                    "the donor hall remains psychologically active": False,
+                    "rationalization reframes rather than resolves the damage": False,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "rationalization",
+                "compiler_selected_score": {"total": 0.95},
+            },
+        ]
+
+        admission = admit_candidate_pool(pool, admit_max=2)
+        self.assertEqual([row["node_id"] for row in admission["admitted"]], ["good_row"])
+        rejected = {row["node_id"]: row for row in admission["rejected"]}
+        self.assertIn("semantic_expectations_failed", rejected["bad_row"]["admission_score"]["hard_errors"])
+
+    def test_batch_admission_prefers_new_sequence_on_tie(self) -> None:
+        pool = [
+            {
+                "sequence_index": 1,
+                "step_index": 1,
+                "node_id": "seq1_primary",
+                "candidate_text": "Kai wipes the stove and leaves the envelope sealed.",
+                "graph_projection": {"option_effect": "clarify"},
+                "coverage_refs": ["ev_harbor_meeting_tonight"],
+                "pressure_tags": ["attachment_threat"],
+                "practice_tags": ["evasion"],
+                "semantic_checks": {
+                    "delay ritual is present": True,
+                    "the letter is not opened": True,
+                    "the harbor remains psychologically active": True,
+                    "avoidance sharpens rather than resolves the choice": True,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "avoidance",
+                "compiler_selected_score": {"total": 0.95},
+            },
+            {
+                "sequence_index": 1,
+                "step_index": 2,
+                "node_id": "seq1_secondary",
+                "candidate_text": "Kai polishes a mug and hears the ferries in the sink drain.",
+                "graph_projection": {"option_effect": "clarify"},
+                "coverage_refs": ["stage_door_as_threshold"],
+                "pressure_tags": ["attachment_threat"],
+                "practice_tags": ["evasion"],
+                "semantic_checks": {
+                    "delay ritual is present": True,
+                    "the letter is not opened": True,
+                    "the harbor remains psychologically active": True,
+                    "avoidance sharpens rather than resolves the choice": True,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "avoidance",
+                "compiler_selected_score": {"total": 0.8},
+            },
+            {
+                "sequence_index": 2,
+                "step_index": 1,
+                "node_id": "seq2_primary",
+                "candidate_text": "Kai trims the pothos and tells himself the envelope can wait one more minute.",
+                "graph_projection": {"option_effect": "clarify"},
+                "coverage_refs": ["stage_door_as_threshold"],
+                "pressure_tags": ["attachment_threat"],
+                "practice_tags": ["evasion"],
+                "semantic_checks": {
+                    "delay ritual is present": True,
+                    "the letter is not opened": True,
+                    "the harbor remains psychologically active": True,
+                    "avoidance sharpens rather than resolves the choice": True,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "avoidance",
+                "compiler_selected_score": {"total": 0.8},
+            },
+        ]
+
+        admission = admit_candidate_pool(pool, admit_max=2)
+        self.assertEqual(admission["admitted"][0]["node_id"], "seq1_primary")
+        self.assertEqual(admission["admitted"][1]["node_id"], "seq2_primary")
 
 
 if __name__ == "__main__":
