@@ -116,9 +116,9 @@ when it matters, not by when it was discovered.
 
 ## Doc hygiene (do anytime)
 
-17. **Fix `05-stage-integration.md`.** Still contradicts the
-    one-control-plane rule from doc 11. Flagged twice by 5 Pro.
-    Either deprecate or rewrite performer section.
+17. ~~**Fix `05-stage-integration.md`.**~~ DONE. Status note
+    added at top, performer section rewritten to match
+    one-control-plane rule.
 
 18. **Packet ownership audit.** One writer per runtime field.
     ~30 min exercise. Build a field-ownership table.
