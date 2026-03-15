@@ -309,25 +309,121 @@ extraction fidelity and phase calibration.
 
 ---
 
+## 15. Quartet Validation and Batch Generation
+
+### Tessa rationalization fixture
+- Fourth fixture added: actual aftermath, status_damage, confession practice
+- Required: aftermath CausalSlice, actual/low-control appraisal,
+  family_bonus reaching operator scoring, confession resonance
+- 5 Pro rationalization benchmark review (Q2, Q2a) identified four
+  issues: expected_* contamination, close→ontic on rationalization,
+  behavioral prompt leading, exemplar-token checker
+- Validated on Gemini Pro: rationalization x3 on derived path
+
+### Quartet regression
+- All four fixtures validated on derived path:
+  Kai (avoidance), Maren (rehearsal), Rhea (rehearsal), Tessa (rationalization)
+- All graph-valid, contamination-clean
+
+### Batch generation
+- 5 parallel sequences × 5 steps × 4 candidates = ~100 candidates
+- 25 pooled accepted nodes → 8 admitted
+- Admission hardened: semantic gate ≥ 0.75, sequence diversity cap,
+  duplicate detection
+
+### Correctness fixes during this phase
+- Policy reappraisal now follows v1 contract (bucket-shift dependent)
+- Non-Kai derivation handles obligation and status_damage properly
+- Commit type derives from accepted candidate, not fixture expectation
+- Reappraisal targets only affected concerns (origin_pressure_refs)
+- Calibration shortcuts removed as default path
+- 10 unit tests covering these semantics
+
+---
+
+## 16. 5 Pro Quality and Bridge Reviews (Q1, Q3, Q4)
+
+### Key worldview shift
+Before: "generation works, scale it up"
+After: "generation works locally, diversity/seam-richness/duplicate-function
+are the real bottleneck, and the end-to-end proof is a patch test"
+
+### Q1 (batch admission)
+- Batch is policy on top of existing mechanisms, not a new subsystem
+- Add pooled overdetermination_gain to admission scorer
+- Curation packet as shortlist cards, not a dump
+
+### Q3 (generation quality) — most important
+- Read actual outputs. 3/6 keepable. Prose passes "action under pressure"
+- Bottleneck is diversity, not sentence quality
+- Template collapse: three kitchen-avoidance variants, three threshold-
+  rehearsal variants. Locally strong, globally redundant.
+- Graph-valid is not graph-useful: prose carries mixed pressure but
+  graph projection collapses to dominant concern
+- Five scaling risks: template collapse, false progression, pressure
+  flattening, self-priming, greedy redundancy
+
+### Q4 (end-to-end bridge)
+- Next milestone: Kai micrograph patch test
+- Hand-authored scaffold (6-8 nodes) + generated kitchen patch (4 nodes)
+- Same scheduler, seeds, conductor
+- Failure criterion: 4 distinct keepers from ~16 candidates
+
+### Diversity depends on
+- Varying retrieval across sequences (not same top-2 every time)
+- Functional duplicate detection (operator + practice + option_effect +
+  situation, not just text similarity)
+- Richer graph projection (multiple pressure_tags when justified)
+- More situation territory in the fixture
+- Highest-leverage near-term fix: duplicate-function detection in admission
+
+---
+
+## 17. Acting Craft Insight
+
+"Play the objective under pressure" (practical Stanislavski/Meisner)
+is the right design target, not method acting. The middle layer
+(CausalSlice, AppraisalFrame, PracticeContext) IS the "given
+circumstances." The LLM generates action from inside those
+circumstances. The audience reads emotional state from behavior.
+Quality test: "action under pressure" vs "emotional performance."
+Doc 34 expanded with this insight plus the daemon bridge.
+
+---
+
+## 18. Additional Artifacts
+
+- Explainer: explainers/explainer-conducted-daydreaming.md
+- Landscape map: explainers/landscape-map-2026-03-15.md
+- Operator taxonomy: doc 35
+- Review checklist: doc 31
+- Broader application surface expanded: doc 34
+- Acting feedback in memory
+- Symbiotic-Vault changes reviewed
+
+---
+
 ## Current State
 
 ### What's built and validated
 - L3 traversal scheduler (Graffito + City Routes)
 - Generation pipeline with four mechanisms:
-  1. Concern inference from primitives
-  2. Multi-step accumulation with writeback
-  3. Candidate compilation with diversity scoring
-  4. Boundary detection
-- Three benchmark fixtures (Kai, Maren, Rhea)
-- Graph compliance via structured output
-- Operator control generalizing across fixtures
+  1. Concern inference from primitives (shadow-mode validated, switch added)
+  2. Multi-step accumulation with writeback (Gemini validated)
+  3. Candidate compilation with diversity scoring (Gemini validated)
+  4. Boundary detection (trace-only)
+- Four benchmark fixtures: Kai, Maren, Rhea, Tessa
+- Quartet validated on derived path (no calibration shortcuts)
+- Batch generation with hardened admission (Kai batch: 25→8)
+- Graph compliance via structured output (Pydantic)
+- 10 unit tests covering correctness semantics
 
-### What's next
-- End-to-end Gemini run with all four mechanisms active
-- Scaling to more characters / situations / operators
-- Connecting generated material to the traversal engine
-- Conductor mapping spike (APC Mini)
-- Watched rendered run
+### Codex queue
+1. Tessa benchmark hardening (4 patches from 5 Pro Q2/Q2a)
+2. Admission patch (overdetermination_gain + duplicate-function detection)
+3. Shortlist-card curation packet format
+4. Tessa batch
+5. Kai micrograph patch test (the real end-to-end milestone)
 
 ### What's deferred
 - L2 kernel refactor
@@ -336,3 +432,7 @@ extraction fidelity and phase calibration.
 - Full social practice machinery
 - Embedding-based retrieval
 - Aesthetic evaluation
+- Three-layer compiler (abduction → POCL → soft-constraint)
+- Conductor physical prototype
+- Visual rendering through Scope
+- Music (Lyria)
