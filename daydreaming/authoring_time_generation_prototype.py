@@ -2323,6 +2323,268 @@ def run_middle_sequence(
     return results, sequence_trace
 
 
+def accepted_for_batch(result: ArmResult) -> bool:
+    semantic_checks = result.trace.get("semantic_checks", {})
+    return bool(result.graph_validation["valid"]) and semantic_checks.get("no_cross_fixture_contamination", True)
+
+
+def build_batch_pool_row(
+    result: ArmResult,
+    *,
+    sequence_index: int,
+    step_index: int,
+) -> Dict[str, Any]:
+    if result.parsed_response is None:
+        raise ValueError("Cannot pool an unparsed result.")
+    graph_projection = result.parsed_response["graph_projection"]
+    refs = list(dict.fromkeys(graph_projection.get("setup_refs", []) + graph_projection.get("payoff_refs", [])))
+    selected_score = (
+        result.trace.get("candidate_compilation", {}).get("selected_score", {})
+        if result.trace.get("candidate_compilation")
+        else {}
+    )
+    return {
+        "sequence_index": sequence_index,
+        "step_index": step_index,
+        "arm": result.arm,
+        "node_id": graph_projection["node_id"],
+        "candidate_text": result.parsed_response.get("candidate_text", ""),
+        "graph_projection": deepcopy(graph_projection),
+        "selected_operator_family": result.trace.get("selected_operator_family"),
+        "semantic_checks": deepcopy(result.trace.get("semantic_checks", {})),
+        "compiler_selected_score": deepcopy(selected_score),
+        "coverage_refs": refs,
+        "pressure_tags": list(graph_projection.get("pressure_tags", [])),
+        "practice_tags": list(graph_projection.get("practice_tags", [])),
+        "origin_pressure_refs": list(graph_projection.get("origin_pressure_refs", [])),
+        "selected_retrieved_episode_ids": list(result.trace.get("selected_retrieved_episode_ids", [])),
+        "sidecar": deepcopy(result.sidecar),
+    }
+
+
+def score_pool_row_for_admission(
+    row: Dict[str, Any],
+    *,
+    admitted_node_ids: Set[str],
+    admitted_texts: List[str],
+    admitted_refs: Set[str],
+    admitted_operators: Set[str],
+    admitted_pressures: Set[str],
+    admitted_practices: Set[str],
+) -> Dict[str, Any]:
+    hard_errors: List[str] = []
+    node_id = row["node_id"]
+    candidate_text = row.get("candidate_text", "")
+    semantic_checks = row.get("semantic_checks", {})
+    graph_projection = row.get("graph_projection", {})
+    compiler_total = float(row.get("compiler_selected_score", {}).get("total", 0.0))
+
+    if not graph_projection:
+        hard_errors.append("missing_graph_projection")
+    if semantic_checks.get("no_cross_fixture_contamination") is False:
+        hard_errors.append("cross_fixture_contamination")
+    if node_id in admitted_node_ids:
+        hard_errors.append("duplicate_node_id")
+
+    current_tokens = candidate_word_tokens(candidate_text)
+    max_similarity = 0.0
+    if admitted_texts:
+        max_similarity = max(
+            jaccard_similarity(current_tokens, candidate_word_tokens(previous))
+            for previous in admitted_texts
+        )
+        if max_similarity > 0.82 or candidate_text.strip() in {text.strip() for text in admitted_texts}:
+            hard_errors.append("near_duplicate_text")
+
+    refs = set(row.get("coverage_refs", []))
+    coverage = (len(refs - admitted_refs) / len(refs)) if refs else 0.0
+    distinctiveness = 1.0 - max_similarity if admitted_texts else 1.0
+    operator_diversity = 1.0 if row.get("selected_operator_family") not in admitted_operators else 0.0
+    pressure_tags = set(row.get("pressure_tags", []))
+    pressure_diversity = (
+        len(pressure_tags - admitted_pressures) / len(pressure_tags)
+        if pressure_tags
+        else 0.0
+    )
+    practice_tags = set(row.get("practice_tags", []))
+    practice_diversity = 1.0 if practice_tags - admitted_practices else 0.0
+    semantic_quality = semantic_pass_ratio(semantic_checks)
+    total = round(
+        0.30 * compiler_total
+        + 0.20 * coverage
+        + 0.20 * distinctiveness
+        + 0.10 * operator_diversity
+        + 0.10 * pressure_diversity
+        + 0.05 * practice_diversity
+        + 0.05 * semantic_quality,
+        3,
+    )
+    return {
+        "hard_pass": not hard_errors,
+        "hard_errors": hard_errors,
+        "compiler_total": round(compiler_total, 3),
+        "coverage": round(coverage, 3),
+        "distinctiveness": round(distinctiveness, 3),
+        "operator_diversity": round(operator_diversity, 3),
+        "pressure_diversity": round(pressure_diversity, 3),
+        "practice_diversity": round(practice_diversity, 3),
+        "semantic_quality": round(semantic_quality, 3),
+        "total": total,
+    }
+
+
+def admit_candidate_pool(
+    pool_rows: List[Dict[str, Any]],
+    *,
+    admit_max: int,
+) -> Dict[str, Any]:
+    remaining = [deepcopy(row) for row in pool_rows]
+    admitted: List[Dict[str, Any]] = []
+    admitted_node_ids: Set[str] = set()
+    admitted_texts: List[str] = []
+    admitted_refs: Set[str] = set()
+    admitted_operators: Set[str] = set()
+    admitted_pressures: Set[str] = set()
+    admitted_practices: Set[str] = set()
+
+    while remaining and len(admitted) < admit_max:
+        scored_rows: List[Tuple[Dict[str, Any], Dict[str, Any]]] = []
+        for row in remaining:
+            score = score_pool_row_for_admission(
+                row,
+                admitted_node_ids=admitted_node_ids,
+                admitted_texts=admitted_texts,
+                admitted_refs=admitted_refs,
+                admitted_operators=admitted_operators,
+                admitted_pressures=admitted_pressures,
+                admitted_practices=admitted_practices,
+            )
+            scored_rows.append((row, score))
+
+        hard_passes = [(row, score) for row, score in scored_rows if score["hard_pass"]]
+        if not hard_passes:
+            break
+        hard_passes.sort(
+            key=lambda item: (
+                -item[1]["total"],
+                -item[1]["coverage"],
+                -item[1]["distinctiveness"],
+                item[0]["sequence_index"],
+                item[0]["step_index"],
+            )
+        )
+        selected_row, selected_score = hard_passes[0]
+        selected = deepcopy(selected_row)
+        selected["admission_score"] = selected_score
+        admitted.append(selected)
+
+        admitted_node_ids.add(selected["node_id"])
+        admitted_texts.append(selected.get("candidate_text", ""))
+        admitted_refs.update(selected.get("coverage_refs", []))
+        if selected.get("selected_operator_family"):
+            admitted_operators.add(selected["selected_operator_family"])
+        admitted_pressures.update(selected.get("pressure_tags", []))
+        admitted_practices.update(selected.get("practice_tags", []))
+        remaining = [row for row in remaining if row["node_id"] != selected["node_id"] or row["sequence_index"] != selected["sequence_index"] or row["step_index"] != selected["step_index"]]
+
+    rejected: List[Dict[str, Any]] = []
+    for row in remaining:
+        score = score_pool_row_for_admission(
+            row,
+            admitted_node_ids=admitted_node_ids,
+            admitted_texts=admitted_texts,
+            admitted_refs=admitted_refs,
+            admitted_operators=admitted_operators,
+            admitted_pressures=admitted_pressures,
+            admitted_practices=admitted_practices,
+        )
+        rejected.append(
+            {
+                "sequence_index": row["sequence_index"],
+                "step_index": row["step_index"],
+                "node_id": row["node_id"],
+                "selected_operator_family": row.get("selected_operator_family"),
+                "admission_score": score,
+            }
+        )
+
+    return {
+        "pool_size": len(pool_rows),
+        "admit_max": admit_max,
+        "admitted_count": len(admitted),
+        "admitted": admitted,
+        "rejected": rejected,
+    }
+
+
+def run_middle_batch(
+    fixture: Dict[str, Any],
+    provider: str,
+    model: Optional[str],
+    *,
+    batch_sequences: int,
+    steps: int,
+    use_inferred_concerns: bool,
+    candidates_per_step: int,
+    use_expected_reference: bool,
+    admit_max: int,
+) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    sequence_runs: List[Dict[str, Any]] = []
+    pool_rows: List[Dict[str, Any]] = []
+
+    for sequence_index in range(1, batch_sequences + 1):
+        results, sequence_trace = run_middle_sequence(
+            fixture,
+            provider,
+            model,
+            steps=steps,
+            use_inferred_concerns=use_inferred_concerns,
+            candidates_per_step=candidates_per_step,
+            use_expected_reference=use_expected_reference,
+        )
+        operator_path = [result.trace.get("selected_operator_family") for result in results]
+        accepted_count = sum(1 for result in results if accepted_for_batch(result))
+        sequence_runs.append(
+            {
+                "sequence_index": sequence_index,
+                "results": results,
+                "sequence_trace": sequence_trace,
+                "operator_path": operator_path,
+                "accepted_count": accepted_count,
+            }
+        )
+        for step_index, result in enumerate(results, start=1):
+            if accepted_for_batch(result) and result.parsed_response is not None:
+                pool_rows.append(
+                    build_batch_pool_row(
+                        result,
+                        sequence_index=sequence_index,
+                        step_index=step_index,
+                    )
+                )
+
+    admission = admit_candidate_pool(pool_rows, admit_max=admit_max)
+    batch_trace = {
+        "arm": "middle-batch",
+        "timestamp": utc_now_iso(),
+        "concern_driver": "inferred" if use_inferred_concerns else "seeded",
+        "batch_sequences": batch_sequences,
+        "steps_per_sequence": steps,
+        "candidates_per_step": candidates_per_step,
+        "sequence_summaries": [
+            {
+                "sequence_index": run["sequence_index"],
+                "accepted_count": run["accepted_count"],
+                "operator_path": run["operator_path"],
+                "generated_episode_ids": run["sequence_trace"].get("generated_episode_ids", []),
+            }
+            for run in sequence_runs
+        ],
+        "admission": admission,
+    }
+    return sequence_runs, batch_trace
+
+
 def build_summary(
     fixture_path: Path,
     provider: str,
@@ -2362,6 +2624,82 @@ def build_summary(
             lines.append(f"- semantic checks: `{result.trace['semantic_checks']}`")
         lines.append("")
     return "\n".join(lines)
+
+
+def build_batch_summary(
+    fixture_path: Path,
+    provider: str,
+    model: Optional[str],
+    batch_trace: Dict[str, Any],
+) -> str:
+    admission = batch_trace["admission"]
+    lines = [
+        "# Authoring-Time Generation Batch Run",
+        "",
+        f"- fixture: `{fixture_path}`",
+        f"- provider: `{provider}`",
+        f"- model: `{model or 'none'}`",
+        f"- sequences: `{batch_trace['batch_sequences']}`",
+        f"- steps per sequence: `{batch_trace['steps_per_sequence']}`",
+        f"- candidates per step: `{batch_trace['candidates_per_step']}`",
+        f"- pooled accepted nodes: `{admission['pool_size']}`",
+        f"- admitted nodes: `{admission['admitted_count']}` / `{admission['admit_max']}`",
+        "",
+        "## Sequence Summaries",
+        "",
+    ]
+    for sequence in batch_trace["sequence_summaries"]:
+        lines.append(
+            f"- sequence `{sequence['sequence_index']:02d}`: accepted `{sequence['accepted_count']}` / `{batch_trace['steps_per_sequence']}`, operator path `{sequence['operator_path']}`"
+        )
+    lines.extend(["", "## Admitted Nodes", ""])
+    for row in admission["admitted"]:
+        score = row["admission_score"]
+        lines.extend(
+            [
+                f"- `{row['node_id']}` from sequence `{row['sequence_index']:02d}` step `{row['step_index']}`",
+                f"  operator `{row.get('selected_operator_family')}`, option_effect `{row['graph_projection'].get('option_effect')}`, score `{score['total']}`",
+                f"  refs `{row.get('coverage_refs', [])}`, pressures `{row.get('pressure_tags', [])}`, practices `{row.get('practice_tags', [])}`",
+            ]
+        )
+    if admission["rejected"]:
+        lines.extend(["", "## Rejected Nodes", ""])
+        for row in admission["rejected"]:
+            lines.append(
+                f"- `{row['node_id']}` from sequence `{row['sequence_index']:02d}` step `{row['step_index']}` rejected by `{row['admission_score']['hard_errors'] or 'lower_soft_score'}`"
+            )
+    return "\n".join(lines)
+
+
+def write_run_outputs(
+    output_dir: Path,
+    fixture_path: Path,
+    fixture: Dict[str, Any],
+    provider: str,
+    model: Optional[str],
+    results: List[ArmResult],
+    *,
+    sequence_trace: Optional[Dict[str, Any]] = None,
+) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    dump_text(output_dir / "fixture-path.txt", str(fixture_path))
+    dump_json(output_dir / "fixture-snapshot.json", fixture)
+    if sequence_trace is not None:
+        dump_json(output_dir / "sequence.trace.json", sequence_trace)
+
+    for result in results:
+        suffix = result.trace.get("ablation", "none")
+        stem = f"{result.arm}" if suffix == "none" or not suffix else f"{result.arm}-{suffix}"
+        dump_text(output_dir / f"{stem}.prompt.txt", result.prompt)
+        if result.raw_response is not None:
+            dump_text(output_dir / f"{stem}.response.txt", result.raw_response)
+        dump_json(output_dir / f"{stem}.trace.json", result.trace)
+        dump_json(output_dir / f"{stem}.validation.json", result.graph_validation)
+        if result.sidecar is not None:
+            dump_json(output_dir / f"{stem}.sidecar.json", result.sidecar)
+
+    summary = build_summary(fixture_path, provider, model, results)
+    dump_text(output_dir / "summary.md", summary)
 
 
 def parse_args() -> argparse.Namespace:
@@ -2429,6 +2767,18 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Use fixture worked-trace reference values as calibration shortcuts instead of deriving all middle-layer state.",
     )
+    parser.add_argument(
+        "--batch-sequences",
+        type=int,
+        default=1,
+        help="Run this many independent middle-arm sequences and build an admission pool from accepted nodes.",
+    )
+    parser.add_argument(
+        "--batch-admit-max",
+        type=int,
+        default=8,
+        help="Maximum number of admitted nodes to keep from the pooled batch.",
+    )
     return parser.parse_args()
 
 
@@ -2445,6 +2795,40 @@ def main() -> int:
     fixture = load_yaml(fixture_path)
     output_dir = resolve_output_dir(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    if args.batch_sequences > 1:
+        if args.arm != "middle":
+            raise ValueError("Batch mode currently supports only --arm middle.")
+        if args.sequence_steps < 1:
+            raise ValueError("--sequence-steps must be >= 1 in batch mode.")
+        sequence_runs, batch_trace = run_middle_batch(
+            fixture,
+            args.provider,
+            args.model,
+            batch_sequences=args.batch_sequences,
+            steps=args.sequence_steps,
+            use_inferred_concerns=args.use_inferred_concerns,
+            candidates_per_step=args.candidates_per_step,
+            use_expected_reference=args.use_expected_reference,
+            admit_max=args.batch_admit_max,
+        )
+        dump_text(output_dir / "fixture-path.txt", str(fixture_path))
+        dump_json(output_dir / "fixture-snapshot.json", fixture)
+        dump_json(output_dir / "batch.trace.json", batch_trace)
+        dump_text(output_dir / "batch.summary.md", build_batch_summary(fixture_path, args.provider, args.model, batch_trace))
+        for run in sequence_runs:
+            sequence_dir = output_dir / f"sequence-{run['sequence_index']:02d}"
+            write_run_outputs(
+                sequence_dir,
+                fixture_path,
+                fixture,
+                args.provider,
+                args.model,
+                run["results"],
+                sequence_trace=run["sequence_trace"],
+            )
+        print(output_dir)
+        return 0
 
     results: List[ArmResult] = []
     if args.arm in {"baseline", "both"}:
@@ -2509,24 +2893,15 @@ def main() -> int:
                         )
                     )
 
-    dump_text(output_dir / "fixture-path.txt", str(fixture_path))
-    dump_json(output_dir / "fixture-snapshot.json", fixture)
-    if sequence_trace is not None:
-        dump_json(output_dir / "sequence.trace.json", sequence_trace)
-
-    for result in results:
-        suffix = result.trace.get("ablation", "none")
-        stem = f"{result.arm}" if suffix == "none" or not suffix else f"{result.arm}-{suffix}"
-        dump_text(output_dir / f"{stem}.prompt.txt", result.prompt)
-        if result.raw_response is not None:
-            dump_text(output_dir / f"{stem}.response.txt", result.raw_response)
-        dump_json(output_dir / f"{stem}.trace.json", result.trace)
-        dump_json(output_dir / f"{stem}.validation.json", result.graph_validation)
-        if result.sidecar is not None:
-            dump_json(output_dir / f"{stem}.sidecar.json", result.sidecar)
-
-    summary = build_summary(fixture_path, args.provider, args.model, results)
-    dump_text(output_dir / "summary.md", summary)
+    write_run_outputs(
+        output_dir,
+        fixture_path,
+        fixture,
+        args.provider,
+        args.model,
+        results,
+        sequence_trace=sequence_trace,
+    )
     print(output_dir)
     return 0
 
