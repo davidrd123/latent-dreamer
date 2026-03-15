@@ -109,6 +109,9 @@ What matters:
 - active concerns
 - typed cognitive operators
 - episodic memory
+- causal interpretation
+- appraisal
+- practice context
 - recursive reminding
 - serendipity / overdetermination
 
@@ -148,12 +151,17 @@ It should start from narrative primitives such as:
 
 Those are the authored inputs.
 
-The engine then produces candidate moments from collisions among:
+The engine then produces candidate moments through an ordered middle
+layer:
 
 - active concerns
 - retrieved episodes
-- operator choice
-- place / situation context
+- situation context
+- `CausalSlice`
+- `AppraisalFrame`
+- `PracticeContext`
+- operator scoring
+- selected operator / affordance
 
 That is the missing `0 -> usable graph material` stage.
 
@@ -203,8 +211,14 @@ The prototype must stay narrow.
 - one character
 - three authored backstory episodes
 - one active situation
-- three operators
+- three operators:
+  - `rehearsal`
+  - `rationalization`
+  - `avoidance`
 - simple tag-based retrieval first
+- explicit `CausalSlice`
+- explicit `AppraisalFrame`
+- explicit lightweight `PracticeContext`
 - human-readable provenance
 - output that compiles to the frozen graph seam
 - flat-prompt baseline for comparison
@@ -215,7 +229,7 @@ The prototype must stay narrow.
 - aesthetic filtering
 - full kernel refactor
 - assumption management
-- multi-character social practice machinery
+- full `SocialPracticeInstance`
 - conductor integration
 
 Those are accelerants or later refinements, not prerequisites.
@@ -253,6 +267,16 @@ Examples:
 If the candidates cannot be compiled cleanly to the graph contract, the
 prototype has failed even if the writing is interesting.
 
+Rich middle-layer state should stay in sidecar / trace output, not in
+the graph seam itself:
+
+- `CausalSlice`
+- `AppraisalFrame`
+- derived `EmotionVector`
+- `PracticeContext`
+- retrieval details
+- operator score breakdown
+
 ---
 
 ## What success would mean
@@ -262,6 +286,10 @@ Success for the prototype would mean:
 - operator-driven generation produces materially better candidate moments
   than flat prompting
 - episodic retrieval changes the generated material in an observable way
+- changing `CausalSlice` or `AppraisalFrame` changes operator choice in
+  understandable ways
+- changing `PracticeContext` changes affordances and candidate shape in
+  understandable ways
 - the generated candidates compile cleanly to the graph seam
 - human curation yield is high enough to make graph growth practical
 
@@ -277,6 +305,11 @@ Failure would mean one of these:
 
 - operator labels do not improve specificity or psychological depth
 - retrieval does not materially alter the moments
+- removing `CausalSlice` produces the same rankings and curation yield
+- changing controllability, attribution, or temporal status does not
+  change operator scores
+- swapping practice context leaves generated material effectively
+  unchanged
 - output is fluent but graph-useless
 - the curation burden remains as high as hand-authoring
 
@@ -319,9 +352,12 @@ Write a narrow prototype spec and implement only this:
 1. one character with contradictions
 2. three backstory episodes
 3. one active unresolved situation
-4. three operators
-5. tag-based retrieval over authored and generated episodes
-6. candidate moments with provenance and graph-compilable fields
-7. side-by-side comparison against flat prompting
+4. build `CausalSlice` from concern + situation + retrieved episodes
+5. derive `AppraisalFrame`
+6. derive lightweight `PracticeContext`
+7. score `rehearsal`, `rationalization`, and `avoidance`
+8. tag-based retrieval over authored and generated episodes
+9. candidate moments with provenance and graph-compilable fields
+10. side-by-side comparison against flat prompting
 
 That is the new critical path.

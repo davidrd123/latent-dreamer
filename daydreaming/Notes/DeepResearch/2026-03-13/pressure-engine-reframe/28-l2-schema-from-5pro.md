@@ -16,6 +16,262 @@ Related:
 
 ---
 
+## V1 contract
+
+This section is the authoritative `v1` build contract.
+
+Use this section for:
+
+- the worked trace
+- the prototype spec
+- any first implementation pass
+
+Treat the larger schema below as reference or later expansion.
+
+### 1. Runtime object cut
+
+Build these as the explicit `v1` middle layer:
+
+- `CharacterConcern`
+- `CausalSliceV1`
+- `AppraisalFrame`
+- `PracticeContextV1`
+- derived `EmotionVector`
+
+Do **not** build full `SocialPracticeInstance` in `v1`.
+
+### 2. CausalSliceV1
+
+`CausalSlice` is first-class in `v1`, but short-lived.
+
+- it should be built explicitly
+- inspected in traces
+- attached to provenance sidecar for accepted candidates
+- discarded after reappraisal
+- never exported into the graph seam
+
+Minimal `v1` form:
+
+```clojure
+CausalSliceV1
+{:focal_situation_id kw
+ :concern_id         uuid
+ :target_ref         kw?
+ :affected_goal      {:goal kw :sign #{:threatens :advances} :weight 0.0-1.0}
+ :attribution        {:actor kw? :intentional? boolean?}
+ :temporal_status    #{:prospective :actual}
+ :likelihood_bucket  #{:low :medium :high}
+ :self_options       [kw]
+ :other_options      [kw]}
+```
+
+### 3. AppraisalFrame is authoritative
+
+`AppraisalFrame` is the source of truth for per-step evaluation.
+
+`EmotionVector` is derived from `AppraisalFrame` and should be used for:
+
+- dashboard
+- narration
+- trace inspection
+
+It should **not** be:
+
+- durable peer runtime state
+- prompt input in `v1`
+- graph residue
+
+### 4. PracticeContextV1
+
+Use a light practice wrapper in `v1`, not a durable full practice
+object.
+
+```clojure
+PracticeContextV1
+{:practice_type   #{:evasion :anticipated-confrontation :confession}
+ :role            kw
+ :phase           #{:precontact :threshold :aftermath}
+ :affordance_tags [kw]}
+```
+
+### 5. Canonical v1 operator families
+
+The canonical `v1` families are:
+
+- `rehearsal`
+- `rationalization`
+- `avoidance`
+
+Do not add `reversal` or `roving` in the first prototype.
+
+### 6. Prompt-conditioning rule
+
+The generation prompt in `v1` should be built from:
+
+- `CausalSliceV1`
+- `AppraisalFrame`
+- `PracticeContextV1`
+- selected operator / affordance
+- retrieved episode summaries
+
+Do **not** condition the prompt on `EmotionVector` in `v1`.
+
+### 7. Retrieval rule
+
+Simple exact-match retrieval is enough for `v1`.
+
+Retrieval keys, in priority order:
+
+- `concern_type`
+- `target_ref`
+- `situation_id`
+- `practice_type`
+
+Scoring rule:
+
+```text
+score(ep) = number of exact key matches
+keep top 2 episodes with score >= 2
+```
+
+Additional rules:
+
+- `max_retrieved_episodes = 2`
+- generated episodes do **not** re-enter retrieval immediately
+- only accepted episodes re-enter retrieval
+- accepted episodes re-enter on the next step or next batch
+
+### 8. Reappraisal/update rule
+
+First compute:
+
+```text
+I_app = clamp_[0,1](0.6 * |desirability|
+                  + 0.25 * likelihood
+                  + 0.15 * (1 - controllability))
+```
+
+Then apply:
+
+```text
+ontic:
+  rebuild CausalSlice from changed world
+  reappraise
+  intensity := I_app
+  if trigger condition no longer holds -> unresolved=false, intensity=0
+
+policy:
+  if controllability rose by one bucket -> intensity := clamp(old - 0.15)
+  else if controllability fell by one bucket -> intensity := clamp(old + 0.05)
+  else intensity unchanged
+
+salience:
+  if node intensifies focus on the concern -> intensity := clamp(old + 0.10)
+  if node successfully diverts focus -> intensity := clamp(old - 0.05)
+
+none:
+  intensity := clamp(old * 0.95)
+```
+
+Constraint:
+
+- only `ontic` may resolve a concern or change concern type in `v1`
+
+### 9. Canonical field split
+
+Graph node fields:
+
+```text
+node_id
+node_type
+situation_id
+delta_tension
+delta_energy
+setup_refs[]
+payoff_refs[]
+option_effect
+pressure_tags[]
+practice_tags[]
+origin_pressure_refs[]
+branch_outcome_tags[]?
+contrast_tags[]?
+source_lane
+scope
+confidence
+revisability
+source_ref
+```
+
+Provenance sidecar fields:
+
+```text
+node_id
+source_concern_ids[]
+causal_slice
+appraisal_frame
+emotion_vector_topk
+practice_context
+selected_affordance_tags[]
+operator_family
+operator_score_breakdown
+retrieved_episode_refs[]
+retrieval_keys[]
+commit_type
+validator_result
+prompt_version
+```
+
+Runtime-only fields:
+
+```text
+active_concern_stack
+current context tree / assumption patch
+current reminder pool
+unselected affordances
+full candidate operator matrix
+transient CausalSlice builders
+scratch prompt state
+live conductor bias
+live L3 diagnostics / lookahead
+```
+
+Explicit seam rule:
+
+- do **not** put `appraisal_summary_tags[]` in the graph seam
+
+### 10. Canonical v1 benchmark
+
+Use this benchmark first:
+
+- Kai has an unopened letter from his estranged sister asking him to
+  meet tonight at the harbor
+- three backstory episodes:
+  - the last rupture
+  - an older harbor memory
+  - one episode of avoidance with consequences
+- one active situation:
+  - the unopened letter on the table
+
+### 11. Ablation / failure criteria
+
+Each middle-layer object must visibly earn its keep.
+
+- `CausalSlice` fails if removing it and prompting directly from
+  `CharacterConcern + situation` yields the same operator rankings and
+  curation yield
+- `AppraisalFrame` fails if changing controllability, attribution, or
+  temporal status does not change operator scores or intensity updates
+- `PracticeContext` fails if swapping `evasion` for
+  `anticipated-confrontation` leaves affordances and generated nodes
+  effectively unchanged
+- `EmotionVector` fails if removing it from prompting changes nothing,
+  which is why it should stay out of the prompt in `v1`
+- provenance fails if accept/reject decisions are no faster or clearer
+  with sidecar fields than with just operator label plus retrieved
+  episodes
+
+---
+
 ## 5 Pro verdict
 
 Mostly correct. One omission, two corrections.
@@ -48,7 +304,7 @@ and the level boundary starts rotting.
 
 ---
 
-## Schema
+## Full reference schema
 
 ### CharacterConcern (durable motivational state)
 
@@ -133,6 +389,9 @@ EmotionVector
 
 ### SocialPracticeInstance (persistent social situation state)
 
+Reference only. Do not build this whole object in `v1`; use
+`PracticeContextV1` above.
+
 ```clojure
 SocialPracticeInstance
 {:id                 uuid
@@ -147,6 +406,9 @@ SocialPracticeInstance
 ```
 
 ### Affordance
+
+Reference only. In `v1`, keep affordances lightweight and aligned to the
+three canonical families.
 
 ```clojure
 Affordance
@@ -166,6 +428,9 @@ Affordance
 ```
 
 ### OperatorCandidate
+
+Reference only. In `v1`, the family set should be narrowed to
+`rehearsal`, `rationalization`, and `avoidance`.
 
 ```clojure
 OperatorCandidate
@@ -247,7 +512,7 @@ authoring-time generation cycle.
   temporal status
 - OCC emotions: hope, fear, distress, anger, remorse, relief,
   disappointment
-- Practices: confrontation, evasion, confession
+- Practices: evasion, anticipated-confrontation, confession
 - Families: rehearsal, rationalization, avoidance
 
 ### Do NOT include in v1
@@ -300,12 +565,12 @@ The best next move is a worked trace, not more abstraction:
 ```
 unopened letter
   → obligation + attachment_threat
-  → CausalSlice
+  → CausalSliceV1
   → AppraisalFrame
-  → EmotionVector
-  → evasion practice affordances
+  → PracticeContextV1
   → operator score breakdown
   → generated node provenance
+  → derived EmotionVector
   → reappraisal after commit
 ```
 

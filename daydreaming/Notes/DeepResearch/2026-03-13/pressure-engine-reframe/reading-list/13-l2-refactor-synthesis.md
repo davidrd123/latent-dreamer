@@ -138,7 +138,25 @@ search loop itself.
 
 `EMA` is the cleanest upgrade to Mueller's affective loop.
 
-### 1. Add an explicit appraisal pass after each imagined development
+### 1. Add an explicit causal interpretation layer before appraisal
+
+`EMA` should not appraise raw world state directly.
+
+The refactor needs an explicit short-lived middle object between
+selected concern and appraisal. In `v1`, this should be a compact
+`CausalSliceV1` that captures:
+
+- focal situation
+- affected goal
+- attribution
+- temporal status
+- likelihood bucket
+- available self / other options
+
+If this object stays implicit, `EMA-lite` collapses back into ad hoc
+concern updates with appraisal vocabulary sprinkled on top.
+
+### 2. Add an explicit appraisal pass after each imagined development
 
 Each local step in `L2` should be followed by a fast appraisal update.
 This gives the kernel a uniform way to answer:
@@ -148,7 +166,9 @@ This gives the kernel a uniform way to answer:
 - how expected was it?
 - how controllable or changeable does it seem?
 
-### 2. Use appraisal to bias coping families, not to hard-dispatch them
+`AppraisalFrame` should be authoritative.
+
+### 3. Use appraisal to bias coping families, not to hard-dispatch them
 
 The right import from `EMA` is:
 
@@ -166,7 +186,7 @@ and prefer:
 - available operators still depend on practice, local context, and
   concern state
 
-### 3. Reappraisal must be continuous
+### 4. Reappraisal must be continuous
 
 `L2` should not appraise once per concern. It should reappraise as the
 branch evolves. This is the main benefit of bringing `EMA` in: inner
@@ -182,7 +202,22 @@ Mueller leaves comparatively loose.
 ### 1. Give emotions stable typed labels
 
 The refactor should stop treating emotion as a mostly undifferentiated
-motivation scalar. It should carry at least:
+motivation scalar, but `OCC` should not become the durable source of
+truth for runtime control.
+
+`EmotionVector` should be a derived view from `AppraisalFrame`, used for:
+
+- dashboard
+- narration
+- trace inspection
+
+It should not be:
+
+- durable peer runtime state
+- prompt input for `v1` generation
+- graph residue
+
+The derived view should carry at least:
 
 - emotion type
 - target or object
@@ -238,11 +273,14 @@ exploration.
 
 ### 3. Start with lightweight practice tags
 
-The first refactor does not need full `Versu` machinery. It needs:
+The first refactor does not need full `Versu` machinery. It needs a
+small `PracticeContextV1` with:
 
-- active practice tag or small set of tags
-- local roles
-- operator gating based on those tags and roles
+- active practice type
+- local role
+- local phase
+- affordance tags
+- operator gating based on those fields
 
 That is enough to make appraisal and exploration socially legible
 without importing a full practice engine.
@@ -267,17 +305,19 @@ The refactor should make these state objects explicit:
 
 ### 2. Appraisal state
 
-- current appraised situation
-- emotion type
-- emotion intensity
+- `CausalSliceV1`
+- `AppraisalFrame`
+- derived `EmotionVector`
 - controllability
 - changeability
 - expectation or surprise
 
 ### 3. Practice/context state
 
-- active practice tags
-- active roles
+- active practice type
+- active role
+- active phase
+- current affordance tags
 - branch context id
 - recent local events
 
@@ -306,7 +346,8 @@ Owns concern activation, prioritization, dormancy, and selection.
 
 ### 2. Appraisal Engine
 
-Runs after each local imagined development and updates emotion state.
+Builds `CausalSliceV1`, appraises it, and exposes derived emotional
+views for narration and inspection.
 
 ### 3. Practice-Gated Operator Selector
 
@@ -342,7 +383,6 @@ The graph should receive only stable graph-readable residue such as:
 - `origin_pressure_refs[]`
 - `pressure_tags[]`
 - `practice_tags[]`
-- `appraisal_summary_tags[]`
 - `branch_outcome_tags[]`
 - `contrast_tags[]`
 
@@ -387,8 +427,14 @@ and traces first-class, while explicitly preserving:
 
 ### Step 2. Insert the appraisal layer
 
-Add `EMA`-style fast reappraisal after each imagined development and use
-it to update typed `OCC` emotion state.
+Add `EMA`-style fast reappraisal after each imagined development, but do
+it through an explicit ordering:
+
+1. build `CausalSliceV1`
+2. derive `AppraisalFrame`
+3. derive `EmotionVector` as a view
+
+Do not collapse these into one \"appraised emotion state.\"
 
 ### Step 3. Gate operators by practice
 
