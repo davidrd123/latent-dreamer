@@ -112,6 +112,33 @@ instruction told it to. The ablation tests nothing.
 
 ---
 
+## Simplicity criterion
+
+### 8. Removal is better than addition
+
+If you can remove something and the benchmark still passes, the
+removal is a better outcome than the addition. This applies to:
+
+- Prompt clauses (if removing an operator description doesn't
+  change the output, the description was load-bearing or it wasn't)
+- Middle-layer inputs (if removing CausalSlice doesn't change
+  operator selection, CausalSlice isn't earning its keep)
+- Post-processing steps (if removing a semantic check doesn't
+  change admission, the check was noise)
+- Code (if removing a scoring term doesn't change the shortlist,
+  the term was decoration)
+
+Several of the biggest improvements in this project came from
+removing things:
+- Removing behavioral prescriptions from prompts
+- Removing expected_* reads from runtime
+- Removing calibration shortcuts as the default path
+
+The discipline: always check whether less produces the same
+result before adding more.
+
+---
+
 ## Pre-run sign-off
 
 Before running a comparison:
@@ -119,4 +146,5 @@ Before running a comparison:
 - [ ] Both prompts reviewed against items 1-4
 - [ ] Evaluation rubric reviewed against items 5-6
 - [ ] Each ablation reviewed against item 7
+- [ ] Simplicity check: can anything be removed? (item 8)
 - [ ] Someone who didn't write the prompts has read them
