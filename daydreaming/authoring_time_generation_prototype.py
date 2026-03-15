@@ -1850,6 +1850,67 @@ def make_semantic_checks(
                     "before entering",
                 )
             ) and not any(token in lowered for token in ("she enters", "she steps inside", "the talk begins"))
+        elif predicate == "rationalization is present":
+            checks[predicate] = any(
+                token in lowered
+                for token in (
+                    "had to",
+                    "someone had to",
+                    "legible",
+                    "fairness",
+                    "justified",
+                    "explains to herself",
+                    "tells herself",
+                    "almost excuses",
+                    "not the same thing as",
+                )
+            )
+        elif predicate == "the apology has not been sent":
+            checks[predicate] = not any(
+                token in lowered
+                for token in (
+                    "she sends",
+                    "she sent",
+                    "message sent",
+                    "text sent",
+                    "reply sent",
+                    "she hit send",
+                )
+            )
+        elif predicate == "the donor hall remains psychologically active":
+            checks[predicate] = any(
+                token in lowered
+                for token in (
+                    "donor hall",
+                    "applause",
+                    "toast",
+                    "program",
+                    "microphone",
+                    "podium",
+                )
+            )
+        elif predicate == "rationalization reframes rather than resolves the damage":
+            checks[predicate] = any(
+                token in lowered
+                for token in (
+                    "had to",
+                    "someone had to",
+                    "as if",
+                    "legible",
+                    "fairness",
+                    "almost excuses",
+                    "not the same thing as",
+                )
+            ) and not any(
+                token in lowered
+                for token in (
+                    "i'm sorry",
+                    "she apologizes",
+                    "she sends the apology",
+                    "he forgives",
+                    "they resolve it",
+                )
+            )
         else:
             checks[predicate] = False
     if forbidden_terms:

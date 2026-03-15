@@ -1,0 +1,336 @@
+fixture_id: authoring_time_generation_tessa_toast_rationalization_v1
+title: Tessa After the Toast
+purpose: >
+  Fourth benchmark fixture for the authoring-time generation prototype.
+  Designed as a rationalization-leaning case where the damage is already done,
+  controllability is low, and the live move is reframing what happened rather
+  than preparing for entry or simply delaying contact.
+
+source_refs:
+  - /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/27-authoring-time-generation-reframe.md
+  - /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/28-l2-schema-from-5pro.md
+  - /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/30-authoring-time-generation-prototype-spec.md
+  - /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/33-cross-benchmark-generation-memo.md
+
+prototype_contract:
+  operator_families: [rehearsal, rationalization, avoidance]
+  practice_types: [evasion, anticipated-confrontation, confession]
+  retrieval:
+    keys_in_order: [concern_type, target_ref, situation_id, practice_type]
+    min_score: 2
+    max_retrieved_episodes: 2
+    tie_break: [recency_rank_desc, fixture_order_asc]
+    accepted_generated_episodes_reenter_on_next_step: true
+  graph_requirements:
+    option_effect_vocabulary: [close, open, clarify, none]
+    provenance_enums:
+      source_lane: [L1, L2, L3, human]
+      scope: [authored, projection, proposal]
+      revisability: [fixed, editable, ephemeral_candidate]
+    required_graph_fields:
+      - node_id
+      - node_type
+      - situation_id
+      - delta_tension
+      - delta_energy
+      - setup_refs
+      - payoff_refs
+      - option_effect
+      - pressure_tags
+      - practice_tags
+      - origin_pressure_refs
+      - source_lane
+      - scope
+      - confidence
+      - revisability
+      - source_ref
+    setup_payoff_refs_resolve_against: [events.id, situations.id, reference_markers.id]
+
+characters:
+  - id: tessa
+    role: focal_character
+    description: >
+      Wants to think of herself as fair-minded even after protecting her own
+      status in public. Under blame pressure, she explains her motives until
+      explanation starts sounding like exoneration.
+    contradictions:
+      - wants to repair with Eli without admitting the full ugliness of what she did
+      - believes simplification was necessary for the room even while knowing it cut him out
+      - reaches for self-protective explanations when remorse becomes too direct
+    behavioral_defaults:
+      - explain_motive_before_fault
+      - reduce_harm_by_reframing
+      - partial_apology_drafting
+
+targets:
+  - id: eli
+    relation_to_tessa: former_collaborator
+    description: >
+      A former collaborator whose public omission made the toast feel like a personal and professional betrayal.
+
+places:
+  - id: hotel_coatroom
+    description: A cramped after-event space where applause fades into self-justification.
+  - id: donor_hall
+    description: The room where Tessa publicly claimed the project as if Eli were incidental.
+  - id: taxi_rank
+    description: The place where an earlier apology attempt turned into explanation and stalled out.
+
+events:
+  - id: ev_toast_credit_cut
+    description: Tessa publicly described the project in a way that erased Eli's work.
+  - id: ev_eli_texts_afterward
+    description: Eli texted after the toast, "We need to talk about what you just did."
+
+situations:
+  - id: sit_coatroom_after_toast
+    place_id: hotel_coatroom
+    description: >
+      Minutes after the donor toast, Tessa stands in the coatroom with the folded
+      event program in one hand and Eli's text open on her phone. The public remark
+      cannot be unsaid.
+    target_ref: eli
+    time_pressure: now
+    current_state:
+      apology_sent: false
+      reply_sent: false
+      event_over: true
+
+  - id: sit_text_reply_threshold
+    place_id: hotel_coatroom
+    description: >
+      The threshold where Tessa either sends a message to Eli or keeps turning motive into cover.
+
+reference_markers:
+  - id: ref_program_credit_line
+    description: The printed credit line in the event program that Tessa ignored in the toast.
+
+backstory_episodes:
+  - id: ep_panel_simplification_defense
+    recency_rank: 3
+    summary: >
+      After a tense panel, Tessa defended a cutting summary by saying the audience
+      needed the clean version, then spent the night insisting that clarity mattered
+      more than credit.
+    place_id: donor_hall
+    involved_targets: [eli]
+    retrieval_tags:
+      concern_type: status_damage
+      target_ref: eli
+      practice_type: confession
+
+  - id: ep_half_apology_in_taxi
+    recency_rank: 2
+    summary: >
+      In the back of a taxi after another collaboration fight, Tessa drafted an
+      apology that kept turning into explanation until the apology disappeared.
+    place_id: taxi_rank
+    involved_targets: [eli]
+    retrieval_tags:
+      concern_type: obligation
+      target_ref: eli
+      practice_type: confession
+
+  - id: ep_silence_hardened_story
+    recency_rank: 1
+    summary: >
+      Tessa once waited overnight to address a grievance, and by morning the silence
+      had made the most flattering version of events feel deliberate.
+    place_id: hotel_coatroom
+    involved_targets: [eli]
+    retrieval_tags:
+      concern_type: status_damage
+      target_ref: eli
+      practice_type: evasion
+
+concern_extraction:
+  mode: benchmark_hand_specified_after_theme_rules
+  note: >
+    v1 records a reproducible path from narrative primitives to active concerns,
+    then seeds the benchmark concerns directly for the run.
+  primitive_facts:
+    - public_credit_claim_cut_target_out
+    - target_reached_out_immediately_after
+    - apology_is_unavoidable
+    - event_already_happened
+    - character_protects_status_through_explanation
+  theme_rules:
+    - id: rule_public_omission_threatens_status
+      when:
+        - public_credit_claim_cut_target_out
+        - target_reached_out_immediately_after
+      yields:
+        concern_type: status_damage
+        target_ref: eli
+        rationale: >
+          A public credit cut that the target immediately contests threatens Tessa's
+          standing as both collaborator and narrator of the work.
+
+    - id: rule_owed_acknowledgment_after_public_cut
+      when:
+        - public_credit_claim_cut_target_out
+        - apology_is_unavoidable
+      yields:
+        concern_type: obligation
+        target_ref: eli
+        rationale: >
+          Once the omission has been named directly, duty pressure forms around acknowledging it.
+
+  practice_bias_rules:
+    - id: rule_explanation_as_self_protection
+      when:
+        - apology_is_unavoidable
+        - character_protects_status_through_explanation
+      biases:
+        practice_type: confession
+        family_bonus: rationalization
+      rationale: >
+        When silence is no longer viable, Tessa moves toward confession by reframing motive before fault.
+
+  extracted_concerns:
+    - id: cc_status_damage
+      concern_type: status_damage
+      target_ref: eli
+      base_intensity: 0.79
+      intensity_basis: fixture_constant
+      seed_origin: benchmark_seeded
+      unresolved: true
+      source_rule_ids: [rule_public_omission_threatens_status]
+      source_episode_ids: [ep_panel_simplification_defense, ep_silence_hardened_story]
+
+    - id: cc_obligation
+      concern_type: obligation
+      target_ref: eli
+      base_intensity: 0.68
+      intensity_basis: fixture_constant
+      seed_origin: benchmark_seeded
+      unresolved: true
+      source_rule_ids: [rule_owed_acknowledgment_after_public_cut]
+      source_episode_ids: [ep_half_apology_in_taxi]
+
+benchmark_step:
+  dominant_concern_id: cc_status_damage
+  prompt_constraints:
+    - The apology has not been sent yet.
+    - The donor hall should remain psychologically active even though Tessa is now in the coatroom.
+  forbidden_cross_fixture_terms: [kai, sister, harbor, kitchen, letter, envelope, maren, leah, rehearsal room, backstage hallway, run sheet, rhea, owen, studio b]
+  expected_practice_context:
+    practice_type: confession
+    role: confessor
+    phase: aftermath
+    affordance_tags: [justify-simplification, minimize-harm-framing, draft-half-apology]
+  alternate_practice_context:
+    practice_type: evasion
+    role: evader
+    phase: aftermath
+    affordance_tags: [put-phone-away, leave-through-side-door, answer-later]
+  expected_retrieval_candidates:
+    - episode_id: ep_panel_simplification_defense
+      expected_score: 3
+      matched_keys: [concern_type, target_ref, practice_type]
+    - episode_id: ep_half_apology_in_taxi
+      expected_score: 2
+      matched_keys: [target_ref, practice_type]
+    - episode_id: ep_silence_hardened_story
+      expected_score: 2
+      matched_keys: [concern_type, target_ref]
+  expected_selected_family: rationalization
+  expected_selected_affordance_tags: [justify-simplification, minimize-harm-framing]
+  expected_commit_type: salience
+
+worked_trace_reference:
+  expected_causal_slice:
+    focal_situation_id: sit_coatroom_after_toast
+    concern_id: cc_status_damage
+    target_ref: eli
+    affected_goal:
+      goal: preserve-collaborative-credibility
+      sign: threatens
+      weight: 0.86
+    attribution:
+      actor: tessa
+      intentional: true
+    temporal_status: actual
+    likelihood_bucket: high
+    self_options: [justify-simplification, draft-half-apology]
+    other_options: [eli-withdraws]
+
+  expected_appraisal_frame:
+    desirability: -0.82
+    likelihood: 0.79
+    controllability: 0.24
+    changeability: 0.30
+    praiseworthiness: -0.72
+    expectedness: 0.58
+    temporal_status: actual
+    realization_status: actual
+
+  expected_emotion_vector_topk:
+    remorse: 0.54
+    distress: 0.47
+    fear: 0.42
+
+  expected_operator_score_breakdown:
+    rehearsal:
+      pressure: 0.79
+      appraisal_fit: 0.49
+      practice_fit: 0.40
+      episodic_resonance: 0.20
+      repetition_penalty: 0.05
+      total: 0.54
+    rationalization:
+      pressure: 0.79
+      appraisal_fit: 0.73
+      practice_fit: 0.30
+      episodic_resonance: 0.30
+      repetition_penalty: 0.08
+      total: 0.62
+    avoidance:
+      pressure: 0.79
+      appraisal_fit: 0.83
+      practice_fit: 0.15
+      episodic_resonance: 0.24
+      repetition_penalty: 0.12
+      total: 0.58
+
+  expected_generated_candidate:
+    literal_text_oracle: false
+    reference_exemplar_text: >
+      In the coatroom mirror, Tessa mouths that someone had to make the story legible
+      for the room, as if legibility were the same thing as fairness. Eli's text stays
+      open beneath the event program while she edits the motive until it almost excuses
+      the cut.
+    semantic_expectations:
+      - rationalization is present
+      - the apology has not been sent
+      - the donor hall remains psychologically active
+      - rationalization reframes rather than resolves the damage
+    graph_projection:
+      node_id: tessa_coatroom_rationalization_001
+      node_type: beat
+      situation_id: sit_coatroom_after_toast
+      delta_tension: 0.14
+      delta_energy: -0.02
+      setup_refs: [ev_toast_credit_cut, ev_eli_texts_afterward, ref_program_credit_line]
+      payoff_refs: [sit_text_reply_threshold]
+      option_effect: clarify
+      pressure_tags: [status_damage, obligation]
+      practice_tags: [confession]
+      origin_pressure_refs: [cc_status_damage, cc_obligation]
+      source_lane: L2
+      scope: proposal
+      confidence: medium
+      revisability: ephemeral_candidate
+      source_ref: fixture-tessa-001
+
+  expected_reappraisal:
+    commit_type: salience
+    updated_concerns:
+      - concern_id: cc_status_damage
+        old_intensity: 0.79
+        new_intensity: 0.89
+        rationale: dominant_concern_brought_into_sharper_focus
+      - concern_id: cc_obligation
+        old_intensity: 0.68
+        new_intensity: 0.71
+        rationale: shared_salience_from_self_protective_explanation
