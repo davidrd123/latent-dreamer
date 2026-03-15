@@ -1312,6 +1312,38 @@ def compile_candidate_set(
         candidate_rows.append(row)
         candidates.append(result)
 
+    token_sets = [
+        candidate_word_tokens(result.parsed_response.get("candidate_text", "") if result.parsed_response else "")
+        for result in candidates
+    ]
+    for idx, row in enumerate(candidate_rows):
+        if len(token_sets) > 1:
+            sibling_distances = [
+                1.0 - jaccard_similarity(token_sets[idx], token_sets[other_idx])
+                for other_idx in range(len(token_sets))
+                if other_idx != idx
+            ]
+            sibling_diversity = sum(sibling_distances) / len(sibling_distances)
+        else:
+            sibling_diversity = 0.0
+        score = row["compilation_score"]
+        against_accepted = score["distinctiveness"]
+        combined_distinctiveness = (
+            sibling_diversity
+            if not accepted_texts
+            else (0.6 * against_accepted + 0.4 * sibling_diversity)
+        )
+        score["against_accepted"] = round(against_accepted, 3)
+        score["sibling_diversity"] = round(sibling_diversity, 3)
+        score["distinctiveness"] = round(combined_distinctiveness, 3)
+        score["total"] = round(
+            0.35 * score["specificity"]
+            + 0.30 * score["legibility"]
+            + 0.20 * score["distinctiveness"]
+            + 0.15 * score["coverage"],
+            3,
+        )
+
     hard_passes = [
         (idx, result, candidate_rows[idx]["compilation_score"])
         for idx, result in enumerate(candidates)
@@ -1343,6 +1375,53 @@ def compile_candidate_set(
         "selected_score": selected_score,
     }
     return selected_result
+
+
+def classify_temporal_relation(previous_result: ArmResult, current_result: ArmResult) -> str:
+    previous_graph = previous_result.parsed_response["graph_projection"]
+    current_graph = current_result.parsed_response["graph_projection"]
+    if current_graph["situation_id"] != previous_graph["situation_id"]:
+        return "after"
+    if (
+        current_result.trace.get("selected_operator_family") == "rehearsal"
+        and any(ref != current_graph["situation_id"] for ref in current_graph.get("payoff_refs", []))
+    ):
+        return "rehearsal_for"
+    if current_graph.get("option_effect") in {"open", "close"} and previous_graph.get("option_effect") in {"none", "clarify"}:
+        return "after"
+    return "during"
+
+
+def detect_boundary_transition(previous_result: ArmResult, current_result: ArmResult) -> Dict[str, Any]:
+    if previous_result.parsed_response is None or current_result.parsed_response is None:
+        return {
+            "segment_decision": "same_segment",
+            "temporal_relation": "during",
+            "reasons": ["missing_graph_projection"],
+        }
+
+    previous_graph = previous_result.parsed_response["graph_projection"]
+    current_graph = current_result.parsed_response["graph_projection"]
+    reasons: List[str] = []
+    if current_graph["situation_id"] != previous_graph["situation_id"]:
+        reasons.append("situation_changed")
+    if current_result.trace.get("dominant_concern_id") != previous_result.trace.get("dominant_concern_id"):
+        reasons.append("dominant_concern_changed")
+    if current_result.trace.get("selected_operator_family") != previous_result.trace.get("selected_operator_family"):
+        reasons.append("operator_family_changed")
+    if current_graph.get("practice_tags") != previous_graph.get("practice_tags"):
+        reasons.append("practice_context_changed")
+    if (
+        current_graph.get("option_effect") in {"open", "close"}
+        and previous_graph.get("option_effect") in {"none", "clarify"}
+    ):
+        reasons.append("option_effect_crossed_commit_threshold")
+
+    return {
+        "segment_decision": "new_segment" if reasons else "same_segment",
+        "temporal_relation": classify_temporal_relation(previous_result, current_result),
+        "reasons": reasons,
+    }
 
 
 def choose_commit_type(
@@ -1762,8 +1841,10 @@ def run_middle_sequence(
     used_node_ids: Set[str] = set()
     accepted_texts: List[str] = []
     covered_refs: Set[str] = set()
+    current_segment_index = 1
 
     for step_index in range(1, steps + 1):
+        previous_result = results[-1] if results else None
         reminder_episode = retrieve_one_hop_reminder(
             fixture,
             episode_pool,
@@ -1791,14 +1872,20 @@ def run_middle_sequence(
 
         semantic_checks = result.trace.get("semantic_checks", {})
         accepted = bool(result.graph_validation["valid"]) and semantic_checks.get("no_cross_fixture_contamination", True)
+        boundary = detect_boundary_transition(previous_result, result) if previous_result is not None else None
+        if boundary and boundary["segment_decision"] == "new_segment":
+            current_segment_index += 1
         step_record: Dict[str, Any] = {
             "step_index": step_index,
+            "segment_index": current_segment_index,
             "dominant_concern_id": result.trace.get("dominant_concern_id"),
             "selected_operator_family": result.trace.get("selected_operator_family"),
             "selected_retrieved_episode_ids": result.trace.get("selected_retrieved_episode_ids", []),
             "reminder_episode_id": result.trace.get("reminder_episode_id"),
             "accepted": accepted,
         }
+        if boundary is not None:
+            step_record["boundary_from_previous"] = boundary
         if result.parsed_response is not None:
             step_record["graph_projection"] = result.parsed_response["graph_projection"]
             step_record["candidate_compilation"] = result.trace.get("candidate_compilation")
