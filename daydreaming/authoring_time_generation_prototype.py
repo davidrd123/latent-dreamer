@@ -130,6 +130,122 @@ def select_dominant_concern(fixture: Dict[str, Any]) -> Dict[str, Any]:
     return deepcopy(concerns[dominant_id])
 
 
+def normalize_concern_rules(fixture: Dict[str, Any]) -> Dict[str, Any]:
+    extraction = fixture.get("concern_extraction", {})
+    theme_rules = extraction.get("theme_rules") or extraction.get("concern_extraction_rules") or []
+    practice_bias_rules = extraction.get("practice_bias_rules", [])
+    return {
+        "primitive_facts": set(extraction.get("primitive_facts", [])),
+        "theme_rules": [
+            {
+                "id": rule["id"],
+                "when": list(rule.get("when", [])),
+                "yields": dict(rule.get("yields", {})),
+                "rationale": rule.get("rationale"),
+            }
+            for rule in theme_rules
+        ],
+        "practice_bias_rules": [
+            {
+                "id": rule["id"],
+                "when": list(rule.get("when", [])),
+                "biases": dict(rule.get("biases", {})),
+                "rationale": rule.get("rationale"),
+            }
+            for rule in practice_bias_rules
+        ],
+    }
+
+
+def infer_concerns_from_primitives(fixture: Dict[str, Any]) -> Dict[str, Any]:
+    normalized = normalize_concern_rules(fixture)
+    primitive_facts = normalized["primitive_facts"]
+    seeded_concerns = fixture.get("concern_extraction", {}).get("extracted_concerns", [])
+    seeded_by_pair = {
+        (item["concern_type"], item["target_ref"]): item
+        for item in seeded_concerns
+    }
+
+    fired_theme_rules = []
+    candidate_pairs: Dict[Tuple[str, str], Dict[str, Any]] = {}
+    for rule in normalized["theme_rules"]:
+        if set(rule["when"]).issubset(primitive_facts):
+            fired_theme_rules.append(rule["id"])
+            yields = rule["yields"]
+            pair = (yields["concern_type"], yields["target_ref"])
+            entry = candidate_pairs.setdefault(
+                pair,
+                {
+                    "concern_type": yields["concern_type"],
+                    "target_ref": yields["target_ref"],
+                    "source_rule_ids": [],
+                    "source_episode_ids": [],
+                    "unresolved": True,
+                    "intensity_basis": "inferred_from_primitives",
+                    "seed_origin": "shadow_inference",
+                },
+            )
+            entry["source_rule_ids"].append(rule["id"])
+
+    for pair, entry in candidate_pairs.items():
+        concern_type, target_ref = pair
+        supporting_episode_ids = []
+        for episode in fixture.get("backstory_episodes", []):
+            tags = episode.get("retrieval_tags", {})
+            if tags.get("concern_type") == concern_type and tags.get("target_ref") == target_ref:
+                supporting_episode_ids.append(episode["id"])
+        seeded = seeded_by_pair.get(pair)
+        entry["id"] = seeded["id"] if seeded else f"ci_{concern_type}_{target_ref}"
+        entry["source_episode_ids"] = supporting_episode_ids
+        entry["base_intensity"] = round(
+            min(0.95, 0.45 + 0.14 * len(entry["source_rule_ids"]) + 0.06 * len(supporting_episode_ids)),
+            2,
+        )
+
+    inferred_concerns = sorted(
+        candidate_pairs.values(),
+        key=lambda item: (-float(item["base_intensity"]), item["concern_type"], item["target_ref"]),
+    )
+
+    fired_practice_bias_rules = [
+        rule["id"]
+        for rule in normalized["practice_bias_rules"]
+        if set(rule["when"]).issubset(primitive_facts)
+    ]
+
+    inferred_by_id = {item["id"]: item for item in inferred_concerns}
+    comparisons = []
+    for seeded in seeded_concerns:
+        inferred = inferred_by_id.get(seeded["id"])
+        comparisons.append(
+            {
+                "concern_id": seeded["id"],
+                "seeded_concern_type": seeded["concern_type"],
+                "seeded_target_ref": seeded["target_ref"],
+                "seeded_base_intensity": seeded["base_intensity"],
+                "inferred_present": inferred is not None,
+                "inferred_base_intensity": inferred.get("base_intensity") if inferred else None,
+                "intensity_delta": round(inferred["base_intensity"] - seeded["base_intensity"], 2) if inferred else None,
+                "source_rule_match": sorted(seeded.get("source_rule_ids", [])) == sorted((inferred or {}).get("source_rule_ids", [])),
+                "source_episode_overlap": sorted(set(seeded.get("source_episode_ids", [])) & set((inferred or {}).get("source_episode_ids", []))),
+            }
+        )
+
+    seeded_dominant_id = fixture["benchmark_step"]["dominant_concern_id"]
+    inferred_dominant_id = inferred_concerns[0]["id"] if inferred_concerns else None
+    return {
+        "mode": "shadow_seeded_driver",
+        "primitive_facts": sorted(primitive_facts),
+        "fired_theme_rules": fired_theme_rules,
+        "fired_practice_bias_rules": fired_practice_bias_rules,
+        "inferred_concerns": inferred_concerns,
+        "seeded_vs_inferred": comparisons,
+        "seeded_dominant_concern_id": seeded_dominant_id,
+        "inferred_dominant_concern_id": inferred_dominant_id,
+        "dominant_match": inferred_dominant_id == seeded_dominant_id,
+    }
+
+
 def build_causal_slice(fixture: Dict[str, Any], concern: Dict[str, Any]) -> Dict[str, Any]:
     expected = fixture.get("worked_trace_reference", {}).get("expected_causal_slice")
     if expected:
@@ -1206,6 +1322,7 @@ def run_arm_middle(
     ablation: str = "none",
 ) -> ArmResult:
     concerns = fixture["concern_extraction"]["extracted_concerns"]
+    concern_inference = infer_concerns_from_primitives(fixture)
     dominant_concern = select_dominant_concern(fixture)
     active_situation_id = fixture["situations"][0]["id"]
     causal_slice = None if ablation == "no_causal_slice" else build_causal_slice(fixture, dominant_concern)
@@ -1262,6 +1379,7 @@ def run_arm_middle(
         "ablation": ablation,
         "timestamp": utc_now_iso(),
         "dominant_concern_id": dominant_concern["id"],
+        "concern_inference": concern_inference,
         "retrieval_scores": all_scored,
         "selected_operator_family": operator_family,
         "selected_affordance_tags": affordance_tags,
