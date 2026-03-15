@@ -354,6 +354,10 @@ could be useful.
 
 ### Three approaches to LLM inner state
 
+These are not equally mature. `1` is the current architecture. `2`
+is the safest expansion hypothesis. `3` is promising but should only
+advance through explicit experiments, not by assumption.
+
 **1. Pure external scaffolding (current architecture).**
 The concern state is entirely external. The LLM is a stateless
 content generator called with different prompts. The daemon

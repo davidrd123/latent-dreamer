@@ -541,12 +541,32 @@ If the evaluation can't distinguish real operator diversity from
 relabeled templates, then measuring the effect of Q5's operator
 rotation or Q8's retrieval balancing is unreliable.
 
+Q5's reply sharpens this: "If evaluation cannot distinguish a
+genuine rationalization beat from an avoidance beat wearing
+rationalization tokens, you will over-credit the MVP." And Q5's
+MVP adds trace signals (`history_penalty`, `exploration_bonus`,
+`sequence_target_family`) that are structural, not prose-dependent.
+So there may be two evaluation tiers:
+
+- **Structural tier:** Did different operators actually win? Was
+  the exploration bonus the reason? Did graph projections carry
+  different pressure_tags and option_effects? These signals don't
+  depend on keyword checks.
+- **Prose tier:** Is the generated text actually *doing* the
+  operator's dramatic work, or just wearing its label? This is
+  where the semantic checks matter.
+
+The structural tier is already partially available through trace
+output and admission metrics. The prose tier is the weak link.
+
 ### What we want
 
 Evaluation that can tell us whether two candidates are doing the
 same dramatic work, regardless of surface vocabulary. Not an LLM
 judge (too slow for batch), but something better than keyword
-presence.
+presence. And clarity about which evaluation questions can be
+answered structurally (from traces and graph projections) vs.
+which require prose-level checks.
 
 ### Prompt to paste
 
@@ -648,7 +668,12 @@ This likely affects:
 - **Operator distinctiveness (Q5):** Different operators should
   produce different prose textures. But if the prompt presents all
   operators the same way (as JSON with an operator_family label),
-  the model has to do the texture differentiation itself.
+  the model has to do the texture differentiation itself. Q5's
+  reply flagged this directly: "Because `build_middle_prompt()`
+  names the selected operator explicitly, the model may comply
+  with the label more than with the changed situation logic."
+  A natural-language prompt would let the model infer behavior
+  from circumstances rather than comply with a named label.
 
 ### What we want
 
