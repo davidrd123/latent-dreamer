@@ -158,7 +158,14 @@ concern_extraction:
   note: >
     v1 records a reproducible path from narrative primitives to active concerns,
     then seeds the benchmark concerns directly for the run.
-  concern_extraction_rules:
+  primitive_facts:
+    - damaged_collaboration_is_live
+    - imminent_shared_work
+    - unrepaired_breach_with_target
+    - contact_could_reopen_bond
+    - entry_is_imminent
+    - character_defaults_to_wording_control
+  theme_rules:
     - id: rule_shared_work_requires_approach
       when:
         - damaged_collaboration_is_live

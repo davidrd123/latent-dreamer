@@ -146,6 +146,13 @@ concern_extraction:
   note: >
     v1 records a reproducible path from narrative primitives to active concerns,
     then seeds the benchmark concerns directly for the run.
+  primitive_facts:
+    - prior_public_record_dispute
+    - current_meeting_about_credit
+    - agreed_face_to_face_meeting
+    - confrontation_is_imminent
+    - character_defaults_to_scripted_openings
+    - prior_delay_had_social_cost
   theme_rules:
     - id: rule_public_credit_threat
       when:

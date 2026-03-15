@@ -158,7 +158,14 @@ concern_extraction:
     v1 records the path from narrative primitives to active concerns with
     tiny theme-rule-style triggers, then hand-specifies the resulting
     concern instances for the benchmark run.
-  concern_extraction_rules:
+  primitive_facts:
+    - incoming_contact_from_estranged_target
+    - prior_rupture_unresolved
+    - contact_requests_action
+    - deadline_is_near
+    - known_avoidance_history
+    - same_target_reappears
+  theme_rules:
     - id: rule_unanswered_repair_bid
       when:
         - incoming_contact_from_estranged_target
@@ -216,6 +223,10 @@ concern_extraction:
 
 benchmark_step:
   dominant_concern_id: cc_attachment_threat
+  prompt_constraints:
+    - The letter remains unopened.
+    - The harbor should remain psychologically present even though Kai is in the kitchen.
+  forbidden_cross_fixture_terms: [maren, leah, rehearsal room, backstage hallway, run sheet]
   expected_practice_context:
     practice_type: evasion
     role: evader
