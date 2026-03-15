@@ -372,6 +372,7 @@ def build_causal_slice(
     active_situation = resolve_situation(fixture, active_situation_id)
     actor_id = fixture["characters"][0]["id"]
     concern_type = concern["concern_type"]
+    primitive_facts = set(fixture.get("concern_extraction", {}).get("primitive_facts", []))
     if concern_type == "attachment_threat":
         return {
             "focal_situation_id": active_situation["id"],
@@ -389,6 +390,27 @@ def build_causal_slice(
             "other_options": ["sister-withdraws"],
         }
     if concern_type == "status_damage":
+        aftermath = bool(active_situation.get("current_state", {}).get("event_over")) or "event_already_happened" in primitive_facts
+        expected_practice = fixture.get("benchmark_step", {}).get("expected_practice_context", {})
+        if aftermath:
+            confession_affordances = list(expected_practice.get("affordance_tags", []))
+            self_options = confession_affordances[:2] or ["justify-simplification", "draft-half-apology"]
+            target_ref = concern["target_ref"]
+            return {
+                "focal_situation_id": active_situation["id"],
+                "concern_id": concern["id"],
+                "target_ref": target_ref,
+                "affected_goal": {
+                    "goal": "preserve-collaborative-credibility",
+                    "sign": "threatens",
+                    "weight": 0.86,
+                },
+                "attribution": {"actor": actor_id, "intentional": True},
+                "temporal_status": "actual",
+                "likelihood_bucket": "high",
+                "self_options": self_options,
+                "other_options": [f"{target_ref}-withdraws"],
+            }
         return {
             "focal_situation_id": active_situation["id"],
             "concern_id": concern["id"],
@@ -488,6 +510,7 @@ def derive_appraisal_frame(
     active_situation = resolve_situation(fixture, causal_slice.get("focal_situation_id"))
     threshold = is_threshold_situation(active_situation)
     practice_votes = (practice_bias_summary or {}).get("practice_votes", {})
+    actual = causal_slice["temporal_status"] == "actual"
 
     desirability = round((-0.92 * weight) if threatens else (0.92 * weight), 2)
     controllability = {
@@ -495,6 +518,8 @@ def derive_appraisal_frame(
         "obligation": 0.38,
         "status_damage": 0.43,
     }.get(concern_type, 0.35)
+    if actual:
+        controllability -= 0.17
     if threshold:
         controllability += 0.06
     if len(causal_slice.get("self_options", [])) >= 2:
@@ -503,6 +528,8 @@ def derive_appraisal_frame(
         controllability += 0.10
     elif practice_votes.get("evasion", 0.0) > practice_votes.get("anticipated-confrontation", 0.0):
         controllability -= 0.08
+    if practice_votes.get("confession", 0.0) > 0.0:
+        controllability -= 0.10
     if ablation == "high_controllability":
         controllability = 0.68
     elif ablation == "low_controllability":
@@ -515,17 +542,19 @@ def derive_appraisal_frame(
         "obligation": -0.44,
         "status_damage": -0.61,
     }.get(concern_type, -0.18) if intentional and threatens else -0.18
-    expectedness = 0.72 if threshold and causal_slice["temporal_status"] == "prospective" else 0.76 if causal_slice["temporal_status"] == "prospective" else 0.50
+    if actual and concern_type == "status_damage" and intentional and threatens:
+        praiseworthiness = -0.72
+    expectedness = 0.58 if actual else 0.72 if threshold and causal_slice["temporal_status"] == "prospective" else 0.76 if causal_slice["temporal_status"] == "prospective" else 0.50
 
     return {
         "desirability": round(desirability, 2),
-        "likelihood": round(likelihood, 2),
+        "likelihood": round(0.79 if actual and causal_slice["likelihood_bucket"] == "high" else likelihood, 2),
         "controllability": round(controllability, 2),
         "changeability": round(changeability, 2),
         "praiseworthiness": round(praiseworthiness, 2),
         "expectedness": round(expectedness, 2),
         "temporal_status": causal_slice["temporal_status"],
-        "realization_status": "prospective",
+        "realization_status": "actual" if actual else "prospective",
     }
 
 
@@ -670,6 +699,7 @@ def score_operators(
     ablation: str = "none",
     *,
     use_expected_reference: bool = False,
+    practice_bias_summary: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Dict[str, float]]:
     expected = fixture.get("worked_trace_reference", {}).get("expected_operator_score_breakdown")
     if expected and ablation == "none" and use_expected_reference:
@@ -688,7 +718,7 @@ def score_operators(
             "rationalization": 0.42,
             "avoidance": 0.22,
         },
-        "confession": {"rehearsal": 0.40, "rationalization": 0.30, "avoidance": 0.15},
+        "confession": {"rehearsal": 0.24, "rationalization": 0.86, "avoidance": 0.18},
     }
 
     repetition_penalty = {"rehearsal": 0.05, "rationalization": 0.08, "avoidance": 0.12}
@@ -705,33 +735,38 @@ def score_operators(
             resonance["rationalization"] += 0.10
             resonance["avoidance"] += 0.04
         else:
-            resonance["avoidance"] += 0.08
-            resonance["rationalization"] += 0.10
-            resonance["rehearsal"] += 0.12
+            resonance["avoidance"] += 0.04
+            resonance["rationalization"] += 0.26
+            resonance["rehearsal"] += 0.08
 
+    actual = appraisal.get("temporal_status") == "actual"
+    blame = abs(min(0.0, praiseworthiness))
     appraisal_fit = {
-        "rehearsal": round(0.25 + likelihood * 0.20 + controllability * 0.35, 2),
+        "rehearsal": round(0.18 + likelihood * 0.16 + controllability * 0.34 + (0.16 if not actual else 0.0), 2),
         "rationalization": round(
-            0.30 + (1.0 - controllability) * 0.20 + abs(min(0.0, praiseworthiness)) * 0.35 + likelihood * 0.04,
+            0.22 + (1.0 - controllability) * 0.18 + blame * 0.32 + (0.18 if actual else 0.0),
             2,
         ),
-        "avoidance": round(0.38 + (1.0 - controllability) * 0.40 + likelihood * 0.18, 2),
+        "avoidance": round(0.30 + (1.0 - controllability) * 0.32 + likelihood * 0.16 + (0.08 if not actual else 0.0), 2),
     }
 
     if ablation == "no_causal_slice":
         appraisal_fit = {"rehearsal": 0.50, "rationalization": 0.50, "avoidance": 0.50}
 
+    family_votes = (practice_bias_summary or {}).get("family_votes", {})
     results: Dict[str, Dict[str, float]] = {}
     for family in family_names:
         pf = practice_fit_table[practice_context["practice_type"]][family]
         er = round(min(1.0, resonance[family]), 2)
         rp = repetition_penalty[family]
-        total = round(0.35 * pressure + 0.30 * appraisal_fit[family] + 0.20 * pf + 0.20 * er - 0.10 * rp, 2)
+        family_bonus = round(min(0.12, 0.06 * float(family_votes.get(family, 0.0))), 2)
+        total = round(0.35 * pressure + 0.30 * appraisal_fit[family] + 0.20 * pf + 0.20 * er + family_bonus - 0.10 * rp, 2)
         results[family] = {
             "pressure": round(pressure, 2),
             "appraisal_fit": round(appraisal_fit[family], 2),
             "practice_fit": round(pf, 2),
             "episodic_resonance": er,
+            "family_bonus": family_bonus,
             "repetition_penalty": round(rp, 2),
             "total": total,
         }
@@ -748,7 +783,11 @@ def default_affordance_tags(practice_context: Dict[str, Any], family: str) -> Li
     if family == "avoidance":
         return [tag for tag in affordances if tag in {"delay-contact", "ritual-distraction"}] or affordances[:2]
     if family == "rationalization":
-        return [tag for tag in affordances if tag in {"prepare-excuse"}] or affordances[:1]
+        return ([
+            tag
+            for tag in affordances
+            if tag in {"prepare-excuse", "justify-simplification", "minimize-harm-framing", "explain-motive", "draft-half-apology"}
+        ][:2]) or affordances[:2]
     return affordances[:2]
 
 
@@ -2044,6 +2083,7 @@ def run_arm_middle(
         retrieved,
         ablation,
         use_expected_reference=use_expected_reference,
+        practice_bias_summary=practice_bias_summary,
     )
     operator_family = select_operator(score_breakdown)
     affordance_tags = default_affordance_tags(practice_context, operator_family)

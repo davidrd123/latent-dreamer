@@ -7,6 +7,7 @@ from daydreaming.authoring_time_generation_prototype import (
     classify_temporal_relation,
     choose_commit_type,
     compile_candidate_set,
+    default_affordance_tags,
     default_active_situation_id,
     derive_appraisal_frame,
     derive_practice_context,
@@ -14,6 +15,9 @@ from daydreaming.authoring_time_generation_prototype import (
     infer_concerns_from_primitives,
     load_yaml,
     reappraise_concerns,
+    retrieve_episodes,
+    score_operators,
+    select_operator,
     summarize_practice_biases,
 )
 
@@ -22,6 +26,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 KAI_FIXTURE = REPO_ROOT / "daydreaming/fixtures/authoring_time_generation_kai_letter_v1.yaml"
 RHEA_FIXTURE = REPO_ROOT / "daydreaming/fixtures/authoring_time_generation_rhea_credit_meeting_v1.yaml"
 MAREN_FIXTURE = REPO_ROOT / "daydreaming/fixtures/authoring_time_generation_maren_opening_line_v1.yaml"
+TESSA_FIXTURE = REPO_ROOT / "daydreaming/fixtures/authoring_time_generation_tessa_toast_rationalization_v1.yaml"
 
 
 class AuthoringTimeGenerationPrototypeTests(unittest.TestCase):
@@ -29,6 +34,7 @@ class AuthoringTimeGenerationPrototypeTests(unittest.TestCase):
         self.fixture = load_yaml(KAI_FIXTURE)
         self.rhea_fixture = load_yaml(RHEA_FIXTURE)
         self.maren_fixture = load_yaml(MAREN_FIXTURE)
+        self.tessa_fixture = load_yaml(TESSA_FIXTURE)
 
     def test_single_candidate_compilation_keeps_prior_distinctiveness(self) -> None:
         result = compile_candidate_set(
@@ -225,6 +231,60 @@ class AuthoringTimeGenerationPrototypeTests(unittest.TestCase):
         self.assertEqual(causal_slice["self_options"], ["draft-opening-line", "enter-room"])
         self.assertEqual(causal_slice["other_options"], ["target-hardens"])
         self.assertGreaterEqual(appraisal["controllability"], 0.5)
+
+    def test_tessa_derived_path_prefers_rationalization(self) -> None:
+        concern_inference = infer_concerns_from_primitives(self.tessa_fixture)
+        bias_summary = summarize_practice_biases(self.tessa_fixture, concern_inference)
+        dominant = concern_inference["inferred_concerns"][0]
+        active_situation_id = default_active_situation_id(self.tessa_fixture)
+        causal_slice = build_causal_slice(
+            self.tessa_fixture,
+            dominant,
+            active_situation_id=active_situation_id,
+            use_expected_reference=False,
+        )
+        appraisal = derive_appraisal_frame(
+            self.tessa_fixture,
+            causal_slice,
+            ablation="none",
+            use_expected_reference=False,
+            practice_bias_summary=bias_summary,
+        )
+        practice_context = derive_practice_context(
+            self.tessa_fixture,
+            appraisal,
+            ablation="none",
+            use_expected_reference=False,
+            practice_bias_summary=bias_summary,
+        )
+        retrieved, _ = retrieve_episodes(
+            self.tessa_fixture,
+            dominant,
+            active_situation_id,
+            practice_context,
+            ablation="none",
+        )
+        score_breakdown = score_operators(
+            self.tessa_fixture,
+            dominant,
+            appraisal,
+            practice_context,
+            retrieved,
+            ablation="none",
+            use_expected_reference=False,
+            practice_bias_summary=bias_summary,
+        )
+
+        self.assertEqual(causal_slice["temporal_status"], "actual")
+        self.assertEqual(causal_slice["self_options"], ["justify-simplification", "minimize-harm-framing"])
+        self.assertLess(appraisal["controllability"], 0.35)
+        self.assertEqual(appraisal["realization_status"], "actual")
+        self.assertEqual(practice_context["practice_type"], "confession")
+        self.assertEqual(select_operator(score_breakdown), "rationalization")
+        self.assertEqual(
+            default_affordance_tags(practice_context, "rationalization"),
+            ["justify-simplification", "minimize-harm-framing"],
+        )
 
 
 if __name__ == "__main__":
