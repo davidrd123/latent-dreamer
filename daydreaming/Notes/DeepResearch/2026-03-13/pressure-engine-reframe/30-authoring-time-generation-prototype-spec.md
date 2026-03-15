@@ -109,6 +109,36 @@ Active situation:
 - unopened letter from estranged sister
 - asks to meet that night at the harbor
 
+## Concern extraction in `v1`
+
+The benchmark may begin from hand-specified active concerns, but the
+path from narrative primitives to those concerns must still be recorded.
+
+For `v1`:
+
+- use a tiny theme-rule-style extraction layer
+- keep the rules explicit in the benchmark fixture
+- allow the benchmark to start from hand-specified concern instances
+  after those rules fire
+
+This keeps the first prototype reproducible without pretending concern
+extraction has already been solved generally.
+
+Minimum expectation:
+
+- 2-3 explicit concern extraction rules
+- a visible mapping from:
+  - character seed
+  - backstory episodes
+  - active situation
+  to:
+  - initial concerns
+
+The benchmark fixture should therefore contain both:
+
+- extraction rules
+- the resulting initial concern state used for the first run
+
 ---
 
 ## Prototype arms
