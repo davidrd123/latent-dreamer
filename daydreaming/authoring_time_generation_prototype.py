@@ -19,12 +19,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
@@ -1152,6 +1153,198 @@ def build_generated_episode(
     }
 
 
+def normalize_candidate_node_id(
+    result: ArmResult,
+    used_node_ids: Set[str],
+    *,
+    sequence_step: Optional[int],
+    candidate_index: int,
+) -> Optional[str]:
+    if result.parsed_response is None:
+        return None
+    graph_projection = result.parsed_response["graph_projection"]
+    original = graph_projection["node_id"]
+    candidate = original
+    if candidate in used_node_ids:
+        suffix = []
+        if sequence_step is not None:
+            suffix.append(f"s{sequence_step:02d}")
+        suffix.append(f"c{candidate_index:02d}")
+        candidate = f"{original}_{'_'.join(suffix)}"
+        while candidate in used_node_ids:
+            candidate = f"{candidate}_dup"
+        graph_projection["node_id"] = candidate
+        if result.sidecar is not None:
+            result.sidecar["node_id"] = candidate
+        if "graph_projection" in result.trace:
+            result.trace["graph_projection"]["node_id"] = candidate
+        result.raw_response = json.dumps(result.parsed_response, indent=2)
+        return candidate
+    return None
+
+
+def candidate_word_tokens(text: str) -> Set[str]:
+    return {
+        token
+        for token in re.findall(r"[a-z0-9']+", text.lower())
+        if len(token) >= 4
+    }
+
+
+def jaccard_similarity(a: Set[str], b: Set[str]) -> float:
+    if not a or not b:
+        return 0.0
+    union = a | b
+    if not union:
+        return 0.0
+    return len(a & b) / len(union)
+
+
+def semantic_pass_ratio(checks: Dict[str, Any]) -> float:
+    relevant = {
+        key: value
+        for key, value in checks.items()
+        if key != "no_cross_fixture_contamination"
+    }
+    if not relevant:
+        return 0.0
+    passed = sum(1 for value in relevant.values() if value)
+    return passed / len(relevant)
+
+
+def score_candidate_for_compilation(
+    result: ArmResult,
+    *,
+    covered_refs: Set[str],
+    accepted_texts: List[str],
+) -> Dict[str, Any]:
+    semantic_checks = result.trace.get("semantic_checks", {})
+    hard_errors: List[str] = []
+    if not result.graph_validation["valid"]:
+        hard_errors.append("graph_invalid")
+    if semantic_checks.get("no_cross_fixture_contamination") is False:
+        hard_errors.append("cross_fixture_contamination")
+
+    candidate_text = result.parsed_response.get("candidate_text", "") if result.parsed_response else ""
+    graph_projection = result.parsed_response.get("graph_projection", {}) if result.parsed_response else {}
+    refs = set(graph_projection.get("setup_refs", [])) | set(graph_projection.get("payoff_refs", []))
+
+    specificity = min(1.0, len(candidate_word_tokens(candidate_text)) / 24.0)
+    legibility = semantic_pass_ratio(semantic_checks)
+    novelty = 1.0
+    if accepted_texts:
+        current_tokens = candidate_word_tokens(candidate_text)
+        novelty = 1.0 - max(
+            jaccard_similarity(current_tokens, candidate_word_tokens(previous))
+            for previous in accepted_texts
+        )
+    coverage = (len(refs - covered_refs) / len(refs)) if refs else 0.0
+    total = round(
+        0.35 * specificity
+        + 0.30 * legibility
+        + 0.20 * novelty
+        + 0.15 * coverage,
+        3,
+    )
+
+    return {
+        "hard_pass": not hard_errors,
+        "hard_errors": hard_errors,
+        "specificity": round(specificity, 3),
+        "legibility": round(legibility, 3),
+        "distinctiveness": round(novelty, 3),
+        "coverage": round(coverage, 3),
+        "total": total,
+    }
+
+
+def compile_candidate_set(
+    fixture: Dict[str, Any],
+    provider: str,
+    model: Optional[str],
+    *,
+    ablation: str,
+    use_inferred_concerns: bool,
+    concerns_override: Optional[List[Dict[str, Any]]],
+    episode_pool: Optional[List[Dict[str, Any]]],
+    reminder_episode: Optional[Dict[str, Any]],
+    sequence_step: Optional[int],
+    use_runtime_dominance: bool,
+    candidates_per_step: int,
+    used_node_ids: Set[str],
+    accepted_texts: List[str],
+    covered_refs: Set[str],
+) -> ArmResult:
+    candidates: List[ArmResult] = []
+    candidate_rows: List[Dict[str, Any]] = []
+    for candidate_index in range(1, candidates_per_step + 1):
+        result = run_arm_middle(
+            fixture,
+            provider,
+            model,
+            ablation,
+            use_inferred_concerns=use_inferred_concerns,
+            concerns_override=concerns_override,
+            episode_pool=episode_pool,
+            reminder_episode=reminder_episode,
+            sequence_step=sequence_step,
+            use_runtime_dominance=use_runtime_dominance,
+        )
+        result.trace["candidate_index"] = candidate_index
+        renamed_to = normalize_candidate_node_id(
+            result,
+            used_node_ids,
+            sequence_step=sequence_step,
+            candidate_index=candidate_index,
+        )
+        compilation_score = score_candidate_for_compilation(
+            result,
+            covered_refs=covered_refs,
+            accepted_texts=accepted_texts,
+        )
+        row = {
+            "candidate_index": candidate_index,
+            "selected_operator_family": result.trace.get("selected_operator_family"),
+            "node_id": result.parsed_response["graph_projection"]["node_id"] if result.parsed_response else None,
+            "renamed_node_id_to": renamed_to,
+            "compilation_score": compilation_score,
+        }
+        candidate_rows.append(row)
+        candidates.append(result)
+
+    hard_passes = [
+        (idx, result, candidate_rows[idx]["compilation_score"])
+        for idx, result in enumerate(candidates)
+        if candidate_rows[idx]["compilation_score"]["hard_pass"]
+    ]
+    if hard_passes:
+        ranked = sorted(
+            hard_passes,
+            key=lambda item: (
+                -item[2]["total"],
+                -item[2]["legibility"],
+                -item[2]["specificity"],
+                item[0],
+            ),
+        )
+        selected_idx, selected_result, selected_score = ranked[0]
+        selection_reason = "highest_soft_score_after_hard_filter"
+    else:
+        selected_idx = 0
+        selected_result = candidates[0]
+        selected_score = candidate_rows[0]["compilation_score"]
+        selection_reason = "fallback_no_hard_pass_candidates"
+
+    selected_result.trace["candidate_compilation"] = {
+        "candidates_per_step": candidates_per_step,
+        "selection_reason": selection_reason,
+        "selected_candidate_index": selected_idx + 1,
+        "rows": candidate_rows,
+        "selected_score": selected_score,
+    }
+    return selected_result
+
+
 def choose_commit_type(
     fixture: Dict[str, Any],
     graph_projection: Dict[str, Any],
@@ -1549,6 +1742,7 @@ def run_middle_sequence(
     *,
     steps: int,
     use_inferred_concerns: bool,
+    candidates_per_step: int,
 ) -> Tuple[List[ArmResult], Dict[str, Any]]:
     concerns = deepcopy(
         infer_concerns_from_primitives(fixture)["inferred_concerns"]
@@ -1562,8 +1756,12 @@ def run_middle_sequence(
         "arm": "middle-sequence",
         "timestamp": utc_now_iso(),
         "concern_driver": "inferred" if use_inferred_concerns else "seeded",
+        "candidates_per_step": candidates_per_step,
         "steps": [],
     }
+    used_node_ids: Set[str] = set()
+    accepted_texts: List[str] = []
+    covered_refs: Set[str] = set()
 
     for step_index in range(1, steps + 1):
         reminder_episode = retrieve_one_hop_reminder(
@@ -1572,17 +1770,21 @@ def run_middle_sequence(
             accepted_episode,
             exclude_episode_ids=[ep["id"] for ep in episode_pool if ep.get("episode_kind") == "generated"],
         )
-        result = run_arm_middle(
+        result = compile_candidate_set(
             fixture,
             provider,
             model,
-            "none",
+            ablation="none",
             use_inferred_concerns=use_inferred_concerns,
             concerns_override=concerns,
             episode_pool=episode_pool,
             reminder_episode=reminder_episode,
             sequence_step=step_index,
             use_runtime_dominance=(step_index > 1),
+            candidates_per_step=candidates_per_step,
+            used_node_ids=used_node_ids,
+            accepted_texts=accepted_texts,
+            covered_refs=covered_refs,
         )
         result.arm = f"middle-step-{step_index:02d}"
         results.append(result)
@@ -1599,6 +1801,7 @@ def run_middle_sequence(
         }
         if result.parsed_response is not None:
             step_record["graph_projection"] = result.parsed_response["graph_projection"]
+            step_record["candidate_compilation"] = result.trace.get("candidate_compilation")
         if result.trace.get("updated_concerns") is not None:
             step_record["updated_concerns"] = result.trace["updated_concerns"]
         sequence_trace["steps"].append(step_record)
@@ -1608,10 +1811,15 @@ def run_middle_sequence(
             continue
 
         concerns = deepcopy(result.trace["updated_concerns"])
+        graph_projection = result.parsed_response["graph_projection"]
+        used_node_ids.add(graph_projection["node_id"])
+        covered_refs.update(graph_projection.get("setup_refs", []))
+        covered_refs.update(graph_projection.get("payoff_refs", []))
+        accepted_texts.append(result.parsed_response.get("candidate_text", ""))
         accepted_episode = build_generated_episode(
             fixture,
             step_index,
-            result.parsed_response["graph_projection"],
+            graph_projection,
             result.parsed_response.get("candidate_text", ""),
             {
                 "id": result.trace["dominant_concern_id"],
@@ -1660,6 +1868,11 @@ def build_summary(
             lines.append(f"- validation errors: `{result.graph_validation['errors']}`")
         if result.trace.get("selected_operator_family"):
             lines.append(f"- selected operator: `{result.trace['selected_operator_family']}`")
+        if result.trace.get("candidate_compilation"):
+            compilation = result.trace["candidate_compilation"]
+            lines.append(
+                f"- candidate compiler: selected `{compilation['selected_candidate_index']}` / `{compilation['candidates_per_step']}` by `{compilation['selection_reason']}`"
+            )
         if result.trace.get("semantic_checks"):
             lines.append(f"- semantic checks: `{result.trace['semantic_checks']}`")
         lines.append("")
@@ -1720,6 +1933,12 @@ def parse_args() -> argparse.Namespace:
         default=1,
         help="Run the middle arm as a multi-step sequence of this length.",
     )
+    parser.add_argument(
+        "--candidates-per-step",
+        type=int,
+        default=1,
+        help="Generate this many middle-arm candidates per step, then greedily compile to one accepted candidate.",
+    )
     return parser.parse_args()
 
 
@@ -1749,18 +1968,38 @@ def main() -> int:
                 args.model,
                 steps=args.sequence_steps,
                 use_inferred_concerns=args.use_inferred_concerns,
+                candidates_per_step=args.candidates_per_step,
             )
             results.extend(sequence_results)
         else:
-            results.append(
-                run_arm_middle(
+            if args.arm in {"middle", "both"} and args.candidates_per_step > 1:
+                selected = compile_candidate_set(
                     fixture,
                     args.provider,
                     args.model,
-                    args.ablation,
+                    ablation=args.ablation,
                     use_inferred_concerns=args.use_inferred_concerns,
+                    concerns_override=None,
+                    episode_pool=None,
+                    reminder_episode=None,
+                    sequence_step=None,
+                    use_runtime_dominance=False,
+                    candidates_per_step=args.candidates_per_step,
+                    used_node_ids=set(),
+                    accepted_texts=[],
+                    covered_refs=set(),
                 )
-            )
+                results.append(selected)
+            else:
+                results.append(
+                    run_arm_middle(
+                        fixture,
+                        args.provider,
+                        args.model,
+                        args.ablation,
+                        use_inferred_concerns=args.use_inferred_concerns,
+                    )
+                )
             if args.run_ablation_suite:
                 for ablation in ("no_causal_slice", "high_controllability", "low_controllability", "swap_practice_context"):
                     results.append(
