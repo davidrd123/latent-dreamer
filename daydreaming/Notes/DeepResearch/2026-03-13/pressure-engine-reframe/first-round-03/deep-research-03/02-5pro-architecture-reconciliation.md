@@ -392,3 +392,96 @@ Include if context window allows:
 5. **Real design choices** — what you actually have to decide
 6. **Cheapest experiment** — what to try first
 7. **Scope boundary** — what not to decide yet
+
+---
+
+# Ask C: What should we be thinking about that we aren't?
+
+Send this after reading Ask A and Ask B replies. Reference both.
+
+## Purpose
+
+Asks A and B mapped the design space and reconciled our specific
+architecture. Ask C steps back further. We want 5 Pro to think
+about the project's trajectory, risks, and blind spots at a
+level above the implementation.
+
+We arrived at our current approach through a specific research
+path (Mueller → EMA/OCC → Versu → Facade) and a specific
+creative context (conducted performance for Graffito). That path
+shaped what we see and what we don't. Ask C is about what we
+might not be seeing.
+
+## Questions for Ask C
+
+### C1. What is the strongest version of this project?
+
+If you were advising someone building a cognitive character
+engine, and they had what we have (a working cognitive substrate,
+a generation pipeline, a traversal scheduler, a partially-tested
+Director, a physical control surface, and a creative brief from
+a filmmaker), what would you tell them the strongest version of
+this looks like?
+
+Not what we've planned — what the *strongest possible outcome*
+looks like given the ingredients. Where is the real leverage?
+What is the thing this system can do that nothing else can?
+
+### C2. What are the biggest risks to the vision?
+
+Not implementation risks (those we can manage). Conceptual risks:
+
+- Is there a reason this class of system hasn't been built
+  before that we're not seeing?
+- Are there fundamental tensions between the different goals
+  (conducted performance vs. general cognitive characters vs.
+  material supply scaling) that will force a choice we haven't
+  acknowledged?
+- Is the Mueller foundation the right one, or are we building
+  on a model that's elegant but too narrow for what we actually
+  want?
+- Could the LLM generation layer undermine the cognitive
+  architecture by making the structured middle layer irrelevant?
+  (If the LLM can produce good material with just a prompt and
+  temperature, why maintain CausalSlice and operator scoring?)
+
+### C3. Where is this project most likely to get stuck?
+
+Not "what's the next hard problem" — we have a queue for that.
+Where is the project most likely to plateau in a way that's hard
+to diagnose? What would a failure mode look like that we'd
+mistake for slow progress?
+
+### C4. What would falsify the whole direction?
+
+The experiential-design docs name three falsification criteria:
+1. Dreamer emotional dynamics invisible in any output modality
+2. Creative briefs don't survive contact with rendering
+3. Director is unnecessary
+
+Are these the right criteria? Are there others? What experiment
+would most efficiently test whether the direction is sound?
+
+### C5. What should we be reading or studying that we aren't?
+
+Given where the project sits in the design space (from Ask A),
+what research traditions, existing systems, or theoretical
+frameworks are we not drawing on that we should be? Not more
+papers to add to the pile — specific things that would change
+how we think about the project if we engaged with them.
+
+## Context to include for Ask C
+
+- This document (the Ask C section)
+- Ask A reply
+- Ask B reply
+- `Notes/dashboard.md` (for the blind spots appendix)
+- `pressure-engine-reframe/34-broader-application-surface.md`
+
+## Preferred answer format for Ask C
+
+1. **Strongest version** — what this could be at its best
+2. **Conceptual risks** — what could be fundamentally wrong
+3. **Plateau risks** — where we'd get stuck without knowing it
+4. **Falsification** — the right tests and whether ours are right
+5. **What to read** — specific recommendations, with why
