@@ -7,6 +7,13 @@ conducted daydreaming are general-purpose cognitive infrastructure,
 not performance-specific tooling. This note records a late-session
 discussion that should not be lost to compaction.
 
+Status: vision note, not build-order note.
+
+Danger: useful for long-horizon product framing, but dangerous if
+treated as a near-term implementation brief. The psychology/application
+surface below should not reopen the current execution queue or harden
+into kernel ontology without a separate falsifiable prototype.
+
 ---
 
 ## The observation
