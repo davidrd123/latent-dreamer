@@ -1500,9 +1500,11 @@ def detect_boundary_transition(previous_result: ArmResult, current_result: ArmRe
 def choose_commit_type(
     fixture: Dict[str, Any],
     graph_projection: Dict[str, Any],
+    *,
+    use_expected_reference: bool = False,
 ) -> str:
     expected = fixture["benchmark_step"].get("expected_commit_type")
-    if expected:
+    if expected and use_expected_reference:
         return expected
     option_effect = graph_projection.get("option_effect")
     if option_effect == "close":
@@ -1519,8 +1521,10 @@ def reappraise_concerns(
     appraisal: Dict[str, Any],
     commit_type: str,
     dominant_concern_id: str,
+    affected_concern_ids: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
     updated = deepcopy(concerns)
+    affected = set(affected_concern_ids or [dominant_concern_id])
     i_app = max(
         0.0,
         min(
@@ -1534,13 +1538,19 @@ def reappraise_concerns(
     for concern in updated:
         old = float(concern["base_intensity"])
         if commit_type == "ontic":
-            concern["base_intensity"] = round(i_app, 2)
+            if concern["id"] in affected:
+                concern["base_intensity"] = round(i_app, 2)
         elif commit_type == "policy":
-            concern["base_intensity"] = round(max(0.0, min(1.0, old - 0.15)), 2)
+            if concern["id"] in affected:
+                concern["base_intensity"] = round(max(0.0, min(1.0, old - 0.15)), 2)
         elif commit_type == "salience":
             if concern["id"] == dominant_concern_id:
                 concern["base_intensity"] = round(max(0.0, min(1.0, old + 0.10)), 2)
+            elif concern["id"] in affected:
+                # Affected but not dominant: slight intensity bump from shared salience
+                concern["base_intensity"] = round(max(0.0, min(1.0, old + 0.03)), 2)
             else:
+                # Truly unrelated: mild decay
                 concern["base_intensity"] = round(max(0.0, min(1.0, old - 0.05)), 2)
         else:
             concern["base_intensity"] = round(max(0.0, min(1.0, old * 0.95)), 2)
@@ -1877,7 +1887,11 @@ def run_arm_middle(
     if parsed_response is not None:
         graph_projection = parsed_response["graph_projection"]
         graph_validation = validate_graph_projection(fixture, graph_projection)
-        commit_type = choose_commit_type(fixture, graph_projection)
+        commit_type = choose_commit_type(
+            fixture,
+            graph_projection,
+            use_expected_reference=use_expected_reference,
+        )
         sidecar = build_sidecar(
             node_id=graph_projection["node_id"],
             concern_ids=[item["id"] for item in concerns],
@@ -1906,6 +1920,7 @@ def run_arm_middle(
                     appraisal,
                     commit_type,
                     dominant_concern["id"],
+                    affected_concern_ids=graph_projection.get("origin_pressure_refs", [dominant_concern["id"]]),
                 ),
             }
         )

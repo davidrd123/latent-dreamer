@@ -12,20 +12,16 @@ when it matters, not by when it was discovered.
    compilation (K=4) + boundary detection. Kai and Rhea.
    Codex is on this.
 
-2. **practice_tags list comparison uses ordering-sensitive match.**
-   Line ~1415 in harness. Should use set() to avoid false
-   positives. Quick fix.
+2. ~~**practice_tags list comparison uses ordering-sensitive match.**~~
+   DONE. Line 1485 now uses `set()`.
 
-3. **Memory files need updating.** `project_pressure_engine_reframe.md`
-   predates the authoring-time generation reframe and prototype
-   results. Should reflect current state.
+3. ~~**Memory files need updating.**~~ DONE. `project_pressure_engine_
+   reframe.md` updated to reflect current state.
 
-4. **Commit type should derive from accepted candidate effect, not fixture default.**
-   `choose_commit_type()` still prefers `benchmark_step.expected_commit_type`
-   over the accepted `graph_projection.option_effect`. That is fine for a
-   worked trace, but wrong for real sequence semantics because reappraisal
-   should follow what the accepted candidate actually did.
-   See: `daydreaming/authoring_time_generation_prototype.py`
+4. ~~**Commit type should derive from accepted candidate effect.**~~
+   DONE. `choose_commit_type()` now derives from `graph_projection.
+   option_effect` by default; fixture expected value only used when
+   `use_expected_reference=True`.
 
 5. **Graph validator is too weak on non-Gemini paths.**
    `validate_graph_projection()` checks required presence and resolvable refs,
@@ -41,11 +37,10 @@ when it matters, not by when it was discovered.
    `fixture["situations"][0]`.
    See: `daydreaming/authoring_time_generation_prototype.py`
 
-7. **Reappraisal currently rewrites all concerns, not just affected ones.**
-   For `ontic` and `policy` commits, unrelated concerns get flattened or
-   reduced too aggressively. Reappraisal should target the concerns actually
-   implicated by the accepted candidate.
-   See: `daydreaming/authoring_time_generation_prototype.py`
+7. ~~**Reappraisal currently rewrites all concerns, not just affected ones.**~~
+   DONE. `ontic` and `policy` already targeted by `affected_concern_ids`.
+   `salience` now distinguishes: dominant gets +0.10, affected-but-not-
+   dominant gets +0.03, truly unrelated gets -0.05.
 
 8. **Prototype test coverage is still too thin.**
    There are now direct tests for candidate compilation and one boundary case,
@@ -160,8 +155,8 @@ when it matters, not by when it was discovered.
     ~30 min exercise. Build a field-ownership table.
     See: `02-failure-mode-review/response.md` §3
 
-24. **Stale Graffito wording.** Execution roadmap and L3 experiment
-    synthesis still say "add edges and deltas" but those are done.
+24. ~~**Stale Graffito wording.**~~ DONE. No stale wording found
+    in execution roadmap or L3 synthesis.
 
 25. **Formal arm C ablation.** Arm C was built incrementally but no
     formal C1 (features only) vs C2 (+ structural tension) ablation
