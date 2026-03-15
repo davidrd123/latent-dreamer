@@ -5,8 +5,8 @@
 Marathon session continuing the pressure engine reframe arc.
 Started with reading list extractions, moved through L3 experiment
 review, the authoring-time generation reframe, the L2 middle-layer
-schema, and ended with a fully implemented four-mechanism generation
-pipeline validated on three benchmarks.
+schema, and ended with a four-mechanism generation pipeline validated
+on four benchmarks plus the first real batch/curation pass.
 
 ---
 
@@ -331,6 +331,23 @@ extraction fidelity and phase calibration.
 - Admission hardened: semantic gate ≥ 0.75, sequence diversity cap,
   duplicate detection
 
+### Post-quartet hardening
+- Kai batch curation packet written (doc 34-kai-batch-curation-packet):
+  batch path earns its keep, but Kai remains narrow: strong avoidance
+  texture, weak progression/closure
+- Tessa hardening pass landed:
+  - runtime_practice_templates now available for real runtime practice
+    selection
+  - aftermath status_damage no longer depends on expected_practice_context
+  - rationalization operator description made definitional rather than
+    behavioral-leading
+  - rationalization close→clarify normalization when no outward
+    irreversible act happened
+  - Tessa semantic checks made more structural and less exemplar-token
+    dependent
+- One remaining cleanup after rerun: Tessa worked-trace calibration
+  references likely need syncing to the new derived path
+
 ### Correctness fixes during this phase
 - Policy reappraisal now follows v1 contract (bucket-shift dependent)
 - Non-Kai derivation handles obligation and status_damage properly
@@ -415,15 +432,17 @@ Doc 34 expanded with this insight plus the daemon bridge.
 - Four benchmark fixtures: Kai, Maren, Rhea, Tessa
 - Quartet validated on derived path (no calibration shortcuts)
 - Batch generation with hardened admission (Kai batch: 25→8)
+- Kai batch curation packet proving shortlist review is now possible
 - Graph compliance via structured output (Pydantic)
 - 10 unit tests covering correctness semantics
 
 ### Codex queue
-1. Tessa benchmark hardening (4 patches from 5 Pro Q2/Q2a)
-2. Admission patch (overdetermination_gain + duplicate-function detection)
-3. Shortlist-card curation packet format
-4. Tessa batch
-5. Kai micrograph patch test (the real end-to-end milestone)
+1. Rerun Tessa single-sequence after the latest hardening
+2. Sync Tessa worked-trace calibration refs if the rerun holds
+3. Tessa batch
+4. Tessa curation packet
+5. Admission patch (overdetermination_gain + duplicate-function detection)
+6. Kai micrograph patch test (the real end-to-end milestone)
 
 ### What's deferred
 - L2 kernel refactor
@@ -436,3 +455,204 @@ Doc 34 expanded with this insight plus the daemon bridge.
 - Conductor physical prototype
 - Visual rendering through Scope
 - Music (Lyria)
+
+---
+
+## Opus Session: Late 2026-03-15 (continued from above)
+
+### What was discussed
+
+#### 5 Pro Responses Q1/Q3/Q4 Integration
+
+All three replies read and integrated:
+
+**Q1 (Batch Admission):** Two-stage reduction (per-step compile →
+pooled admission). Batch unit = one character/one pressure regime.
+Key steals: pooled overdetermination_gain, card-based curation
+packet (shortlist first, thin rejected appendix).
+
+**Q3 (Generation Quality Review):** Read actual Kai/Rhea output.
+3 of 6 nodes keepable. Bottleneck is diversity, not sentence
+quality. Operator-template collapse is the main risk ("three
+kitchen-avoidance beats"). Graph-valid is not graph-useful (prose
+carries mixed pressure but graph projection collapses to dominant
+concern). Five scaling risks: operator-template collapse, false
+confidence from traces, pressure flattening at seam, self-priming,
+greedy admission admitting same-good-thing repeatedly.
+
+**Q4 (End-to-End Bridge):** Patch test, not whole-world bakeoff.
+Kai micrograph (10-12 nodes), hand-authored scaffold (6-8 nodes),
+4 generated-curated nodes replacing one region. Compare H vs G
+with same scheduler/seeds/conductor. Failure diagnosed at three
+points: generation, admission, traversal.
+
+#### Delta in worldview from Q1-Q4
+
+Three shifts:
+1. Problem is diversity at batch scale, not generation quality
+2. Graph-valid is not graph-useful (seam thinning)
+3. End-to-end proof should be a patch test, not whole-graph generation
+
+#### Obstacles and Prospects Assessment
+
+Five obstacles assessed:
+1. **Diversity at batch scale** — good prospects, solvable with
+   batch scoring + diversity penalty. No new architecture needed.
+2. **Graph seam richness** — good prospects, mostly prompt
+   engineering (generate-then-project pipeline).
+3. **Patch test** — very good prospects contingent on diversity fix.
+4. **Scene-state progression** — moderate, requires real
+   implementation (active-situation carry-forward).
+5. **Self-priming** — manageable with retrieval-source weighting.
+
+#### Critical Correction from Other Opus
+
+**Reappraisal stationarity is real.** The salience reappraisal
+adds +0.10 to base_intensity, but base_intensity feeds the
+operator-AGNOSTIC pressure term (0.35 weight, identical for all
+operators). So intensifying the concern doesn't change the operator
+winner. The differentiating terms (appraisal_fit, practice_fit,
+episodic_resonance) don't change through reappraisal.
+
+Multi-step sequences are structurally stationary in operator
+selection unless an external event (option_effect change, situation
+change) perturbs the appraisal inputs.
+
+Fixes needed: operator rotation across batch sequences (cheapest),
+operator fatigue penalty, or operator-specific reappraisal effects.
+
+**Practice-fit is a third stationarity anchor.** practice_fit is
+a static lookup table indexed on practice_type (which doesn't
+change within a sequence). For Kai/evasion, practice_fit +
+episodic_resonance together create a 0.182 gap favoring avoidance
+— larger than any plausible fatigue penalty.
+
+#### 5 Pro Question Bank Round 2 (Q5-Q14)
+
+Expanded question bank drafted and committed:
+- Q5: Operator diversity (stationarity fix)
+- Q6: Graph seam richness (generate-then-project + POCL-lite)
+- Q7: Scene-state progression (situation carry-forward)
+- Q8: Retrieval self-priming (source balancing)
+- Q9: Intervention ordering for Tessa milestone
+- Q10: Evaluation infrastructure (semantic checks too noisy)
+- Q11: Prompt architecture (JSON dump vs given circumstances)
+- Q12: Practice-context stationarity (third anchor)
+- Q13: Retrieval-source balancing vs batch-time exploration
+- Q14: Patch-test bridge design
+
+#### Deep Research Further (docs 03, 04)
+
+**Doc 03 (Three-Layer Compiler Stack):**
+Three layers, not competing approaches:
+1. Weighted abduction (interpret: primitives → latent readings)
+2. Partial-order causal-link planning (scaffold: earnedness)
+3. Soft-constraint optimization (compile: which candidates together)
++ ATMS-style assumption memory as glue
+
+Ranked by marginal value:
+1. Soft-constraint optimization 87%
+2. Weighted abduction 85%
+3. Partial-order planning 78%
+4. Assumption-set memory 75%
+
+**Doc 04 (Broader Application Surface, Grounded):**
+Four jobs, different theories for each:
+- Seed inner life: Freud, Jung, narrative identity, IFS
+- Update causally: attachment, appraisal, predictive processing
+- Segment/store: event segmentation (Zacks)
+- Realize in language: cognitive grammar, conceptual blending
+
+Five highest-yield non-Mueller imports:
+1. Attachment/control-system theory
+2. Self-discrepancy + reappraisal
+3. Event segmentation
+4. Interpersonal circumplex
+5. Conceptual blending
+
+**Daemon vision confirmed:** Mueller-shaped inner life generalizes
+to writing companions, research daemons, vault agents. "Memory
+without cognition" is the current persistent-agent paradigm gap.
+
+#### Dashboard Spec (r5-dashboard)
+
+Two mode-specific surfaces, not one dashboard:
+- **Performance dashboard** (85% current state, 15% stable residue)
+  - Live band: node, intent, tension/energy, event state
+  - Context band: recent path, revisit markers, situation strip
+  - Inspector (collapsed): why this step, debug drill-down
+- **Authoring membrane** (provenance + curation actions)
+  - Candidate cards: surface + graph projection + provenance
+  - Four actions: freeze / dismiss / respond / cut
+- **Narration companion:** packet-first, provenance through
+  derived hints only, raw sidecars never
+
+Pruning rule: "If it changed the felt sequence, surface it. If it
+only helped the scheduler arrive at the choice, keep it hidden."
+
+#### Acting Insight: Play the Objective Under Pressure
+
+From David's Santa Monica College acting training: method acting
+is the wrong bar. "Play the objective under pressure" is the right
+bar. LLMs can do that — give them the given circumstances deeply
+enough that the right behavior emerges without instructing it.
+
+The middle-layer objects map directly:
+- CausalSlice = what's threatened and by whom
+- AppraisalFrame = how bad, controllable, likely
+- PracticeContext = what social moves are available
+- Operator = mode of trying
+
+"Play the objective under pressure" became the aesthetic criterion:
+does the generated moment read as action under pressure, or as
+emotional performance?
+
+#### Autoresearch Pattern (from Karpathy)
+
+Key steals for the experiment operating model:
+1. Frozen evaluation harness
+2. Single mutable surface per sweep
+3. Run ledger (results.jsonl)
+4. Simplicity bias ("removal is better than addition")
+5. Accept/discard discipline
+
+What NOT to steal: single-number optimization, fully autonomous
+looping (eval harness not trustworthy enough yet), blind accept/
+revert on structural metrics alone.
+
+Simplicity criterion added to generation review checklist (item 8).
+Experiment operating model doc created (reading-list/15).
+
+#### Landscape Map
+
+Documented in `explainers/landscape-map-2026-03-15.md`:
+- Current plateau: working generation prototype, scaling to batches
+- Near peaks: watched experience, curation workflow, narration
+  from provenance
+- Middle distance: connecting two lanes end-to-end, conductor,
+  visual rendering
+- Far mountains: three-layer compiler, L2 kernel refactor, music
+- Other continent: persistent creative daemon (doc 34)
+
+### What was committed
+
+- 5 Pro question bank round 2 (Q5-Q14)
+- Experiment operating model doc
+- Simplicity criterion in review checklist
+- Landscape map
+- Trace viewer HTML
+- Reappraisal targeting fix (salience commits)
+- Multiple pending items marked DONE
+- Memory files updated
+
+### What's still open from this session
+
+- Q5-Q14 ready to send to 5 Pro (question bank committed)
+- Codex working on: Tessa batch, retrieval source balancing,
+  operator rotation evaluation
+- Reappraisal stationarity identified but not yet fixed in code
+  (operator fatigue / rotation needed)
+- Practice-fit stationarity identified but not yet addressed
+- Dashboard spec exists but nothing built yet
+- "Given circumstances" prompt format (Q11) not yet tested
+- Kai micrograph patch test is the next real end-to-end milestone
