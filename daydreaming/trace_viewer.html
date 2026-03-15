@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generation Trace Viewer</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'SF Mono', 'Fira Code', monospace; background: #0a0a0f; color: #c8c8d0; padding: 24px; line-height: 1.6; }
+h1 { color: #e0e0e8; font-size: 1.4em; margin-bottom: 8px; }
+.subtitle { color: #666; font-size: 0.85em; margin-bottom: 24px; }
+.drop-zone { border: 2px dashed #333; border-radius: 12px; padding: 40px; text-align: center; color: #555; margin-bottom: 24px; cursor: pointer; transition: all 0.2s; }
+.drop-zone:hover, .drop-zone.active { border-color: #7b68ee; color: #7b68ee; }
+.drop-zone input { display: none; }
+.sequence { display: flex; flex-direction: column; gap: 20px; }
+.step-card { background: #12121a; border: 1px solid #1e1e2e; border-radius: 10px; padding: 20px; position: relative; }
+.step-card.new-segment { border-left: 3px solid #7b68ee; }
+.step-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.step-num { font-size: 1.1em; font-weight: bold; color: #e0e0e8; }
+.step-meta { display: flex; gap: 12px; flex-wrap: wrap; }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 600; }
+.tag-operator { background: #1a1a3e; color: #9b8afb; }
+.tag-concern { background: #1a2e1a; color: #7bc67b; }
+.tag-practice { background: #2e1a1a; color: #c67b7b; }
+.tag-segment { background: #1a2e2e; color: #7bc6c6; }
+.tag-commit { background: #2e2e1a; color: #c6c67b; }
+.tag-intent { background: #2e1a2e; color: #c67bc6; }
+.candidate-text { background: #0e0e16; border-left: 3px solid #333; padding: 16px; margin: 12px 0; border-radius: 0 8px 8px 0; font-family: 'Georgia', serif; font-size: 1.05em; line-height: 1.7; color: #d8d8e0; font-style: italic; }
+.appraisal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin: 12px 0; }
+.appraisal-item { background: #0e0e16; padding: 8px 12px; border-radius: 6px; }
+.appraisal-label { font-size: 0.7em; color: #666; text-transform: uppercase; letter-spacing: 0.05em; }
+.appraisal-bar { height: 4px; background: #1a1a2e; border-radius: 2px; margin-top: 4px; position: relative; }
+.appraisal-fill { height: 100%; border-radius: 2px; position: absolute; left: 0; top: 0; }
+.appraisal-fill.positive { background: #4ade80; }
+.appraisal-fill.negative { background: #f87171; }
+.appraisal-fill.neutral { background: #7b68ee; }
+.appraisal-value { font-size: 0.85em; color: #999; float: right; }
+.emotion-bar { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.emotion-chip { padding: 3px 10px; border-radius: 10px; font-size: 0.75em; background: #1a1a2e; }
+.operator-scores { margin: 12px 0; }
+.score-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 0.85em; }
+.score-label { width: 120px; color: #888; }
+.score-bar-bg { flex: 1; height: 8px; background: #1a1a2e; border-radius: 4px; position: relative; }
+.score-bar-fill { height: 100%; border-radius: 4px; }
+.score-bar-fill.winner { background: #7b68ee; }
+.score-bar-fill.loser { background: #333; }
+.score-val { width: 40px; text-align: right; color: #888; font-size: 0.8em; }
+.graph-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; margin: 12px 0; font-size: 0.8em; }
+.graph-field { background: #0e0e16; padding: 6px 10px; border-radius: 4px; }
+.graph-field-key { color: #666; }
+.graph-field-val { color: #aaa; }
+.retrieved-episodes { margin: 10px 0; }
+.episode { background: #0e0e16; padding: 10px 14px; border-radius: 6px; margin: 6px 0; font-size: 0.85em; }
+.episode-id { color: #7b68ee; font-weight: 600; }
+.episode-summary { color: #999; margin-top: 4px; font-style: italic; }
+.boundary-marker { text-align: center; padding: 8px; color: #7b68ee; font-size: 0.8em; font-weight: 600; letter-spacing: 0.1em; }
+.section-toggle { cursor: pointer; color: #555; font-size: 0.8em; margin: 8px 0; }
+.section-toggle:hover { color: #7b68ee; }
+.section-content { display: none; }
+.section-content.open { display: block; }
+.concern-update { display: flex; align-items: center; gap: 8px; font-size: 0.8em; margin: 4px 0; }
+.concern-arrow { color: #555; }
+.concern-up { color: #f87171; }
+.concern-down { color: #4ade80; }
+.run-selector { margin-bottom: 16px; }
+.run-selector select { background: #12121a; color: #c8c8d0; border: 1px solid #333; padding: 8px 12px; border-radius: 6px; font-family: inherit; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<h1>Generation Trace Viewer</h1>
+<p class="subtitle">Drop a generation output folder (drag all files) or pick individual trace JSONs</p>
+
+<div class="drop-zone" id="dropZone">
+  <p>Drop trace files here or click to browse</p>
+  <p style="font-size:0.8em; margin-top:8px; color:#444">Accepts: *.trace.json, *.sidecar.json, *.response.txt, *.prompt.txt</p>
+  <input type="file" id="fileInput" multiple accept=".json,.txt">
+</div>
+
+<div id="viewer"></div>
+
+<script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const viewer = document.getElementById('viewer');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('active'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('active'); handleFiles(e.dataTransfer.files); });
+fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+async function handleFiles(fileList) {
+  const files = {};
+  for (const f of fileList) {
+    const text = await f.text();
+    files[f.name] = text;
+  }
+  renderTrace(files);
+}
+
+function parseJson(text) {
+  try { return JSON.parse(text); } catch { return null; }
+}
+
+function renderTrace(files) {
+  // Group by step
+  const steps = {};
+  for (const [name, content] of Object.entries(files)) {
+    const m = name.match(/middle-step-(\d+)\.(trace|sidecar|response|prompt|validation)\.(json|txt)$/);
+    if (!m) continue;
+    const stepNum = parseInt(m[1]);
+    const kind = m[2];
+    if (!steps[stepNum]) steps[stepNum] = {};
+    if (kind === 'trace' || kind === 'sidecar' || kind === 'validation') {
+      steps[stepNum][kind] = parseJson(content);
+    } else {
+      steps[stepNum][kind] = content;
+    }
+  }
+
+  // Also check for sequence trace
+  for (const [name, content] of Object.entries(files)) {
+    if (name.includes('sequence-trace')) {
+      const seq = parseJson(content);
+      if (seq && seq.steps) {
+        for (const s of seq.steps) {
+          const num = s.step_index;
+          if (steps[num]) steps[num].sequenceStep = s;
+        }
+      }
+    }
+  }
+
+  const sorted = Object.keys(steps).map(Number).sort((a,b) => a-b);
+  if (sorted.length === 0) {
+    viewer.innerHTML = '<p style="color:#555">No trace files found. Expected files like middle-step-01.trace.json</p>';
+    return;
+  }
+
+  let html = '<div class="sequence">';
+  let prevSegment = null;
+
+  for (const num of sorted) {
+    const step = steps[num];
+    const trace = step.trace || {};
+    const sidecar = step.sidecar || {};
+    const seqStep = step.sequenceStep || {};
+    const response = step.response || '';
+    const validation = step.validation || {};
+
+    // Parse response for candidate text
+    let candidateText = '';
+    let graphProjection = null;
+    try {
+      const parsed = parseJson(response);
+      if (parsed) {
+        candidateText = parsed.candidate_text || '';
+        graphProjection = parsed.graph_projection || null;
+      }
+    } catch {}
+    if (!candidateText && trace.parsed_response) {
+      candidateText = trace.parsed_response.candidate_text || '';
+      graphProjection = trace.parsed_response?.graph_projection || graphProjection;
+    }
+    if (!graphProjection && seqStep.graph_projection) {
+      graphProjection = seqStep.graph_projection;
+    }
+
+    // Boundary
+    const boundary = seqStep.boundary_from_previous;
+    const segmentIndex = seqStep.segment_index;
+    const isNewSegment = boundary && boundary.segment_decision === 'new_segment';
+
+    if (isNewSegment && prevSegment !== null) {
+      const reasons = (boundary.reasons || []).join(', ');
+      const temporal = boundary.temporal_relation || '';
+      html += `<div class="boundary-marker">--- SEGMENT ${segmentIndex} --- ${temporal} --- ${reasons} ---</div>`;
+    }
+    prevSegment = segmentIndex;
+
+    // Operator, concern, practice from trace
+    const operator = trace.selected_operator_family || seqStep.selected_operator_family || '?';
+    const concern = trace.dominant_concern_id || seqStep.dominant_concern_id || '?';
+    const practice = sidecar.practice_context?.practice_type || trace.practice_context?.practice_type || '?';
+    const commitType = sidecar.commit_type || trace.commit_type || '?';
+    const concernDriver = trace.concern_driver || '';
+
+    html += `<div class="step-card ${isNewSegment ? 'new-segment' : ''}">`;
+    html += `<div class="step-header">`;
+    html += `<span class="step-num">Step ${num}</span>`;
+    html += `<div class="step-meta">`;
+    html += `<span class="tag tag-operator">${operator}</span>`;
+    html += `<span class="tag tag-concern">${concern.replace('cc_','')}</span>`;
+    html += `<span class="tag tag-practice">${practice}</span>`;
+    html += `<span class="tag tag-commit">${commitType}</span>`;
+    if (segmentIndex) html += `<span class="tag tag-segment">seg ${segmentIndex}</span>`;
+    if (concernDriver) html += `<span class="tag tag-intent">${concernDriver}</span>`;
+    html += `</div></div>`;
+
+    // Candidate text
+    if (candidateText) {
+      html += `<div class="candidate-text">${escHtml(candidateText)}</div>`;
+    }
+
+    // Appraisal
+    const appraisal = sidecar.appraisal_frame || trace.appraisal_frame;
+    if (appraisal) {
+      html += `<div class="section-toggle" onclick="this.nextElementSibling.classList.toggle('open')">+ Appraisal</div>`;
+      html += `<div class="section-content"><div class="appraisal-grid">`;
+      for (const [key, val] of Object.entries(appraisal)) {
+        if (typeof val !== 'number') continue;
+        const pct = Math.abs(val) * 100;
+        const cls = val > 0.1 ? 'positive' : val < -0.1 ? 'negative' : 'neutral';
+        html += `<div class="appraisal-item">
+          <div class="appraisal-label">${key} <span class="appraisal-value">${val.toFixed(2)}</span></div>
+          <div class="appraisal-bar"><div class="appraisal-fill ${cls}" style="width:${pct}%"></div></div>
+        </div>`;
+      }
+      html += `</div></div>`;
+    }
+
+    // Emotion vector
+    const emotions = sidecar.emotion_vector_topk || trace.emotion_vector;
+    if (emotions && typeof emotions === 'object') {
+      html += `<div class="emotion-bar">`;
+      for (const [em, val] of Object.entries(emotions)) {
+        if (typeof val !== 'number' || val <= 0) continue;
+        const alpha = 0.3 + val * 0.7;
+        html += `<span class="emotion-chip" style="opacity:${alpha}">${em} ${val.toFixed(2)}</span>`;
+      }
+      html += `</div>`;
+    }
+
+    // Operator scores
+    const scores = sidecar.operator_score_breakdown || trace.operator_score_breakdown;
+    if (scores && typeof scores === 'object') {
+      const maxTotal = Math.max(...Object.values(scores).map(s => s.total || 0), 0.01);
+      html += `<div class="section-toggle" onclick="this.nextElementSibling.classList.toggle('open')">+ Operator Scores</div>`;
+      html += `<div class="section-content"><div class="operator-scores">`;
+      for (const [fam, sc] of Object.entries(scores)) {
+        const total = sc.total || 0;
+        const pct = (total / maxTotal) * 100;
+        const isWinner = fam === operator;
+        html += `<div class="score-row">
+          <span class="score-label">${isWinner ? '> ' : '  '}${fam}</span>
+          <div class="score-bar-bg"><div class="score-bar-fill ${isWinner ? 'winner' : 'loser'}" style="width:${pct}%"></div></div>
+          <span class="score-val">${total.toFixed(2)}</span>
+        </div>`;
+      }
+      html += `</div></div>`;
+    }
+
+    // Retrieved episodes
+    const episodes = sidecar.retrieved_episode_refs || trace.selected_retrieved_episode_ids;
+    if (episodes && episodes.length) {
+      html += `<div class="section-toggle" onclick="this.nextElementSibling.classList.toggle('open')">+ Retrieved Episodes (${episodes.length})</div>`;
+      html += `<div class="section-content"><div class="retrieved-episodes">`;
+      for (const ep of episodes) {
+        if (typeof ep === 'string') {
+          html += `<div class="episode"><span class="episode-id">${ep}</span></div>`;
+        } else if (typeof ep === 'object') {
+          html += `<div class="episode"><span class="episode-id">${ep.id || ep.episode_id || '?'}</span>`;
+          if (ep.summary) html += `<div class="episode-summary">${escHtml(ep.summary)}</div>`;
+          html += `</div>`;
+        }
+      }
+      html += `</div></div>`;
+    }
+
+    // Graph projection
+    if (graphProjection) {
+      html += `<div class="section-toggle" onclick="this.nextElementSibling.classList.toggle('open')">+ Graph Projection</div>`;
+      html += `<div class="section-content"><div class="graph-fields">`;
+      for (const [key, val] of Object.entries(graphProjection)) {
+        const display = Array.isArray(val) ? val.join(', ') : String(val);
+        html += `<div class="graph-field"><span class="graph-field-key">${key}:</span> <span class="graph-field-val">${escHtml(display)}</span></div>`;
+      }
+      html += `</div></div>`;
+    }
+
+    // Concern updates
+    const updates = seqStep.updated_concerns || trace.updated_concerns;
+    if (updates && Array.isArray(updates)) {
+      html += `<div class="section-toggle" onclick="this.nextElementSibling.classList.toggle('open')">+ Concern Updates</div>`;
+      html += `<div class="section-content">`;
+      for (const c of updates) {
+        const id = c.id || c.concern_id || '?';
+        const intensity = c.base_intensity != null ? c.base_intensity : '?';
+        html += `<div class="concern-update">
+          <span>${id.replace('cc_','')}</span>
+          <span class="concern-arrow">→</span>
+          <span>${intensity}</span>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
+    html += `</div>`; // step-card
+  }
+
+  html += '</div>';
+  viewer.innerHTML = html;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
