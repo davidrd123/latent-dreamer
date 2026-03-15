@@ -124,10 +124,12 @@ def reference_marker_ids(fixture: Dict[str, Any]) -> set[str]:
     return {item["id"] for item in fixture.get("reference_markers", [])}
 
 
-def select_dominant_concern(fixture: Dict[str, Any]) -> Dict[str, Any]:
+def select_dominant_concern(fixture: Dict[str, Any], concerns: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
     dominant_id = fixture["benchmark_step"]["dominant_concern_id"]
-    concerns = concern_map(fixture)
-    return deepcopy(concerns[dominant_id])
+    if concerns is None:
+        concerns = fixture["concern_extraction"]["extracted_concerns"]
+    concern_lookup = {item["id"]: item for item in concerns}
+    return deepcopy(concern_lookup[dominant_id])
 
 
 def normalize_concern_rules(fixture: Dict[str, Any]) -> Dict[str, Any]:
@@ -1320,10 +1322,12 @@ def run_arm_middle(
     provider: str,
     model: Optional[str],
     ablation: str = "none",
+    use_inferred_concerns: bool = False,
 ) -> ArmResult:
-    concerns = fixture["concern_extraction"]["extracted_concerns"]
+    seeded_concerns = fixture["concern_extraction"]["extracted_concerns"]
     concern_inference = infer_concerns_from_primitives(fixture)
-    dominant_concern = select_dominant_concern(fixture)
+    concerns = concern_inference["inferred_concerns"] if use_inferred_concerns else seeded_concerns
+    dominant_concern = select_dominant_concern(fixture, concerns)
     active_situation_id = fixture["situations"][0]["id"]
     causal_slice = None if ablation == "no_causal_slice" else build_causal_slice(fixture, dominant_concern)
     appraisal = derive_appraisal_frame(fixture, causal_slice or build_causal_slice(fixture, dominant_concern), ablation)
@@ -1378,6 +1382,7 @@ def run_arm_middle(
         "arm": "middle",
         "ablation": ablation,
         "timestamp": utc_now_iso(),
+        "concern_driver": "inferred" if use_inferred_concerns else "seeded",
         "dominant_concern_id": dominant_concern["id"],
         "concern_inference": concern_inference,
         "retrieval_scores": all_scored,
@@ -1512,13 +1517,18 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Emit four additional middle-arm runs: no_causal_slice, high_controllability, low_controllability, swap_practice_context.",
     )
+    parser.add_argument(
+        "--use_inferred_concerns",
+        action="store_true",
+        help="Drive the middle arm from inferred concerns instead of seeded concerns.",
+    )
     return parser.parse_args()
 
 
 def resolve_output_dir(path_arg: Optional[str]) -> Path:
     if path_arg:
         return Path(path_arg)
-    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     return Path("daydreaming/out/authoring_time_generation") / stamp
 
 
@@ -1533,10 +1543,26 @@ def main() -> int:
     if args.arm in {"baseline", "both"}:
         results.append(run_arm_baseline(fixture, args.provider, args.model))
     if args.arm in {"middle", "both"}:
-        results.append(run_arm_middle(fixture, args.provider, args.model, args.ablation))
+        results.append(
+            run_arm_middle(
+                fixture,
+                args.provider,
+                args.model,
+                args.ablation,
+                use_inferred_concerns=args.use_inferred_concerns,
+            )
+        )
         if args.run_ablation_suite:
             for ablation in ("no_causal_slice", "high_controllability", "low_controllability", "swap_practice_context"):
-                results.append(run_arm_middle(fixture, args.provider, args.model, ablation))
+                results.append(
+                    run_arm_middle(
+                        fixture,
+                        args.provider,
+                        args.model,
+                        ablation,
+                        use_inferred_concerns=args.use_inferred_concerns,
+                    )
+                )
 
     dump_text(output_dir / "fixture-path.txt", str(fixture_path))
     dump_json(output_dir / "fixture-snapshot.json", fixture)
