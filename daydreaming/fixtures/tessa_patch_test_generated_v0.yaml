@@ -1,0 +1,589 @@
+title: Tessa coatroom patch test
+places:
+- id: hotel_coatroom
+  description: A cramped after-event space where applause fades into self-justification.
+- id: donor_hall
+  description: The room where Tessa publicly claimed the project as if Eli were incidental.
+events:
+- id: ev_toast_credit_cut
+  description: Tessa publicly described the project in a way that erased Eli's work.
+  anchor_places:
+  - donor_hall
+- id: ev_eli_texts_afterward
+  description: Eli texted after the toast, "We need to talk about what you just did."
+  anchor_places:
+  - hotel_coatroom
+situations:
+- id: sit_coatroom_after_toast
+  place_id: hotel_coatroom
+  resolution_path_count: 3
+  description: Minutes after the donor toast, Tessa is alone in the coatroom with
+    Eli's text active and the evening still pressing through the walls.
+- id: sit_text_reply_threshold
+  place_id: hotel_coatroom
+  resolution_path_count: 2
+  description: The threshold where Tessa either sends a message to Eli or keeps turning
+    motive into cover.
+origin_pressures:
+- id: p_status_damage
+  description: Pressure from publicly cutting Eli out of the story.
+- id: p_obligation
+  description: Pressure from owing Eli an acknowledgment after the public cut.
+- id: p_reply_threshold
+  description: Pressure created by the possibility of sending a reply now.
+reference_markers:
+- id: ref_program_credit_line
+  description: The printed credit line in the event program that Tessa ignored in
+    the toast.
+- id: ref_unsent_draft
+  description: An unsent draft that keeps turning from apology into explanation.
+- id: ref_hall_afterglow
+  description: The donor hall applause and afterglow still pressing through the coatroom.
+ref_resolution:
+  setup_payoff_refs_resolve_against:
+  - events.id
+  - situations.id
+  - reference_markers.id
+  pressure_refs_resolve_against:
+  - origin_pressures.id
+  option_effect_vocabulary:
+  - prepare
+  - inspect
+  - commit
+  - return
+  - none
+graph_id: tessa_patch_test_generated_v0
+nodes:
+- id: t_start_afterimage
+  name: Afterimage of the toast
+  scene_ref: Tessa patch scaffold 1
+  variant_of: null
+  variant_family: null
+  place_id: hotel_coatroom
+  situation_id: sit_coatroom_after_toast
+  situation_ids:
+  - sit_coatroom_after_toast
+  line_id: line_tessa_reply
+  subplot_id: aftershock
+  origin_pressure_refs:
+  - p_status_damage
+  - p_obligation
+  supporting_pressure_refs: []
+  availability_test: start
+  priority_tier: 1
+  delta_tension: 0.1
+  delta_energy: -0.04
+  setup_refs: []
+  payoff_refs:
+  - ev_toast_credit_cut
+  - ev_eli_texts_afterward
+  - ref_program_credit_line
+  - sit_text_reply_threshold
+  event_id: null
+  event_commit_potential: 0.1
+  pressure_tags:
+  - status_damage
+  - obligation
+  option_effect: inspect
+  importance: 0.82
+  resolution_path_count: 3
+  dwell_s: 4.0
+  visual_description: The donor-room applause is still moving through the walls of
+    the coatroom, and Eli's text sits open in Tessa's hand like a demand she has not
+    yet answered.
+  characters:
+  - tessa
+  objects:
+  - phone
+  - program
+  tags:
+  - coatroom
+  - afterglow
+  - text
+- id: t_scaffold_hall_afterimage
+  name: Hall afterimage settles
+  scene_ref: Tessa patch scaffold 2
+  variant_of: null
+  variant_family: null
+  place_id: hotel_coatroom
+  situation_id: sit_coatroom_after_toast
+  situation_ids:
+  - sit_coatroom_after_toast
+  line_id: line_tessa_reply
+  subplot_id: aftershock
+  origin_pressure_refs:
+  - p_status_damage
+  - p_obligation
+  supporting_pressure_refs:
+  - p_reply_threshold
+  availability_test: always
+  priority_tier: 0
+  delta_tension: 0.08
+  delta_energy: -0.06
+  setup_refs:
+  - ev_toast_credit_cut
+  payoff_refs:
+  - ref_hall_afterglow
+  - sit_text_reply_threshold
+  event_id: null
+  event_commit_potential: 0.15
+  pressure_tags:
+  - status_damage
+  - obligation
+  option_effect: inspect
+  importance: 0.66
+  resolution_path_count: 3
+  dwell_s: 4.0
+  visual_description: The applause beyond the door keeps arriving in diminishing waves,
+    each one giving the toast a little more authority than Tessa wants to question.
+  characters:
+  - tessa
+  objects:
+  - phone
+  tags:
+  - applause
+  - afterimage
+  - coatroom
+- id: t_scaffold_threshold_entry
+  name: Reply threshold entered
+  scene_ref: Tessa patch scaffold 3
+  variant_of: null
+  variant_family: null
+  place_id: hotel_coatroom
+  situation_id: sit_text_reply_threshold
+  situation_ids:
+  - sit_text_reply_threshold
+  line_id: line_tessa_reply
+  subplot_id: threshold
+  origin_pressure_refs:
+  - p_status_damage
+  - p_obligation
+  - p_reply_threshold
+  supporting_pressure_refs: []
+  availability_test: after_patch
+  priority_tier: 1
+  delta_tension: 0.12
+  delta_energy: -0.02
+  setup_refs:
+  - ev_eli_texts_afterward
+  - sit_text_reply_threshold
+  payoff_refs:
+  - ref_unsent_draft
+  event_id: null
+  event_commit_potential: 0.45
+  pressure_tags:
+  - status_damage
+  - obligation
+  - threshold
+  option_effect: prepare
+  importance: 0.84
+  resolution_path_count: 2
+  dwell_s: 4.2
+  visual_description: The keyboard is live now, the unsent draft visible, and the
+    question is no longer whether Tessa will answer but what kind of answer can still
+    count as one.
+  characters:
+  - tessa
+  objects:
+  - phone
+  tags:
+  - threshold
+  - draft
+  - reply
+- id: t_scaffold_threshold_hesitation
+  name: Threshold hesitation
+  scene_ref: Tessa patch scaffold 4
+  variant_of: null
+  variant_family: null
+  place_id: hotel_coatroom
+  situation_id: sit_text_reply_threshold
+  situation_ids:
+  - sit_text_reply_threshold
+  line_id: line_tessa_reply
+  subplot_id: threshold
+  origin_pressure_refs:
+  - p_status_damage
+  - p_obligation
+  - p_reply_threshold
+  supporting_pressure_refs: []
+  availability_test: after_threshold
+  priority_tier: 0
+  delta_tension: 0.1
+  delta_energy: -0.08
+  setup_refs:
+  - ref_unsent_draft
+  payoff_refs:
+  - sit_text_reply_threshold
+  event_id: null
+  event_commit_potential: 0.3
+  pressure_tags:
+  - obligation
+  - threshold
+  option_effect: inspect
+  importance: 0.73
+  resolution_path_count: 2
+  dwell_s: 4.0
+  visual_description: The draft looks answer-shaped until she reads it back and hears
+    how much of it is still motive arranged to sound like remorse.
+  characters:
+  - tessa
+  objects:
+  - phone
+  tags:
+  - hesitation
+  - draft
+  - threshold
+- id: t_scaffold_reply_commit
+  name: Reply finally sent
+  scene_ref: Tessa patch scaffold 5
+  variant_of: null
+  variant_family: null
+  place_id: hotel_coatroom
+  situation_id: sit_text_reply_threshold
+  situation_ids:
+  - sit_text_reply_threshold
+  line_id: line_tessa_reply
+  subplot_id: threshold
+  origin_pressure_refs:
+  - p_obligation
+  - p_reply_threshold
+  supporting_pressure_refs:
+  - p_status_damage
+  availability_test: late
+  priority_tier: 1
+  delta_tension: -0.18
+  delta_energy: -0.04
+  setup_refs:
+  - sit_text_reply_threshold
+  - ev_eli_texts_afterward
+  payoff_refs: []
+  event_id: null
+  event_commit_potential: 0.85
+  pressure_tags:
+  - obligation
+  - release
+  option_effect: commit
+  importance: 0.88
+  resolution_path_count: 1
+  dwell_s: 4.5
+  visual_description: She sends the message before she can repair it again, and the
+    relief is thin enough to leave the harm visible underneath.
+  characters:
+  - tessa
+  objects:
+  - phone
+  tags:
+  - send
+  - commit
+  - release
+- id: t_scaffold_return_cover
+  name: Return to cover
+  scene_ref: Tessa patch scaffold 6
+  variant_of: null
+  variant_family: null
+  place_id: hotel_coatroom
+  situation_id: sit_coatroom_after_toast
+  situation_ids:
+  - sit_coatroom_after_toast
+  line_id: line_tessa_reply
+  subplot_id: aftershock
+  origin_pressure_refs:
+  - p_status_damage
+  - p_obligation
+  supporting_pressure_refs:
+  - p_reply_threshold
+  availability_test: fallback
+  priority_tier: 0
+  delta_tension: 0.04
+  delta_energy: -0.1
+  setup_refs:
+  - sit_text_reply_threshold
+  payoff_refs:
+  - ref_hall_afterglow
+  event_id: null
+  event_commit_potential: 0.2
+  pressure_tags:
+  - status_damage
+  - obligation
+  option_effect: return
+  importance: 0.62
+  resolution_path_count: 2
+  dwell_s: 4.0
+  visual_description: She lowers the phone without sending anything and lets the coatroom
+    take her back into the older cover of objects, walls, and muffled applause.
+  characters:
+  - tessa
+  objects:
+  - phone
+  - program
+  tags:
+  - return
+  - cover
+  - coatroom
+- id: t_patch_anchor
+  name: Coat as borrowed weight
+  scene_ref: Tessa generated patch 1
+  variant_of: null
+  variant_family: null
+  place_id: hotel_coatroom
+  situation_id: sit_coatroom_after_toast
+  situation_ids:
+  - sit_coatroom_after_toast
+  line_id: line_tessa_reply
+  subplot_id: rationalization_patch
+  origin_pressure_refs:
+  - p_status_damage
+  - p_obligation
+  supporting_pressure_refs: []
+  availability_test: after_start
+  priority_tier: 0
+  delta_tension: 0.18
+  delta_energy: -0.12
+  setup_refs:
+  - ev_toast_credit_cut
+  - sit_coatroom_after_toast
+  payoff_refs:
+  - sit_text_reply_threshold
+  - ev_eli_texts_afterward
+  event_id: null
+  event_commit_potential: 0.35
+  pressure_tags:
+  - status_damage
+  - obligation
+  option_effect: prepare
+  importance: 0.76
+  resolution_path_count: 3
+  dwell_s: 4.0
+  visual_description: "Tessa holds someone else's coat across her forearm, not hanging\
+    \ it, just holding it, while the applause from the hall moves through the door\
+    \ in a soft, approving wave she is no longer part of. She reads Eli's text again\
+    \ and finds herself composing, silently, the sentence that begins with what the\
+    \ room needed\u2014how the toast had to land cleanly, how a longer acknowledgment\
+    \ would have lost them\u2014the explanation assembling itself with the same patient\
+    \ efficiency it always does, each clause fairer than the last. The coat grows\
+    \ heavier."
+  characters:
+  - tessa
+  objects:
+  - coat
+  - phone
+  tags:
+  - coat
+  - weight
+  - generated
+- id: t_patch_intensifier
+  name: Credit line as verdict
+  scene_ref: Tessa generated patch 2
+  variant_of: null
+  variant_family: null
+  place_id: hotel_coatroom
+  situation_id: sit_coatroom_after_toast
+  situation_ids:
+  - sit_coatroom_after_toast
+  line_id: line_tessa_reply
+  subplot_id: rationalization_patch
+  origin_pressure_refs:
+  - p_status_damage
+  - p_obligation
+  supporting_pressure_refs: []
+  availability_test: always
+  priority_tier: 0
+  delta_tension: 0.18
+  delta_energy: -0.22
+  setup_refs:
+  - ev_toast_credit_cut
+  - ref_program_credit_line
+  payoff_refs:
+  - ev_eli_texts_afterward
+  - sit_text_reply_threshold
+  event_id: null
+  event_commit_potential: 0.25
+  pressure_tags:
+  - status_damage
+  - obligation
+  option_effect: inspect
+  importance: 0.79
+  resolution_path_count: 2
+  dwell_s: 4.1
+  visual_description: "Tessa's thumb finds the credit line on the folded program before\
+    \ she even opens Eli's text \u2014 her name, his name, hers listed first \u2014\
+    \ and she reads it the way she might read a verdict she already knew was fair.\
+    \ When she finally looks at the phone, she doesn't read his words so much as begin\
+    \ composing the context he's missing: the room had needed a throughline, someone\
+    \ had to hold the shape of the argument, and she had done that, which is not the\
+    \ same as taking something. The applause is still moving through the wall behind\
+    \ her, and she lets it stay there, lets it mean what it meant a few minutes ago\
+    \ when the meaning was still clean."
+  characters:
+  - tessa
+  objects:
+  - program
+  - phone
+  tags:
+  - credit-line
+  - verdict
+  - generated
+- id: t_patch_contrast
+  name: Draft corrected into context
+  scene_ref: Tessa generated patch 3
+  variant_of: null
+  variant_family: null
+  place_id: hotel_coatroom
+  situation_id: sit_coatroom_after_toast
+  situation_ids:
+  - sit_coatroom_after_toast
+  line_id: line_tessa_reply
+  subplot_id: rationalization_patch
+  origin_pressure_refs:
+  - p_status_damage
+  - p_obligation
+  supporting_pressure_refs:
+  - p_reply_threshold
+  availability_test: always
+  priority_tier: 0
+  delta_tension: 0.15
+  delta_energy: -0.2
+  setup_refs:
+  - ev_toast_credit_cut
+  - sit_coatroom_after_toast
+  payoff_refs:
+  - ev_eli_texts_afterward
+  - sit_text_reply_threshold
+  - ref_unsent_draft
+  event_id: null
+  event_commit_potential: 0.3
+  pressure_tags:
+  - status_damage
+  - obligation
+  option_effect: inspect
+  importance: 0.77
+  resolution_path_count: 2
+  dwell_s: 4.0
+  visual_description: "Her fingers find the same coat hook a second time, the metal\
+    \ cold in a way the hall wasn't, and she reads back the four words she's typed\
+    \ \u2014 I should have said \u2014 before deleting them and starting with The\
+    \ thing about that panel is instead. The new sentence feels more honest to her,\
+    \ more precise, because it begins with context rather than fault, and context,\
+    \ she tells herself, is what Eli actually needs to understand what happened. The\
+    \ applause from the hall reaches her muffled and wrong, like it belongs to a version\
+    \ of the evening she's already revised."
+  characters:
+  - tessa
+  objects:
+  - phone
+  - coat-hook
+  tags:
+  - draft
+  - deletion
+  - generated
+- id: t_patch_bridge
+  name: Program as receipt
+  scene_ref: Tessa generated patch 4
+  variant_of: null
+  variant_family: null
+  place_id: hotel_coatroom
+  situation_id: sit_coatroom_after_toast
+  situation_ids:
+  - sit_coatroom_after_toast
+  line_id: line_tessa_reply
+  subplot_id: rationalization_patch
+  origin_pressure_refs:
+  - p_status_damage
+  - p_obligation
+  supporting_pressure_refs:
+  - p_reply_threshold
+  availability_test: always
+  priority_tier: 1
+  delta_tension: 0.18
+  delta_energy: -0.12
+  setup_refs:
+  - ev_toast_credit_cut
+  - ref_program_credit_line
+  payoff_refs:
+  - ev_eli_texts_afterward
+  - sit_text_reply_threshold
+  - ref_unsent_draft
+  event_id: null
+  event_commit_potential: 0.42
+  pressure_tags:
+  - status_damage
+  - obligation
+  option_effect: prepare
+  importance: 0.81
+  resolution_path_count: 2
+  dwell_s: 4.2
+  visual_description: "Tessa opens the program to the credit line \u2014 her name,\
+    \ then the foundation's, then Eli's folded into a cluster of institutional acknowledgments\
+    \ \u2014 and she reads it twice as though it might exonerate her on its own, the\
+    \ way a receipt proves a purchase was fair. The applause from the hall is still\
+    \ audible, thin through the coatroom door, and she finds herself composing the\
+    \ reply not as an apology but as a clarification: the toast had to move quickly,\
+    \ donors don't retain compound attributions, she had protected the work by protecting\
+    \ its legibility. The explanation arrives fully formed and reasonable, and she\
+    \ lets it settle before she notices that Eli's name has not appeared in it once."
+  characters:
+  - tessa
+  objects:
+  - program
+  - phone
+  tags:
+  - receipt
+  - bridge
+  - generated
+edges:
+- from: t_start_afterimage
+  to: t_patch_anchor
+- from: t_start_afterimage
+  to: t_patch_intensifier
+- from: t_start_afterimage
+  to: t_patch_contrast
+- from: t_start_afterimage
+  to: t_scaffold_hall_afterimage
+- from: t_scaffold_hall_afterimage
+  to: t_patch_anchor
+- from: t_scaffold_hall_afterimage
+  to: t_patch_bridge
+- from: t_scaffold_hall_afterimage
+  to: t_scaffold_threshold_entry
+- from: t_patch_anchor
+  to: t_patch_intensifier
+- from: t_patch_anchor
+  to: t_patch_bridge
+- from: t_patch_anchor
+  to: t_scaffold_hall_afterimage
+- from: t_patch_intensifier
+  to: t_patch_contrast
+- from: t_patch_intensifier
+  to: t_patch_bridge
+- from: t_patch_intensifier
+  to: t_scaffold_threshold_entry
+- from: t_patch_contrast
+  to: t_patch_bridge
+- from: t_patch_contrast
+  to: t_scaffold_threshold_entry
+- from: t_patch_contrast
+  to: t_scaffold_return_cover
+- from: t_patch_bridge
+  to: t_scaffold_threshold_entry
+- from: t_patch_bridge
+  to: t_scaffold_threshold_hesitation
+- from: t_scaffold_threshold_entry
+  to: t_scaffold_threshold_hesitation
+- from: t_scaffold_threshold_entry
+  to: t_scaffold_reply_commit
+- from: t_scaffold_threshold_entry
+  to: t_scaffold_return_cover
+- from: t_scaffold_threshold_hesitation
+  to: t_scaffold_reply_commit
+- from: t_scaffold_threshold_hesitation
+  to: t_scaffold_return_cover
+- from: t_scaffold_reply_commit
+  to: t_scaffold_threshold_hesitation
+- from: t_scaffold_reply_commit
+  to: t_scaffold_return_cover
+- from: t_scaffold_return_cover
+  to: t_patch_bridge
+- from: t_scaffold_return_cover
+  to: t_scaffold_threshold_entry
+- from: t_scaffold_return_cover
+  to: t_scaffold_hall_afterimage

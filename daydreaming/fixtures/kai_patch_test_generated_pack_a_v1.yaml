@@ -1,0 +1,594 @@
+title: Kai kitchen patch test
+places:
+- id: kitchen
+  description: The domestic surface where delay rituals can masquerade as care.
+- id: harbor
+  description: The meeting place where rupture and possible repair stay equally live.
+events:
+- id: ev_harbor_meeting_tonight
+  description: The harbor meeting requested for tonight remains pending.
+  anchor_places:
+  - harbor
+situations:
+- id: sit_unopened_letter
+  place_id: kitchen
+  resolution_path_count: 3
+  description: Kai is in the kitchen with his sister's unopened letter still on the
+    table and the harbor appointment pressing toward evening.
+- id: sit_threshold_departure
+  place_id: kitchen
+  resolution_path_count: 2
+  description: The threshold where Kai either leaves for the harbor or lets delay
+    harden into the answer.
+origin_pressures:
+- id: p_attachment_threat
+  description: Pressure from wanting repair with his sister and fearing what contact
+    will reopen.
+- id: p_obligation
+  description: Pressure from the unanswered request to meet tonight.
+- id: p_departure_threshold
+  description: Pressure created by the fact that leaving now is becoming the only
+    real answer.
+reference_markers:
+- id: harbor_as_shared_place
+  description: The harbor as the shared place that carries both rupture and possible
+    repair.
+- id: ref_letter_address
+  description: The return address and handwriting on the unopened letter.
+- id: ref_counter_ritual
+  description: The counter-cleaning, towel-folding, and coffee-pouring rituals Kai
+    uses instead of deciding.
+- id: ref_tide_schedule
+  description: Kai's involuntary knowledge of the tide and the hour of the meeting.
+ref_resolution:
+  setup_payoff_refs_resolve_against:
+  - events.id
+  - situations.id
+  - reference_markers.id
+  pressure_refs_resolve_against:
+  - origin_pressures.id
+  option_effect_vocabulary:
+  - inspect
+  - prepare
+  - commit
+  - return
+  - none
+graph_id: kai_patch_test_generated_pack_a_v1
+nodes:
+- id: k_start_table_letter
+  name: Letter on the table
+  scene_ref: Kai patch scaffold 1
+  variant_of: null
+  variant_family: null
+  place_id: kitchen
+  situation_id: sit_unopened_letter
+  situation_ids:
+  - sit_unopened_letter
+  line_id: line_kai_departure
+  subplot_id: aftershock
+  origin_pressure_refs:
+  - p_attachment_threat
+  - p_obligation
+  supporting_pressure_refs: []
+  availability_test: start
+  priority_tier: 1
+  delta_tension: 0.1
+  delta_energy: -0.04
+  setup_refs: []
+  payoff_refs:
+  - ev_harbor_meeting_tonight
+  - ref_letter_address
+  - sit_threshold_departure
+  event_id: null
+  event_commit_potential: 0.1
+  pressure_tags:
+  - attachment_threat
+  - obligation
+  option_effect: inspect
+  importance: 0.82
+  resolution_path_count: 3
+  dwell_s: 4.0
+  visual_description: The letter stays unopened on the table while the kitchen gives
+    Kai smaller tasks to do instead of answering it.
+  characters:
+  - kai
+  objects:
+  - letter
+  - table
+  tags:
+  - kitchen
+  - letter
+  - start
+- id: k_scaffold_counter_cover
+  name: Counter cover settles in
+  scene_ref: Kai patch scaffold 2
+  variant_of: null
+  variant_family: null
+  place_id: kitchen
+  situation_id: sit_unopened_letter
+  situation_ids:
+  - sit_unopened_letter
+  line_id: line_kai_departure
+  subplot_id: aftershock
+  origin_pressure_refs:
+  - p_attachment_threat
+  - p_obligation
+  supporting_pressure_refs:
+  - p_departure_threshold
+  availability_test: always
+  priority_tier: 0
+  delta_tension: 0.08
+  delta_energy: -0.06
+  setup_refs:
+  - ev_harbor_meeting_tonight
+  payoff_refs:
+  - ref_counter_ritual
+  - sit_threshold_departure
+  event_id: null
+  event_commit_potential: 0.15
+  pressure_tags:
+  - attachment_threat
+  - obligation
+  option_effect: inspect
+  importance: 0.66
+  resolution_path_count: 3
+  dwell_s: 4.0
+  visual_description: The counter-cleaning and coffee-pouring acquire the force of
+    a routine that can almost stand in for a decision.
+  characters:
+  - kai
+  objects:
+  - counter
+  - dishcloth
+  - coffee
+  tags:
+  - kitchen
+  - ritual
+  - cover
+- id: k_scaffold_threshold_entry
+  name: Departure threshold entered
+  scene_ref: Kai patch scaffold 3
+  variant_of: null
+  variant_family: null
+  place_id: kitchen
+  situation_id: sit_threshold_departure
+  situation_ids:
+  - sit_threshold_departure
+  line_id: line_kai_departure
+  subplot_id: threshold
+  origin_pressure_refs:
+  - p_attachment_threat
+  - p_obligation
+  - p_departure_threshold
+  supporting_pressure_refs: []
+  availability_test: after_patch
+  priority_tier: 1
+  delta_tension: 0.12
+  delta_energy: -0.02
+  setup_refs:
+  - ev_harbor_meeting_tonight
+  - sit_threshold_departure
+  payoff_refs:
+  - ref_tide_schedule
+  event_id: null
+  event_commit_potential: 0.45
+  pressure_tags:
+  - attachment_threat
+  - obligation
+  - threshold
+  option_effect: prepare
+  importance: 0.84
+  resolution_path_count: 2
+  dwell_s: 4.2
+  visual_description: The decision has stopped being abstract; leaving for the harbor
+    is now the only action that still counts as an answer.
+  characters:
+  - kai
+  objects:
+  - letter
+  - keys
+  - jacket
+  tags:
+  - threshold
+  - departure
+  - harbor
+- id: k_scaffold_threshold_hesitation
+  name: Threshold hesitation
+  scene_ref: Kai patch scaffold 4
+  variant_of: null
+  variant_family: null
+  place_id: kitchen
+  situation_id: sit_threshold_departure
+  situation_ids:
+  - sit_threshold_departure
+  line_id: line_kai_departure
+  subplot_id: threshold
+  origin_pressure_refs:
+  - p_attachment_threat
+  - p_obligation
+  - p_departure_threshold
+  supporting_pressure_refs: []
+  availability_test: after_threshold
+  priority_tier: 0
+  delta_tension: 0.1
+  delta_energy: -0.08
+  setup_refs:
+  - ref_tide_schedule
+  payoff_refs:
+  - sit_threshold_departure
+  event_id: null
+  event_commit_potential: 0.3
+  pressure_tags:
+  - obligation
+  - threshold
+  option_effect: inspect
+  importance: 0.73
+  resolution_path_count: 2
+  dwell_s: 4.0
+  visual_description: He can feel the shape of leaving, but the kitchen still offers
+    him one more useless task before he has to choose it or refuse it.
+  characters:
+  - kai
+  objects:
+  - keys
+  - counter
+  tags:
+  - hesitation
+  - threshold
+  - kitchen
+- id: k_scaffold_departure_commit
+  name: Departure finally chosen
+  scene_ref: Kai patch scaffold 5
+  variant_of: null
+  variant_family: null
+  place_id: kitchen
+  situation_id: sit_threshold_departure
+  situation_ids:
+  - sit_threshold_departure
+  line_id: line_kai_departure
+  subplot_id: threshold
+  origin_pressure_refs:
+  - p_obligation
+  - p_departure_threshold
+  supporting_pressure_refs:
+  - p_attachment_threat
+  availability_test: late
+  priority_tier: 1
+  delta_tension: -0.18
+  delta_energy: 0.1
+  setup_refs:
+  - sit_threshold_departure
+  - ev_harbor_meeting_tonight
+  payoff_refs: []
+  event_id: null
+  event_commit_potential: 0.85
+  pressure_tags:
+  - obligation
+  - release
+  option_effect: commit
+  importance: 0.88
+  resolution_path_count: 1
+  dwell_s: 4.5
+  visual_description: He stops translating the evening into chores, takes what he
+    needs, and lets the answer become movement instead of delay.
+  characters:
+  - kai
+  objects:
+  - keys
+  - jacket
+  tags:
+  - departure
+  - commit
+  - release
+- id: k_scaffold_return_cover
+  name: Return to ritual
+  scene_ref: Kai patch scaffold 6
+  variant_of: null
+  variant_family: null
+  place_id: kitchen
+  situation_id: sit_unopened_letter
+  situation_ids:
+  - sit_unopened_letter
+  line_id: line_kai_departure
+  subplot_id: aftershock
+  origin_pressure_refs:
+  - p_attachment_threat
+  - p_obligation
+  supporting_pressure_refs:
+  - p_departure_threshold
+  availability_test: fallback
+  priority_tier: 0
+  delta_tension: 0.04
+  delta_energy: -0.1
+  setup_refs:
+  - sit_threshold_departure
+  payoff_refs:
+  - ref_counter_ritual
+  event_id: null
+  event_commit_potential: 0.2
+  pressure_tags:
+  - attachment_threat
+  - obligation
+  option_effect: return
+  importance: 0.62
+  resolution_path_count: 2
+  dwell_s: 4.0
+  visual_description: He leaves the letter unopened and lets the kitchen take him
+    back into motions that feel responsible only because they can be repeated.
+  characters:
+  - kai
+  objects:
+  - dishcloth
+  - coffee
+  - letter
+  tags:
+  - return
+  - cover
+  - kitchen
+- id: k_patch_anchor
+  name: Tea precision instead of opening
+  scene_ref: Kai generated pack A 1
+  variant_of: null
+  variant_family: null
+  place_id: kitchen
+  situation_id: sit_unopened_letter
+  situation_ids:
+  - sit_unopened_letter
+  line_id: line_kai_departure
+  subplot_id: avoidance_patch
+  origin_pressure_refs:
+  - p_attachment_threat
+  - p_obligation
+  supporting_pressure_refs: []
+  availability_test: after_start
+  priority_tier: 0
+  delta_tension: 0.18
+  delta_energy: -0.12
+  setup_refs:
+  - sit_unopened_letter
+  - harbor_as_shared_place
+  payoff_refs:
+  - sit_threshold_departure
+  - ref_counter_ritual
+  event_id: null
+  event_commit_potential: 0.35
+  pressure_tags:
+  - attachment_threat
+  - obligation
+  option_effect: inspect
+  importance: 0.76
+  resolution_path_count: 3
+  dwell_s: 4.0
+  visual_description: Kai fills the electric kettle a second time, though the first
+    cup sits untouched and already cold beside the letter. He measures the tea leaves
+    with a precision he never bothers with normally, leveling the spoon against the
+    rim of the tin, counting seconds under his breath—the kind of focus that requires
+    just enough attention to crowd out the smell of salt water he keeps almost noticing,
+    as if the harbor has followed the envelope indoors. The letter does not move,
+    and he does not look at it, but his back stays angled toward it the way a person
+    angles away from a window when they don't want to be seen from outside.
+  characters:
+  - kai
+  objects:
+  - kettle
+  - tea-tin
+  - letter
+  tags:
+  - tea
+  - precision
+  - generated-pack-a
+- id: k_patch_intensifier
+  name: Counter as answer
+  scene_ref: Kai generated pack A 2
+  variant_of: null
+  variant_family: null
+  place_id: kitchen
+  situation_id: sit_unopened_letter
+  situation_ids:
+  - sit_unopened_letter
+  line_id: line_kai_departure
+  subplot_id: avoidance_patch
+  origin_pressure_refs:
+  - p_attachment_threat
+  - p_obligation
+  supporting_pressure_refs: []
+  availability_test: always
+  priority_tier: 0
+  delta_tension: 0.18
+  delta_energy: -0.22
+  setup_refs:
+  - sit_unopened_letter
+  - ref_counter_ritual
+  payoff_refs:
+  - ref_letter_address
+  - sit_threshold_departure
+  event_id: null
+  event_commit_potential: 0.25
+  pressure_tags:
+  - attachment_threat
+  - obligation
+  option_effect: inspect
+  importance: 0.79
+  resolution_path_count: 2
+  dwell_s: 4.0
+  visual_description: Kai refills his coffee cup for the third time, watching the
+    pour with the concentration of someone defusing something, the letter still face-down
+    on the table where he flipped it an hour ago so the handwriting wouldn't keep
+    catching his eye. He wipes the counter in slow horizontal strokes, and when he
+    reaches the edge nearest the table he stops, pivots, and wipes the other direction.
+    The harbor is six blocks away and the evening is already going gray at the window,
+    and he knows that every minute he stands here with a clean counter is a kind of
+    answer.
+  characters:
+  - kai
+  objects:
+  - coffee
+  - counter
+  - letter
+  tags:
+  - counter
+  - answer
+  - generated-pack-a
+- id: k_patch_contrast
+  name: Phone-line silence in the towel
+  scene_ref: Kai generated pack A 3
+  variant_of: null
+  variant_family: null
+  place_id: kitchen
+  situation_id: sit_unopened_letter
+  situation_ids:
+  - sit_unopened_letter
+  line_id: line_kai_departure
+  subplot_id: avoidance_patch
+  origin_pressure_refs:
+  - p_attachment_threat
+  - p_obligation
+  supporting_pressure_refs:
+  - p_departure_threshold
+  availability_test: always
+  priority_tier: 0
+  delta_tension: 0.15
+  delta_energy: -0.2
+  setup_refs:
+  - sit_unopened_letter
+  - ref_tide_schedule
+  payoff_refs:
+  - ev_harbor_meeting_tonight
+  - sit_threshold_departure
+  event_id: null
+  event_commit_potential: 0.3
+  pressure_tags:
+  - attachment_threat
+  - obligation
+  option_effect: inspect
+  importance: 0.77
+  resolution_path_count: 2
+  dwell_s: 4.0
+  visual_description: Kai refolds the dish towel on the counter—once, then again,
+    aligning the edges with a precision the task doesn't require, the letter still
+    face-down where he set it without reading the front. He turns on the faucet to
+    rinse a mug that is already clean, and the sound of the water fills the kitchen
+    the way silence used to fill a phone line he once let ring out. The harbor is
+    maybe three miles away, and he is aware of its direction the way you are aware
+    of a bruise you keep almost touching.
+  characters:
+  - kai
+  objects:
+  - dish-towel
+  - faucet
+  - letter
+  tags:
+  - dish-towel
+  - phone-line
+  - generated-pack-a
+- id: k_patch_bridge
+  name: Faucet as last-possible-moment math
+  scene_ref: Kai generated pack A 4
+  variant_of: null
+  variant_family: null
+  place_id: kitchen
+  situation_id: sit_unopened_letter
+  situation_ids:
+  - sit_unopened_letter
+  line_id: line_kai_departure
+  subplot_id: avoidance_patch
+  origin_pressure_refs:
+  - p_attachment_threat
+  - p_obligation
+  supporting_pressure_refs:
+  - p_departure_threshold
+  availability_test: always
+  priority_tier: 1
+  delta_tension: 0.18
+  delta_energy: -0.12
+  setup_refs:
+  - sit_unopened_letter
+  - ref_letter_address
+  payoff_refs:
+  - ev_harbor_meeting_tonight
+  - sit_threshold_departure
+  - ref_counter_ritual
+  event_id: null
+  event_commit_potential: 0.42
+  pressure_tags:
+  - attachment_threat
+  - obligation
+  option_effect: prepare
+  importance: 0.81
+  resolution_path_count: 2
+  dwell_s: 4.2
+  visual_description: Kai turns on the faucet to rinse a mug that doesn't need rinsing,
+    and the sound of the water fills the kitchen the way he needs it to—present, purposeful,
+    covering. He has been calculating, without quite admitting he is calculating,
+    how long the walk to the harbor would take if he left at the last possible moment,
+    and the number keeps revising itself upward. The letter lies face-down where he
+    put it, and he doesn't look at it, but he knows its exact position the way you
+    know a bruise without touching it, and the gray at the window is deepening in
+    a way that feels less like evening and more like a door closing.
+  characters:
+  - kai
+  objects:
+  - faucet
+  - mug
+  - letter
+  tags:
+  - faucet
+  - bridge
+  - generated-pack-a
+edges:
+- from: k_start_table_letter
+  to: k_patch_anchor
+- from: k_start_table_letter
+  to: k_patch_intensifier
+- from: k_start_table_letter
+  to: k_patch_contrast
+- from: k_start_table_letter
+  to: k_scaffold_counter_cover
+- from: k_scaffold_counter_cover
+  to: k_patch_anchor
+- from: k_scaffold_counter_cover
+  to: k_patch_bridge
+- from: k_scaffold_counter_cover
+  to: k_scaffold_threshold_entry
+- from: k_patch_anchor
+  to: k_patch_intensifier
+- from: k_patch_anchor
+  to: k_patch_bridge
+- from: k_patch_anchor
+  to: k_scaffold_counter_cover
+- from: k_patch_intensifier
+  to: k_patch_contrast
+- from: k_patch_intensifier
+  to: k_patch_bridge
+- from: k_patch_intensifier
+  to: k_scaffold_threshold_entry
+- from: k_patch_contrast
+  to: k_patch_bridge
+- from: k_patch_contrast
+  to: k_scaffold_threshold_entry
+- from: k_patch_contrast
+  to: k_scaffold_return_cover
+- from: k_patch_bridge
+  to: k_scaffold_threshold_entry
+- from: k_patch_bridge
+  to: k_scaffold_threshold_hesitation
+- from: k_scaffold_threshold_entry
+  to: k_scaffold_threshold_hesitation
+- from: k_scaffold_threshold_entry
+  to: k_scaffold_departure_commit
+- from: k_scaffold_threshold_entry
+  to: k_scaffold_return_cover
+- from: k_scaffold_threshold_hesitation
+  to: k_scaffold_departure_commit
+- from: k_scaffold_threshold_hesitation
+  to: k_scaffold_return_cover
+- from: k_scaffold_departure_commit
+  to: k_scaffold_threshold_hesitation
+- from: k_scaffold_departure_commit
+  to: k_scaffold_return_cover
+- from: k_scaffold_return_cover
+  to: k_patch_bridge
+- from: k_scaffold_return_cover
+  to: k_scaffold_threshold_entry
+- from: k_scaffold_return_cover
+  to: k_scaffold_counter_cover
