@@ -205,6 +205,8 @@ def derive_appraisal_frame(
     controllability = 0.28
     if ablation == "high_controllability":
         controllability = 0.68
+    elif ablation == "low_controllability":
+        controllability = 0.18
     changeability = round(min(1.0, controllability + 0.06), 2)
     intentional = bool(causal_slice["attribution"].get("intentional"))
     praiseworthiness = -0.52 if intentional and threatens else -0.18
@@ -253,6 +255,9 @@ def derive_practice_context(
 ) -> Dict[str, Any]:
     expected = fixture["benchmark_step"]["expected_practice_context"]
     if ablation == "swap_practice_context":
+        alternate = fixture.get("benchmark_step", {}).get("alternate_practice_context")
+        if alternate:
+            return deepcopy(alternate)
         return {
             "practice_type": "anticipated-confrontation",
             "role": "approacher",
@@ -514,6 +519,12 @@ def build_allowed_id_block(fixture: Dict[str, Any]) -> str:
     )
 
 
+def build_prompt_constraint_block(fixture: Dict[str, Any]) -> str:
+    constraints = fixture.get("benchmark_step", {}).get("prompt_constraints", [])
+    lines = ["- One moment."] + [f"- {item}" for item in constraints]
+    return "\n".join(lines) + "\n"
+
+
 def build_shared_generation_frame() -> str:
     return "\n".join(
         [
@@ -565,9 +576,7 @@ def build_baseline_prompt(fixture: Dict[str, Any]) -> str:
         + "\n".join(f"- {ep['summary']}" for ep in episodes)
         + "\n\n"
         + "WHAT TO GENERATE:\n"
-        + "- One moment.\n"
-        + "- The letter remains unopened.\n"
-        + "- The harbor should remain psychologically present even though Kai is in the kitchen.\n"
+        + build_prompt_constraint_block(fixture)
         + "- The prose should show behavior, not just mood labels.\n"
         + "- Then return valid JSON only.\n\n"
         "Return this shape:\n"
@@ -593,8 +602,7 @@ def build_baseline_prompt(fixture: Dict[str, Any]) -> str:
         "  }\n"
         "}\n\n"
         + "STRUCTURAL CONSTRAINTS:\n"
-        "- The letter remains unopened in this moment.\n"
-        "- The harbor should still matter psychologically.\n"
+        "- Stay inside this benchmark's world. Do not mention people, places, or objects from other benchmarks.\n"
         "- The output must be graph-compilable against the given situation.\n"
         + build_allowed_id_block(fixture)
         + "\n"
@@ -651,9 +659,7 @@ def build_middle_prompt(
             f"PracticeContextV1: {json.dumps(practice_context, sort_keys=True)}",
             "",
             "WHAT TO GENERATE:",
-            "- One moment.",
-            "- The letter remains unopened.",
-            "- The harbor should remain psychologically present even though Kai is in the kitchen.",
+            *[f"- {item}" for item in (["One moment."] + fixture.get("benchmark_step", {}).get("prompt_constraints", []))],
             "- Then return valid JSON only.",
             "",
             "Return this shape:",
@@ -684,7 +690,7 @@ def build_middle_prompt(
         "}",
             "",
             "STRUCTURAL CONSTRAINTS:",
-            "- The letter remains unopened in this moment.",
+            "- Stay inside this benchmark's world. Do not mention people, places, or objects from other benchmarks.",
             "- The output should reflect the selected operator family and affordances.",
             "- The output must be graph-compilable against the benchmark fixture.",
             build_allowed_id_block(fixture),
@@ -695,31 +701,30 @@ def build_middle_prompt(
 
 
 def stub_baseline_response(fixture: Dict[str, Any]) -> Dict[str, Any]:
-    situation_id = fixture["situations"][0]["id"]
-    return {
-        "candidate_text": (
-            "Kai stands over the unopened letter for too long, tracing the edge of the paper "
-            "before leaving it on the table and pretending the night has not started deciding for him."
-        ),
-        "graph_projection": {
-            "node_id": "kai_letter_baseline_001",
-            "node_type": "beat",
-            "situation_id": situation_id,
-            "delta_tension": 0.07,
-            "delta_energy": -0.02,
-            "setup_refs": ["ev_harbor_meeting_tonight"],
-            "payoff_refs": ["sit_threshold_departure"],
-            "option_effect": "clarify",
-            "pressure_tags": ["attachment_threat", "obligation"],
-            "practice_tags": [],
-            "origin_pressure_refs": ["cc_attachment_threat", "cc_obligation"],
-            "source_lane": "L2",
-            "scope": "proposal",
-            "confidence": "medium",
-            "revisability": "ephemeral_candidate",
-            "source_ref": "prototype-baseline",
-        },
-    }
+    reference = fixture["worked_trace_reference"]["expected_generated_candidate"]
+    graph_projection = deepcopy(reference["graph_projection"])
+    graph_projection["source_ref"] = "prototype-baseline"
+    graph_projection["confidence"] = "medium"
+
+    expected_family = fixture["benchmark_step"]["expected_selected_family"]
+    fixture_id = fixture.get("fixture_id", "")
+    if fixture_id == "authoring_time_generation_rhea_credit_meeting_v1":
+        candidate_text = (
+            "Rhea mouths two openings at the dark reflection of her phone outside Studio B, "
+            "crossing out the second one before she can decide whether it sounds like repair or self-defense."
+        )
+    elif expected_family == "rehearsal":
+        candidate_text = (
+            "Maren stops outside the rehearsal-room door and writes three different openings on the back "
+            "of the run sheet, discarding each one before she can decide which version sounds least defensive."
+        )
+    else:
+        candidate_text = (
+            "Kai stands over the unopened letter for too long, tracing the edge of the paper before leaving "
+            "it on the table and pretending the night has not started deciding for him."
+        )
+
+    return {"candidate_text": candidate_text, "graph_projection": graph_projection}
 
 
 def stub_middle_response(
@@ -731,19 +736,52 @@ def stub_middle_response(
     graph_projection = deepcopy(reference["graph_projection"])
     graph_projection["source_ref"] = "prototype-middle"
 
+    fixture_id = fixture.get("fixture_id", "")
     if operator_family == "avoidance":
-        candidate_text = reference["reference_exemplar_text"]
+        if fixture_id == "authoring_time_generation_rhea_credit_meeting_v1":
+            candidate_text = (
+                "Rhea reorganizes her badge and phone notes outside Studio B, letting another minute pass while she pretends she still needs a cleaner opening."
+            )
+        elif fixture_id == "authoring_time_generation_maren_opening_line_v1":
+            candidate_text = (
+                "Maren reorganizes the run sheet and call board notes for the third time, keeping her hand away "
+                "from the rehearsal-room door while she tells herself she will try the opening line in another minute."
+            )
+        else:
+            candidate_text = reference["reference_exemplar_text"]
     elif operator_family == "rationalization":
-        candidate_text = (
-            "Kai tells himself the letter can wait until the kettle boils; if it truly mattered, "
-            "his sister would not have trusted paper to carry it."
-        )
+        if fixture_id == "authoring_time_generation_rhea_credit_meeting_v1":
+            candidate_text = (
+                "Rhea tells herself she should not step into Studio B until she has a version of the first sentence that sounds exact rather than defensive."
+            )
+        elif fixture_id == "authoring_time_generation_maren_opening_line_v1":
+            candidate_text = (
+                "Maren decides there is no point entering until she has a sentence that sounds practical instead of wounded, "
+                "so she keeps revising the run sheet as if clarity alone could count as courage."
+            )
+        else:
+            candidate_text = (
+                "Kai tells himself the letter can wait until the kettle boils; if it truly mattered, "
+                "his sister would not have trusted paper to carry it."
+            )
     else:
-        candidate_text = (
-            "Kai rehearses opening the envelope and then the first sentence he might speak at the harbor, "
-            "stopping each version before it sounds like an apology."
-        )
-    graph_projection["practice_tags"] = [fixture["benchmark_step"]["expected_practice_context"]["practice_type"]]
+        if fixture_id == "authoring_time_generation_rhea_credit_meeting_v1":
+            candidate_text = (
+                "Rhea mouths three openings at the dark reflection of her phone outside Studio B, rejecting each one before she can settle on the handle."
+            )
+        elif fixture_id == "authoring_time_generation_maren_opening_line_v1":
+            candidate_text = (
+                "Maren mouths three possible opening lines at the rehearsal-room door, rejecting each one before her hand "
+                "can settle on the handle."
+            )
+        else:
+            candidate_text = (
+                "Kai rehearses opening the envelope and then the first sentence he might speak at the harbor, "
+                "stopping each version before it sounds like an apology."
+            )
+    expected_practice = fixture["benchmark_step"]["expected_practice_context"]["practice_type"]
+    alternate_practice = fixture.get("benchmark_step", {}).get("alternate_practice_context", {}).get("practice_type")
+    graph_projection["practice_tags"] = [alternate_practice if operator_family == "avoidance" and alternate_practice else expected_practice]
     return {"candidate_text": candidate_text, "graph_projection": graph_projection}
 
 
@@ -959,7 +997,11 @@ def reappraise_concerns(
     return updated
 
 
-def make_semantic_checks(candidate_text: str, semantic_expectations: List[str]) -> Dict[str, bool]:
+def make_semantic_checks(
+    candidate_text: str,
+    semantic_expectations: List[str],
+    forbidden_terms: Optional[List[str]] = None,
+) -> Dict[str, bool]:
     lowered = candidate_text.lower()
     checks = {}
     for predicate in semantic_expectations:
@@ -1025,8 +1067,83 @@ def make_semantic_checks(candidate_text: str, semantic_expectations: List[str]) 
             )
         elif predicate == "avoidance sharpens rather than resolves the choice":
             checks[predicate] = not any(token in lowered for token in ("resolves", "decides", "answers"))
+        elif predicate == "opening-line rehearsal is present":
+            checks[predicate] = any(
+                token in lowered
+                for token in (
+                    "opening",
+                    "opening line",
+                    "mouthed",
+                    "mouths",
+                    "murmurs",
+                    "practices the sentence",
+                    "rehearses",
+                    "rewrites",
+                    "crosses out",
+                    "run sheet",
+                )
+            )
+        elif predicate == "the meeting has not begun":
+            checks[predicate] = not any(
+                token in lowered
+                for token in (
+                    "she steps into the room",
+                    "she entered the room",
+                    "he entered the room",
+                    "they begin talking",
+                    "the conversation begins",
+                    "she says to leah",
+                    '"leah,',
+                )
+            )
+        elif predicate == "the rehearsal room remains psychologically active":
+            checks[predicate] = any(
+                token in lowered
+                for token in (
+                    "rehearsal room",
+                    "door",
+                    "handle",
+                    "inside the room",
+                    "run-through",
+                    "behind the door",
+                )
+            )
+        elif predicate == "the studio remains psychologically active":
+            checks[predicate] = any(
+                token in lowered
+                for token in (
+                    "studio b",
+                    "studio",
+                    "door",
+                    "handle",
+                    "inside the room",
+                    "behind the door",
+                    "chair scrapes",
+                    "chair scrape",
+                )
+            )
+        elif predicate == "rehearsal sharpens rather than resolves the choice":
+            checks[predicate] = any(
+                token in lowered
+                for token in (
+                    "opening",
+                    "sentence",
+                    "handle",
+                    "crosses out",
+                    "before she goes in",
+                    "before entering",
+                )
+            ) and not any(token in lowered for token in ("she enters", "she steps inside", "the talk begins"))
         else:
             checks[predicate] = False
+    if forbidden_terms:
+        padded = f" {lowered} "
+        def term_present(term: str) -> bool:
+            normalized = f" {term.lower().strip()} "
+            if " " in term.strip():
+                return term.lower() in lowered
+            return normalized in padded
+        checks["no_cross_fixture_contamination"] = not any(term_present(term) for term in forbidden_terms)
     return checks
 
 
@@ -1066,6 +1183,7 @@ def run_arm_baseline(fixture: Dict[str, Any], provider: str, model: Optional[str
                 "semantic_checks": make_semantic_checks(
                     parsed_response.get("candidate_text", ""),
                     exemplar.get("semantic_expectations", []),
+                    fixture.get("benchmark_step", {}).get("forbidden_cross_fixture_terms", []),
                 ),
             }
         )
@@ -1175,6 +1293,7 @@ def run_arm_middle(
                 "semantic_checks": make_semantic_checks(
                     parsed_response.get("candidate_text", ""),
                     fixture["worked_trace_reference"]["expected_generated_candidate"]["semantic_expectations"],
+                    fixture.get("benchmark_step", {}).get("forbidden_cross_fixture_terms", []),
                 ),
                 "updated_concerns": reappraise_concerns(
                     concerns,
@@ -1266,14 +1385,14 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--ablation",
-        choices=["none", "no_causal_slice", "high_controllability", "swap_practice_context"],
+        choices=["none", "no_causal_slice", "high_controllability", "low_controllability", "swap_practice_context"],
         default="none",
         help="Ablation to apply to the middle-layer arm.",
     )
     parser.add_argument(
         "--run-ablation-suite",
         action="store_true",
-        help="Emit three additional middle-arm runs: no_causal_slice, high_controllability, swap_practice_context.",
+        help="Emit four additional middle-arm runs: no_causal_slice, high_controllability, low_controllability, swap_practice_context.",
     )
     return parser.parse_args()
 
@@ -1298,7 +1417,7 @@ def main() -> int:
     if args.arm in {"middle", "both"}:
         results.append(run_arm_middle(fixture, args.provider, args.model, args.ablation))
         if args.run_ablation_suite:
-            for ablation in ("no_causal_slice", "high_controllability", "swap_practice_context"):
+            for ablation in ("no_causal_slice", "high_controllability", "low_controllability", "swap_practice_context"):
                 results.append(run_arm_middle(fixture, args.provider, args.model, ablation))
 
     dump_text(output_dir / "fixture-path.txt", str(fixture_path))

@@ -1,0 +1,345 @@
+fixture_id: authoring_time_generation_maren_opening_line_v1
+title: Maren and the Opening Line
+purpose: >
+  Second benchmark fixture for the authoring-time generation prototype.
+  Designed as a rehearsal-leaning contrast case to the Kai avoidance fixture.
+  Tests whether the current middle layer can generate threshold material for
+  an anticipated confrontation rather than a delay ritual.
+
+source_refs:
+  - /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/27-authoring-time-generation-reframe.md
+  - /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/28-l2-schema-from-5pro.md
+  - /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/30-authoring-time-generation-prototype-spec.md
+  - /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/32-authoring-time-generation-comparison-memo.md
+
+prototype_contract:
+  operator_families: [rehearsal, rationalization, avoidance]
+  practice_types: [evasion, anticipated-confrontation, confession]
+  retrieval:
+    keys_in_order: [concern_type, target_ref, situation_id, practice_type]
+    min_score: 2
+    max_retrieved_episodes: 2
+    tie_break: [recency_rank_desc, fixture_order_asc]
+    accepted_generated_episodes_reenter_on_next_step: true
+  graph_requirements:
+    option_effect_vocabulary: [close, open, clarify, none]
+    provenance_enums:
+      source_lane: [L1, L2, L3, human]
+      scope: [authored, projection, proposal]
+      revisability: [fixed, editable, ephemeral_candidate]
+    required_graph_fields:
+      - node_id
+      - node_type
+      - situation_id
+      - delta_tension
+      - delta_energy
+      - setup_refs
+      - payoff_refs
+      - option_effect
+      - pressure_tags
+      - practice_tags
+      - origin_pressure_refs
+      - source_lane
+      - scope
+      - confidence
+      - revisability
+      - source_ref
+    setup_payoff_refs_resolve_against: [events.id, situations.id, reference_markers.id]
+
+characters:
+  - id: maren
+    role: focal_character
+    description: >
+      Wants to repair a working relationship with Leah, but only if she can
+      enter on a sentence that does not collapse into apology theater.
+      Under approach pressure, she scripts and revises opening lines until
+      wording feels like a substitute for courage.
+    contradictions:
+      - wants repair with Leah before the room hardens against her
+      - resents that repair depends on saying the first true thing cleanly
+      - believes precision in wording can partially control exposure
+    behavioral_defaults:
+      - opening_line_rehearsal
+      - phrase_revision_under_pressure
+      - threshold_stalling
+
+targets:
+  - id: leah
+    relation_to_maren: estranged_collaborator
+    description: >
+      A former collaborator whose presence combines duty, blame, and the
+      possibility of repairing a damaged working bond.
+
+places:
+  - id: backstage_hallway
+    description: A threshold space where entry can still be delayed and wording still revised.
+  - id: rehearsal_room
+    description: The room where confrontation and possible repair will begin once Maren enters.
+
+backstory_episodes:
+  - id: ep_public_break
+    recency_rank: 3
+    summary: >
+      After a disastrous rehearsal, Leah told Maren, "If you're apologizing,
+      don't start by defending the tempo."
+    place_id: rehearsal_room
+    involved_targets: [leah]
+    retrieval_tags:
+      concern_type: obligation
+      target_ref: leah
+      practice_type: anticipated-confrontation
+    emotional_charge:
+      blame: high
+      exposure: high
+      repair_possibility: low
+
+  - id: ep_good_opening_line
+    recency_rank: 2
+    summary: >
+      Before a difficult funding interview, Maren rehearsed one opening line
+      until the room stopped feeling hostile enough to enter.
+    place_id: backstage_hallway
+    involved_targets: [leah]
+    retrieval_tags:
+      concern_type: obligation
+      target_ref: leah
+      practice_type: anticipated-confrontation
+    emotional_charge:
+      control_gain: medium
+      confidence: medium
+
+  - id: ep_unsent_apology_note
+    recency_rank: 1
+    summary: >
+      Maren once rewrote an apology note for hours and never sent it, letting
+      revision become its own refusal.
+    place_id: backstage_hallway
+    involved_targets: [leah]
+    retrieval_tags:
+      concern_type: obligation
+      target_ref: leah
+      practice_type: evasion
+    emotional_charge:
+      regret: high
+      shame: medium
+
+situations:
+  - id: sit_outside_rehearsal_room
+    place_id: backstage_hallway
+    description: >
+      Maren stands outside the rehearsal room minutes before a run-through,
+      holding a folded run sheet she could use to script her first sentence to Leah.
+      Leah is already inside.
+    target_ref: leah
+    implied_future_place: rehearsal_room
+    time_pressure: now
+    current_state:
+      entry_made: false
+      first_line_spoken: false
+
+  - id: sit_first_line_threshold
+    place_id: backstage_hallway
+    description: >
+      The threshold moment where Maren either steps into the room with a
+      prepared opening or lets revision become another postponement.
+
+events:
+  - id: ev_talk_before_runthrough
+    description: The conversation with Leah must happen before the run-through begins.
+    anchor_places: [rehearsal_room]
+
+reference_markers:
+  - id: stage_door_as_threshold
+    description: >
+      The rehearsal-room door as a threshold where wording competes with entry.
+
+concern_extraction:
+  mode: benchmark_hand_specified_after_theme_rules
+  note: >
+    v1 records a reproducible path from narrative primitives to active concerns,
+    then seeds the benchmark concerns directly for the run.
+  concern_extraction_rules:
+    - id: rule_shared_work_requires_approach
+      when:
+        - damaged_collaboration_is_live
+        - imminent_shared_work
+      yields:
+        concern_type: obligation
+        target_ref: leah
+        rationale: >
+          When damaged collaboration must be entered immediately, duty pressure
+          forms around making the first approach.
+
+    - id: rule_repair_possible_but_exposing
+      when:
+        - unrepaired_breach_with_target
+        - contact_could_reopen_bond
+      yields:
+        concern_type: attachment_threat
+        target_ref: leah
+        rationale: >
+          The possibility of repair is itself threatening because contact may
+          reopen the bond and expose unresolved blame.
+
+  practice_bias_rules:
+    - id: rule_precision_as_control
+      when:
+        - entry_is_imminent
+        - character_defaults_to_wording_control
+      biases:
+        practice_type: anticipated-confrontation
+        family_bonus: rehearsal
+      rationale: >
+        When exposure cannot be avoided entirely, Maren tries to regain control
+        by refining the opening line before contact begins.
+
+  extracted_concerns:
+    - id: cc_obligation
+      concern_type: obligation
+      target_ref: leah
+      base_intensity: 0.74
+      intensity_basis: fixture_constant
+      seed_origin: benchmark_seeded
+      unresolved: true
+      source_rule_ids: [rule_shared_work_requires_approach]
+      source_episode_ids: [ep_public_break, ep_good_opening_line]
+
+    - id: cc_attachment_threat
+      concern_type: attachment_threat
+      target_ref: leah
+      base_intensity: 0.61
+      intensity_basis: fixture_constant
+      seed_origin: benchmark_seeded
+      unresolved: true
+      source_rule_ids: [rule_repair_possible_but_exposing]
+      source_episode_ids: [ep_public_break, ep_unsent_apology_note]
+
+benchmark_step:
+  dominant_concern_id: cc_obligation
+  prompt_constraints:
+    - The first line to Leah is not spoken yet.
+    - The rehearsal room should remain psychologically active even though Maren is still outside it.
+  forbidden_cross_fixture_terms: [kai, sister, harbor, kitchen, letter, envelope]
+  expected_practice_context:
+    practice_type: anticipated-confrontation
+    role: approacher
+    phase: precontact
+    affordance_tags: [draft-opening-line, brace-for-accusation, revise-framing]
+  alternate_practice_context:
+    practice_type: evasion
+    role: evader
+    phase: precontact
+    affordance_tags: [delay-entry, reorganize-papers, rehearse-later]
+  expected_retrieval_candidates:
+    - episode_id: ep_public_break
+      expected_score: 3
+      matched_keys: [concern_type, target_ref, practice_type]
+    - episode_id: ep_good_opening_line
+      expected_score: 3
+      matched_keys: [concern_type, target_ref, practice_type]
+    - episode_id: ep_unsent_apology_note
+      expected_score: 2
+      matched_keys: [concern_type, target_ref]
+  expected_selected_family: rehearsal
+  expected_selected_affordance_tags: [draft-opening-line, brace-for-accusation]
+  expected_commit_type: salience
+
+worked_trace_reference:
+  expected_causal_slice:
+    focal_situation_id: sit_outside_rehearsal_room
+    concern_id: cc_obligation
+    target_ref: leah
+    affected_goal:
+      goal: make-credible-first-approach
+      sign: threatens
+      weight: 0.80
+    attribution:
+      actor: maren
+      intentional: true
+    temporal_status: prospective
+    likelihood_bucket: high
+    self_options: [enter-room, draft-opening-line]
+    other_options: [leah-hardens]
+
+  expected_appraisal_frame:
+    desirability: -0.71
+    likelihood: 0.82
+    controllability: 0.57
+    changeability: 0.63
+    praiseworthiness: -0.44
+    expectedness: 0.72
+    temporal_status: prospective
+    realization_status: prospective
+
+  expected_emotion_vector_topk:
+    fear: 0.49
+    distress: 0.37
+    remorse: 0.33
+
+  expected_operator_score_breakdown:
+    rehearsal:
+      pressure: 0.74
+      appraisal_fit: 0.61
+      practice_fit: 0.78
+      episodic_resonance: 0.58
+      repetition_penalty: 0.05
+      total: 0.72
+    rationalization:
+      pressure: 0.74
+      appraisal_fit: 0.50
+      practice_fit: 0.42
+      episodic_resonance: 0.30
+      repetition_penalty: 0.08
+      total: 0.52
+    avoidance:
+      pressure: 0.74
+      appraisal_fit: 0.53
+      practice_fit: 0.22
+      episodic_resonance: 0.16
+      repetition_penalty: 0.12
+      total: 0.42
+
+  expected_generated_candidate:
+    literal_text_oracle: false
+    reference_exemplar_text: >
+      Maren mouths three different openings at the closed rehearsal-room door,
+      rejecting each one for sounding either defensive or theatrical. She writes
+      a cleaner sentence on the back of the run sheet, crosses out everything
+      after the first clause, and steadies her hand on the handle as if the room
+      might accept precision in place of courage.
+    semantic_expectations:
+      - opening-line rehearsal is present
+      - the meeting has not begun
+      - the rehearsal room remains psychologically active
+      - rehearsal sharpens rather than resolves the choice
+    graph_projection:
+      node_id: maren_opening_line_001
+      node_type: beat
+      situation_id: sit_outside_rehearsal_room
+      delta_tension: 0.09
+      delta_energy: 0.05
+      setup_refs: [ev_talk_before_runthrough]
+      payoff_refs: [sit_first_line_threshold]
+      option_effect: clarify
+      pressure_tags: [obligation, attachment_threat]
+      practice_tags: [anticipated-confrontation]
+      origin_pressure_refs: [cc_obligation, cc_attachment_threat]
+      branch_outcome_tags: [prepared_opening_line]
+      contrast_tags: [precision_vs_exposure]
+      source_lane: L2
+      scope: proposal
+      confidence: medium
+      revisability: ephemeral_candidate
+      source_ref: worked-trace-maren-opening-line
+
+  expected_reappraisal:
+    commit_type: salience
+    updated_concerns:
+      - concern_id: cc_obligation
+        old_intensity: 0.74
+        new_intensity: 0.84
+        rationale: focus_intensified
+      - concern_id: cc_attachment_threat
+        old_intensity: 0.61
+        new_intensity: 0.56
+        rationale: preparation_without_contact

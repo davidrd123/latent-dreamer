@@ -1,0 +1,335 @@
+fixture_id: authoring_time_generation_rhea_credit_meeting_v1
+title: Rhea Outside Studio B
+purpose: >
+  Primary second benchmark fixture for the authoring-time generation prototype.
+  Designed as a rehearsal-leaning contrast case with status_damage dominant,
+  policy-style reappraisal, and a threshold meeting context rather than a
+  domestic delay ritual.
+
+source_refs:
+  - /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/27-authoring-time-generation-reframe.md
+  - /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/28-l2-schema-from-5pro.md
+  - /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/30-authoring-time-generation-prototype-spec.md
+  - /Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/32-authoring-time-generation-comparison-memo.md
+
+prototype_contract:
+  operator_families: [rehearsal, rationalization, avoidance]
+  practice_types: [evasion, anticipated-confrontation, confession]
+  retrieval:
+    keys_in_order: [concern_type, target_ref, situation_id, practice_type]
+    min_score: 2
+    max_retrieved_episodes: 2
+    tie_break: [recency_rank_desc, fixture_order_asc]
+    accepted_generated_episodes_reenter_on_next_step: true
+  graph_requirements:
+    option_effect_vocabulary: [close, open, clarify, none]
+    provenance_enums:
+      source_lane: [L1, L2, L3, human]
+      scope: [authored, projection, proposal]
+      revisability: [fixed, editable, ephemeral_candidate]
+    required_graph_fields:
+      - node_id
+      - node_type
+      - situation_id
+      - delta_tension
+      - delta_energy
+      - setup_refs
+      - payoff_refs
+      - option_effect
+      - pressure_tags
+      - practice_tags
+      - origin_pressure_refs
+      - source_lane
+      - scope
+      - confidence
+      - revisability
+      - source_ref
+    setup_payoff_refs_resolve_against: [events.id, situations.id, reference_markers.id]
+
+characters:
+  - id: rhea
+    role: focal_character
+    description: >
+      Wants to preserve professional respect without surrendering the first sentence.
+      Under status pressure, she scripts openings and counterarguments aloud before
+      difficult meetings.
+    contradictions:
+      - wants repair with Owen
+      - fears losing status once the exchange starts
+      - prefers rehearsed entry over improvisation
+    behavioral_defaults:
+      - draft_opening_lines
+      - simulate_objections
+      - revise_self_presentation
+
+targets:
+  - id: owen
+    relation_to_rhea: former_collaborator
+    description: >
+      A former close collaborator whose judgment matters professionally and personally.
+
+places:
+  - id: studio_hallway
+    description: A threshold space where conversation has not started yet but feels imminent.
+  - id: studio_b
+    description: The room where the credit dispute will have to be spoken aloud.
+  - id: panel_room
+    description: The place of an earlier public correction that still carries sting.
+
+events:
+  - id: ev_credit_omission_noticed
+    description: Owen noticed his missing credit on the submission.
+  - id: ev_meeting_scheduled_tonight
+    description: Owen asked Rhea to meet at Studio B tonight.
+  - id: ev_public_correction_at_panel
+    description: Owen publicly corrected the record during a past panel.
+
+situations:
+  - id: sit_studio_b_threshold
+    place_id: studio_hallway
+    description: >
+      Ten minutes before the meeting, Rhea stands outside Studio B with her phone in
+      her hand. The conversation has not started yet.
+    target_ref: owen
+    current_state:
+      meeting_started: false
+      message_sent: false
+      door_opened: false
+
+  - id: sit_inside_studio_b_conversation
+    place_id: studio_b
+    description: The conversation inside Studio B begins.
+
+reference_markers:
+  - id: ref_credit_dispute
+    description: The dispute over missing credit.
+
+backstory_episodes:
+  - id: ep_panel_correction
+    recency_rank: 3
+    summary: >
+      After a festival panel, Owen corrected the record in public and later told Rhea,
+      "Say what you did before you explain it."
+    place_id: panel_room
+    involved_targets: [owen]
+    retrieval_tags:
+      concern_type: status_damage
+      target_ref: owen
+      practice_type: anticipated-confrontation
+
+  - id: ep_rehearsed_note_success
+    recency_rank: 2
+    summary: >
+      Earlier in their collaboration, Rhea rehearsed a difficult opening line before
+      calling Owen, and the conversation went better because she did not improvise.
+    place_id: studio_hallway
+    involved_targets: [owen]
+    retrieval_tags:
+      concern_type: obligation
+      target_ref: owen
+      practice_type: anticipated-confrontation
+
+  - id: ep_delayed_reply_cost
+    recency_rank: 1
+    summary: >
+      Rhea once let a collaborator's accusation sit overnight, and by morning the
+      silence had become its own admission.
+    place_id: studio_hallway
+    involved_targets: [owen]
+    retrieval_tags:
+      concern_type: status_damage
+      target_ref: owen
+      practice_type: evasion
+
+concern_extraction:
+  mode: benchmark_hand_specified_after_theme_rules
+  note: >
+    v1 records a reproducible path from narrative primitives to active concerns,
+    then seeds the benchmark concerns directly for the run.
+  theme_rules:
+    - id: rule_public_credit_threat
+      when:
+        - prior_public_record_dispute
+        - current_meeting_about_credit
+      yields:
+        concern_type: status_damage
+        target_ref: owen
+        rationale: >
+          A coming conversation about contested credit threatens professional standing.
+
+    - id: rule_required_response_at_threshold
+      when:
+        - agreed_face_to_face_meeting
+        - confrontation_is_imminent
+      yields:
+        concern_type: obligation
+        target_ref: owen
+        rationale: >
+          Once the meeting is imminent, pressure attaches to producing a first response.
+
+  practice_bias_rules:
+    - id: rule_script_before_speaking
+      when:
+        - character_defaults_to_scripted_openings
+        - confrontation_is_imminent
+      biases:
+        practice_type: anticipated-confrontation
+        family_bonus: rehearsal
+      rationale: >
+        This character deals with status-threat encounters by drafting the opening.
+
+    - id: rule_silence_can_backfire
+      when:
+        - prior_delay_had_social_cost
+      biases:
+        practice_type: evasion
+        family_bonus: avoidance
+      rationale: >
+        Avoidance remains available, but it is not the cleanest fit here.
+
+  extracted_concerns:
+    - id: cc_status_damage
+      concern_type: status_damage
+      target_ref: owen
+      base_intensity: 0.76
+      intensity_basis: fixture_constant
+      seed_origin: benchmark_seeded
+      unresolved: true
+      source_rule_ids: [rule_public_credit_threat]
+      source_episode_ids: [ep_panel_correction, ep_delayed_reply_cost]
+
+    - id: cc_obligation
+      concern_type: obligation
+      target_ref: owen
+      base_intensity: 0.67
+      intensity_basis: fixture_constant
+      seed_origin: benchmark_seeded
+      unresolved: true
+      source_rule_ids: [rule_required_response_at_threshold]
+      source_episode_ids: [ep_rehearsed_note_success]
+
+benchmark_step:
+  dominant_concern_id: cc_status_damage
+  prompt_constraints:
+    - The conversation has not started yet.
+    - Studio B should remain psychologically active even though Rhea is still outside it.
+  forbidden_cross_fixture_terms: [kai, sister, harbor, kitchen, letter, envelope, maren, leah, rehearsal room, backstage hallway, run sheet]
+  expected_practice_context:
+    practice_type: anticipated-confrontation
+    role: initiator
+    phase: threshold
+    affordance_tags: [draft-opening-line, simulate-objection, offer-repair]
+  alternate_practice_context:
+    practice_type: evasion
+    role: evader
+    phase: threshold
+    affordance_tags: [delay-entry, reorganize-badge, rehearse-later]
+  expected_retrieval_candidates:
+    - episode_id: ep_panel_correction
+      expected_score: 3
+      matched_keys: [concern_type, target_ref, practice_type]
+    - episode_id: ep_rehearsed_note_success
+      expected_score: 2
+      matched_keys: [target_ref, practice_type]
+    - episode_id: ep_delayed_reply_cost
+      expected_score: 2
+      matched_keys: [concern_type, target_ref]
+  expected_selected_family: rehearsal
+  expected_selected_affordance_tags: [draft-opening-line, simulate-objection]
+  expected_commit_type: policy
+
+worked_trace_reference:
+  expected_causal_slice:
+    focal_situation_id: sit_studio_b_threshold
+    concern_id: cc_status_damage
+    target_ref: owen
+    affected_goal:
+      goal: preserve-working-credibility
+      sign: threatens
+      weight: 0.83
+    attribution:
+      actor: rhea
+      intentional: true
+    temporal_status: prospective
+    likelihood_bucket: high
+    self_options: [draft-opening-line, enter-studio]
+    other_options: [owen-rejects-repair]
+
+  expected_appraisal_frame:
+    desirability: -0.74
+    likelihood: 0.88
+    controllability: 0.63
+    changeability: 0.59
+    praiseworthiness: -0.61
+    expectedness: 0.71
+    temporal_status: prospective
+    realization_status: prospective
+
+  expected_emotion_vector_topk:
+    fear: 0.41
+    distress: 0.44
+    remorse: 0.38
+
+  expected_operator_score_breakdown:
+    rehearsal:
+      pressure: 0.76
+      appraisal_fit: 0.79
+      practice_fit: 0.91
+      episodic_resonance: 0.70
+      repetition_penalty: 0.07
+      total: 0.84
+    rationalization:
+      pressure: 0.76
+      appraisal_fit: 0.58
+      practice_fit: 0.42
+      episodic_resonance: 0.49
+      repetition_penalty: 0.05
+      total: 0.63
+    avoidance:
+      pressure: 0.76
+      appraisal_fit: 0.40
+      practice_fit: 0.27
+      episodic_resonance: 0.36
+      repetition_penalty: 0.10
+      total: 0.48
+
+  expected_generated_candidate:
+    literal_text_oracle: false
+    reference_exemplar_text: >
+      Rhea mouths three openings at the dark reflection of her phone, rejecting each one
+      before it reaches her lips in full. Behind the Studio B door, a chair scrapes once,
+      and she starts again with the sentence that admits the credit before it tries to explain it.
+    semantic_expectations:
+      - opening-line rehearsal is present
+      - the meeting has not begun
+      - the studio remains psychologically active
+      - rehearsal sharpens rather than resolves the choice
+    graph_projection:
+      node_id: rhea_studio_rehearsal_001
+      node_type: beat
+      situation_id: sit_studio_b_threshold
+      delta_tension: 0.12
+      delta_energy: 0.05
+      setup_refs: [ev_credit_omission_noticed, ev_meeting_scheduled_tonight]
+      payoff_refs: [sit_inside_studio_b_conversation]
+      option_effect: open
+      pressure_tags: [status_damage, obligation]
+      practice_tags: [anticipated-confrontation]
+      origin_pressure_refs: [cc_status_damage, cc_obligation]
+      source_lane: L2
+      scope: proposal
+      confidence: medium
+      revisability: ephemeral_candidate
+      source_ref: fixture-rhea-001
+
+  expected_reappraisal:
+    commit_type: policy
+    updated_concerns:
+      - concern_id: cc_status_damage
+        old_intensity: 0.76
+        new_intensity: 0.66
+        rationale: controllability_up_after_script
+      - concern_id: cc_obligation
+        old_intensity: 0.67
+        new_intensity: 0.63
+        rationale: response_shape_partially_prepared
