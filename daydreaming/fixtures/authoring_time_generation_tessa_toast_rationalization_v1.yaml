@@ -210,6 +210,17 @@ concern_extraction:
 
 benchmark_step:
   dominant_concern_id: cc_status_damage
+  runtime_practice_templates:
+    confession:
+      practice_type: confession
+      role: confessor
+      phase: aftermath
+      affordance_tags: [justify-simplification, minimize-harm-framing, draft-half-apology]
+    evasion:
+      practice_type: evasion
+      role: evader
+      phase: aftermath
+      affordance_tags: [put-phone-away, leave-through-side-door, answer-later]
   prompt_constraints:
     - The apology has not been sent yet.
     - The donor hall should remain psychologically active even though Tessa is now in the coatroom.

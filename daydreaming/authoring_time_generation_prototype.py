@@ -42,6 +42,11 @@ except ImportError:  # pragma: no cover
     OpenAI = None
 
 try:
+    from anthropic import Anthropic
+except ImportError:  # pragma: no cover
+    Anthropic = None
+
+try:
     from daydream_vision.vendor.gemini_min import (
         generate_text as gemini_generate_text,
         init_client as gemini_init_client,
@@ -60,6 +65,9 @@ VALID_SOURCE_LANES = {"L1", "L2", "L3", "human"}
 VALID_SCOPES = {"authored", "projection", "proposal"}
 VALID_REVISABILITY = {"fixed", "editable", "ephemeral_candidate"}
 VALID_OPTION_EFFECTS = {"close", "open", "clarify", "none"}
+DEFAULT_FUNCTION_SIGNATURE_VERSION = "v1"
+DEFAULT_SEMANTIC_CHECKER_VERSION = "v1"
+DEFAULT_PROJECTION_COUNTING_RULE_VERSION = "v1"
 
 
 @dataclass
@@ -87,6 +95,12 @@ def dump_json(path: Path, payload: Dict[str, Any]) -> None:
 
 def dump_text(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
+
+
+def append_jsonl(path: Path, payload: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(payload, sort_keys=True) + "\n")
 
 
 def utc_now_iso() -> str:
@@ -326,16 +340,29 @@ def summarize_practice_biases(fixture: Dict[str, Any], concern_inference: Dict[s
     }
 
 
+def runtime_practice_templates(fixture: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+    benchmark = fixture.get("benchmark_step", {})
+    templates = benchmark.get("runtime_practice_templates")
+    if isinstance(templates, dict) and templates:
+        return {key: deepcopy(value) for key, value in templates.items()}
+
+    fallback: Dict[str, Dict[str, Any]] = {}
+    expected = benchmark.get("expected_practice_context")
+    alternate = benchmark.get("alternate_practice_context")
+    if isinstance(expected, dict) and expected.get("practice_type"):
+        fallback[expected["practice_type"]] = deepcopy(expected)
+    if isinstance(alternate, dict) and alternate.get("practice_type"):
+        fallback[alternate["practice_type"]] = deepcopy(alternate)
+    return fallback
+
+
 def resolve_practice_context_from_fixture(
     fixture: Dict[str, Any],
     practice_type: str,
 ) -> Dict[str, Any]:
-    expected = fixture["benchmark_step"]["expected_practice_context"]
-    alternate = fixture.get("benchmark_step", {}).get("alternate_practice_context")
-    if expected.get("practice_type") == practice_type:
-        return deepcopy(expected)
-    if alternate and alternate.get("practice_type") == practice_type:
-        return deepcopy(alternate)
+    templates = runtime_practice_templates(fixture)
+    if practice_type in templates:
+        return deepcopy(templates[practice_type])
     if practice_type == "anticipated-confrontation":
         return {
             "practice_type": "anticipated-confrontation",
@@ -391,9 +418,9 @@ def build_causal_slice(
         }
     if concern_type == "status_damage":
         aftermath = bool(active_situation.get("current_state", {}).get("event_over")) or "event_already_happened" in primitive_facts
-        expected_practice = fixture.get("benchmark_step", {}).get("expected_practice_context", {})
         if aftermath:
-            confession_affordances = list(expected_practice.get("affordance_tags", []))
+            confession_runtime = runtime_practice_templates(fixture).get("confession", {})
+            confession_affordances = list(confession_runtime.get("affordance_tags", []))
             self_options = confession_affordances[:2] or ["justify-simplification", "draft-half-apology"]
             target_ref = concern["target_ref"]
             return {
@@ -684,9 +711,31 @@ def retrieve_episodes(
 
     eligible = [item for item in scored if item["score"] >= min_score]
     eligible.sort(
-        key=lambda item: (-item["score"], -item["recency_rank"], item["fixture_order"])
+        key=lambda item: (
+            -item["score"],
+            1 if item.get("episode_kind") == "generated" else 0,
+            -item["recency_rank"],
+            item["fixture_order"],
+        )
     )
-    retrieved = eligible[:max_episodes]
+    retrieved: List[Dict[str, Any]] = []
+    deferred_generated: List[Dict[str, Any]] = []
+    generated_cap = 1 if max_episodes > 1 else max_episodes
+    generated_selected = 0
+    for item in eligible:
+        if item.get("episode_kind") == "generated" and generated_selected >= generated_cap:
+            deferred_generated.append(item)
+            continue
+        retrieved.append(item)
+        if item.get("episode_kind") == "generated":
+            generated_selected += 1
+        if len(retrieved) >= max_episodes:
+            break
+    if len(retrieved) < max_episodes:
+        for item in deferred_generated:
+            retrieved.append(item)
+            if len(retrieved) >= max_episodes:
+                break
     return retrieved, scored
 
 
@@ -770,11 +819,27 @@ def score_operators(
             "repetition_penalty": round(rp, 2),
             "total": total,
         }
+    ranked = sorted(results.items(), key=lambda item: (-item[1]["total"], item[0]))
+    if len(ranked) >= 2:
+        results["_gap"] = {
+            "top_1": ranked[0][0],
+            "top_1_score": ranked[0][1]["total"],
+            "top_2": ranked[1][0],
+            "top_2_score": ranked[1][1]["total"],
+            "gap": round(ranked[0][1]["total"] - ranked[1][1]["total"], 3),
+        }
     return results
 
 
 def select_operator(score_breakdown: Dict[str, Dict[str, float]]) -> str:
-    ranked = sorted(score_breakdown.items(), key=lambda item: (-item[1]["total"], item[0]))
+    ranked = sorted(
+        (
+            (name, payload)
+            for name, payload in score_breakdown.items()
+            if isinstance(payload, dict) and "total" in payload
+        ),
+        key=lambda item: (-item[1]["total"], item[0]),
+    )
     return ranked[0][0]
 
 
@@ -912,13 +977,187 @@ def build_operator_behavior_description(operator_family: str) -> str:
         )
     if operator_family == "rationalization":
         return (
-            "Rationalization means the character builds a reason that makes delay, retreat, or self-protection feel justified. "
-            "Show the excuse attaching itself to concrete behavior."
+            "Rationalization means reinterpretation of an already-happened harm in a way that reduces negative affect "
+            "and protects self-image. It edits motive and meaning without repairing the harm or resolving the conflict."
         )
     return (
         "Rehearsal means the character is preparing for an encounter before it happens. "
         "Show preparation, pre-speaking, or trial phrasing rather than the encounter itself."
     )
+
+
+def available_situation_framings(
+    fixture: Dict[str, Any],
+    *,
+    active_situation_id: Optional[str] = None,
+) -> List[Dict[str, str]]:
+    resolved_situation = resolve_situation(fixture, active_situation_id)
+    fixture_id = fixture.get("fixture_id", "")
+    if (
+        fixture_id == "authoring_time_generation_tessa_toast_rationalization_v1"
+        and resolved_situation["id"] == "sit_coatroom_after_toast"
+    ):
+        return [
+            {
+                "id": "objects_program_text",
+                "text": (
+                    "Minutes after the donor toast, Tessa stands in the coatroom with the folded event program in one hand "
+                    "and Eli's text open on her phone. The public remark cannot be unsaid."
+                ),
+            },
+            {
+                "id": "hall_afterglow_sound",
+                "text": (
+                    "Through the coatroom door, the donor hall is settling into dessert and applause, still carrying the room "
+                    "that heard the toast. Eli's text is waiting for an answer while Tessa remains just outside that public afterglow."
+                ),
+            },
+            {
+                "id": "unsent_reply_delay",
+                "text": (
+                    "Eli's text has been open long enough for Tessa to have typed something, but the reply field is still mostly blank. "
+                    "The coatroom holds her between the unsent answer in her phone and the version of the evening still echoing in the hall."
+                ),
+            },
+        ]
+    return [{"id": "default", "text": resolved_situation["description"]}]
+
+
+def select_situation_framing(
+    fixture: Dict[str, Any],
+    *,
+    active_situation_id: Optional[str],
+    situation_framing_mode: str,
+    sequence_index: Optional[int],
+) -> Dict[str, str]:
+    framings = available_situation_framings(fixture, active_situation_id=active_situation_id)
+    if situation_framing_mode != "round_robin_authored" or len(framings) <= 1:
+        return framings[0]
+    if sequence_index is None:
+        return framings[0]
+    return framings[(sequence_index - 1) % len(framings)]
+
+
+def build_prompt_view_v1(
+    concern: Dict[str, Any],
+    concerns: List[Dict[str, Any]],
+    causal_slice: Optional[Dict[str, Any]],
+    appraisal: Dict[str, Any],
+    practice_context: Dict[str, Any],
+    operator_family: str,
+    affordance_tags: List[str],
+    retrieved: List[Dict[str, Any]],
+    fixture: Dict[str, Any],
+    *,
+    active_situation_id: Optional[str] = None,
+    situation_framing: Optional[Dict[str, str]] = None,
+) -> str:
+    prompt_ordered_retrieved = sorted(
+        retrieved,
+        key=lambda item: (1 if item.get("episode_kind") == "generated" else 0),
+    )
+    active_situation = resolve_situation(fixture, active_situation_id)
+    situation_now = (situation_framing or {"text": active_situation["description"]})["text"]
+    pressure_mix = sorted(
+        concerns,
+        key=lambda item: (-float(item.get("base_intensity", 0.0)), item["id"]),
+    )
+    pressure_lines = [
+        f"- {item['concern_type']} toward {item['target_ref']} (intensity {item['base_intensity']})"
+        for item in pressure_mix
+    ]
+    if not pressure_lines:
+        pressure_lines = [f"- {concern['concern_type']} toward {concern['target_ref']}"]
+
+    if causal_slice is not None:
+        affected_goal = causal_slice.get("affected_goal", {})
+        want_line = affected_goal.get("goal", f"protect what feels exposed around {concern['target_ref']}")
+        obstacle_bits = [
+            f"direct engagement feels bad ({appraisal['desirability']})",
+            f"it matters soon ({appraisal['likelihood']})",
+            f"once engaged it feels hard to control ({appraisal['controllability']})",
+        ]
+    else:
+        want_line = f"protect what feels exposed around {concern['target_ref']}"
+        obstacle_bits = [
+            f"direct engagement feels bad ({appraisal['desirability']})",
+            f"it matters soon ({appraisal['likelihood']})",
+            f"once engaged it feels hard to control ({appraisal['controllability']})",
+        ]
+
+    move_line = (
+        f"{build_operator_behavior_description(operator_family)} "
+        f"The live practice is {practice_context['practice_type']} in phase {practice_context['phase']}. "
+        f"Available handles right now: {', '.join(affordance_tags) if affordance_tags else 'none'}."
+    )
+
+    parts = [
+        build_shared_generation_frame(),
+        "",
+        "THE CHARACTER:",
+        fixture["characters"][0]["description"],
+        "",
+        "THE SITUATION NOW:",
+        situation_now,
+        "",
+        "ACTIVE PRESSURES:",
+        *pressure_lines,
+        "",
+        "WHAT THE CHARACTER WANTS TO PROTECT OR PRESERVE:",
+        f"- {want_line}",
+        "",
+        "WHAT MAKES THIS HARD RIGHT NOW:",
+        f"- {'; '.join(obstacle_bits)}.",
+        "",
+        "THE CURRENT MOVE:",
+        f"- {move_line}",
+        *(
+            ["- The harm already happened. Keep the moment in reinterpretation, not apology, repair, or irreversible outward action."]
+            if operator_family == "rationalization"
+            else []
+        ),
+        "",
+        "WHAT THE CHARACTER REMEMBERS:",
+        *[f"- {item['summary']}" for item in prompt_ordered_retrieved],
+        "",
+        "Write from the given circumstances, not from architecture jargon or labels.",
+        "Do not mention causal slices, appraisal frames, practice contexts, or operator names in the prose.",
+        "",
+        "WHAT TO GENERATE:",
+        *[f"- {item}" for item in (["One moment."] + fixture.get("benchmark_step", {}).get("prompt_constraints", []))],
+        "- Then return valid JSON only.",
+        "",
+        "Return this shape:",
+        "{",
+        '  "candidate_text": "...",',
+        '  "graph_projection": {',
+        '    "node_id": "...",',
+        '    "node_type": "beat",',
+        '    "situation_id": "...",',
+        '    "delta_tension": 0.0,',
+        '    "delta_energy": 0.0,',
+        '    "setup_refs": ["..."],',
+        '    "payoff_refs": ["..."],',
+        '    "option_effect": "close|open|clarify|none",',
+        '    "pressure_tags": ["..."],',
+        '    "practice_tags": ["..."],',
+        '    "origin_pressure_refs": ["..."],',
+        '    "source_lane": "L2",',
+        '    "scope": "proposal",',
+        '    "confidence": "low|medium|high",',
+        '    "revisability": "ephemeral_candidate",',
+        '    "source_ref": "prototype-middle"',
+        "  }",
+        "}",
+        "",
+        "STRUCTURAL CONSTRAINTS:",
+        "- Stay inside this benchmark's world. Do not mention people, places, or objects from other benchmarks.",
+        "- The output should reflect the current move behaviorally, not as explanation about the system.",
+        "- The output must be graph-compilable against the benchmark fixture.",
+        build_allowed_id_block(fixture),
+        "- No markdown fences.",
+    ]
+    return "\n".join(parts)
 
 
 def build_baseline_prompt(fixture: Dict[str, Any], *, active_situation_id: Optional[str] = None) -> str:
@@ -977,6 +1216,7 @@ def build_baseline_prompt(fixture: Dict[str, Any], *, active_situation_id: Optio
 
 def build_middle_prompt(
     concern: Dict[str, Any],
+    concerns: List[Dict[str, Any]],
     causal_slice: Optional[Dict[str, Any]],
     appraisal: Dict[str, Any],
     practice_context: Dict[str, Any],
@@ -986,9 +1226,31 @@ def build_middle_prompt(
     fixture: Dict[str, Any],
     *,
     active_situation_id: Optional[str] = None,
+    prompt_style: str = "legacy_json",
+    situation_framing: Optional[Dict[str, str]] = None,
 ) -> str:
-    retrieved_summaries = [item["summary"] for item in retrieved]
+    if prompt_style == "circumstances_v1":
+        return build_prompt_view_v1(
+            concern,
+            concerns,
+            causal_slice,
+            appraisal,
+            practice_context,
+            operator_family,
+            affordance_tags,
+            retrieved,
+            fixture,
+            active_situation_id=active_situation_id,
+            situation_framing=situation_framing,
+        )
+
+    prompt_ordered_retrieved = sorted(
+        retrieved,
+        key=lambda item: (1 if item.get("episode_kind") == "generated" else 0),
+    )
+    retrieved_summaries = [item["summary"] for item in prompt_ordered_retrieved]
     active_situation = resolve_situation(fixture, active_situation_id)
+    situation_now = (situation_framing or {"text": active_situation["description"]})["text"]
     appraisal_read = (
         f"bad if faced directly (desirability {appraisal['desirability']}), "
         f"likely to matter soon (likelihood {appraisal['likelihood']}), "
@@ -1001,7 +1263,7 @@ def build_middle_prompt(
         fixture["characters"][0]["description"],
         "",
         "THE SITUATION:",
-        active_situation["description"],
+        situation_now,
         "",
         "WHAT THE SYSTEM HAS DETERMINED:" if causal_slice is not None else "COARSE SYSTEM READ (explicit causal interpretation withheld in this run):",
         f"- Dominant concern: {concern['concern_type']} aimed at {concern['target_ref']}.",
@@ -1009,6 +1271,11 @@ def build_middle_prompt(
         f"- Practice context: {practice_context['practice_type']} in phase {practice_context['phase']} with affordances {', '.join(affordance_tags) if affordance_tags else 'none'}.",
         f"- Selected operator: {operator_family}.",
         f"- Operator semantics: {build_operator_behavior_description(operator_family)}",
+        *(
+            ["- The harm already happened. Keep the moment in reinterpretation, not apology, repair, or irreversible outward action."]
+            if operator_family == "rationalization"
+            else []
+        ),
         "",
         "WHAT THE CHARACTER REMEMBERS:",
         *[f"- {summary}" for summary in retrieved_summaries],
@@ -1173,12 +1440,64 @@ def maybe_openai_response(prompt: str, model: str) -> str:
     raise RuntimeError("Could not extract text from OpenAI response.")
 
 
+def build_generation_system_prompt(prompt_style: str) -> str:
+    base = (
+        "Reason carefully about the psychological structure before answering. "
+        "Then return valid JSON only, with no markdown fences."
+    )
+    if prompt_style == "explore_opening":
+        return (
+            base
+            + " If multiple plausible openings exist, avoid the most obvious one and choose "
+            + "a specific but less typical physical anchor for the moment."
+        )
+    if prompt_style == "consider_alternatives":
+        return (
+            base
+            + " Before writing, briefly consider 3 plausible physical entry points into this moment, "
+            + "such as a gesture, an object, a sound, or a threshold action. Choose one that is "
+            + "specific, grounded, and not the most obvious opening while still staying fully true "
+            + "to the situation."
+        )
+    return base
+
+
+def maybe_anthropic_response(
+    prompt: str,
+    model: str,
+    *,
+    generation_temperature: float = 0.2,
+    system_prompt_style: str = "default",
+) -> str:
+    if Anthropic is None:  # pragma: no cover
+        raise RuntimeError("anthropic package is not installed.")
+    client = Anthropic()
+    response = client.messages.create(
+        model=model,
+        max_tokens=4096,
+        temperature=generation_temperature,
+        system=build_generation_system_prompt(system_prompt_style),
+        messages=[{"role": "user", "content": prompt}],
+    )
+    parts_out: List[str] = []
+    for block in getattr(response, "content", []) or []:
+        if getattr(block, "type", None) == "text":
+            text = getattr(block, "text", None)
+            if text:
+                parts_out.append(text)
+    if parts_out:
+        return "\n".join(parts_out)
+    raise RuntimeError("Could not extract text from Anthropic response.")
+
+
 def maybe_gemini_response(
     prompt: str,
     model: str,
     *,
     response_schema: Optional[Dict[str, Any]] = None,
     thinking_level: str = "HIGH",
+    generation_temperature: float = 0.2,
+    system_prompt_style: str = "default",
 ) -> str:
     if gemini_init_client is None or gemini_types is None:  # pragma: no cover
         raise RuntimeError(
@@ -1187,13 +1506,10 @@ def maybe_gemini_response(
         )
     client = gemini_init_client()
     config_kwargs: Dict[str, Any] = {
-        "system_instruction": (
-            "Reason carefully about the psychological structure before answering. "
-            "Then return valid JSON only, with no markdown fences."
-        ),
+        "system_instruction": build_generation_system_prompt(system_prompt_style),
         "response_mime_type": "application/json",
         "max_output_tokens": 4096,
-        "temperature": 0.2,
+        "temperature": generation_temperature,
     }
     if response_schema is not None:
         config_kwargs["response_json_schema"] = response_schema
@@ -1301,6 +1617,72 @@ def validate_graph_projection(
         "valid": not errors,
         "errors": errors,
     }
+
+
+def deterministic_lineage_fields(
+    fixture: Dict[str, Any],
+    source_concern_ids: List[str],
+    practice_context: Dict[str, Any],
+) -> Dict[str, List[str]]:
+    concern_lookup = {
+        item["id"]: item
+        for item in fixture["concern_extraction"]["extracted_concerns"]
+    }
+    normalized_origin_refs: List[str] = []
+    pressure_tags: List[str] = []
+
+    for concern_id in source_concern_ids:
+        concern = concern_lookup.get(concern_id)
+        if concern is None or concern_id in normalized_origin_refs:
+            continue
+        normalized_origin_refs.append(concern_id)
+        concern_type = concern["concern_type"]
+        if concern_type not in pressure_tags:
+            pressure_tags.append(concern_type)
+
+    practice_tags: List[str] = []
+    practice_type = practice_context.get("practice_type")
+    if practice_type:
+        practice_tags.append(practice_type)
+
+    return {
+        "origin_pressure_refs": normalized_origin_refs,
+        "pressure_tags": pressure_tags,
+        "practice_tags": practice_tags,
+    }
+
+
+def normalize_graph_projection_lineage(
+    fixture: Dict[str, Any],
+    graph_projection: Dict[str, Any],
+    source_concern_ids: List[str],
+    practice_context: Dict[str, Any],
+) -> List[str]:
+    normalizations: List[str] = []
+    expected = deterministic_lineage_fields(fixture, source_concern_ids, practice_context)
+    for field, value in expected.items():
+        if list(graph_projection.get(field, [])) != value:
+            graph_projection[field] = value
+            normalizations.append(f"{field}->runtime_deterministic")
+    return normalizations
+
+
+def make_structural_checks(
+    fixture: Dict[str, Any],
+    graph_projection: Dict[str, Any],
+    source_concern_ids: List[str],
+    practice_context: Dict[str, Any],
+) -> Dict[str, bool]:
+    expected = deterministic_lineage_fields(fixture, source_concern_ids, practice_context)
+    return {
+        "origin_pressure_refs_match_runtime": list(graph_projection.get("origin_pressure_refs", [])) == expected["origin_pressure_refs"],
+        "pressure_tags_match_runtime": list(graph_projection.get("pressure_tags", [])) == expected["pressure_tags"],
+        "practice_tags_match_runtime": list(graph_projection.get("practice_tags", [])) == expected["practice_tags"],
+    }
+
+
+def passes_structural_checks(checks: Dict[str, bool]) -> bool:
+    return all(checks.values()) if checks else True
 
 
 def build_sidecar(
@@ -1481,9 +1863,12 @@ def score_candidate_for_compilation(
     accepted_texts: List[str],
 ) -> Dict[str, Any]:
     semantic_checks = result.trace.get("semantic_checks", {})
+    structural_checks = result.trace.get("structural_checks", {})
     hard_errors: List[str] = []
     if not result.graph_validation["valid"]:
         hard_errors.append("graph_invalid")
+    if not passes_structural_checks(structural_checks):
+        hard_errors.append("structural_inconsistency")
     if semantic_checks.get("no_cross_fixture_contamination") is False:
         hard_errors.append("cross_fixture_contamination")
 
@@ -1538,6 +1923,11 @@ def compile_candidate_set(
     covered_refs: Set[str],
     active_situation_id: Optional[str],
     use_expected_reference: bool,
+    prompt_style: str,
+    situation_framing_mode: str,
+    sequence_index: Optional[int],
+    generation_temperature: float,
+    system_prompt_style: str,
 ) -> ArmResult:
     candidates: List[ArmResult] = []
     candidate_rows: List[Dict[str, Any]] = []
@@ -1556,6 +1946,11 @@ def compile_candidate_set(
             use_runtime_dominance=use_runtime_dominance,
             active_situation_id=active_situation_id,
             use_expected_reference=use_expected_reference,
+            prompt_style=prompt_style,
+            situation_framing_mode=situation_framing_mode,
+            sequence_index=sequence_index,
+            generation_temperature=generation_temperature,
+            system_prompt_style=system_prompt_style,
         )
         result.trace["candidate_index"] = candidate_index
         renamed_to = normalize_candidate_node_id(
@@ -1713,6 +2108,39 @@ def choose_commit_type(
     if option_effect == "clarify":
         return "salience"
     return "none"
+
+
+def normalize_operator_graph_projection(
+    fixture: Dict[str, Any],
+    graph_projection: Dict[str, Any],
+    operator_family: str,
+) -> List[str]:
+    normalizations: List[str] = []
+    situation_id = graph_projection.get("situation_id")
+    if situation_id not in situation_ids(fixture):
+        return normalizations
+    active_situation = resolve_situation(fixture, situation_id)
+    current_state = active_situation.get("current_state", {})
+    no_outward_irreversible_act = not any(
+        current_state.get(key)
+        for key in (
+            "apology_sent",
+            "reply_sent",
+            "message_sent",
+            "entry_made",
+            "door_opened",
+            "meeting_started",
+            "first_line_spoken",
+        )
+    )
+    if (
+        operator_family == "rationalization"
+        and graph_projection.get("option_effect") == "close"
+        and no_outward_irreversible_act
+    ):
+        graph_projection["option_effect"] = "clarify"
+        normalizations.append("rationalization_close_without_outward_act->clarify")
+    return normalizations
 
 
 def reappraise_concerns(
@@ -1902,19 +2330,32 @@ def make_semantic_checks(
                 )
             ) and not any(token in lowered for token in ("she enters", "she steps inside", "the talk begins"))
         elif predicate == "rationalization is present":
-            checks[predicate] = any(
-                token in lowered
-                for token in (
-                    "had to",
-                    "someone had to",
-                    "legible",
-                    "fairness",
-                    "justified",
-                    "explains to herself",
-                    "tells herself",
-                    "almost excuses",
-                    "not the same thing as",
-                )
+            justification_markers = (
+                "had to",
+                "needed to",
+                "necessary",
+                "clean narrative",
+                "momentum",
+                "for the room",
+                "for the donors",
+                "legible",
+                "fairness",
+                "justify",
+                "because",
+            )
+            harm_markers = (
+                "eli",
+                "credit",
+                "cut",
+                "what you did",
+                "apology",
+                "erased",
+                "text",
+                "reply",
+                "project",
+            )
+            checks[predicate] = any(token in lowered for token in justification_markers) and any(
+                token in lowered for token in harm_markers
             )
         elif predicate == "the apology has not been sent":
             checks[predicate] = not any(
@@ -1941,26 +2382,33 @@ def make_semantic_checks(
                 )
             )
         elif predicate == "rationalization reframes rather than resolves the damage":
-            checks[predicate] = any(
+            reframing_markers = (
+                "had to",
+                "needed to",
+                "as if",
+                "legible",
+                "fairness",
+                "because",
+                "for the room",
+                "for the donors",
+                "not the same thing as",
+                "clean narrative",
+            )
+            resolution_markers = (
+                "i'm sorry",
+                "she apologizes",
+                "she sends the apology",
+                "he forgives",
+                "they resolve it",
+                "she sent",
+                "she sends",
+                "reply sent",
+                "message sent",
+                "hit send",
+            )
+            checks[predicate] = any(token in lowered for token in reframing_markers) and not any(
                 token in lowered
-                for token in (
-                    "had to",
-                    "someone had to",
-                    "as if",
-                    "legible",
-                    "fairness",
-                    "almost excuses",
-                    "not the same thing as",
-                )
-            ) and not any(
-                token in lowered
-                for token in (
-                    "i'm sorry",
-                    "she apologizes",
-                    "she sends the apology",
-                    "he forgives",
-                    "they resolve it",
-                )
+                for token in resolution_markers
             )
         else:
             checks[predicate] = False
@@ -1975,7 +2423,14 @@ def make_semantic_checks(
     return checks
 
 
-def run_arm_baseline(fixture: Dict[str, Any], provider: str, model: Optional[str]) -> ArmResult:
+def run_arm_baseline(
+    fixture: Dict[str, Any],
+    provider: str,
+    model: Optional[str],
+    *,
+    generation_temperature: float = 0.2,
+    system_prompt_style: str = "default",
+) -> ArmResult:
     prompt = build_baseline_prompt(fixture)
     raw_response: Optional[str]
     parsed_response: Optional[Dict[str, Any]]
@@ -1987,12 +2442,24 @@ def run_arm_baseline(fixture: Dict[str, Any], provider: str, model: Optional[str
             raise ValueError("--model is required for provider=openai")
         raw_response = maybe_openai_response(prompt, model)
         parsed_response = extract_json_object(raw_response)
+    elif provider == "anthropic":
+        if not model:
+            raise ValueError("--model is required for provider=anthropic")
+        raw_response = maybe_anthropic_response(
+            prompt,
+            model,
+            generation_temperature=generation_temperature,
+            system_prompt_style=system_prompt_style,
+        )
+        parsed_response = extract_json_object(raw_response)
     elif provider == "gemini":
         raw_response = maybe_gemini_response(
             prompt,
             model or "gemini-3.1-pro-preview",
             response_schema=build_graph_response_schema(fixture),
             thinking_level="HIGH",
+            generation_temperature=generation_temperature,
+            system_prompt_style=system_prompt_style,
         )
         parsed_response = extract_json_object(raw_response)
     else:
@@ -2040,6 +2507,11 @@ def run_arm_middle(
     use_runtime_dominance: bool = False,
     active_situation_id: Optional[str] = None,
     use_expected_reference: bool = False,
+    prompt_style: str = "legacy_json",
+    situation_framing_mode: str = "default",
+    sequence_index: Optional[int] = None,
+    generation_temperature: float = 0.2,
+    system_prompt_style: str = "default",
 ) -> ArmResult:
     seeded_concerns = fixture["concern_extraction"]["extracted_concerns"]
     concern_inference = infer_concerns_from_primitives(fixture)
@@ -2051,6 +2523,12 @@ def run_arm_middle(
         else select_dominant_concern(fixture, concerns)
     )
     resolved_active_situation_id = active_situation_id or default_active_situation_id(fixture)
+    situation_framing = select_situation_framing(
+        fixture,
+        active_situation_id=resolved_active_situation_id,
+        situation_framing_mode=situation_framing_mode,
+        sequence_index=sequence_index,
+    )
     causal_slice = None if ablation == "no_causal_slice" else build_causal_slice(
         fixture,
         dominant_concern,
@@ -2102,6 +2580,7 @@ def run_arm_middle(
     emotion_vector = derive_emotion_vector(fixture, appraisal, use_expected_reference=use_expected_reference)
     prompt = build_middle_prompt(
         dominant_concern,
+        concerns,
         causal_slice,
         appraisal,
         practice_context,
@@ -2110,6 +2589,8 @@ def run_arm_middle(
         retrieved,
         fixture,
         active_situation_id=resolved_active_situation_id,
+        prompt_style=prompt_style,
+        situation_framing=situation_framing,
     )
 
     raw_response: Optional[str]
@@ -2122,12 +2603,24 @@ def run_arm_middle(
             raise ValueError("--model is required for provider=openai")
         raw_response = maybe_openai_response(prompt, model)
         parsed_response = extract_json_object(raw_response)
+    elif provider == "anthropic":
+        if not model:
+            raise ValueError("--model is required for provider=anthropic")
+        raw_response = maybe_anthropic_response(
+            prompt,
+            model,
+            generation_temperature=generation_temperature,
+            system_prompt_style=system_prompt_style,
+        )
+        parsed_response = extract_json_object(raw_response)
     elif provider == "gemini":
         raw_response = maybe_gemini_response(
             prompt,
             model or "gemini-3.1-pro-preview",
             response_schema=build_graph_response_schema(fixture),
             thinking_level="HIGH",
+            generation_temperature=generation_temperature,
+            system_prompt_style=system_prompt_style,
         )
         parsed_response = extract_json_object(raw_response)
     else:
@@ -2146,6 +2639,11 @@ def run_arm_middle(
         "dominant_target_ref": dominant_concern["target_ref"],
         "active_situation_id": resolved_active_situation_id,
         "use_expected_reference": use_expected_reference,
+        "prompt_style": prompt_style,
+        "situation_framing_mode": situation_framing_mode,
+        "situation_framing_variant": situation_framing["id"],
+        "generation_temperature": generation_temperature,
+        "system_prompt_style": system_prompt_style,
         "sequence_step": sequence_step,
         "concern_inference": concern_inference,
         "practice_bias_summary": practice_bias_summary,
@@ -2159,11 +2657,33 @@ def run_arm_middle(
 
     if parsed_response is not None:
         graph_projection = parsed_response["graph_projection"]
+        llm_origin_pressure_refs = list(graph_projection.get("origin_pressure_refs", []))
+        normalizations = normalize_operator_graph_projection(
+            fixture,
+            graph_projection,
+            operator_family,
+        )
+        normalizations.extend(
+            normalize_graph_projection_lineage(
+                fixture,
+                graph_projection,
+                [item["id"] for item in concerns],
+                practice_context,
+            )
+        )
+        if normalizations:
+            raw_response = json.dumps(parsed_response, indent=2)
         graph_validation = validate_graph_projection(fixture, graph_projection)
         commit_type = choose_commit_type(
             fixture,
             graph_projection,
             use_expected_reference=use_expected_reference,
+        )
+        structural_checks = make_structural_checks(
+            fixture,
+            graph_projection,
+            [item["id"] for item in concerns],
+            practice_context,
         )
         sidecar = build_sidecar(
             node_id=graph_projection["node_id"],
@@ -2183,6 +2703,8 @@ def run_arm_middle(
             {
                 "candidate_text": parsed_response.get("candidate_text"),
                 "graph_projection": graph_projection,
+                "graph_projection_normalizations": normalizations,
+                "structural_checks": structural_checks,
                 "semantic_checks": make_semantic_checks(
                     parsed_response.get("candidate_text", ""),
                     fixture["worked_trace_reference"]["expected_generated_candidate"]["semantic_expectations"],
@@ -2193,7 +2715,7 @@ def run_arm_middle(
                     appraisal,
                     commit_type,
                     dominant_concern["id"],
-                    affected_concern_ids=graph_projection.get("origin_pressure_refs", [dominant_concern["id"]]),
+                    affected_concern_ids=llm_origin_pressure_refs or [dominant_concern["id"]],
                     post_controllability=(
                         infer_policy_post_controllability(appraisal, operator_family, practice_context)
                         if commit_type == "policy"
@@ -2223,6 +2745,11 @@ def run_middle_sequence(
     use_inferred_concerns: bool,
     candidates_per_step: int,
     use_expected_reference: bool,
+    prompt_style: str,
+    situation_framing_mode: str,
+    sequence_index: Optional[int],
+    generation_temperature: float,
+    system_prompt_style: str,
 ) -> Tuple[List[ArmResult], Dict[str, Any]]:
     concerns = deepcopy(
         infer_concerns_from_primitives(fixture)["inferred_concerns"]
@@ -2237,6 +2764,11 @@ def run_middle_sequence(
         "timestamp": utc_now_iso(),
         "concern_driver": "inferred" if use_inferred_concerns else "seeded",
         "candidates_per_step": candidates_per_step,
+        "prompt_style": prompt_style,
+        "situation_framing_mode": situation_framing_mode,
+        "sequence_index": sequence_index,
+        "generation_temperature": generation_temperature,
+        "system_prompt_style": system_prompt_style,
         "steps": [],
     }
     used_node_ids: Set[str] = set()
@@ -2270,12 +2802,21 @@ def run_middle_sequence(
             covered_refs=covered_refs,
             active_situation_id=current_active_situation_id,
             use_expected_reference=use_expected_reference,
+            prompt_style=prompt_style,
+            situation_framing_mode=situation_framing_mode,
+            sequence_index=sequence_index,
+            generation_temperature=generation_temperature,
+            system_prompt_style=system_prompt_style,
         )
         result.arm = f"middle-step-{step_index:02d}"
         results.append(result)
 
         semantic_checks = result.trace.get("semantic_checks", {})
-        accepted = bool(result.graph_validation["valid"]) and semantic_checks.get("no_cross_fixture_contamination", True)
+        accepted = (
+            bool(result.graph_validation["valid"])
+            and semantic_checks.get("no_cross_fixture_contamination", True)
+            and passes_structural_checks(result.trace.get("structural_checks", {}))
+        )
         boundary = (
             detect_boundary_transition(previous_accepted_result, result)
             if accepted and previous_accepted_result is not None
@@ -2290,6 +2831,7 @@ def run_middle_sequence(
             "selected_operator_family": result.trace.get("selected_operator_family"),
             "selected_retrieved_episode_ids": result.trace.get("selected_retrieved_episode_ids", []),
             "reminder_episode_id": result.trace.get("reminder_episode_id"),
+            "situation_framing_variant": result.trace.get("situation_framing_variant"),
             "accepted": accepted,
         }
         if boundary is not None:
@@ -2337,7 +2879,11 @@ def run_middle_sequence(
 
 def accepted_for_batch(result: ArmResult) -> bool:
     semantic_checks = result.trace.get("semantic_checks", {})
-    return bool(result.graph_validation["valid"]) and semantic_checks.get("no_cross_fixture_contamination", True)
+    return (
+        bool(result.graph_validation["valid"])
+        and semantic_checks.get("no_cross_fixture_contamination", True)
+        and passes_structural_checks(result.trace.get("structural_checks", {}))
+    )
 
 
 def build_batch_pool_row(
@@ -2364,14 +2910,27 @@ def build_batch_pool_row(
         "graph_projection": deepcopy(graph_projection),
         "selected_operator_family": result.trace.get("selected_operator_family"),
         "semantic_checks": deepcopy(result.trace.get("semantic_checks", {})),
+        "structural_checks": deepcopy(result.trace.get("structural_checks", {})),
         "compiler_selected_score": deepcopy(selected_score),
         "coverage_refs": refs,
         "pressure_tags": list(graph_projection.get("pressure_tags", [])),
         "practice_tags": list(graph_projection.get("practice_tags", [])),
         "origin_pressure_refs": list(graph_projection.get("origin_pressure_refs", [])),
         "selected_retrieved_episode_ids": list(result.trace.get("selected_retrieved_episode_ids", [])),
+        "selected_affordance_tags": list((result.sidecar or {}).get("selected_affordance_tags", [])),
         "sidecar": deepcopy(result.sidecar),
     }
+
+
+def batch_function_signature(row: Dict[str, Any]) -> Tuple[Any, ...]:
+    graph_projection = row.get("graph_projection", {})
+    return (
+        row.get("selected_operator_family"),
+        tuple(sorted(row.get("practice_tags", []))),
+        graph_projection.get("option_effect"),
+        graph_projection.get("situation_id"),
+        tuple(row.get("selected_affordance_tags", [])[:2]),
+    )
 
 
 def score_pool_row_for_admission(
@@ -2384,20 +2943,23 @@ def score_pool_row_for_admission(
     admitted_pressures: Set[str],
     admitted_practices: Set[str],
     admitted_sequences: Set[int],
+    admitted_function_signatures: Set[Tuple[Any, ...]],
+    admitted_function_counts: Dict[Tuple[Any, ...], int],
 ) -> Dict[str, Any]:
     hard_errors: List[str] = []
     node_id = row["node_id"]
     candidate_text = row.get("candidate_text", "")
     semantic_checks = row.get("semantic_checks", {})
+    structural_checks = row.get("structural_checks", {})
     graph_projection = row.get("graph_projection", {})
     compiler_total = float(row.get("compiler_selected_score", {}).get("total", 0.0))
 
     if not graph_projection:
         hard_errors.append("missing_graph_projection")
+    if not passes_structural_checks(structural_checks):
+        hard_errors.append("structural_inconsistency")
     if semantic_checks.get("no_cross_fixture_contamination") is False:
         hard_errors.append("cross_fixture_contamination")
-    if not has_batch_semantic_pass(semantic_checks):
-        hard_errors.append("semantic_expectations_failed")
     if node_id in admitted_node_ids:
         hard_errors.append("duplicate_node_id")
 
@@ -2414,6 +2976,13 @@ def score_pool_row_for_admission(
     refs = set(row.get("coverage_refs", []))
     coverage = (len(refs - admitted_refs) / len(refs)) if refs else 0.0
     distinctiveness = 1.0 - max_similarity if admitted_texts else 1.0
+    function_signature = batch_function_signature(row)
+    function_diversity = 1.0 if function_signature not in admitted_function_signatures else 0.0
+    function_count = admitted_function_counts.get(function_signature, 0)
+    if function_count >= 2:
+        hard_errors.append("function_signature_cap")
+    if function_diversity == 0.0 and distinctiveness < 0.35:
+        hard_errors.append("duplicate_function_signature")
     operator_diversity = 1.0 if row.get("selected_operator_family") not in admitted_operators else 0.0
     pressure_tags = set(row.get("pressure_tags", []))
     pressure_diversity = (
@@ -2425,15 +2994,18 @@ def score_pool_row_for_admission(
     practice_diversity = 1.0 if practice_tags - admitted_practices else 0.0
     semantic_quality = semantic_pass_ratio(semantic_checks)
     sequence_diversity = 1.0 if row.get("sequence_index") not in admitted_sequences else 0.0
+    overdetermination_gain = 1.0 if len(set(row.get("origin_pressure_refs", []))) >= 2 or len(pressure_tags) >= 2 else 0.0
     total = round(
-        0.25 * compiler_total
-        + 0.18 * coverage
-        + 0.18 * distinctiveness
+        0.22 * compiler_total
+        + 0.16 * coverage
+        + 0.16 * distinctiveness
+        + 0.10 * overdetermination_gain
+        + 0.10 * function_diversity
         + 0.10 * sequence_diversity
-        + 0.09 * operator_diversity
-        + 0.08 * pressure_diversity
-        + 0.07 * practice_diversity
-        + 0.05 * semantic_quality,
+        + 0.07 * operator_diversity
+        + 0.05 * pressure_diversity
+        + 0.02 * practice_diversity
+        + 0.02 * semantic_quality,
         3,
     )
     return {
@@ -2442,6 +3014,8 @@ def score_pool_row_for_admission(
         "compiler_total": round(compiler_total, 3),
         "coverage": round(coverage, 3),
         "distinctiveness": round(distinctiveness, 3),
+        "overdetermination_gain": round(overdetermination_gain, 3),
+        "function_diversity": round(function_diversity, 3),
         "sequence_diversity": round(sequence_diversity, 3),
         "operator_diversity": round(operator_diversity, 3),
         "pressure_diversity": round(pressure_diversity, 3),
@@ -2465,6 +3039,8 @@ def admit_candidate_pool(
     admitted_pressures: Set[str] = set()
     admitted_practices: Set[str] = set()
     admitted_sequences: Set[int] = set()
+    admitted_function_signatures: Set[Tuple[Any, ...]] = set()
+    admitted_function_counts: Dict[Tuple[Any, ...], int] = {}
 
     while remaining and len(admitted) < admit_max:
         scored_rows: List[Tuple[Dict[str, Any], Dict[str, Any]]] = []
@@ -2478,6 +3054,8 @@ def admit_candidate_pool(
                 admitted_pressures=admitted_pressures,
                 admitted_practices=admitted_practices,
                 admitted_sequences=admitted_sequences,
+                admitted_function_signatures=admitted_function_signatures,
+                admitted_function_counts=admitted_function_counts,
             )
             scored_rows.append((row, score))
 
@@ -2487,6 +3065,8 @@ def admit_candidate_pool(
         hard_passes.sort(
             key=lambda item: (
                 -item[1]["total"],
+                -item[1]["function_diversity"],
+                -item[1]["overdetermination_gain"],
                 -item[1]["sequence_diversity"],
                 -item[1]["coverage"],
                 -item[1]["distinctiveness"],
@@ -2507,6 +3087,9 @@ def admit_candidate_pool(
         admitted_pressures.update(selected.get("pressure_tags", []))
         admitted_practices.update(selected.get("practice_tags", []))
         admitted_sequences.add(selected["sequence_index"])
+        selected_signature = batch_function_signature(selected)
+        admitted_function_signatures.add(selected_signature)
+        admitted_function_counts[selected_signature] = admitted_function_counts.get(selected_signature, 0) + 1
         remaining = [row for row in remaining if row["node_id"] != selected["node_id"] or row["sequence_index"] != selected["sequence_index"] or row["step_index"] != selected["step_index"]]
 
     rejected: List[Dict[str, Any]] = []
@@ -2520,6 +3103,8 @@ def admit_candidate_pool(
             admitted_pressures=admitted_pressures,
             admitted_practices=admitted_practices,
             admitted_sequences=admitted_sequences,
+            admitted_function_signatures=admitted_function_signatures,
+            admitted_function_counts=admitted_function_counts,
         )
         rejected.append(
             {
@@ -2551,6 +3136,10 @@ def run_middle_batch(
     candidates_per_step: int,
     use_expected_reference: bool,
     admit_max: int,
+    prompt_style: str,
+    situation_framing_mode: str,
+    generation_temperature: float,
+    system_prompt_style: str,
 ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     sequence_runs: List[Dict[str, Any]] = []
     pool_rows: List[Dict[str, Any]] = []
@@ -2564,6 +3153,11 @@ def run_middle_batch(
             use_inferred_concerns=use_inferred_concerns,
             candidates_per_step=candidates_per_step,
             use_expected_reference=use_expected_reference,
+            prompt_style=prompt_style,
+            situation_framing_mode=situation_framing_mode,
+            sequence_index=sequence_index,
+            generation_temperature=generation_temperature,
+            system_prompt_style=system_prompt_style,
         )
         operator_path = [result.trace.get("selected_operator_family") for result in results]
         accepted_count = sum(1 for result in results if accepted_for_batch(result))
@@ -2694,6 +3288,136 @@ def build_batch_summary(
     return "\n".join(lines)
 
 
+def batch_retrieval_source_rates(
+    fixture: Dict[str, Any],
+    sequence_runs: List[Dict[str, Any]],
+) -> Tuple[Optional[float], Optional[float]]:
+    backstory_ids = set(episode_map(fixture).keys())
+    generated_ids: Set[str] = set()
+    for run in sequence_runs:
+        generated_ids.update(run["sequence_trace"].get("generated_episode_ids", []))
+
+    backstory_count = 0
+    generated_count = 0
+    for run in sequence_runs:
+        for result in run["results"]:
+            for episode_id in result.trace.get("selected_retrieved_episode_ids", []):
+                if episode_id in backstory_ids:
+                    backstory_count += 1
+                elif episode_id in generated_ids or episode_id.startswith("gen_step_"):
+                    generated_count += 1
+
+    total = backstory_count + generated_count
+    if total == 0:
+        return None, None
+    return round(backstory_count / total, 3), round(generated_count / total, 3)
+
+
+def build_batch_run_record(
+    fixture_path: Path,
+    output_dir: Path,
+    provider: str,
+    model: Optional[str],
+    args: argparse.Namespace,
+    batch_trace: Optional[Dict[str, Any]],
+    sequence_runs: Optional[List[Dict[str, Any]]],
+    *,
+    run_status: str,
+    notes_override: Optional[str] = None,
+) -> Dict[str, Any]:
+    admitted_rows = batch_trace["admission"]["admitted"] if batch_trace is not None else []
+    pooled_rows = (
+        batch_trace["admission"]["admitted"] + batch_trace["admission"]["rejected"]
+        if batch_trace is not None
+        else []
+    )
+    admitted_count = len(admitted_rows)
+    function_signatures = [batch_function_signature(row) for row in admitted_rows]
+    distinct_function_count = len(set(function_signatures)) if admitted_rows else 0
+    signature_counts: Dict[Tuple[Any, ...], int] = {}
+    for signature in function_signatures:
+        signature_counts[signature] = signature_counts.get(signature, 0) + 1
+    same_function_admit_rate = (
+        round(max(signature_counts.values()) / admitted_count, 3)
+        if admitted_count
+        else 0.0
+    )
+    operator_coverage = sorted({row.get("selected_operator_family") for row in admitted_rows if row.get("selected_operator_family")})
+    practice_coverage = sorted({tag for row in admitted_rows for tag in row.get("practice_tags", [])})
+    pressure_coverage = sorted({tag for row in admitted_rows for tag in row.get("pressure_tags", [])})
+    multi_pressure_projection_rate = (
+        round(sum(1 for row in admitted_rows if len(set(row.get("pressure_tags", []))) >= 2) / admitted_count, 3)
+        if admitted_count
+        else 0.0
+    )
+    overdetermined_node_count = sum(
+        1
+        for row in admitted_rows
+        if len(set(row.get("origin_pressure_refs", []))) >= 2 or len(set(row.get("pressure_tags", []))) >= 2
+    )
+    backstory_retrieval_rate, generated_retrieval_rate = (
+        batch_retrieval_source_rates(load_yaml(fixture_path), sequence_runs or [])
+        if sequence_runs is not None
+        else (None, None)
+    )
+    structural_pass_rate = (
+        round(
+            sum(1 for row in pooled_rows if passes_structural_checks(row.get("structural_checks", {}))) / len(pooled_rows),
+            3,
+        )
+        if pooled_rows
+        else 0.0
+    )
+    mean_semantic_pass_ratio = (
+        round(sum(semantic_pass_ratio(row.get("semantic_checks", {})) for row in pooled_rows) / len(pooled_rows), 3)
+        if pooled_rows
+        else 0.0
+    )
+
+    record = {
+        "run_id": output_dir.name,
+        "round_id": args.round_id or None,
+        "timestamp": utc_now_iso(),
+        "fixture": str(fixture_path),
+        "provider": provider,
+        "model": model,
+        "batch_sequences": args.batch_sequences,
+        "steps": args.sequence_steps,
+        "candidates_per_step": args.candidates_per_step,
+        "intervention_family": args.intervention_family,
+        "intervention_note": args.intervention_note,
+        "run_mode": args.run_mode,
+        "bundle_path": str(output_dir.resolve()),
+        "function_signature_version": args.function_signature_version,
+        "semantic_checker_version": args.semantic_checker_version,
+        "projection_counting_rule_version": args.projection_counting_rule_version,
+        "pool_size": batch_trace["admission"]["pool_size"] if batch_trace is not None else None,
+        "admitted_count": batch_trace["admission"]["admitted_count"] if batch_trace is not None else None,
+        "distinct_function_count": distinct_function_count if batch_trace is not None else None,
+        "same_function_admit_rate": same_function_admit_rate if batch_trace is not None else None,
+        "operator_coverage": operator_coverage if batch_trace is not None else [],
+        "practice_coverage": practice_coverage if batch_trace is not None else [],
+        "pressure_coverage": pressure_coverage if batch_trace is not None else [],
+        "multi_pressure_projection_rate": multi_pressure_projection_rate if batch_trace is not None else None,
+        "overdetermined_node_count": overdetermined_node_count if batch_trace is not None else None,
+        "structural_pass_rate": structural_pass_rate if batch_trace is not None else None,
+        "mean_semantic_pass_ratio": mean_semantic_pass_ratio if batch_trace is not None else None,
+        "backstory_retrieval_rate": backstory_retrieval_rate,
+        "generated_retrieval_rate": generated_retrieval_rate,
+        "run_status": run_status,
+        "decision_status": args.decision_status,
+        "human_verdict": args.human_verdict,
+        "keeper_count": args.keeper_count,
+        "keeper_with_edit_count": args.keeper_with_edit_count,
+        "reject_count": args.reject_count,
+        "dominant_failure_mode": args.dominant_failure_mode or None,
+        "notes": notes_override if notes_override is not None else args.notes,
+    }
+    if args.git_commit:
+        record["git_commit"] = args.git_commit
+    return record
+
+
 def write_run_outputs(
     output_dir: Path,
     fixture_path: Path,
@@ -2739,7 +3463,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--provider",
-        choices=["stub", "gemini", "openai", "prompt-only"],
+        choices=["stub", "gemini", "anthropic", "openai", "prompt-only"],
         default="stub",
         help="Generation provider. 'stub' emits deterministic sample outputs.",
     )
@@ -2802,6 +3526,111 @@ def parse_args() -> argparse.Namespace:
         default=8,
         help="Maximum number of admitted nodes to keep from the pooled batch.",
     )
+    parser.add_argument(
+        "--prompt-style",
+        choices=["legacy_json", "circumstances_v1"],
+        default="legacy_json",
+        help="Prompt surface for middle-arm generation.",
+    )
+    parser.add_argument(
+        "--situation-framing-mode",
+        choices=["default", "round_robin_authored"],
+        default="default",
+        help="How to vary the physical scene entry across sequences.",
+    )
+    parser.add_argument(
+        "--generation-temperature",
+        type=float,
+        default=0.2,
+        help="Sampling temperature for model generation.",
+    )
+    parser.add_argument(
+        "--system-prompt-style",
+        choices=["default", "explore_opening", "consider_alternatives"],
+        default="default",
+        help="System-prompt stance for generation.",
+    )
+    parser.add_argument(
+        "--run-mode",
+        choices=["diagnostic", "round"],
+        default="diagnostic",
+        help="Experiment mode for batch logging.",
+    )
+    parser.add_argument(
+        "--round-id",
+        default="",
+        help="Optional round identifier for comparable tuning runs.",
+    )
+    parser.add_argument(
+        "--intervention-family",
+        default="unspecified",
+        help="Intervention family label for the run ledger.",
+    )
+    parser.add_argument(
+        "--intervention-note",
+        default="",
+        help="Short freeform note describing the intervention.",
+    )
+    parser.add_argument(
+        "--function-signature-version",
+        default=DEFAULT_FUNCTION_SIGNATURE_VERSION,
+        help="Version label for the function-signature policy.",
+    )
+    parser.add_argument(
+        "--semantic-checker-version",
+        default=DEFAULT_SEMANTIC_CHECKER_VERSION,
+        help="Version label for semantic-checker policy.",
+    )
+    parser.add_argument(
+        "--projection-counting-rule-version",
+        default=DEFAULT_PROJECTION_COUNTING_RULE_VERSION,
+        help="Version label for projection counting rules.",
+    )
+    parser.add_argument(
+        "--decision-status",
+        choices=["pending", "keep", "discard"],
+        default="pending",
+        help="Intervention decision status for the ledger row.",
+    )
+    parser.add_argument(
+        "--human-verdict",
+        choices=["pending", "reviewed"],
+        default="pending",
+        help="Whether a human curation pass has reviewed this run.",
+    )
+    parser.add_argument(
+        "--keeper-count",
+        type=int,
+        default=None,
+        help="Optional curated keeper count once reviewed.",
+    )
+    parser.add_argument(
+        "--keeper-with-edit-count",
+        type=int,
+        default=None,
+        help="Optional curated keep-with-edit count once reviewed.",
+    )
+    parser.add_argument(
+        "--reject-count",
+        type=int,
+        default=None,
+        help="Optional curated reject count once reviewed.",
+    )
+    parser.add_argument(
+        "--dominant-failure-mode",
+        default="",
+        help="Optional structured note for the dominant failure mode in review.",
+    )
+    parser.add_argument(
+        "--notes",
+        default="",
+        help="Optional freeform run note for the ledger row.",
+    )
+    parser.add_argument(
+        "--git-commit",
+        default="",
+        help="Optional git commit hash to attach to the ledger row.",
+    )
     return parser.parse_args()
 
 
@@ -2824,34 +3653,69 @@ def main() -> int:
             raise ValueError("Batch mode currently supports only --arm middle.")
         if args.sequence_steps < 1:
             raise ValueError("--sequence-steps must be >= 1 in batch mode.")
-        sequence_runs, batch_trace = run_middle_batch(
-            fixture,
-            args.provider,
-            args.model,
-            batch_sequences=args.batch_sequences,
-            steps=args.sequence_steps,
-            use_inferred_concerns=args.use_inferred_concerns,
-            candidates_per_step=args.candidates_per_step,
-            use_expected_reference=args.use_expected_reference,
-            admit_max=args.batch_admit_max,
-        )
-        dump_text(output_dir / "fixture-path.txt", str(fixture_path))
-        dump_json(output_dir / "fixture-snapshot.json", fixture)
-        dump_json(output_dir / "batch.trace.json", batch_trace)
-        dump_text(output_dir / "batch.summary.md", build_batch_summary(fixture_path, args.provider, args.model, batch_trace))
-        for run in sequence_runs:
-            sequence_dir = output_dir / f"sequence-{run['sequence_index']:02d}"
-            write_run_outputs(
-                sequence_dir,
-                fixture_path,
+        log_path = output_dir.parent / "results.jsonl"
+        try:
+            sequence_runs, batch_trace = run_middle_batch(
                 fixture,
                 args.provider,
                 args.model,
-                run["results"],
-                sequence_trace=run["sequence_trace"],
+                batch_sequences=args.batch_sequences,
+                steps=args.sequence_steps,
+                use_inferred_concerns=args.use_inferred_concerns,
+                candidates_per_step=args.candidates_per_step,
+                use_expected_reference=args.use_expected_reference,
+                admit_max=args.batch_admit_max,
+                prompt_style=args.prompt_style,
+                situation_framing_mode=args.situation_framing_mode,
+                generation_temperature=args.generation_temperature,
+                system_prompt_style=args.system_prompt_style,
             )
-        print(output_dir)
-        return 0
+            dump_text(output_dir / "fixture-path.txt", str(fixture_path))
+            dump_json(output_dir / "fixture-snapshot.json", fixture)
+            dump_json(output_dir / "batch.trace.json", batch_trace)
+            dump_text(output_dir / "batch.summary.md", build_batch_summary(fixture_path, args.provider, args.model, batch_trace))
+            for run in sequence_runs:
+                sequence_dir = output_dir / f"sequence-{run['sequence_index']:02d}"
+                write_run_outputs(
+                    sequence_dir,
+                    fixture_path,
+                    fixture,
+                    args.provider,
+                    args.model,
+                    run["results"],
+                    sequence_trace=run["sequence_trace"],
+                )
+            append_jsonl(
+                log_path,
+                build_batch_run_record(
+                    fixture_path,
+                    output_dir,
+                    args.provider,
+                    args.model,
+                    args,
+                    batch_trace,
+                    sequence_runs,
+                    run_status="complete",
+                ),
+            )
+            print(output_dir)
+            return 0
+        except Exception as exc:
+            append_jsonl(
+                log_path,
+                build_batch_run_record(
+                    fixture_path,
+                    output_dir,
+                    args.provider,
+                    args.model,
+                    args,
+                    batch_trace=None,
+                    sequence_runs=None,
+                    run_status="crash",
+                    notes_override=str(exc),
+                ),
+            )
+            raise
 
     results: List[ArmResult] = []
     if args.arm in {"baseline", "both"}:
@@ -2867,6 +3731,11 @@ def main() -> int:
                 use_inferred_concerns=args.use_inferred_concerns,
                 candidates_per_step=args.candidates_per_step,
                 use_expected_reference=args.use_expected_reference,
+                prompt_style=args.prompt_style,
+                situation_framing_mode=args.situation_framing_mode,
+                sequence_index=1,
+                generation_temperature=args.generation_temperature,
+                system_prompt_style=args.system_prompt_style,
             )
             results.extend(sequence_results)
         else:
@@ -2888,6 +3757,11 @@ def main() -> int:
                     covered_refs=set(),
                     active_situation_id=default_active_situation_id(fixture),
                     use_expected_reference=args.use_expected_reference,
+                    prompt_style=args.prompt_style,
+                    situation_framing_mode=args.situation_framing_mode,
+                    sequence_index=1,
+                    generation_temperature=args.generation_temperature,
+                    system_prompt_style=args.system_prompt_style,
                 )
                 results.append(selected)
             else:
@@ -2900,6 +3774,11 @@ def main() -> int:
                         use_inferred_concerns=args.use_inferred_concerns,
                         active_situation_id=default_active_situation_id(fixture),
                         use_expected_reference=args.use_expected_reference,
+                        prompt_style=args.prompt_style,
+                        situation_framing_mode=args.situation_framing_mode,
+                        sequence_index=1,
+                        generation_temperature=args.generation_temperature,
+                        system_prompt_style=args.system_prompt_style,
                     )
                 )
             if args.run_ablation_suite:
@@ -2913,6 +3792,11 @@ def main() -> int:
                             use_inferred_concerns=args.use_inferred_concerns,
                             active_situation_id=default_active_situation_id(fixture),
                             use_expected_reference=args.use_expected_reference,
+                            prompt_style=args.prompt_style,
+                            situation_framing_mode=args.situation_framing_mode,
+                            sequence_index=1,
+                            generation_temperature=args.generation_temperature,
+                            system_prompt_style=args.system_prompt_style,
                         )
                     )
 

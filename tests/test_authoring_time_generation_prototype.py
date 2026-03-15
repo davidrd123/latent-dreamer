@@ -4,7 +4,9 @@ from pathlib import Path
 from daydreaming.authoring_time_generation_prototype import (
     ArmResult,
     admit_candidate_pool,
+    available_situation_framings,
     build_causal_slice,
+    build_middle_prompt,
     classify_temporal_relation,
     choose_commit_type,
     compile_candidate_set,
@@ -19,6 +21,7 @@ from daydreaming.authoring_time_generation_prototype import (
     retrieve_episodes,
     score_operators,
     select_operator,
+    select_situation_framing,
     summarize_practice_biases,
 )
 
@@ -200,6 +203,177 @@ class AuthoringTimeGenerationPrototypeTests(unittest.TestCase):
         self.assertEqual(improved[0]["base_intensity"], 0.61)
         self.assertEqual(worsened[0]["base_intensity"], 0.81)
 
+    def test_retrieve_episodes_prefers_backstory_and_limits_generated_self_priming(self) -> None:
+        concern = {
+            "concern_type": "status_damage",
+            "target_ref": "eli",
+        }
+        practice_context = {"practice_type": "confession"}
+        episode_pool = [
+            {
+                "id": "ep_backstory",
+                "summary": "Tessa remembers the donor table going quiet after the toast.",
+                "retrieval_tags": {
+                    "concern_type": "status_damage",
+                    "target_ref": "eli",
+                    "situation_id": "sit_donor_hall_after_toast",
+                    "practice_type": "confession",
+                },
+                "recency_rank": 2,
+                "episode_kind": "backstory",
+            },
+            {
+                "id": "ep_generated_01",
+                "summary": "Tessa tells herself the joke only sounded cruel because the room was already primed for it.",
+                "retrieval_tags": {
+                    "concern_type": "status_damage",
+                    "target_ref": "eli",
+                    "situation_id": "sit_donor_hall_after_toast",
+                    "practice_type": "confession",
+                },
+                "recency_rank": 9,
+                "episode_kind": "generated",
+            },
+            {
+                "id": "ep_generated_02",
+                "summary": "Tessa decides the omission was just the cleanest way to move the evening along.",
+                "retrieval_tags": {
+                    "concern_type": "status_damage",
+                    "target_ref": "eli",
+                    "situation_id": "sit_donor_hall_after_toast",
+                    "practice_type": "confession",
+                },
+                "recency_rank": 10,
+                "episode_kind": "generated",
+            },
+        ]
+
+        retrieved, _ = retrieve_episodes(
+            self.tessa_fixture,
+            concern,
+            "sit_donor_hall_after_toast",
+            practice_context,
+            episode_pool=episode_pool,
+        )
+        self.assertEqual(len(retrieved), 2)
+        self.assertEqual(retrieved[0]["episode_id"], "ep_backstory")
+        self.assertEqual(
+            len([item for item in retrieved if item["episode_kind"] == "generated"]),
+            1,
+        )
+
+    def test_build_middle_prompt_orders_authored_memory_before_generated_memory(self) -> None:
+        concern = self.fixture["concern_extraction"]["extracted_concerns"][0]
+        appraisal = {
+            "desirability": -0.78,
+            "likelihood": 0.82,
+            "controllability": 0.28,
+        }
+        practice_context = {
+            "practice_type": "evasion",
+            "phase": "precontact",
+        }
+        retrieved = [
+            {
+                "episode_id": "gen_step_01_node",
+                "summary": "Generated memory should come second in the prompt.",
+                "episode_kind": "generated",
+            },
+            {
+                "episode_id": "ep_backstory",
+                "summary": "Backstory memory should come first in the prompt.",
+                "episode_kind": "backstory",
+            },
+        ]
+
+        prompt = build_middle_prompt(
+            concern,
+            None,
+            appraisal,
+            practice_context,
+            "avoidance",
+            ["ritual-distraction"],
+            retrieved,
+            self.fixture,
+            active_situation_id=default_active_situation_id(self.fixture),
+        )
+        self.assertLess(
+            prompt.index("- Backstory memory should come first in the prompt."),
+            prompt.index("- Generated memory should come second in the prompt."),
+        )
+
+    def test_build_middle_prompt_circumstances_style_omits_raw_state_dump(self) -> None:
+        concern = self.tessa_fixture["concern_extraction"]["extracted_concerns"][0]
+        concerns = self.tessa_fixture["concern_extraction"]["extracted_concerns"]
+        causal_slice = build_causal_slice(
+            self.tessa_fixture,
+            concern,
+            active_situation_id=default_active_situation_id(self.tessa_fixture),
+            use_expected_reference=False,
+        )
+        appraisal = {
+            "desirability": -0.84,
+            "likelihood": 0.91,
+            "controllability": 0.24,
+        }
+        practice_context = {
+            "practice_type": "confession",
+            "phase": "aftermath",
+        }
+        retrieved = [
+            {
+                "episode_id": "ep_panel_simplification_defense",
+                "summary": "Tessa defended a cutting summary by saying the audience needed the clean version.",
+                "episode_kind": "backstory",
+            }
+        ]
+
+        prompt = build_middle_prompt(
+            concern,
+            concerns,
+            causal_slice,
+            appraisal,
+            practice_context,
+            "rationalization",
+            ["justify-simplification", "minimize-harm-framing"],
+            retrieved,
+            self.tessa_fixture,
+            active_situation_id=default_active_situation_id(self.tessa_fixture),
+            prompt_style="circumstances_v1",
+        )
+
+        self.assertIn("ACTIVE PRESSURES:", prompt)
+        self.assertIn("WHAT THE CHARACTER WANTS TO PROTECT OR PRESERVE:", prompt)
+        self.assertIn("THE CURRENT MOVE:", prompt)
+        self.assertNotIn("REFERENCE STRUCTURED STATE:", prompt)
+        self.assertNotIn("Selected concern:", prompt)
+        self.assertNotIn("CausalSliceV1:", prompt)
+        self.assertNotIn("AppraisalFrame:", prompt)
+        self.assertNotIn("PracticeContextV1:", prompt)
+
+    def test_tessa_authored_situation_framings_rotate_by_sequence(self) -> None:
+        framings = available_situation_framings(
+            self.tessa_fixture,
+            active_situation_id=default_active_situation_id(self.tessa_fixture),
+        )
+        self.assertEqual(
+            [item["id"] for item in framings],
+            ["objects_program_text", "hall_afterglow_sound", "unsent_reply_delay"],
+        )
+        selected = [
+            select_situation_framing(
+                self.tessa_fixture,
+                active_situation_id=default_active_situation_id(self.tessa_fixture),
+                situation_framing_mode="round_robin_authored",
+                sequence_index=index,
+            )["id"]
+            for index in (1, 2, 3, 4)
+        ]
+        self.assertEqual(
+            selected,
+            ["objects_program_text", "hall_afterglow_sound", "unsent_reply_delay", "objects_program_text"],
+        )
+
     def test_rhea_practice_bias_prefers_anticipated_confrontation(self) -> None:
         concern_inference = infer_concerns_from_primitives(self.rhea_fixture)
         bias_summary = summarize_practice_biases(self.rhea_fixture, concern_inference)
@@ -286,6 +460,9 @@ class AuthoringTimeGenerationPrototypeTests(unittest.TestCase):
             default_affordance_tags(practice_context, "rationalization"),
             ["justify-simplification", "minimize-harm-framing"],
         )
+        self.assertEqual(score_breakdown["_gap"]["top_1"], "rationalization")
+        self.assertIn(score_breakdown["_gap"]["top_2"], {"avoidance", "rehearsal"})
+        self.assertGreater(score_breakdown["_gap"]["gap"], 0.0)
 
     def test_batch_admission_rejects_rows_failing_semantic_gate(self) -> None:
         pool = [
@@ -398,6 +575,231 @@ class AuthoringTimeGenerationPrototypeTests(unittest.TestCase):
         admission = admit_candidate_pool(pool, admit_max=2)
         self.assertEqual(admission["admitted"][0]["node_id"], "seq1_primary")
         self.assertEqual(admission["admitted"][1]["node_id"], "seq2_primary")
+
+    def test_batch_admission_prefers_overdetermined_row_on_tie(self) -> None:
+        pool = [
+            {
+                "sequence_index": 1,
+                "step_index": 1,
+                "node_id": "anchor",
+                "candidate_text": "Tessa studies the donor list and tells herself the joke landed cleaner on the inside than it did in the room.",
+                "graph_projection": {
+                    "option_effect": "clarify",
+                    "situation_id": "sit_donor_hall_after_toast",
+                },
+                "coverage_refs": ["ev_toast_credit_cut"],
+                "pressure_tags": ["status_damage"],
+                "practice_tags": ["confession"],
+                "origin_pressure_refs": ["cc_status_damage"],
+                "selected_affordance_tags": ["justify-simplification"],
+                "semantic_checks": {
+                    "rationalization is present": True,
+                    "the apology has not been sent": True,
+                    "the donor hall remains psychologically active": True,
+                    "rationalization reframes rather than resolves the damage": True,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "rationalization",
+                "compiler_selected_score": {"total": 0.95},
+            },
+            {
+                "sequence_index": 2,
+                "step_index": 1,
+                "node_id": "overdetermined",
+                "candidate_text": "Tessa rehearses the line that they had needed the joke to stay light, then hates how quickly that explanation fits.",
+                "graph_projection": {
+                    "option_effect": "clarify",
+                    "situation_id": "sit_donor_hall_after_toast",
+                },
+                "coverage_refs": ["ev_toast_credit_cut"],
+                "pressure_tags": ["status_damage", "obligation"],
+                "practice_tags": ["confession"],
+                "origin_pressure_refs": ["cc_status_damage", "cc_obligation"],
+                "selected_affordance_tags": ["minimize-harm-framing"],
+                "semantic_checks": {
+                    "rationalization is present": True,
+                    "the apology has not been sent": True,
+                    "the donor hall remains psychologically active": True,
+                    "rationalization reframes rather than resolves the damage": True,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "rationalization",
+                "compiler_selected_score": {"total": 0.8},
+            },
+            {
+                "sequence_index": 3,
+                "step_index": 1,
+                "node_id": "single_pressure",
+                "candidate_text": "Tessa squares her glass with the linen and repeats that the room had already decided what kind of woman she was.",
+                "graph_projection": {
+                    "option_effect": "clarify",
+                    "situation_id": "sit_donor_hall_after_toast",
+                },
+                "coverage_refs": ["ev_toast_credit_cut"],
+                "pressure_tags": ["status_damage"],
+                "practice_tags": ["confession"],
+                "origin_pressure_refs": ["cc_status_damage"],
+                "selected_affordance_tags": ["justify-simplification", "minimize-harm-framing"],
+                "semantic_checks": {
+                    "rationalization is present": True,
+                    "the apology has not been sent": True,
+                    "the donor hall remains psychologically active": True,
+                    "rationalization reframes rather than resolves the damage": True,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "rationalization",
+                "compiler_selected_score": {"total": 0.8},
+            },
+        ]
+
+        admission = admit_candidate_pool(pool, admit_max=2)
+        admitted_ids = [row["node_id"] for row in admission["admitted"]]
+        self.assertIn("overdetermined", admitted_ids)
+        self.assertIn("anchor", admitted_ids)
+        rejected = {row["node_id"]: row for row in admission["rejected"]}
+        self.assertIn("single_pressure", rejected)
+
+    def test_batch_admission_rejects_duplicate_function_with_low_text_novelty(self) -> None:
+        pool = [
+            {
+                "sequence_index": 1,
+                "step_index": 1,
+                "node_id": "base",
+                "candidate_text": "Kai wipes the counter and leaves the envelope sealed on the table.",
+                "graph_projection": {
+                    "option_effect": "clarify",
+                    "situation_id": "sit_unopened_letter",
+                },
+                "coverage_refs": ["ev_harbor_meeting_tonight"],
+                "pressure_tags": ["attachment_threat"],
+                "practice_tags": ["evasion"],
+                "origin_pressure_refs": ["cc_attachment_threat"],
+                "selected_affordance_tags": ["ritual-distraction"],
+                "semantic_checks": {
+                    "delay ritual is present": True,
+                    "the letter is not opened": True,
+                    "the harbor remains psychologically active": True,
+                    "avoidance sharpens rather than resolves the choice": True,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "avoidance",
+                "compiler_selected_score": {"total": 0.92},
+            },
+            {
+                "sequence_index": 2,
+                "step_index": 1,
+                "node_id": "duplicate_function",
+                "candidate_text": "Kai wipes the counter and keeps the envelope sealed on the table.",
+                "graph_projection": {
+                    "option_effect": "clarify",
+                    "situation_id": "sit_unopened_letter",
+                },
+                "coverage_refs": ["ev_harbor_meeting_tonight"],
+                "pressure_tags": ["attachment_threat"],
+                "practice_tags": ["evasion"],
+                "origin_pressure_refs": ["cc_attachment_threat"],
+                "selected_affordance_tags": ["ritual-distraction"],
+                "semantic_checks": {
+                    "delay ritual is present": True,
+                    "the letter is not opened": True,
+                    "the harbor remains psychologically active": True,
+                    "avoidance sharpens rather than resolves the choice": True,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "avoidance",
+                "compiler_selected_score": {"total": 0.9},
+            },
+        ]
+
+        admission = admit_candidate_pool(pool, admit_max=2)
+        self.assertEqual([row["node_id"] for row in admission["admitted"]], ["base"])
+        rejected = {row["node_id"]: row for row in admission["rejected"]}
+        self.assertIn(
+            "duplicate_function_signature",
+            rejected["duplicate_function"]["admission_score"]["hard_errors"],
+        )
+
+    def test_batch_admission_caps_same_function_signature_cluster(self) -> None:
+        pool = [
+            {
+                "sequence_index": 1,
+                "step_index": 1,
+                "node_id": "sig_a",
+                "candidate_text": "Tessa tells herself the joke kept the donors in the room instead of sending them into pity.",
+                "graph_projection": {
+                    "option_effect": "clarify",
+                    "situation_id": "sit_donor_hall_after_toast",
+                },
+                "coverage_refs": ["ev_toast_credit_cut"],
+                "pressure_tags": ["status_damage"],
+                "practice_tags": ["confession"],
+                "origin_pressure_refs": ["cc_status_damage"],
+                "selected_affordance_tags": ["justify-simplification", "minimize-harm-framing"],
+                "semantic_checks": {
+                    "rationalization is present": True,
+                    "the apology has not been sent": True,
+                    "the donor hall remains psychologically active": True,
+                    "rationalization reframes rather than resolves the damage": True,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "rationalization",
+                "compiler_selected_score": {"total": 0.82},
+            },
+            {
+                "sequence_index": 2,
+                "step_index": 1,
+                "node_id": "sig_b",
+                "candidate_text": "Tessa decides the line only sounded cruel because Eli had already been waiting to hear contempt in it.",
+                "graph_projection": {
+                    "option_effect": "clarify",
+                    "situation_id": "sit_donor_hall_after_toast",
+                },
+                "coverage_refs": ["ev_eli_texts_afterward"],
+                "pressure_tags": ["status_damage"],
+                "practice_tags": ["confession"],
+                "origin_pressure_refs": ["cc_status_damage"],
+                "selected_affordance_tags": ["justify-simplification", "minimize-harm-framing"],
+                "semantic_checks": {
+                    "rationalization is present": True,
+                    "the apology has not been sent": True,
+                    "the donor hall remains psychologically active": True,
+                    "rationalization reframes rather than resolves the damage": True,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "rationalization",
+                "compiler_selected_score": {"total": 0.81},
+            },
+            {
+                "sequence_index": 3,
+                "step_index": 1,
+                "node_id": "sig_c",
+                "candidate_text": "Tessa recasts the omission as an ugly form of honesty and hates how quickly that argument sits down inside her.",
+                "graph_projection": {
+                    "option_effect": "clarify",
+                    "situation_id": "sit_donor_hall_after_toast",
+                },
+                "coverage_refs": ["sit_text_reply_threshold"],
+                "pressure_tags": ["status_damage"],
+                "practice_tags": ["confession"],
+                "origin_pressure_refs": ["cc_status_damage"],
+                "selected_affordance_tags": ["justify-simplification", "minimize-harm-framing"],
+                "semantic_checks": {
+                    "rationalization is present": True,
+                    "the apology has not been sent": True,
+                    "the donor hall remains psychologically active": True,
+                    "rationalization reframes rather than resolves the damage": True,
+                    "no_cross_fixture_contamination": True,
+                },
+                "selected_operator_family": "rationalization",
+                "compiler_selected_score": {"total": 0.8},
+            },
+        ]
+
+        admission = admit_candidate_pool(pool, admit_max=3)
+        self.assertEqual(len(admission["admitted"]), 2)
+        rejected = {row["node_id"]: row for row in admission["rejected"]}
+        self.assertIn("sig_c", rejected)
+        self.assertIn("function_signature_cap", rejected["sig_c"]["admission_score"]["hard_errors"])
 
 
 if __name__ == "__main__":

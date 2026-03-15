@@ -10,6 +10,7 @@ dependencies = [
   "pyyaml",
   "python-dotenv",
   "replicate",
+  "anthropic>=0.84.0",
 ]
 
 [tool.uv]
