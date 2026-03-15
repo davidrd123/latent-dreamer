@@ -20,23 +20,59 @@ when it matters, not by when it was discovered.
    predates the authoring-time generation reframe and prototype
    results. Should reflect current state.
 
+4. **Commit type should derive from accepted candidate effect, not fixture default.**
+   `choose_commit_type()` still prefers `benchmark_step.expected_commit_type`
+   over the accepted `graph_projection.option_effect`. That is fine for a
+   worked trace, but wrong for real sequence semantics because reappraisal
+   should follow what the accepted candidate actually did.
+   See: `daydreaming/authoring_time_generation_prototype.py`
+
+5. **Graph validator is too weak on non-Gemini paths.**
+   `validate_graph_projection()` checks required presence and resolvable refs,
+   but it does not strictly enforce several seam-critical enums and fields.
+   Tighten local validation so "graph-compilable" means the same thing on
+   stub, OpenAI, and Gemini paths.
+   See: `daydreaming/authoring_time_generation_prototype.py`
+
+6. **Multi-step state carry-forward is not real yet.**
+   Sequence mode records accepted prior results, but later steps still rebuild
+   causal/prompt state from the first fixture situation. Need active-situation
+   carry-forward from accepted graph projections instead of always reading
+   `fixture["situations"][0]`.
+   See: `daydreaming/authoring_time_generation_prototype.py`
+
+7. **Reappraisal currently rewrites all concerns, not just affected ones.**
+   For `ontic` and `policy` commits, unrelated concerns get flattened or
+   reduced too aggressively. Reappraisal should target the concerns actually
+   implicated by the accepted candidate.
+   See: `daydreaming/authoring_time_generation_prototype.py`
+
+8. **Prototype test coverage is still too thin.**
+   There are now direct tests for candidate compilation and one boundary case,
+   but nothing yet for validator strictness, commit selection, reappraisal
+   semantics, or multi-step state progression. Also need an explicit split
+   between worked-trace calibration mode and genuine derived-state mode, since
+   some middle-layer steps still short-circuit through fixture-authored
+   expected state.
+   See: `tests/test_authoring_time_generation_prototype.py`
+
 ---
 
 ## Before scaling the generation pipeline
 
-4. **Weighted abduction for interpretation layer.** The strongest
+9. **Weighted abduction for interpretation layer.** The strongest
    missing mechanism for material supply. Sparse primitives →
    competing latent interpretations → top-k hypotheses feeding
    CausalSlice. 5 Pro designed `AbductiveHypothesis` object.
    See: `r3-3cand-imports-unpacking.md`, `r2-near-term-mech-design.md`
 
-5. **Soft-constraint compiler for graph compilation.** "Which
+10. **Soft-constraint compiler for graph compilation.** "Which
    candidate moments survive together?" Hard constraints + soft
    objectives over candidate batches. Greedy reranker first,
    solver later if needed.
    See: `r3-3cand-imports-unpacking.md`
 
-6. **POCL-lite causal-link sketcher.** Makes `setup_refs[]` /
+11. **POCL-lite causal-link sketcher.** Makes `setup_refs[]` /
    `payoff_refs[]` mechanically grounded rather than prompt-inferred.
    Requires, establishes, threatens per candidate.
    See: `r3-3cand-imports-unpacking.md`
@@ -45,13 +81,13 @@ when it matters, not by when it was discovered.
 
 ## Before L2 kernel refactor
 
-7. **L2 build order correction.** Source-miss scan says front-load
+12. **L2 build order correction.** Source-miss scan says front-load
    Mueller harder than current synthesis: theme rules + recursive
    reminding + verified serendipity + surprise BEFORE practice tags
    and role gating. Capture in `13-l2-refactor-synthesis.md`.
    See: `source-lineage-deep.md` §build-order-implications
 
-8. **Overdetermination as central scoring criterion.** Partially
+13. **Overdetermination as central scoring criterion.** Partially
    addressed by the overdetermination feature in arm C. But the
    source-miss scan says it should be even more central — the
    default quality signal, not a bonus term.
@@ -61,17 +97,17 @@ when it matters, not by when it was discovered.
 
 ## Before conductor build
 
-9. **NIME mapping research.** Adding control dimensions can reduce
+14. **NIME mapping research.** Adding control dimensions can reduce
    affordance exploration. Consult before building the full APC
    mapping. 5 Pro conductor response already incorporated this.
    See: `r4-conductor-mapping.md`, `03-missing-lineage-scan/response.md`
 
-10. **Wizard-of-Oz conductor test.** Designed in r4. Run before
+15. **Wizard-of-Oz conductor test.** Designed in r4. Run before
     building full live mapping. Measures reachability, repeatability,
     causal feel, observer legibility.
     See: `r4-conductor-mapping.md` §3
 
-11. **Tidal oscillators.** Hybrid but strongly autonomous. "The tides
+16. **Tidal oscillators.** Hybrid but strongly autonomous. "The tides
     are weather. The performer plays against the weather." No
     per-tide knobs in v1.
     See: `r4-conductor-mapping.md` §4
@@ -80,18 +116,18 @@ when it matters, not by when it was discovered.
 
 ## Before dashboard / narration work
 
-12. **Two surfaces, not one.** Performance dashboard (85% current
+17. **Two surfaces, not one.** Performance dashboard (85% current
     state, 15% residue) vs. authoring membrane (provenance + curation
     actions: freeze/dismiss/respond/cut). Don't merge them.
     See: `r5-dashboard.md`
 
-13. **Narration companion rules.** Packet-first. Provenance through
+18. **Narration companion rules.** Packet-first. Provenance through
     four derived hints only (emotional shading, threatened goal,
     memory resonance, operator tone). Raw sidecars never in the
     main voice. "Narrate structural turns, hide maintenance math."
     See: `r5-dashboard.md` §3-4
 
-14. **Rule-level narration pruning.** Mueller's Appendix B has
+19. **Rule-level narration pruning.** Mueller's Appendix B has
     pruning hooks on individual rules, not coarse operator families.
     Carry this into the dashboard implementation.
     See: `12-mueller-appendix-b-extraction.md`
@@ -100,12 +136,12 @@ when it matters, not by when it was discovered.
 
 ## Before City Routes becomes production content
 
-15. **Event Segmentation Theory.** Consult before locking node
+20. **Event Segmentation Theory.** Consult before locking node
     granularity. "What makes one node a node?" Missing lineage scan
     flagged this.
     See: `03-missing-lineage-scan/response.md` §4
 
-16. **Storylets/QBN as L3 comparison class.** The current graph
+21. **Storylets/QBN as L3 comparison class.** The current graph
     nodes with preconditions and state-gated availability are close
     to storylet architecture. Worth asking: "is arm B basically a
     storylet engine with continuous scoring?" Not urgent but should
@@ -116,18 +152,18 @@ when it matters, not by when it was discovered.
 
 ## Doc hygiene (do anytime)
 
-17. ~~**Fix `05-stage-integration.md`.**~~ DONE. Status note
+22. ~~**Fix `05-stage-integration.md`.**~~ DONE. Status note
     added at top, performer section rewritten to match
     one-control-plane rule.
 
-18. **Packet ownership audit.** One writer per runtime field.
+23. **Packet ownership audit.** One writer per runtime field.
     ~30 min exercise. Build a field-ownership table.
     See: `02-failure-mode-review/response.md` §3
 
-19. **Stale Graffito wording.** Execution roadmap and L3 experiment
+24. **Stale Graffito wording.** Execution roadmap and L3 experiment
     synthesis still say "add edges and deltas" but those are done.
 
-20. **Formal arm C ablation.** Arm C was built incrementally but no
+25. **Formal arm C ablation.** Arm C was built incrementally but no
     formal C1 (features only) vs C2 (+ structural tension) ablation
     exists.
 
@@ -135,24 +171,24 @@ when it matters, not by when it was discovered.
 
 ## Bigger vision (don't lose)
 
-21. **Broader application surface (doc 34).** Mueller-shaped inner
+26. **Broader application surface (doc 34).** Mueller-shaped inner
     life as general cognitive infrastructure. Writing companion,
     reading companion, research daemon, vault agent with
     preoccupations. The mechanisms generalize beyond conducted
     performance.
 
-22. **Three-layer compiler stack from 5 Pro.** Abduction → causal
+27. **Three-layer compiler stack from 5 Pro.** Abduction → causal
     scaffold → soft-constraint admission. This is the future
     material-supply architecture after the current four mechanisms
     are validated.
 
-23. **Five non-Mueller imports (from broader discussion).** Attachment
+28. **Five non-Mueller imports (from broader discussion).** Attachment
     theory (styles as operator bias), predictive processing (concerns
     as prediction errors), event segmentation (node boundaries),
     conceptual blending (serendipity as blend-finding), Internal
     Family Systems (concern competition as parts model).
 
-24. **John collaboration.** Questions-for-john.md exists.
+29. **John collaboration.** Questions-for-john.md exists.
     High-value evaluator for watched run and conductor mapping.
     Membrane design directly relevant to authoring curation UX.
 
