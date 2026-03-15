@@ -8,10 +8,11 @@ This is a prompt for 5 Pro (ChatGPT 5.4 Pro) in the ChatGPT
 interface. The document contains two asks (A and B) meant to be
 sent as separate RepoPrompt requests against this file.
 
-- **Ask A** goes first with light context. Read the reply before
-  sending Ask B.
-- **Ask B** goes second with heavier project context, informed
-  by Ask A's framing.
+- **Ask A** and **Ask B** can go in parallel (separate chats or
+  separate turns). A is design-space; B is project-specific.
+  They don't depend on each other.
+- **Ask C** goes after both A and B replies are in hand. It
+  references both.
 
 Save replies under `deep-research-03/replies/`.
 
@@ -185,8 +186,8 @@ to see the space, not our project reflected back at us.
 
 # Ask B: How do our pieces fit together?
 
-Read Ask A's reply before sending this. Ask A provides the
-design-space framing; Ask B applies it to our specific system.
+Can be sent in parallel with Ask A. If Ask A's reply is
+available, reference it — but Ask B is self-contained.
 
 ## Background for Ask B
 
@@ -262,6 +263,14 @@ to the fixture? An event node in the graph? A modification to
 the existing situation description? The pipeline currently
 reads from `fixture["situations"]` — what does the Director
 write to?
+
+For the interface object, specify:
+- **name** — what is it called?
+- **who writes it** — Director, human, pipeline, or some combination?
+- **who reads it** — pipeline, traversal scheduler, both?
+- **mutability** — append-only, mutable, or compiled?
+- **where it lives** — fixture YAML, a world-state artifact,
+  a runtime packet, or something new?
 
 ### B3. Generation pipeline ↔ Director integration
 
@@ -350,11 +359,15 @@ across externalization modes?
    versions require genuinely different decisions, not just
    vocabulary alignment.
 
-6. **Suggest what to test first** — given what exists (working
-   generation pipeline, partially-tested Director, validated L3
-   scheduler, supply pilot in progress), what is the cheapest
-   experiment that would resolve the most important tension
-   without destabilizing the active work?
+6. **Suggest what to test first** — given what exists now:
+   - working generation pipeline (four fixtures, batch + admission)
+   - validated narrow bridge tests (Tessa + Kai patch tests pass)
+   - supply_v1 practical pass (keeper yield proven, edit cost measured)
+   - Director still underintegrated with the authoring loop
+   - L3 scheduler validated (Graffito pilot, City Routes three-arm)
+   What is the cheapest experiment that would resolve the most
+   important tension? The likely candidate is a minimal
+   Director-provocation → fixture-delta → generation-pass loop.
 
 7. **What NOT to decide yet** — explicit scope boundary.
 
@@ -437,9 +450,11 @@ Not implementation risks (those we can manage). Conceptual risks:
   (conducted performance vs. general cognitive characters vs.
   material supply scaling) that will force a choice we haven't
   acknowledged?
-- Is the Mueller foundation the right one, or are we building
-  on a model that's elegant but too narrow for what we actually
-  want?
+- Given your assessment of alternative foundations in Ask A,
+  is there a specific limitation of the Mueller model that
+  becomes critical as the project scales beyond single-situation
+  generation into multi-situation arcs, Director-driven world
+  events, and persistent cognitive characters?
 - Could the LLM generation layer undermine the cognitive
   architecture by making the structured middle layer irrelevant?
   (If the LLM can produce good material with just a prompt and
@@ -480,8 +495,22 @@ how we think about the project if we engaged with them.
 
 ## Preferred answer format for Ask C
 
-1. **Strongest version** — what this could be at its best
-2. **Conceptual risks** — what could be fundamentally wrong
-3. **Plateau risks** — where we'd get stuck without knowing it
-4. **Falsification** — the right tests and whether ours are right
-5. **What to read** — specific recommendations, with why
+Do not repeat Ask A or Ask B. This is not a synthesis of those
+answers — it is a separate, harder question about what we might
+be wrong about.
+
+1. **Strongest version** — what this could be at its best,
+   in one paragraph
+2. **3 non-obvious conceptual risks** — each with:
+   - an observable failure signature (what would it look like
+     if this risk were materializing?)
+   - the cheapest experiment that would expose it
+3. **Plateau risks** — where we'd get stuck in a way that looks
+   like slow progress instead of a wrong turn. Name the specific
+   plateau, not a generic "things might be hard."
+4. **Falsification** — are our three criteria the right ones?
+   What's missing? What single experiment would most efficiently
+   test whether the direction is sound?
+5. **What to read** — 3-5 specific recommendations with one
+   sentence each on why it would change how we think, not just
+   add to what we know
