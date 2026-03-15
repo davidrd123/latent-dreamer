@@ -20,9 +20,14 @@ prototype_contract:
     keys_in_order: [concern_type, target_ref, situation_id, practice_type]
     min_score: 2
     max_retrieved_episodes: 2
+    tie_break: [recency_rank_desc, fixture_order_asc]
     accepted_generated_episodes_reenter_on_next_step: true
   graph_requirements:
     option_effect_vocabulary: [close, open, clarify, none]
+    provenance_enums:
+      source_lane: [L1, L2, L3, human]
+      scope: [authored, projection, proposal]
+      revisability: [fixed, editable, ephemeral_candidate]
     required_graph_fields:
       - node_id
       - node_type
@@ -40,6 +45,7 @@ prototype_contract:
       - confidence
       - revisability
       - source_ref
+    setup_payoff_refs_resolve_against: [events.id, situations.id, reference_markers.id]
 
 characters:
   - id: kai
@@ -71,6 +77,7 @@ places:
 
 backstory_episodes:
   - id: ep_last_rupture
+    recency_rank: 2
     summary: >
       Kai and his sister fought at the harbor six months ago. She said,
       "if you are going to stay silent, do it honestly."
@@ -86,6 +93,7 @@ backstory_episodes:
       repair_possibility: low
 
   - id: ep_old_harbor_memory
+    recency_rank: 1
     summary: >
       As teenagers, they used to wait at the harbor after family fights
       and pretend the ferries made leaving easy.
@@ -94,12 +102,13 @@ backstory_episodes:
     retrieval_tags:
       concern_type: attachment_threat
       target_ref: sister
-      situation_id: harbor
+      place_id: harbor
     emotional_charge:
       warmth: medium
       fragility: high
 
   - id: ep_avoidance_consequence
+    recency_rank: 3
     summary: >
       Kai once ignored her call on an important night and learned too late
       that the silence itself had become the message.
@@ -126,13 +135,30 @@ situations:
       letter_opened: false
       reply_sent: false
 
+  - id: sit_threshold_departure
+    place_id: kitchen
+    description: >
+      The threshold moment where Kai either leaves for the harbor or
+      allows delay to harden into a decision.
+
+events:
+  - id: ev_harbor_meeting_tonight
+    description: The harbor meeting requested for tonight remains pending.
+    anchor_places: [harbor]
+
+reference_markers:
+  - id: harbor_as_shared_place
+    description: >
+      The harbor as a charged shared place carrying both rupture and
+      possible repair.
+
 concern_extraction:
   mode: benchmark_hand_specified_after_theme_rules
   note: >
     v1 records the path from narrative primitives to active concerns with
     tiny theme-rule-style triggers, then hand-specifies the resulting
     concern instances for the benchmark run.
-  theme_rules:
+  concern_extraction_rules:
     - id: rule_unanswered_repair_bid
       when:
         - incoming_contact_from_estranged_target
@@ -155,6 +181,7 @@ concern_extraction:
           A request that demands reply or appearance under time pressure
           creates duty pressure even before the content is faced.
 
+  practice_bias_rules:
     - id: rule_prior_silence_had_cost
       when:
         - known_avoidance_history
@@ -171,6 +198,8 @@ concern_extraction:
       concern_type: attachment_threat
       target_ref: sister
       base_intensity: 0.72
+      intensity_basis: fixture_constant
+      seed_origin: benchmark_seeded
       unresolved: true
       source_rule_ids: [rule_unanswered_repair_bid]
       source_episode_ids: [ep_last_rupture, ep_old_harbor_memory]
@@ -179,6 +208,8 @@ concern_extraction:
       concern_type: obligation
       target_ref: sister
       base_intensity: 0.64
+      intensity_basis: fixture_constant
+      seed_origin: benchmark_seeded
       unresolved: true
       source_rule_ids: [rule_requested_response_under_deadline]
       source_episode_ids: [ep_avoidance_consequence]
@@ -201,8 +232,10 @@ benchmark_step:
       expected_score: 2
       matched_keys: [concern_type, target_ref]
       note: >
-        Keep threshold/config exposed here. This episode may be excluded
-        by a stricter retrieval cap even though it clears the minimum score.
+        This episode records `place_id = harbor`, not `situation_id`.
+        Under strict v1 retrieval it does not match the active situation
+        key. It still clears the minimum score on concern and target, but
+        loses the tie-break to the more recent rupture episode.
   expected_selected_family: avoidance
   expected_selected_affordance_tags: [delay-contact, ritual-distraction]
   expected_commit_type: salience
@@ -263,10 +296,16 @@ worked_trace_reference:
       total: 0.80
 
   expected_generated_candidate:
-    text: >
+    literal_text_oracle: false
+    reference_exemplar_text: >
       Kai lifts the envelope, reads only his sister's name, turns it face
       down again, and fills the kettle as if the water can decide whether
       the harbor still belongs to them.
+    semantic_expectations:
+      - delay ritual is present
+      - the letter is not opened
+      - the harbor remains psychologically active
+      - avoidance sharpens rather than resolves the choice
     graph_projection:
       node_id: kai_letter_avoidance_001
       node_type: beat
@@ -281,10 +320,10 @@ worked_trace_reference:
       origin_pressure_refs: [cc_attachment_threat, cc_obligation]
       branch_outcome_tags: [delayed_contact]
       contrast_tags: [domestic_ritual_vs_urgent_summons]
-      source_lane: l2_generation
-      scope: local
+      source_lane: L2
+      scope: proposal
       confidence: medium
-      revisability: high
+      revisability: ephemeral_candidate
       source_ref: worked-trace-29
 
   expected_reappraisal:

@@ -256,11 +256,13 @@ Not retrieved:
 
 `ep_old_harbor_memory`
 
-- matches only `concern_type` and `target_ref` if the retrieval store
-  normalizes `harbor` as a place tag rather than `situation_id`
-- if the implementation keeps it at score `2`, it becomes the runner-up
-- for this worked trace, keep the stricter pair above to keep the
-  evasion signal stronger
+- matches only:
+  - `concern_type`
+  - `target_ref`
+- `harbor` is a `place_id`, not the active `situation_id`
+- under strict `v1` retrieval semantics, it does not receive a
+  `situation_id` match here
+- tie-break favors `ep_last_rupture` on recency
 
 What retrieval adds:
 
@@ -409,9 +411,10 @@ branch_outcome_tags:
 contrast_tags:
   - domestic_ritual_vs_urgent_summons
 source_lane: l2_generation
-scope: local
+source_lane: L2
+scope: proposal
 confidence: medium
-revisability: high
+revisability: ephemeral_candidate
 source_ref: worked-trace-29
 ```
 
@@ -419,6 +422,14 @@ Why `option_effect = clarify`:
 
 - the node does not resolve anything
 - but it sharpens what the unresolved choice is
+
+The sentence itself is a reference exemplar, not a literal test oracle.
+The testable output here is:
+
+- operator choice
+- graph projection validity
+- provenance completeness
+- semantic fit to the benchmark
 
 ---
 

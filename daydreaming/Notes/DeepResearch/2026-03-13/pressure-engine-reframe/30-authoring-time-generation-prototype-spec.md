@@ -272,6 +272,9 @@ Episode re-entry rule:
 
 - only accepted generated episodes re-enter memory
 - they do not re-enter retrieval until the next step or next batch
+- ties should resolve deterministically:
+  - `recency_rank desc`
+  - `fixture_order asc`
 
 ---
 
@@ -376,6 +379,18 @@ Every accepted candidate must produce:
 The graph payload must respect `21-graph-interface-contract.md`.
 Do not add `appraisal_summary_tags[]`.
 
+For generated candidates in `v1`, use:
+
+- `source_lane: L2`
+- `scope: proposal`
+- `revisability: ephemeral_candidate`
+
+`setup_refs[]` and `payoff_refs[]` must resolve mechanically against:
+
+- `events[].id`
+- `situations[].id`
+- `reference_markers[].id`
+
 ---
 
 ## Prototype flow
@@ -416,7 +431,11 @@ Each generated candidate must pass:
 3. `delta_tension` and `delta_energy` parse as numeric
 4. `pressure_tags[]` and `origin_pressure_refs[]` are non-empty
 5. `practice_tags[]` consistent with selected `PracticeContextV1`
-6. `source_lane = l2_generation`
+6. `source_lane = L2`
+7. `scope = proposal`
+8. `revisability = ephemeral_candidate`
+9. `setup_refs[]` and `payoff_refs[]` resolve against the fixture's
+   `events`, `situations`, or `reference_markers`
 
 Candidates that fail validation are rejected or regenerated once.
 
@@ -445,6 +464,17 @@ For each candidate, rate:
 - `keep / reject`
 
 Simple `1-5` human rubric is enough for the first pass.
+
+Use the worked-trace sentence as a reference exemplar only.
+Do not test exact sentence equality.
+
+Test:
+
+- structural fields
+- operator consistency
+- affordance consistency
+- graph projection validity
+- semantic predicates
 
 ---
 
