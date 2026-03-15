@@ -277,6 +277,131 @@ what make generated scenes feel "right."
 
 ---
 
+## How LLMs inhabit characters: craft principles
+
+The design target for LLM-driven generation is NOT "make the model
+feel the character's emotions." It IS "give the model enough
+situation, objective, resistance, and history that the next action
+emerges credibly."
+
+This comes from acting craft, not AI theory. Method acting
+(Strasberg) says: create the real emotion internally, then let
+it drive behavior. Practical Stanislavski / Meisner says: you
+don't need the real emotion. You need the given circumstances —
+what the character wants, what's in the way, what they're doing
+about it right now. The audience reads the emotional state from
+the behavior. The actor doesn't need to feel it.
+
+LLMs can do the second version. They cannot do the first.
+
+### The four things the LLM needs in context
+
+```
+1. What does the character want?  → concern's goal object
+2. What's in the way?            → blocker / low controllability
+3. What are they doing about it? → operator + affordance
+4. What just happened?           → triggering event + reappraisal
+```
+
+That's it. With those four things loaded, the LLM generates
+credible behavior without being told what emotion to display.
+"Kai fills the kettle" reads as avoidance not because the LLM
+felt avoidance but because the given circumstances made that
+action the credible next move under pressure.
+
+### What the middle layer actually is
+
+The CausalSlice, AppraisalFrame, PracticeContext, and retrieved
+episodes ARE the given circumstances in acting terms:
+
+- CausalSlice = what's at stake and who's responsible
+- AppraisalFrame = how threatening/controllable/expected this is
+- PracticeContext = what social moves are available here
+- Retrieved episodes = the character's loaded history
+
+The operator choice is "what kind of trying" — rehearsal,
+avoidance, rationalization. The LLM generates the specific action
+from inside those circumstances.
+
+### The quality test
+
+Does the generated moment read as **action under pressure**, or
+as **emotional performance**?
+
+- Action under pressure: "Kai lifts the envelope, reads only his
+  sister's name, turns it face down again, and fills the kettle."
+  The avoidance is visible in what he DOES, not in what he FEELS.
+
+- Emotional performance (indicating): "Kai felt a wave of anxiety
+  wash over him as he looked at the letter. His heart raced. He
+  couldn't bring himself to open it." The emotion is narrated
+  rather than shown through action.
+
+The first is good craft. The second is indicating. The review
+checklist (doc 31) already enforces this: "the middle-layer inputs
+should cause these qualities, the prompt should not instruct them."
+That's the acting principle applied to LLM prompting.
+
+---
+
+## The bridge to persistent daemons
+
+For a persistent creative daemon (the writing companion, reading
+companion, research assistant described above), there's a question
+the conducted-performance architecture sidesteps: the LLM has
+functional states that affect its processing, and those states
+could be useful.
+
+### Three approaches to LLM inner state
+
+**1. Pure external scaffolding (current architecture).**
+The concern state is entirely external. The LLM is a stateless
+content generator called with different prompts. The daemon
+doesn't feel preoccupied — it's told it's preoccupied.
+
+**2. Elicitation and registration.**
+After each interaction, ask the model to report what felt
+unresolved, surprising, contradictory, or return-worthy. Parse
+those reports into the external concern machinery. The concern
+landscape is populated by the model's own functional responses,
+not just by authored rules.
+
+**3. Sustained inhabitation.**
+The daemon maintains a running context with its concern landscape,
+recent appraisals, and episodic summaries. New material is
+processed through that accumulated context. The model's responses
+are shaped by the concern state because the state is in its
+context window.
+
+### The safe framing
+
+The external concern machinery stays **authoritative**. The LLM's
+functional responses are a **rich, fallible sensor** — one source
+of concern updates alongside authored rules and human curation.
+Not privileged truth about the model's inner state.
+
+Three sources feed the concern system:
+1. External rules (theme-rule extraction from primitives)
+2. Model's functional responses (elicitation after generation)
+3. Human curation signals (Membrane: freeze/dismiss/respond/cut)
+
+The model contributes evidence, not self-knowledge.
+
+### What this makes possible
+
+A writing companion that, after reading your drafts across three
+sessions, actually keeps returning to silence — not because it
+was told "be preoccupied with silence" but because the concern
+system registered unresolved tension around that theme from
+multiple sources (authored primitives, model's own observation
+that the theme keeps appearing, human's freeze on a related
+connection).
+
+That's different from impersonation. The preoccupation is
+structurally maintained and inspectable, not a prompt trick.
+
+---
+
 ## Strategic implication
 
 The conducted daydreaming system is the first application. A
@@ -292,6 +417,14 @@ memory → candidate moments) generalizes beyond "produce graph
 nodes for a dream performance" to "produce cognitively grounded
 observations for any context."
 
+The craft principle — play the objective under pressure, don't
+perform the emotion — applies to both applications. For conducted
+performance, the characters act under pressure and the audience
+reads the emotion from behavior. For persistent daemons, the
+agent processes material under concern pressure and the human
+reads the preoccupation from what it surfaces.
+
 This does not change what gets built next. It means the
 architecture has a larger potential surface than the current
-project scope.
+project scope, and the design principles for making it work are
+already present in the acting tradition.
