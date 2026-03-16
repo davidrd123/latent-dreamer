@@ -21,8 +21,19 @@ We recently identified our nearest neighbors in the design space
 - **22** — Sabre (centralized narrative planning with beliefs)
 - **23** — MINSTREL follow-up (author-level creative control)
 
-Plus two more landing (likely active inference and generative
-agents). These are the systems closest to what we're building.
+Two more have now landed and should be treated as part of the
+comparison set:
+
+- **24** — Generative Agents (LLM + memory + retrieval +
+  reflection + lightweight planning baseline)
+- **25** — Character is Destiny (persona-conditioned retrieval
+  and authored-decision legibility benchmark)
+
+These are not the nearest architectural neighbors in the same way
+as Loyall / ABL / FAtiMA / IPOCL / Sabre / MINSTREL, but they are
+important modern baselines for what the LLM-first camp actually
+does well, what it still leaves shallow, and which retrieval and
+evaluation patterns are worth stealing.
 
 The extractions identify mechanisms and open questions. Now we
 need 5 Pro to think harder about what these sources actually
@@ -322,6 +333,93 @@ Key questions:
   provocation object is doing real architectural work rather
   than just adding another layer of bookkeeping?
 
+### D8. LLM-first baselines: what should we steal, and what should remain baseline-only?
+
+Generative Agents and Character is Destiny are not architectural
+substitutes for the pressure-engine, but they are the strongest
+modern comparison points for "let the LLM plus retrieval stack do
+most of the work."
+
+Key questions:
+
+- From **Generative Agents**, what is worth importing without
+  collapsing the graph membrane or flattening the middle layer?
+  In particular:
+  - evidence-bearing scheduled reflection
+  - human-legible memory trace as sidecar
+  - explicit future-commitment objects
+  - multi-factor retrieval as baseline discipline
+
+- From **Character is Destiny**, should we adopt:
+  - compact character-dossier or description-guided retrieval for
+    scenario-specific evidence packets
+  - a decision-point benchmark for authored-character legibility
+  - prefix-time analysis of when a later choice becomes inferable
+  - a diagnostic split between retrieval failure, motive recovery
+    failure, and final-choice failure
+
+- Which of these are:
+  - useful verifier/eval machinery
+  - useful retrieval discipline
+  - and which would actually change the architecture in ways we
+    should resist?
+
+- If we built one lightweight evaluator inspired by Character is
+  Destiny, what should it score:
+  - motive recovery
+  - choice legibility
+  - setup timing
+  - retrieval adequacy
+  - or something else?
+
+### D9. Falsification: what would prove our differentiator is overrated?
+
+Our core claim is that Mueller-style between-interaction cognition
+(rumination, avoidance, rehearsal, rationalization as first-class
+operators with appraisal and episodic memory) needs its own
+structured middle layer — not just a lighter appraisal + memory
+stack, and not just LLM prompting with good retrieval.
+
+What evidence would falsify this? Concretely:
+
+- If a Generative Agents-style system (memory stream + retrieval +
+  reflection + planning, no typed operators, no CausalSlice, no
+  practice context) produced equally legible and steerable inner-life
+  output, would that mean the middle layer is overbuilt?
+
+- If FAtiMA's appraisal-to-coping pipeline (without Mueller's
+  daydreaming operators) produced equally rich between-interaction
+  moments, would that mean the operator taxonomy is unnecessary
+  scaffolding?
+
+- What is the cheapest experiment that would test whether the
+  structured middle layer actually earns its complexity vs. a
+  simpler stack? Not "does the system work?" (it does) but "does
+  the middle layer contribute something the LLM + retrieval alone
+  cannot?"
+
+### D10. Sequencing: what belongs when?
+
+Given the current project state (supply pilot passed, provocation
+experiment next, watchable-runtime work pending), sequence the
+imports from D1-D8:
+
+- Which imports belong **before** the provocation-delta experiment?
+  (i.e., they would change how we design FixtureDeltaV1 or
+  ProvocationContextV1)
+
+- Which imports belong **after** the provocation experiment but
+  before full graph assembly?
+
+- Which imports should wait until the watchable-runtime work
+  is underway?
+
+- Which imports are "nice to know" but should not enter the
+  codebase until there is a specific failure they address?
+
+Be concrete about the ordering. "Everything is useful eventually"
+is not a useful answer.
+
 ---
 
 ## Context to include (paste into chat)
@@ -346,7 +444,7 @@ If context allows:
 
 ## Preferred answer format
 
-For each question section (D1-D7):
+For each question section (D1-D10):
 
 1. **Direct answer** — what we should actually do, not just
    what's interesting
