@@ -26,13 +26,18 @@ Related:
 - `first-round-03/deep-research-03/replies-02/Ask-A.md`
 - `first-round-03/deep-research-03/replies-02/Ask-B-01.md`
 - `first-round-03/deep-research-03/replies-02/Ask-B-02.md`
+- `daydreaming/Notes/supply-v1-closeout.md`
+- `daydreaming/out/authoring_time_generation/keeper_bank_supply_v1.jsonl`
+- `daydreaming/tools/keeper_bank.py`
+- `daydreaming/tools/pack_registry.py`
+- `daydreaming/fixtures/patch_pack_registry_supply_v1.yaml`
 
 ---
 
 ## Bottom line
 
 The project is now past "does the middle layer exist?" and into
-"what are the real bottlenecks to usable material and watched
+"what are the real bottlenecks to usable material and watchable
 experience?"
 
 Two things are now true at the same time:
@@ -42,7 +47,7 @@ Two things are now true at the same time:
    survive traversal, and `supply_v1` is good enough to count as a
    practical pass.
 
-2. The watched-runtime lane is still under-proven.
+2. The watchable-runtime lane is still under-proven.
    The system can traverse and emit state, but the question
    "does this feel like a mind at work?" is still open.
 
@@ -50,7 +55,7 @@ The architecture is therefore best understood as **two connected
 fronts**, not one finished stack:
 
 - **authoring/material-supply lane**
-- **runtime/watchable-experience lane**
+- **runtime/watchable-runtime lane**
 
 They meet at the authored graph, but they are not yet fully unified in
 code.
@@ -138,6 +143,12 @@ Generated-curated nodes can be inserted into live micrographs without
 breaking traversal, and human read preferred generated prose in both
 tests.
 
+Important caveat: these patch fixtures held traversal-facing structure
+constant between `H` and `G` on purpose. The current traversal feature
+arm does not score prose, so `H/G` traversal traces were identical. This
+is a **slot survivability** proof plus human quality judgment, not
+prose-sensitive scheduling.
+
 What this proves:
 
 - generated nodes are not dead leaves
@@ -158,6 +169,14 @@ Current honest read:
 
 - `Tessa`: clean pass
 - `Kai`: narrow pass
+
+Concrete artifacts:
+
+- `daydreaming/out/authoring_time_generation/keeper_bank_supply_v1.jsonl`
+- `daydreaming/fixtures/patch_pack_registry_supply_v1.yaml`
+- `daydreaming/tools/keeper_bank.py`
+- `daydreaming/tools/pack_registry.py`
+- `daydreaming/Notes/supply-v1-closeout.md`
 
 This is enough to move from bridge proof toward scaling, banking,
 pack assembly, and next-phase authoring questions.
@@ -267,15 +286,63 @@ monologue when no one is watching. No other architecture makes
 that process first-class, inspectable, and steerable. That is the
 thing to protect and not accidentally optimize away.
 
+The crispest framing (from Ask-A-alt):
+
+> "Our foundation is tuned for one narrow prize: **legible inner
+> drift under partial human steering.** If that prize is the one
+> you actually care about, the architecture makes sense. If the
+> real prize is something else, one of the neighboring foundations
+> is probably cleaner. The mistake would be to blur those prizes
+> together."
+
 The nearest risk identified: LLM generation could undermine the
 structured middle layer by producing good material with just
 prompting and temperature. The current answer is that the middle
 layer provides controllability and interpretability that pure
 LLM cognition does not — but this remains an honest tension,
-not a settled question.
+not a settled question. D9 (falsification) is out to 5 Pro
+specifically to test this claim.
 
 See `reading-list/17-nearest-neighbors-reading-list.md` for the
-full comparison (Loyall, ABL, FAtiMA extractions now exist).
+full comparison. Extractions now exist for Loyall (18), ABL (19),
+FAtiMA (20), narrative planning/IPOCL (21), Sabre (22),
+MINSTREL follow-up (23), Generative Agents (24), and
+Character is Destiny (25).
+
+Key steals from the nearest-neighbor analysis:
+
+- **FAtiMA's meta-belief seam** — foreign computation participates
+  through named typed fields, not by replacing the control loop.
+  Right pattern for Provocation Generator integration.
+- **Loyall's irrationality-as-requirement** — avoidance,
+  defensiveness, and self-protective reinterpretation are features,
+  not error cases around a planner. Design guardrail for L2 refactor.
+- **IPOCL's pursuit-thread object** — tracks multi-situation
+  intentional continuity (goal, motivating event, supporting nodes,
+  status). The missing representation between L2 concerns and L3
+  multi-situation arc coherence. Banked for Q5/Q7/Q12 phase.
+- **Sabre as explanation critic** — can each character action be
+  justified from the character's believed state? Useful as a
+  verification layer over multi-step material.
+- **Generative Agents as baseline to beat** — pre-membrane,
+  pre-middle-layer. Main value is clarifying what the structured
+  cognitive layer buys vs. pure LLM memory/reflection.
+- **Character is Destiny's gold-motivation upper bound** — apparent
+  character inconsistency usually masks retrieval failure, not
+  reasoning failure. Validates retrieval-focused work (Q8).
+
+### Open question from the extractions
+
+**Counterfactual preservation** (D6 in `04-5pro-nearest-neighbor-
+questions.md`): Mueller's DAYDREAMER maintains unrealized
+scenarios (abandoned rehearsals, fantasy reversals) as traversable
+memory. Our system currently discards rejected candidates. If the
+"watching a mind" experience requires seeing what the character
+*almost* did alongside what they *actually* did, that changes the
+generation pipeline's relationship to rejected material and the
+visualization architecture. This is the most architecturally
+consequential open question from the nearest-neighbor analysis.
+Awaiting 5 Pro reply.
 
 ---
 
@@ -410,9 +477,13 @@ After the current supply closeout:
 That tests the missing seam without expanding the runtime Director or
 reopening the whole architecture.
 
+Success condition (to match the operating model): at least one admitted
+candidate should be structurally new because of the delta, not just a
+paraphrase or phrasing shift.
+
 ---
 
-## The watched-runtime correction
+## The watchable-runtime correction
 
 The first genuinely watchable thing is probably not video.
 
@@ -450,6 +521,49 @@ question.** Everything downstream is conditional on it. The cheapest
 way to test it is: take an existing traversal trace, wire it to
 inner-life visualization + Lyria RT, and watch/listen for 2-3
 minutes.
+
+---
+
+## Pending and potentially consequential
+
+Ten questions (D1-D10) are out to 5 Pro via
+`04-5pro-nearest-neighbor-questions.md`. Most will enrich
+understanding without changing direction. Four could change
+the architecture:
+
+### D7 (provocation seam)
+Could argue for a fourth state object — a lightweight
+**pursuit thread** bridging concern-level intensity tracking
+with situation-level intentional coherence. If 5 Pro says
+"you need a pursuit object," FixtureDeltaV1 provocations
+would need to reference which pursuit they're advancing or
+disrupting, not just which situation they affect.
+
+### D9 (falsification)
+Could reframe the middle layer's role. If the answer is
+"the middle layer's value is primarily steerability and
+provenance, not generation quality," the cognitive layer
+becomes infrastructure for the instrument (dashboard,
+conductor), not for the generation pipeline. That's a
+clarifying reframe, not a rejection — but it changes what
+we invest in.
+
+### D6 (counterfactual preservation)
+Could change the generation pipeline's relationship to
+rejected material. If unrealized alternatives (abandoned
+rehearsals, rejected rationalizations) should be preserved
+as traversable memory, that adds a new object class and
+changes the inner-life visualization architecture.
+
+### D10 (sequencing)
+Will govern what gets built next. Which imports belong
+before the provocation experiment, which after, which
+should wait for the watchable-runtime front.
+
+Until these replies land, the current architecture and
+sprint plan stand. But the synthesis should be re-read
+after D7/D9 arrive — those two are the most likely to
+shift the ground.
 
 ---
 
@@ -497,3 +611,10 @@ If you are implementing the next seam:
 If you want the nearest-neighbor comparison:
 
 11. `reading-list/17-nearest-neighbors-reading-list.md`
+12. `reading-list/18-loyall-extraction.md` (believability requirements)
+13. `reading-list/20-fatima-extraction.md` (meta-belief seam pattern)
+14. `reading-list/21-narrative-planning-extraction.md` (pursuit threads)
+
+If you want the pending deep-research questions:
+
+15. `first-round-03/deep-research-03/04-5pro-nearest-neighbor-questions.md`
