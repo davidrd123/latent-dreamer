@@ -337,6 +337,8 @@ Essential:
 - `36-current-synthesis.md` (current project state)
 
 If context allows:
+- `reading-list/24-generative-agents-extraction.md`
+- `reading-list/25-character-is-destiny-extraction.md`
 - `11-settled-architecture.md`
 - `reading-list/17-nearest-neighbors-reading-list.md`
 - `deep-research-03/replies-02/Ask-B-01.md`
