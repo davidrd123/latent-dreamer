@@ -234,6 +234,94 @@ Looking across all six sources:
   branches? is every situation reachable?). Is this a gap
   that matters now, or only at full graph scale?
 
+### D6. Counterfactual preservation: should unrealized alternatives be traversable?
+
+Mueller's DAYDREAMER explicitly preserves unrealized scenarios
+as fantasy/daydreaming contexts — rehearsals that weren't enacted,
+revenge fantasies that were imagined but not pursued, rationalizations
+that were started and dropped. Most character systems only track
+what actually happened. A system that preserves abandoned
+possibilities as traversable memory is doing something
+categorically different.
+
+Our current implementation doesn't do this. Generated material
+is either admitted to the graph or rejected. There's no
+"what the character imagined but didn't do" layer.
+
+Key questions:
+
+- Should rejected/abandoned generation candidates be preserved
+  as counterfactual memory that can influence future retrieval
+  and operator selection? (e.g., "Tessa drafted a real apology
+  in her head but the rationalization won — that abandoned
+  apology is still in her episodic memory")
+
+- Does the inner-life visualization need a counterfactual
+  channel? Not just "what is happening" but "what almost
+  happened" or "what the character is imagining happening"?
+  Mueller's original system makes this distinction between
+  reality context and fantasy/daydreaming context. Is that
+  distinction load-bearing for the "watching a mind" experience?
+
+- How does counterfactual preservation interact with the
+  authoring membrane? If rejected candidates become
+  counterfactual memory, the line between "curated canon"
+  and "character inner life" gets blurry. Is that desirable
+  or dangerous?
+
+- Which of our nearest neighbors has the best model for
+  preserving and using unrealized alternatives? MINSTREL
+  has story alternatives. Sabre has character belief states
+  that may differ from world truth. ABL has behaviors that
+  were considered but not executed. Is any of these the right
+  pattern?
+
+---
+
+### D7. The provocation seam: what should the missing object actually be?
+
+Across these neighbors, several systems have a typed boundary
+between internal progression and world-facing change:
+
+- ABL has behavior activation / continuation structure
+- FAtiMA has meta-beliefs and foreign-reasoner seams
+- IPOCL / Sabre have explicit action and commitment structure
+- MINSTREL has typed authorial intervention and checking
+
+Our current working split is:
+
+- `FixtureDeltaV1` = external world/situation change proposal
+- `CarryForwardStateV1` = internal cross-situation residue
+- `SituationLocalStateV1` = active-situation local state
+- `ProvocationContextV1` = reduced internal summary given to the
+  Provocation Generator
+
+Key questions:
+
+- Is this three-object split the right minimum seam, or are we
+  still missing a fourth object such as a lightweight pursuit /
+  commitment thread?
+
+- Should `FixtureDeltaV1` look more like:
+  - an authored event schema
+  - a planner action / aftermath pair
+  - a dialogue-state transition
+  - an appraisal trigger
+  - or something else entirely?
+
+- What absolutely must be in `ProvocationContextV1` for
+  non-generic world pushes, and what must stay out to avoid
+  brittle prompt coupling?
+
+- Which nearest neighbor gives the best pattern for
+  **human-gated proposal ledgers** rather than autonomous world
+  mutation?
+
+- What is the smallest success condition for this seam? In
+  other words: what would count as evidence that a typed
+  provocation object is doing real architectural work rather
+  than just adding another layer of bookkeeping?
+
 ---
 
 ## Context to include (paste into chat)
@@ -251,10 +339,12 @@ Essential:
 If context allows:
 - `11-settled-architecture.md`
 - `reading-list/17-nearest-neighbors-reading-list.md`
+- `deep-research-03/replies-02/Ask-B-01.md`
+- `deep-research-03/replies-02/Ask-B-02.md`
 
 ## Preferred answer format
 
-For each question section (D1-D5):
+For each question section (D1-D7):
 
 1. **Direct answer** — what we should actually do, not just
    what's interesting
