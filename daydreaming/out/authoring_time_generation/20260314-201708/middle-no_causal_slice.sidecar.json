@@ -1,0 +1,57 @@
+{
+  "appraisal_frame": {
+    "changeability": 0.5,
+    "controllability": 0.46,
+    "desirability": -0.62,
+    "expectedness": 0.58,
+    "likelihood": 0.58,
+    "praiseworthiness": -0.12,
+    "realization_status": "prospective",
+    "temporal_status": "prospective"
+  },
+  "causal_slice": null,
+  "commit_type": "policy",
+  "emotion_vector_topk": {
+    "distress": 0.44,
+    "fear": 0.41,
+    "remorse": 0.38
+  },
+  "node_id": "rhea_studio_rehearsal_001",
+  "operator_family": "avoidance",
+  "operator_score_breakdown": {
+    "appraisal_fit": 0.5,
+    "episodic_resonance": 0.38,
+    "practice_fit": 0.9,
+    "pressure": 0.76,
+    "repetition_penalty": 0.12,
+    "total": 0.66
+  },
+  "practice_context": {
+    "affordance_tags": [
+      "delay-contact",
+      "do-something-else"
+    ],
+    "phase": "precontact",
+    "practice_type": "evasion",
+    "role": "evader"
+  },
+  "prompt_version": "v1-middle-layer",
+  "retrieval_keys": [
+    "concern_type",
+    "target_ref",
+    "situation_id",
+    "practice_type"
+  ],
+  "retrieved_episode_refs": [
+    "ep_panel_correction",
+    "ep_delayed_reply_cost"
+  ],
+  "selected_affordance_tags": [
+    "delay-contact"
+  ],
+  "source_concern_ids": [
+    "cc_status_damage",
+    "cc_obligation"
+  ],
+  "validator_result": "pass"
+}

@@ -1,0 +1,22 @@
+{
+  "applied_ops": [
+    {
+      "old_state": {
+        "letter_opened": false,
+        "reply_sent": false
+      },
+      "op": "patch_situation_state",
+      "patch": {
+        "departure_time_known": true,
+        "minutes_remaining": 45
+      },
+      "situation_id": "sit_unopened_letter"
+    }
+  ],
+  "commit_semantics": "salience",
+  "description": "The ferry schedule is pinned to the kitchen notice board. The 7:40 PM departure is circled. The harbor meeting is no longer \"tonight\" in the abstract. It is 7:40 PM, and it is now 6:55.\n",
+  "provocation_file": "daydreaming/fixtures/provocations/kai_letter_provocations_v1.yaml",
+  "provocation_id": "prov_kai_ferry_schedule_visible",
+  "provocation_type": "threshold_shift",
+  "successor_situation_stub": null
+}

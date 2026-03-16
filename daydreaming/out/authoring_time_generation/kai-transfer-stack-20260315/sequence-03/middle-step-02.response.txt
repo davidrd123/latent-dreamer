@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai refills his coffee cup though it is still half full, watching the pour with the concentration of someone defusing something, and when he sets the mug down its base lands precisely over the letter's corner, covering just enough of the return address that he doesn't have to see her handwriting. The harbor is there anyway\u2014the particular cold of it, the way she had said do it honestly while the water made its indifferent sounds behind her\u2014and he moves to the counter and begins wiping it in slow circles, the cloth finding the same clean patch twice, three times. He knows the silence is already composing itself into a message, the way it did before, and he wipes again.",
+  "graph_projection": {
+    "node_id": "beat_kai_delay_ritual_kitchen",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

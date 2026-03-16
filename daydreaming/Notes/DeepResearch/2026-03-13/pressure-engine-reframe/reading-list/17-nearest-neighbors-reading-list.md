@@ -32,7 +32,7 @@ is where 5 Pro says they'd start.
 - **Why it matters:** Directly addresses our core question —
   how to make inner life legible and interactive. May have
   solved problems we're re-deriving.
-- **Status:** [ ] Not yet read
+- **Status:** [x] Extraction exists (18-loyall-extraction.md)
 - **URL:** https://www.cs.cmu.edu/Groups/oz/papers/CMU-CS-97-123.pdf
 
 ### Mateas & Stern — A Behavior Language for Story-Based Believable Agents (ABL)
@@ -41,7 +41,7 @@ is where 5 Pro says they'd start.
 - **Why it matters:** We already use Facade's scheduler shape.
   ABL is the character-behavior layer underneath it. We may be
   reinventing parts of this.
-- **Status:** [ ] Not yet read
+- **Status:** [x] Extraction exists (19-abl-extraction.md)
 - **URL:** https://users.soe.ucsc.edu/~michaelm/publications/mateas-aaai-symp-aiide-2002.pdf
 
 ### FAtiMA Toolkit
@@ -53,7 +53,7 @@ is where 5 Pro says they'd start.
   do that we don't, and vice versa? Our hypothesis: Mueller gives
   us the *between-interactions* cognitive process (daydreaming,
   rumination, avoidance) that FAtiMA doesn't focus on.
-- **Status:** [ ] Not yet read
+- **Status:** [x] Extraction exists (20-fatima-extraction.md)
 - **URL:** https://arxiv.org/abs/2103.03020
 
 ---
@@ -71,7 +71,7 @@ mechanisms.
 - **Why it matters:** Setup/payoff discipline, multi-situation
   coherence, explicit failed-plan reasoning. The Q6 POCL-lite
   sketcher is a nod toward this tradition.
-- **Status:** [ ] Not yet read
+- **Status:** [x] Extraction exists (21-narrative-planning-extraction.md)
 - **URL:** https://faculty.cc.gatech.edu/~riedl/pubs/jair.pdf
 
 ### Sabre (2021)
@@ -81,7 +81,7 @@ mechanisms.
 - **Why it matters:** Shows what "principled multi-situation
   coherence" looks like as an architecture. May inform graph
   compilation / the soft-constraint compiler.
-- **Status:** [ ] Not yet read
+- **Status:** [x] Extraction exists (22-sabre-extraction.md)
 - **URL:** https://cdn.aaai.org/ojs/18896/18896-52-22662-1-2-20211004.pdf
 
 ### MINSTREL (Turner)
@@ -91,7 +91,7 @@ mechanisms.
 - **Why it matters:** Shows how to keep story generation from
   collapsing into flat planning — through analogical
   transformation rather than search.
-- **Status:** [x] Extraction exists (09-minstrel-extraction.md)
+- **Status:** [x] Extraction exists (09-minstrel-extraction.md; 23-minstrel-followup.md)
 - **URL:** https://www.cal.cs.ucla.edu/tech-report/1992-reports/920057.pdf
 
 ---
@@ -118,7 +118,7 @@ uncertainty and information-seeking, this is the substrate.
 - **Why it matters:** Pushes PP toward social cognition, which
   connects to multi-character conducted performance.
 - **Status:** [ ] Not yet read
-- **URL:** https://arxiv.org/pdf/1904.08149
+- **URL:** https://arxiv.org/abs/2602.20936
 
 ---
 
@@ -131,7 +131,7 @@ uncertainty and information-seeking, this is the substrate.
   system's differentiator is explicit causal inner process vs.
   prompt-state that "masquerades as cognition without constraining
   anything durable" (5 Pro's assessment).
-- **Status:** [ ] Not yet read
+- **Status:** [x] Extraction exists (24-generative-agents-extraction.md)
 - **URL:** https://arxiv.org/abs/2304.03442
 
 ### Character is Destiny + Thinking in Character
@@ -140,7 +140,9 @@ uncertainty and information-seeking, this is the substrate.
 - **Why it matters:** Shows the field trying to solve the problem
   we're solving from the LLM-first direction. Where they end up
   may look like where we started.
-- **Status:** [ ] Not yet read
+- **Status:** [ ] Partial: Character is Destiny extracted
+  (25-character-is-destiny-extraction.md); Thinking in Character
+  still missing
 - **URL:** https://arxiv.org/abs/2404.12138
 
 ---

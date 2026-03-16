@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai runs the faucet without filling anything, his back still to the letter, mouthing 'I know I made it harder'\u2014then stopping because the word 'harder' sounds like a negotiation, like he's already bargaining down from something worse. The harbor is in the room with him: the specific quality of her silence after she said what she said, the way it wasn't an ending so much as a door left open at a temperature he couldn't stand. He tries the sentence a third time, dropping 'I know' entirely, starting instead with 'The silence wasn't\u2014' and his jaw closes on the rest because he can hear her finish it for him, accurately, in a voice that has never once needed to be cruel to land.",
+  "graph_projection": {
+    "node_id": "beat_kai_faucet_rehearsal",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "errors": [
+    "setup_refs contains non-resolvable refs: ['ev_harbor_meeting_tonight']",
+    "payoff_refs contains non-resolvable refs: ['sit_threshold_departure']"
+  ],
+  "valid": false
+}

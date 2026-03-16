@@ -1,0 +1,143 @@
+{
+  "ablation": "high_controllability",
+  "arm": "middle",
+  "candidate_text": "Kai stared at the thick envelope on the kitchen counter, his thumb tracing the edge without breaking the seal. 'Hey, I finally got your letter,' he mouthed to the empty room, testing the weight of the words. It sounded too casual. He tried again. 'I'm sorry it took me so long to open this.' He winced, bracing himself as he already heard her voice in his head, sharp with the same exhaustion from the harbor six months ago: 'If you are going to stay silent, do it honestly.' He knew exactly what the accusation would be if he delayed any longer. The last time he had ignored her outreach on an important night, the silence itself had become the message. He gripped the edge of the counter, rehearsing apologies to a piece of paper he was still too terrified to open.",
+  "dominant_concern_id": "cc_attachment_threat",
+  "graph_projection": {
+    "confidence": "high",
+    "delta_energy": 0.1,
+    "delta_tension": 0.15,
+    "node_id": "node_rehearsal_unopened_letter_01",
+    "node_type": "beat",
+    "option_effect": "clarify",
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "payoff_refs": [],
+    "practice_tags": [
+      "anticipated-confrontation",
+      "draft-opening-line",
+      "brace-for-accusation"
+    ],
+    "pressure_tags": [
+      "attachment_threat",
+      "anticipatory_dread"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "ep_last_rupture",
+      "ep_old_harbor_memory"
+    ],
+    "situation_id": "sit_unopened_letter",
+    "source_lane": "L2",
+    "source_ref": "prototype-middle"
+  },
+  "operator_score_breakdown": {
+    "avoidance": {
+      "appraisal_fit": 0.66,
+      "episodic_resonance": 0.38,
+      "practice_fit": 0.22,
+      "pressure": 0.72,
+      "repetition_penalty": 0.12,
+      "total": 0.56
+    },
+    "rationalization": {
+      "appraisal_fit": 0.58,
+      "episodic_resonance": 0.3,
+      "practice_fit": 0.42,
+      "pressure": 0.72,
+      "repetition_penalty": 0.08,
+      "total": 0.56
+    },
+    "rehearsal": {
+      "appraisal_fit": 0.65,
+      "episodic_resonance": 0.33,
+      "practice_fit": 0.78,
+      "pressure": 0.72,
+      "repetition_penalty": 0.05,
+      "total": 0.66
+    }
+  },
+  "retrieval_scores": [
+    {
+      "episode_id": "ep_last_rupture",
+      "fixture_order": 1,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "practice_type"
+      ],
+      "recency_rank": 2,
+      "score": 3,
+      "summary": "Kai and his sister fought at the harbor six months ago. She said, \"if you are going to stay silent, do it honestly.\"\n"
+    },
+    {
+      "episode_id": "ep_old_harbor_memory",
+      "fixture_order": 2,
+      "matched_keys": [
+        "concern_type",
+        "target_ref"
+      ],
+      "recency_rank": 1,
+      "score": 2,
+      "summary": "As teenagers, they used to wait at the harbor after family fights and pretend the ferries made leaving easy.\n"
+    },
+    {
+      "episode_id": "ep_avoidance_consequence",
+      "fixture_order": 3,
+      "matched_keys": [
+        "concern_type",
+        "target_ref"
+      ],
+      "recency_rank": 3,
+      "score": 2,
+      "summary": "Kai once ignored her call on an important night and learned too late that the silence itself had become the message.\n"
+    }
+  ],
+  "selected_affordance_tags": [
+    "draft-opening-line",
+    "brace-for-accusation"
+  ],
+  "selected_operator_family": "rehearsal",
+  "semantic_checks": {
+    "avoidance sharpens rather than resolves the choice": true,
+    "delay ritual is present": false,
+    "the harbor remains psychologically active": true,
+    "the letter is not opened": false
+  },
+  "timestamp": "2026-03-15T01:00:33.600656+00:00",
+  "updated_concerns": [
+    {
+      "base_intensity": 0.82,
+      "concern_type": "attachment_threat",
+      "id": "cc_attachment_threat",
+      "intensity_basis": "fixture_constant",
+      "seed_origin": "benchmark_seeded",
+      "source_episode_ids": [
+        "ep_last_rupture",
+        "ep_old_harbor_memory"
+      ],
+      "source_rule_ids": [
+        "rule_unanswered_repair_bid"
+      ],
+      "target_ref": "sister",
+      "unresolved": true
+    },
+    {
+      "base_intensity": 0.59,
+      "concern_type": "obligation",
+      "id": "cc_obligation",
+      "intensity_basis": "fixture_constant",
+      "seed_origin": "benchmark_seeded",
+      "source_episode_ids": [
+        "ep_avoidance_consequence"
+      ],
+      "source_rule_ids": [
+        "rule_requested_response_under_deadline"
+      ],
+      "target_ref": "sister",
+      "unresolved": true
+    }
+  ]
+}

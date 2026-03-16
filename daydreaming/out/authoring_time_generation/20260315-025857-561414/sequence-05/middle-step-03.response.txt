@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa grips the folded event program, the muffled bursts of affluent laughter from the donor hall bleeding through the coatroom walls. Staring at Eli's unanswered text, she types out a defense of her speech, insisting that the donors needed a clean, unified narrative to actually write their checks. She backspaces over a lingering apology at the end of the draft, deciding that saying sorry would only turn a necessary strategic simplification into an admission of guilt.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_omission_s03_c03",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.1,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

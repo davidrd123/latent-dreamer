@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa stares at the half-typed apology to Eli, the muffled laughter from the donor hall reminding her of the room she just won over. She backspaces over 'I should have mentioned you,' drafting instead a message about how the sponsors only respond to a single, clean narrative. Reading the justification on the screen, the guilt begins to ebb, replaced by the comforting certainty that she had simply made the hard, professional choice required to keep their project alive.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_text",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.4,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

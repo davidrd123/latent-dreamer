@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai pulls every mug from the cupboard, deciding they all need to be meticulously reorganized by color and size. He keeps his back to the kitchen table where the unopened envelope sits, carefully aligning the ceramic handles so they face the exact same angle. Outside, the distant, low moan of a ship's horn drifts up from the harbor, but he just rubs a nonexistent stain on a coffee cup, letting the silence stretch out until it becomes an answer of its own.",
+  "graph_projection": {
+    "node_id": "beat_kai_kitchen_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.2,
+    "delta_energy": 0.1,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

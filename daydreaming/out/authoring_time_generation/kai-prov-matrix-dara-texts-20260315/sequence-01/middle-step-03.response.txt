@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai fills the kettle past the line and sets it on the burner, then finds the dish towel with the loose thread and works it between his fingers with the focused patience of someone defusing something small. The letter is behind him\u2014he knows exactly where it is the way you know where a bruise is without touching it\u2014and the harbor is already in the room, cold and specific, the particular cold of that night six months ago when he learned that not answering was still an answer. He pulls another thread free, watches the weave gap open, and tells himself he is waiting for the water to boil, which is true, and which is also not the reason he hasn't turned around.",
+  "graph_projection": {
+    "node_id": "beat_kettle_ritual",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

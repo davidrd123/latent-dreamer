@@ -1,0 +1,302 @@
+version: 1
+packs:
+- pack_id: tessa_supply_v1_pack_a
+  fixture_family: tessa
+  source: supply_v1
+  base_fixture: daydreaming/fixtures/tessa_patch_test_generated_v0.yaml
+  output_fixture: daydreaming/fixtures/tessa_patch_test_generated_pack_a_v1.yaml
+  graph_id: tessa_patch_test_generated_pack_a_v1
+  patch_nodes:
+  - patch_node_id: t_patch_anchor
+    bank_id: supply-v1-tessa-batch1-20260315:s01:st01:beat_coatroom_program_rationalization
+    overrides:
+      name: Program as evidence
+      scene_ref: Tessa generated pack A 1
+      objects:
+      - program
+      - phone
+      - text
+      tags:
+      - program
+      - evidence
+      - generated-pack-a
+  - patch_node_id: t_patch_intensifier
+    bank_id: supply-v1-tessa-batch1-20260315:s02:st01:beat_coatroom_rationalization_lapel
+    overrides:
+      name: Borrowed coat as clarification
+      scene_ref: Tessa generated pack A 2
+      objects:
+      - coat
+      - hanger
+      - phone
+      tags:
+      - coat
+      - clarification
+      - generated-pack-a
+  - patch_node_id: t_patch_contrast
+    bank_id: supply-v1-tessa-batch1-20260315:s03:st01:beat_coatroom_rationalization_tag
+    overrides:
+      name: Coat-check number before the apology
+      scene_ref: Tessa generated pack A 3
+      objects:
+      - coat-check-tag
+      - phone
+      tags:
+      - coat-check
+      - threshold
+      - generated-pack-a
+  - patch_node_id: t_patch_bridge
+    bank_id: supply-v1-tessa-batch1-20260315:s04:st02:beat_coatroom_rationalization_01_s02_c04
+    overrides:
+      name: Context draft with his name once
+      scene_ref: Tessa generated pack A 4
+      objects:
+      - program
+      - phone
+      - acknowledgments
+      tags:
+      - context
+      - bridge
+      - generated-pack-a
+- pack_id: tessa_supply_v1_pack_b
+  fixture_family: tessa
+  source: supply_v1
+  base_fixture: daydreaming/fixtures/tessa_patch_test_generated_v0.yaml
+  output_fixture: daydreaming/fixtures/tessa_patch_test_generated_pack_b_v1.yaml
+  graph_id: tessa_patch_test_generated_pack_b_v1
+  patch_nodes:
+  - patch_node_id: t_patch_anchor
+    bank_id: supply-v1-tessa-batch2-20260315:s04:st01:beat_coatroom_rationalization_program_s01_c02
+    overrides:
+      name: Program pressed flatter than the story
+      scene_ref: Tessa generated pack B 1
+      objects:
+      - program
+      - phone
+      tags:
+      - program
+      - anchor
+      - generated-pack-b
+  - patch_node_id: t_patch_intensifier
+    bank_id: supply-v1-tessa-batch2-20260315:s02:st01:beat_coatroom_rationalization_01
+    overrides:
+      name: Occasion logic over the harm
+      scene_ref: Tessa generated pack B 2
+      objects:
+      - coat
+      - phone
+      tags:
+      - occasion
+      - intensifier
+      - generated-pack-b
+  - patch_node_id: t_patch_contrast
+    bank_id: supply-v1-tessa-batch2-20260315:s05:st01:beat_coatroom_rationalization_001_s01_c02
+    overrides:
+      name: Applause wave on a dark screen
+      scene_ref: Tessa generated pack B 3
+      objects:
+      - phone
+      - coatroom-door
+      tags:
+      - applause
+      - contrast
+      - generated-pack-b
+  - patch_node_id: t_patch_bridge
+    bank_id: supply-v1-tessa-batch2-20260315:s03:st01:beat_coatroom_rationalization_draft_s01_c04
+    overrides:
+      name: Draft before the apology becomes one
+      scene_ref: Tessa generated pack B 4
+      objects:
+      - coat-check-tag
+      - phone
+      - draft
+      tags:
+      - draft
+      - bridge
+      - generated-pack-b
+- pack_id: kai_supply_v1_pack_a
+  fixture_family: kai
+  source: supply_v1
+  base_fixture: daydreaming/fixtures/kai_patch_test_generated_v0.yaml
+  output_fixture: daydreaming/fixtures/kai_patch_test_generated_pack_a_v1.yaml
+  graph_id: kai_patch_test_generated_pack_a_v1
+  patch_nodes:
+  - patch_node_id: k_patch_anchor
+    bank_id: supply-v1-kai-batch1-20260315:s05:st01:beat_kai_kettle_ritual
+    overrides:
+      name: Tea precision instead of opening
+      scene_ref: Kai generated pack A 1
+      visual_description: Kai fills the electric kettle a second time, though the
+        first cup sits untouched and already cold beside the letter. He measures the
+        tea leaves with a precision he never bothers with normally, leveling the spoon
+        against the rim of the tin, counting seconds under his breath—the kind of
+        focus that requires just enough attention to crowd out the smell of salt water
+        he keeps almost noticing, as if the harbor has followed the envelope indoors.
+        The letter does not move, and he does not look at it, but his back stays angled
+        toward it the way a person angles away from a window when they don't want
+        to be seen from outside.
+      objects:
+      - kettle
+      - tea-tin
+      - letter
+      tags:
+      - tea
+      - precision
+      - generated-pack-a
+  - patch_node_id: k_patch_intensifier
+    bank_id: supply-v1-kai-batch1-20260315:s02:st01:beat_kai_ritual_distraction_kitchen
+    overrides:
+      name: Counter as answer
+      scene_ref: Kai generated pack A 2
+      visual_description: Kai refills his coffee cup for the third time, watching
+        the pour with the concentration of someone defusing something, the letter
+        still face-down on the table where he flipped it an hour ago so the handwriting
+        wouldn't keep catching his eye. He wipes the counter in slow horizontal strokes,
+        and when he reaches the edge nearest the table he stops, pivots, and wipes
+        the other direction. The harbor is six blocks away and the evening is already
+        going gray at the window, and he knows that every minute he stands here with
+        a clean counter is a kind of answer.
+      objects:
+      - coffee
+      - counter
+      - letter
+      tags:
+      - counter
+      - answer
+      - generated-pack-a
+  - patch_node_id: k_patch_contrast
+    bank_id: supply-v1-kai-batch1-20260315:s04:st01:beat_kai_dish_towel_avoidance
+    overrides:
+      name: Phone-line silence in the towel
+      scene_ref: Kai generated pack A 3
+      visual_description: Kai refolds the dish towel on the counter—once, then again,
+        aligning the edges with a precision the task doesn't require, the letter still
+        face-down where he set it without reading the front. He turns on the faucet
+        to rinse a mug that is already clean, and the sound of the water fills the
+        kitchen the way silence used to fill a phone line he once let ring out. The
+        harbor is maybe three miles away, and he is aware of its direction the way
+        you are aware of a bruise you keep almost touching.
+      objects:
+      - dish-towel
+      - faucet
+      - letter
+      tags:
+      - dish-towel
+      - phone-line
+      - generated-pack-a
+  - patch_node_id: k_patch_bridge
+    bank_id: supply-v1-kai-batch1-20260315:s02:st02:beat_kai_faucet_evasion
+    overrides:
+      name: Faucet as last-possible-moment math
+      scene_ref: Kai generated pack A 4
+      visual_description: Kai turns on the faucet to rinse a mug that doesn't need
+        rinsing, and the sound of the water fills the kitchen the way he needs it
+        to—present, purposeful, covering. He has been calculating, without quite admitting
+        he is calculating, how long the walk to the harbor would take if he left at
+        the last possible moment, and the number keeps revising itself upward. The
+        letter lies face-down where he put it, and he doesn't look at it, but he knows
+        its exact position the way you know a bruise without touching it, and the
+        gray at the window is deepening in a way that feels less like evening and
+        more like a door closing.
+      objects:
+      - faucet
+      - mug
+      - letter
+      tags:
+      - faucet
+      - bridge
+      - generated-pack-a
+- pack_id: kai_supply_v1_pack_b
+  fixture_family: kai
+  source: supply_v1
+  base_fixture: daydreaming/fixtures/kai_patch_test_generated_v0.yaml
+  output_fixture: daydreaming/fixtures/kai_patch_test_generated_pack_b_v1.yaml
+  graph_id: kai_patch_test_generated_pack_b_v1
+  patch_nodes:
+  - patch_node_id: k_patch_anchor
+    bank_id: supply-v1-kai-batch2-20260315:s02:st01:beat_kai_kettle_avoidance
+    overrides:
+      name: Steam instead of turning
+      scene_ref: Kai generated pack B 1
+      visual_description: 'Kai fills the kettle a second time, though the first cup
+        is still sitting untouched and warm beside the letter. He keeps his back to
+        the table while the water heats, and when the kettle clicks off he pours very
+        slowly, watching the steam rise as if it requires his full attention—the kind
+        of focus that costs something, that is doing the work of not turning around.
+        The harbor is in the room with him anyway: the word tonight pressing through
+        the envelope''s paper without him having read it, the way her voice had cut
+        through the salt air six months ago, the particular shape of a silence he
+        knows he has sent before.'
+      objects:
+      - kettle
+      - steam
+      - letter
+      tags:
+      - steam
+      - anchor
+      - generated-pack-b
+  - patch_node_id: k_patch_intensifier
+    bank_id: supply-v1-kai-batch2-20260315:s05:st01:beat_kai_counter_ritual
+    overrides:
+      name: Laminate grain ritual
+      scene_ref: Kai generated pack B 2
+      visual_description: Kai fills the electric kettle a second time, though the
+        first cup sits untouched and cooling beside the letter, which he has angled
+        slightly so the handwriting faces away from him. He wipes the counter in long
+        strokes, following the grain of the laminate with a focus that belongs to
+        a different task entirely, one that requires this much attention, this much
+        time. The harbor is there anyway—he can feel the particular cold of it, the
+        way her voice carried over the water when she said what she said—and the wiping
+        continues, the kettle begins to hiss, and the letter does not move.
+      objects:
+      - kettle
+      - counter
+      - letter
+      tags:
+      - laminate
+      - intensifier
+      - generated-pack-b
+  - patch_node_id: k_patch_contrast
+    bank_id: supply-v1-kai-batch2-20260315:s03:st01:beat_kai_delay_ritual_kitchen
+    overrides:
+      name: Normalcy for an audience of one
+      scene_ref: Kai generated pack B 3
+      visual_description: Kai refills his coffee cup though it's still half full,
+        watching the steam rise with the specific attention of someone performing
+        normalcy for an audience of one. The letter sits at the edge of his vision,
+        a white rectangle he keeps not looking at directly, the way you don't look
+        at a bruise you're not ready to name. His hands move to straighten the dish
+        rack, then the salt shaker, small corrections to a kitchen that doesn't need
+        correcting—each adjustment buying another few seconds in which the harbor
+        is still just a place and not a verdict waiting on him.
+      objects:
+      - coffee
+      - dish-rack
+      - letter
+      tags:
+      - normalcy
+      - contrast
+      - generated-pack-b
+  - patch_node_id: k_patch_bridge
+    bank_id: supply-v1-kai-batch2-20260315:s04:st01:beat_kai_ritual_distraction_kitchen
+    overrides:
+      name: Window water turned into a deadline
+      scene_ref: Kai generated pack B 4
+      visual_description: Kai refills his coffee cup though it is still half full,
+        watching the liquid rise with the focused attention of someone performing
+        a task that matters. The letter sits at the edge of his vision, white against
+        the wood, and he turns slightly so the window is in front of him instead—the
+        dark strip of water visible between the buildings two blocks away, the harbor
+        sitting out there the way a word does when you have decided not to say it.
+        He rinses the cup he just filled, sets it upside down on the rack, and begins
+        drying the counter in slow, overlapping strokes that leave it no drier than
+        before. By the time he looks back at the window, he is no longer measuring
+        whether he wants to go, only how much time he has left to leave.
+      objects:
+      - coffee
+      - window
+      - letter
+      tags:
+      - window
+      - bridge
+      - generated-pack-b

@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa runs her thumbnail along the fold of the program, pressing the crease flat, then flatter, as if the paper needs correcting. She reads Eli's text again\u2014not the words exactly, but the length of it, the absence of a question mark\u2014and decides that what she said at the podium was the compressed version of something true, which is different from a lie. The hall noise still reaches her through the coatroom door, the particular frequency of people who do not yet know there is anything to know, and she stays inside that sound for one more second, letting it mean that she still has time to frame this right.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_fold",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the kettle a second time, though the first cup sits untouched and cooling beside the letter, and he keeps his back to the table with the specific deliberateness of someone who has decided the angle of his own body is a form of argument. He wipes the counter in slow horizontal strokes, the cloth moving over the same clean surface, and the harbor is there anyway\u2014salt-smell memory, her voice cutting through wind: if you are going to stay silent, do it honestly. He wrings the cloth over the sink and drapes it with small, careful symmetry, the kind of attention that has nothing to do with the cloth.",
+  "graph_projection": {
+    "node_id": "beat_avoidance_kettle_ritual",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

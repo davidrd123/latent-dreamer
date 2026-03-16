@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Maren presses the folded run sheet flat against the hallway wall, her lips moving silently as she tests another opening line. She catches herself leaning into an explanation of the tempo and immediately bites the inside of her cheek, striking the words from her mental script. The muffled sound of chairs scraping inside the rehearsal room reminds her she is running out of time to find a sentence that doesn't sound like an excuse.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_outside_room",
+    "node_type": "beat",
+    "situation_id": "sit_outside_rehearsal_room",
+    "delta_tension": 0.2,
+    "delta_energy": 0.1,
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "payoff_refs": [
+      "sit_first_line_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

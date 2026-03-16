@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai's thumb traces the sealed edge of the envelope without lifting it, and under his breath he tries the sentence: 'I didn't answer because I didn't know what answering would cost.' He stops, hears how it sounds like an excuse dressed as honesty, and tries again\u2014'I stayed quiet because I was afraid of what you'd say back'\u2014but that one opens something he isn't ready to stand in front of at the harbor, in the dark, with the water behind her. He sets the envelope back exactly where it was and stands very still, as though the letter might forget he was here.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_unopened_letter",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

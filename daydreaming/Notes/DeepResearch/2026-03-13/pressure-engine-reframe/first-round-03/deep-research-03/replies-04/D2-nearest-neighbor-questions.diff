@@ -1,0 +1,63 @@
+--- 04-5pro-nearest-neighbor-questions.md
++++ 04-5pro-nearest-neighbor-questions.md
+@@ -139,6 +139,60 @@
+   mechanism for rumination, rehearsal, or avoidance when the
+   character is not engaged in social action? Or is our claim
+   genuinely novel?
++
++
++#### D2 answer draft
++
++1. **Direct answer**
++
++   **Implemented now:** the repo already has a typed middle layer, but it is an **authoring-time, single-character generation pipeline**, not a FAtiMA-style interactive social-action stack. In `daydreaming/authoring_time_generation_prototype.py` the chain is explicit: `infer_concerns_from_primitives()` → `build_causal_slice()` → `derive_appraisal_frame()` → `derive_practice_context()` → `retrieve_episodes()` → `score_operators()` → `build_middle_prompt()` → `validate_graph_projection()` → `compile_candidate_set()` / `admit_candidate_pool()`. `28-l2-schema-from-5pro.md`, `29-worked-trace-kai-unopened-letter.md`, and `30-authoring-time-generation-prototype-spec.md` describe the same contract.
++
++   **Docs claim:** the architecture treats this as `L2` in the authoring lane, with a thin graph membrane and a separate runtime `L3` traversal lane (`11-settled-architecture.md`, `21-graph-interface-contract.md`, `36-current-synthesis.md`). The local FAtiMA reading is also clear: it is the closest **practical socio-emotional toolkit** neighbor for typed seams, authoring validation, and dialogue topology, not the mind model we should copy wholesale (`reading-list/20-fatima-extraction.md`, `reading-list/17-nearest-neighbors-reading-list.md`).
++
++   **Bottom line:** import FAtiMA's seam discipline and validation surfaces; do **not** import its whole centralized toolkit shape. On the repo's own reading, the differentiator claim mostly survives: `reading-list/20-fatima-extraction.md` describes FAtiMA as appraisal → emotion → decision + dialogue + optional external reasoners, not as a first-class rumination/rehearsal/avoidance-between-interactions engine. But do not oversell that as already-proven runtime novelty. `Notes/supply-v1-closeout.md` proves material supply and bridge survivability, not a live social-interaction engine or a watchable inner-life runtime.
++
++2. **What to import**
++
++   - **Meta-belief seam, but in repo vocabulary.** `36-current-synthesis.md`, `03-5pro-injection-context.md`, `replies-02/Ask-B-01.md`, and `replies-02/Ask-B-02.md` already converge on the missing typed seam above the middle layer: `ProvocationContextV1` plus `FixtureDeltaV1` / `SituationProvocationProposal`, with `CarryForwardStateV1` and `SituationLocalStateV1` kept separate. FAtiMA sharpens the pattern: reduced, named, typed fields supplied by foreign reasoners or proposal writers should participate through the control loop without replacing it. Minimum viable import: treat provocation proposals, reduced carry state, retrieval summaries, and any later belief/lookup helpers as **typed inputs**, not raw prompt mush.
++
++   - **Validation surfaces, not just curation tooling.** The repo is already strong on batch generation, keeper banking, pack assembly, and graph-projection hygiene (`daydreaming/tools/keeper_bank.py`, `daydreaming/tools/pack_registry.py`, `validate_graph_projection()` in `authoring_time_generation_prototype.py`). It is weak on **state-space validation**. `31-generation-experiment-review-checklist.md` is mostly prompt/eval hygiene. `replies/Q10-evaluation-infrastructure.md` explicitly recommends structural hard checks, operator-signature soft checks, and explicit batch diversity metrics. `Notes/sessions/pending-items-2026-03-15.md` explicitly says the validator is still too weak and multi-step carry-forward is not real yet. The FAtiMA import is not “build a GUI”; it is reachability checks, dead-branch detection, setup/payoff closure, rule-trigger coverage, and simulator-style visibility into why a state transition is or is not possible.
++
++   - **Prospect-style appraisal deltas, lightly.** The repo already has `AppraisalFrame`, derived `EmotionVector`, and `reappraise_concerns()` (`28-l2-schema-from-5pro.md`; `authoring_time_generation_prototype.py`). But it still mostly recomputes pressure from desirability, likelihood, and controllability. `reading-list/20-fatima-extraction.md` adds a useful distinction: changes in goal likelihood should produce prospect-style updates (hope, fear, relief, disappointment) instead of one generic intensity move. Minimum viable import: extend reappraisal to care about **likelihood shifts** as first-class events. Do **not** import the full emotion catalog.
++
++   - **Dialogue topology only for specific scene classes.** The current Graffito runtime is an authored node/edge graph with traversal/debug/playback packets (`daydreaming/fixtures/graffito_v0_scenes_3_4.yaml`, `daydreaming/graffito_pilot.py`, `Notes/experiential-design/21-graffito-v0-playback-contract.md`), not a conversation state machine. That is fine for scenes 3-4. FAtiMA's separation of dialogue topology from agent choice matters later, but only for conversation-heavy situations: confession, confrontation, interview, interrogation, apology threshold. Minimum viable import: attach a **local dialogue-state graph or response-path schema** to those situations, not to the whole runtime.
++
++3. **What to skip**
++
++   - Do **not** replace the current middle layer with a generic action-rule engine or a centralized agent-state hub. `28-l2-schema-from-5pro.md` is explicit that `CausalSliceV1`, `AppraisalFrame`, `PracticeContextV1`, and derived `EmotionVector` stay separate, with a thin graph projection and a richer sidecar/runtime split.
++
++   - Do **not** collapse FAtiMA-style centralized state into the shared graph. `21-graph-interface-contract.md` explicitly bans live concern stacks, appraisal records, context trees, current emotion stacks, reminded episodes, and `L3` diagnostics from the graph seam. If we ignore that, the lane boundary rots immediately.
++
++   - Do **not** introduce a universal dialogue-state graph before there is a concrete failure it fixes. `30-authoring-time-generation-prototype-spec.md` explicitly excludes multi-character generation and full dialogue-state machinery. `daydreaming/graffito_pilot.py` shows the current runtime question is authored traversal, not dialogue management. Forcing a dialogue topology into every situation now would be architecture cosplay.
++
++   - Do **not** treat FAtiMA as evidence that we should immediately build full theory-of-mind, observation semantics, or a general social-action engine. Those are later imports, probably only once multi-character scenes and belief-sensitive events are actually load-bearing.
++
++4. **What changes our architecture**
++
++   - **The seam above `L2` becomes explicit and typed.** This is the biggest change. The repo already knows the missing object is the typed world/situation provocation proposal (`36-current-synthesis.md`, `replies-02/Ask-B-01.md`, `replies-02/Ask-B-02.md`). FAtiMA tells us how to keep that seam honest: external computation participates through named typed fields rather than prompt mush. Architecturally, that means the Provocation Generator and any later foreign reasoner write typed proposal/context objects; they do not silently mutate canon and they do not bypass the middle layer.
++
++   - **Authoring tooling becomes validation-oriented, not just supply-oriented.** Right now the authoring lane is good at generating candidates and banking keepers. The FAtiMA import would add a second surface: state graph visualization, reachability, dead branches, response-path coverage, and replay/simulator inspection. That is a tooling-architecture change, not a new core ontology.
++
++   - **Maybe later: practice-local dialogue topology.** If we adopt it, it should be a substructure attached to certain situations or practices, not a replacement for the authored graph or traversal scheduler. The runtime lane should remain graph traversal over authored material; a dialogue graph would be local structure inside some nodes/situations, not the new top-level representation.
++
++   - **No change to the graph membrane.** FAtiMA does not justify weakening `21-graph-interface-contract.md`. The graph should still carry authored structure and stable residue; appraisal, emotion, and runtime diagnostics stay in sidecars/runtime state.
++
++5. **Priority**
++
++   - **Before the next provocation-delta experiment:** import the meta-belief pattern into repo vocabulary (`ProvocationContextV1` + `FixtureDeltaV1` / `SituationProvocationProposal`) and harden validation beyond schema hygiene. This is the highest-leverage FAtiMA import because it directly changes how the missing seam is designed.
++
++   - **After the provocation experiment, before larger graph assembly:** add graph/state validation surfaces and simulator-style inspection. Also consider the small prospect-emotion import into reappraisal if current concern updates still feel too flat.
++
++   - **Only when conversation-heavy scenes become central:** add dialogue-state topology as a practice-local representation.
++
++   - **Later or baseline-only:** full FAtiMA-style dialogue/ToM/social-reasoner stack, centralized social-action engine, broader emotion-catalog completeness. Those are interesting, but they are not the next bottleneck according to `36-current-synthesis.md` and `Notes/sessions/pending-items-2026-03-15.md`.
++
++   - **Keep the novelty claim honest with a falsifier.** Once the seam and validator work are in place, the real D9 test is whether a thinner appraisal + retrieval baseline can match the current middle layer's legibility and steerability. Until that comparison exists, the claim is plausible and well-motivated, not settled.
++
+ 
+ ### D3. Narrative planning (IPOCL + Sabre) vs. our traversal + graph compilation
+ 

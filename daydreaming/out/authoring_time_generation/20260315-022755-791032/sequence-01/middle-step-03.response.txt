@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa leans against the cool plaster of the coatroom wall, the heavy bass of the donor hall's music vibrating against her spine. She deletes her initial \"I'm sorry\" to Eli, replacing it with a paragraph explaining how a complicated dual-credit narrative would have lost the room's attention entirely. Staring at the unsent text, she convinces herself that taking the sole credit wasn't a betrayal, but a necessary burden she shouldered to protect their project's future.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_text_s03_c02",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.3,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

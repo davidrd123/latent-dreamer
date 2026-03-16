@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai stares at the sealed envelope on the kitchen table, silently mouthing the words, 'I came, didn't I?' He can already feel the damp harbor wind and hear her immediate accusation that his silence is still the loudest thing in the room. He nudges a coffee mug an inch to the right, desperately trying to draft a safer opening line before tonight arrives.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_harbor_kitchen_01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": 0.1,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

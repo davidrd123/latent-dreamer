@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai mouths the word 'tonight' without sound, testing its weight, then sets it down and tries instead: 'I've been thinking about what you said'\u2014but that one opens a door he isn't sure he can stand behind, so he lets the faucet run and watches the water the way you watch something that doesn't require anything back. His lips settle on 'I got your letter,' which is true and empty and buys him exactly nothing, and he knows it, and he says it again anyway, quieter, as if volume is the variable he's still adjusting. The harbor is already in the room: the cold off the water, the specific acoustics of her voice carrying the sentence he still hasn't answered honestly, and his back stays turned toward the envelope on the table like turning is a form of not yet.",
+  "graph_projection": {
+    "node_id": "beat_kai_rehearsal_faucet",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

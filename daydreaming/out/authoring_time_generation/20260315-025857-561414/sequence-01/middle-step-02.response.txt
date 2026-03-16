@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa stares at the blinking cursor beneath Eli's text, the muffled applause from the donor hall still vibrating through the coatroom walls. She types that she had to keep the narrative clean for the board, carefully deleting the word \"sorry\" because it implies a mistake rather than a strategic necessity. Rereading the growing paragraph, she finds comfort in the idea that leaving his name out of the toast actually protected him from the project's messy politics.",
+  "graph_projection": {
+    "node_id": "beat_rationalize_coatroom_text_s02_c04",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

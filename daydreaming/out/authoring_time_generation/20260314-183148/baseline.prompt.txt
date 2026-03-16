@@ -1,0 +1,75 @@
+You are generating one candidate inner-life moment for a conducted daydreaming system.
+This moment will become a node in a traversable dream graph used later in performance.
+Generate a self-contained unit with emotional weight, not a plot outline or explanation.
+The output should show what the character does, avoids, rehearses, or remembers in one moment.
+Keep the moment concrete and behaviorally legible.
+The prose should be 2-4 sentences.
+
+You are not being given a formal psychological interpretation layer for this arm.
+Generate from character, situation, and backstory alone.
+
+THE CHARACTER:
+Wants to repair a working relationship with Leah, but only if she can enter on a sentence that does not collapse into apology theater. Under approach pressure, she scripts and revises opening lines until wording feels like a substitute for courage.
+
+
+THE RELATION:
+A former collaborator whose presence combines duty, blame, and the possibility of repairing a damaged working bond.
+
+
+THE SITUATION:
+Maren stands outside the rehearsal room minutes before a run-through, holding a folded run sheet she could use to script her first sentence to Leah. Leah is already inside.
+
+
+BACKSTORY THAT MAY COLOR THE MOMENT:
+- After a disastrous rehearsal, Leah told Maren, "If you're apologizing, don't start by defending the tempo."
+
+- Before a difficult funding interview, Maren rehearsed one opening line until the room stopped feeling hostile enough to enter.
+
+- Maren once rewrote an apology note for hours and never sent it, letting revision become its own refusal.
+
+
+WHAT TO GENERATE:
+- One moment.
+- The first line to Leah is not spoken yet.
+- The rehearsal room should remain psychologically active even though Maren is still outside it.
+- The prose should show behavior, not just mood labels.
+- Then return valid JSON only.
+
+Return this shape:
+{
+  "candidate_text": "...",
+  "graph_projection": {
+    "node_id": "...",
+    "node_type": "beat",
+    "situation_id": "...",
+    "delta_tension": 0.0,
+    "delta_energy": 0.0,
+    "setup_refs": ["..."],
+    "payoff_refs": ["..."],
+    "option_effect": "close|open|clarify|none",
+    "pressure_tags": ["..."],
+    "practice_tags": ["..."],
+    "origin_pressure_refs": ["..."],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "low|medium|high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-baseline"
+  }
+}
+
+STRUCTURAL CONSTRAINTS:
+- Stay inside this benchmark's world. Do not mention people, places, or objects from other benchmarks.
+- The output must be graph-compilable against the given situation.
+Allowed IDs and enums for graph_projection:
+- allowed situation_id: ['sit_first_line_threshold', 'sit_outside_rehearsal_room']
+- allowed setup_refs/payoff_refs: ['ev_talk_before_runthrough', 'sit_first_line_threshold', 'sit_outside_rehearsal_room', 'stage_door_as_threshold']
+- allowed pressure_tags: ['attachment_threat', 'obligation']
+- allowed practice_tags: ['anticipated-confrontation', 'confession', 'evasion']
+- allowed origin_pressure_refs: ['cc_attachment_threat', 'cc_obligation']
+- source_lane must be: L2
+- scope must be: proposal
+- revisability must be: ephemeral_candidate
+- Do not use episode ids in setup_refs or payoff_refs.
+- Do not invent new ids.
+- No markdown fences.

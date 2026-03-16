@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai turns the cold tap until the water runs loud enough to fill the kitchen, then mouths a sentence toward the window above the faucet\u2014'I didn't know that night would count the way it did'\u2014testing its weight the way you test ice before stepping, and it breaks: it already sounds like an excuse, and she told him once to do his silence honestly. He tries a shorter version, just her name followed by nothing, but the nothing is the problem, the nothing is what got them here. The letter's corner catches in his peripheral vision and he keeps his back to it, because the harbor is already in the room through the glass, through the dark water sound, and he is not ready to let it be a place he has to go.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_faucet_window",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

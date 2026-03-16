@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa turns the folded program over so Eli's name faces her palm, and she reads the contributor list again the way you reread a verdict you already know \u2014 slowly, as if slowness is the same as fairness. The hall noise leaks through the coatroom door, a swell of applause for something she can't see, and she lets it wash over the moment she stood at the podium and gave the audience the clean version, the one that moved, the one that landed, the one that happened to begin with her name. His text sits unanswered on the screen and she decides, with the careful reasonableness she reserves for decisions she's already made, that the program is the record, the record is public, and a reply written in this state would only introduce confusion into something that is, if you look at it correctly, already clear.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_program",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Maren presses the folded run sheet against the hallway wall, uncapping her pen to draft an opening sentence in the margin, then immediately scratching it out so hard the paper tears. Through the heavy door, she can hear the faint squeak of Leah’s sneakers on the marley floor, a steady rhythm that demands she finally walk in. Instead, she traces the torn edge of the paper, waiting for the corridor to stop feeling so hostile before she forces herself to reach for the handle.",
+  "graph_projection": {
+    "node_id": "beat_maren_hallway_evasion_01",
+    "node_type": "beat",
+    "situation_id": "sit_outside_rehearsal_room",
+    "delta_tension": 0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "payoff_refs": [
+      "sit_first_line_threshold"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

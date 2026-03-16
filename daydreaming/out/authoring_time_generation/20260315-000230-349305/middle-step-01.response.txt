@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea paces the narrow hallway outside Studio B, her thumb hovering over the locked screen of her phone. \"I wanted to clarify the timeline of the project,\" she mutters to the empty corridor, immediately shaking her head. *Say what you did before you explain it,* she reminds herself, squaring her shoulders toward the heavy soundproof door. \"Owen, the credit omission was my oversight, and here is how I am fixing it,\" she whispers, testing the weight of the words before she has to use them.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_studio_b_threshold_01",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.3,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "ev_public_correction_at_panel",
+      "ref_credit_dispute"
+    ],
+    "payoff_refs": [
+      "sit_inside_studio_b_conversation"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa straightens a stranger's coat on its hanger, smoothing the lapel once, twice, while the applause from the hall comes through the door in a shape she still half-owns. She rehearses the reply to Eli's text not as an apology but as a clarification \u2014 the toast needed a throughline, the room needed to leave with something clean, and if his name wasn't the one that landed, that was the work protecting itself, not her protecting herself. The distinction feels real while her hands are busy, and she holds it there, just long enough to believe it might survive being read.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_lapel",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "sit_coatroom_after_toast"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold",
+      "ev_eli_texts_afterward"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

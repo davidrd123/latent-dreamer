@@ -1,0 +1,81 @@
+{
+  "appraisal_frame": {
+    "changeability": 0.34,
+    "controllability": 0.28,
+    "desirability": -0.74,
+    "expectedness": 0.76,
+    "likelihood": 0.82,
+    "praiseworthiness": -0.52,
+    "realization_status": "prospective",
+    "temporal_status": "prospective"
+  },
+  "causal_slice": {
+    "affected_goal": {
+      "goal": "make-credible-first-approach",
+      "sign": "threatens",
+      "weight": 0.8
+    },
+    "attribution": {
+      "actor": "maren",
+      "intentional": true
+    },
+    "concern_id": "cc_obligation",
+    "focal_situation_id": "sit_outside_rehearsal_room",
+    "likelihood_bucket": "high",
+    "other_options": [
+      "leah-hardens"
+    ],
+    "self_options": [
+      "enter-room",
+      "draft-opening-line"
+    ],
+    "target_ref": "leah",
+    "temporal_status": "prospective"
+  },
+  "commit_type": "salience",
+  "emotion_vector_topk": {
+    "distress": 0.37,
+    "fear": 0.49,
+    "remorse": 0.33
+  },
+  "node_id": "maren_opening_line_001",
+  "operator_family": "avoidance",
+  "operator_score_breakdown": {
+    "appraisal_fit": 0.82,
+    "episodic_resonance": 0.38,
+    "practice_fit": 0.9,
+    "pressure": 0.74,
+    "repetition_penalty": 0.12,
+    "total": 0.75
+  },
+  "practice_context": {
+    "affordance_tags": [
+      "delay-entry",
+      "reorganize-papers",
+      "rehearse-later"
+    ],
+    "phase": "precontact",
+    "practice_type": "evasion",
+    "role": "evader"
+  },
+  "prompt_version": "v1-middle-layer",
+  "retrieval_keys": [
+    "concern_type",
+    "target_ref",
+    "situation_id",
+    "practice_type"
+  ],
+  "retrieved_episode_refs": [
+    "ep_unsent_apology_note",
+    "ep_public_break"
+  ],
+  "selected_affordance_tags": [
+    "delay-entry",
+    "reorganize-papers"
+  ],
+  "source_concern_ids": [
+    "cc_obligation",
+    "cc_attachment_threat"
+  ],
+  "validator_result": "pass"
+}

@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai empties the silverware drawer onto the counter, meticulously polishing each spoon to a mirror shine while the unopened envelope waits on the table behind him. The rhythmic squeak of the cloth is loud, but not loud enough to drown out the phantom sound of water lapping against the harbor pylons. He scrubs a water spot until his thumb aches, terrified that if he stops moving for even a second, his silence will solidify into a final answer.",
+  "graph_projection": {
+    "node_id": "beat_kai_silverware_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.4,
+    "delta_energy": 0.5,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

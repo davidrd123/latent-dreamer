@@ -1,0 +1,36 @@
+{
+  "candidate_text": "Tessa turns the coat check tag over in her palm, the embossed number pressing a small red oval into her skin, and she finds herself composing the sentence again \u2014 not the apology, but the one before it, the one that explains why the summary had to be clean, why the audience needed that, why Eli would understand if he thought about it from where she was standing. The laughter from the hall reaches her muffled and wrong, and she lets it confirm something: the evening went well, which means she was right to hold the line. She types *I know that looked like* and stops, because the word after that is either *unfair* or *a simplification*, and she is still deciding which one she actually believes.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_tag",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line",
+      "sit_coatroom_after_toast"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

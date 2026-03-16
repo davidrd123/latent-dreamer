@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai stared at the sealed envelope on the kitchen table, his thumb tracing its edge without breaking the paper. \"I'm here, aren't I?\" he whispered to the empty room, testing the defense against the phantom chill of the harbor wind. He could already hear her standing by the water, demanding an honest silence, and he swallowed the rest of his practiced opening line.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_harbor_phantom",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.4,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

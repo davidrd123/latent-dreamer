@@ -1,0 +1,42 @@
+{
+  "arm": "baseline",
+  "candidate_text": "Kai wipes down the already clean kitchen counter, keeping his eyes fixed on the sponge rather than the thick envelope resting near the fruit bowl. He can almost hear the low, rhythmic horn of the evening ferry cutting through the silence of the room. If he just keeps scrubbing, he doesn't have to decide whether the silence he is choosing right now is an honest one.",
+  "graph_projection": {
+    "confidence": "high",
+    "delta_energy": -0.3,
+    "delta_tension": 0.4,
+    "node_id": "beat_kai_kitchen_delay_1",
+    "node_type": "beat",
+    "option_effect": "open",
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "situation_id": "sit_unopened_letter",
+    "source_lane": "L2",
+    "source_ref": "prototype-baseline"
+  },
+  "semantic_checks": {
+    "avoidance sharpens rather than resolves the choice": true,
+    "delay ritual is present": true,
+    "the harbor remains psychologically active": false,
+    "the letter is not opened": false
+  },
+  "timestamp": "2026-03-15T01:15:39.499822+00:00"
+}

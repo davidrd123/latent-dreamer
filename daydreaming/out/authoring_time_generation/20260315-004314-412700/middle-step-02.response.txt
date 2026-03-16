@@ -1,0 +1,30 @@
+{
+  "candidate_text": "Rhea scrubs her thumb down her phone screen, forcing her email inbox to refresh for the fourth time in a minute. The heavy door to Studio B looms in her peripheral vision, but she keeps her eyes locked on the empty screen, convincing herself she needs to clear her notifications first. She knows from bitter experience that letting a dispute sit turns silence into a confession, yet right now, the artificial urgency of her inbox feels infinitely safer than reaching for that door handle.",
+  "graph_projection": {
+    "node_id": "beat_evasion_phone_refresh_s02_c02",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "sit_studio_b_threshold",
+      "ref_credit_dispute"
+    ],
+    "payoff_refs": [],
+    "option_effect": "close",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

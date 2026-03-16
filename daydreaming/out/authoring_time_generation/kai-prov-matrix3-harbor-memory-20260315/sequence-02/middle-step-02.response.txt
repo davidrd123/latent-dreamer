@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai straightens the dish soap a second time\u2014its label had not moved\u2014then picks up the sponge and begins wiping the counter near the sink, working toward the table by a route that will never arrive there. The letter sits in the white peripheral light the way the harbor sits in his sternum: present, tidal, demanding nothing out loud. He remembers that the last silence he chose had done its own speaking, had traveled across the distance and landed as answer, and so he wrings the sponge out slowly, making the small wet sound fill the kitchen, filling the kitchen with it.",
+  "graph_projection": {
+    "node_id": "beat_kai_counter_ritual_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,373 @@
+{
+  "ablation": "none",
+  "active_situation_id": "sit_outside_rehearsal_room",
+  "arm": "middle",
+  "candidate_compilation": {
+    "candidates_per_step": 4,
+    "rows": [
+      {
+        "candidate_index": 1,
+        "compilation_score": {
+          "against_accepted": 0.784,
+          "coverage": 0.5,
+          "distinctiveness": 0.794,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.81,
+          "specificity": 1.0,
+          "total": 0.884
+        },
+        "node_id": "beat_rehearsal_hallway_1",
+        "renamed_node_id_to": null,
+        "selected_operator_family": "rehearsal"
+      },
+      {
+        "candidate_index": 2,
+        "compilation_score": {
+          "against_accepted": 0.825,
+          "coverage": 0.5,
+          "distinctiveness": 0.824,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.823,
+          "specificity": 1.0,
+          "total": 0.89
+        },
+        "node_id": "beat_rehearsal_run_sheet_scripting",
+        "renamed_node_id_to": null,
+        "selected_operator_family": "rehearsal"
+      },
+      {
+        "candidate_index": 3,
+        "compilation_score": {
+          "against_accepted": 0.818,
+          "coverage": 0.5,
+          "distinctiveness": 0.801,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.776,
+          "specificity": 1.0,
+          "total": 0.81
+        },
+        "node_id": "beat_rehearsal_hallway_1_s03_c03",
+        "renamed_node_id_to": "beat_rehearsal_hallway_1_s03_c03",
+        "selected_operator_family": "rehearsal"
+      },
+      {
+        "candidate_index": 4,
+        "compilation_score": {
+          "against_accepted": 0.782,
+          "coverage": 0.0,
+          "distinctiveness": 0.777,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.77,
+          "specificity": 1.0,
+          "total": 0.805
+        },
+        "node_id": "beat_rehearsal_run_sheet_door",
+        "renamed_node_id_to": null,
+        "selected_operator_family": "rehearsal"
+      }
+    ],
+    "selected_candidate_index": 2,
+    "selected_score": {
+      "against_accepted": 0.825,
+      "coverage": 0.5,
+      "distinctiveness": 0.824,
+      "hard_errors": [],
+      "hard_pass": true,
+      "legibility": 1.0,
+      "sibling_diversity": 0.823,
+      "specificity": 1.0,
+      "total": 0.89
+    },
+    "selection_reason": "highest_soft_score_after_hard_filter"
+  },
+  "candidate_index": 2,
+  "candidate_text": "Maren stares at the blank back of the folded run sheet, her lips shaping the words 'I know we need to talk' before she immediately shakes her head. She imagines Leah's sharp gaze cutting through the door, waiting for the inevitable pivot to tempo and pacing. She tries another phrase under her breath, forcing her jaw to stay loose, desperate to find a sentence that sounds like taking responsibility rather than reading from a script.",
+  "concern_driver": "inferred",
+  "concern_inference": {
+    "dominant_match": true,
+    "fired_practice_bias_rules": [
+      "rule_precision_as_control"
+    ],
+    "fired_theme_rules": [
+      "rule_shared_work_requires_approach",
+      "rule_repair_possible_but_exposing"
+    ],
+    "inferred_concerns": [
+      {
+        "base_intensity": 0.77,
+        "concern_type": "obligation",
+        "id": "cc_obligation",
+        "intensity_basis": "inferred_from_primitives",
+        "seed_origin": "shadow_inference",
+        "source_episode_ids": [
+          "ep_public_break",
+          "ep_good_opening_line",
+          "ep_unsent_apology_note"
+        ],
+        "source_rule_ids": [
+          "rule_shared_work_requires_approach"
+        ],
+        "target_ref": "leah",
+        "unresolved": true
+      },
+      {
+        "base_intensity": 0.59,
+        "concern_type": "attachment_threat",
+        "id": "cc_attachment_threat",
+        "intensity_basis": "inferred_from_primitives",
+        "seed_origin": "shadow_inference",
+        "source_episode_ids": [],
+        "source_rule_ids": [
+          "rule_repair_possible_but_exposing"
+        ],
+        "target_ref": "leah",
+        "unresolved": true
+      }
+    ],
+    "inferred_dominant_concern_id": "cc_obligation",
+    "mode": "shadow_seeded_driver",
+    "primitive_facts": [
+      "character_defaults_to_wording_control",
+      "contact_could_reopen_bond",
+      "damaged_collaboration_is_live",
+      "entry_is_imminent",
+      "imminent_shared_work",
+      "unrepaired_breach_with_target"
+    ],
+    "seeded_dominant_concern_id": "cc_obligation",
+    "seeded_vs_inferred": [
+      {
+        "concern_id": "cc_obligation",
+        "inferred_base_intensity": 0.77,
+        "inferred_present": true,
+        "intensity_delta": 0.03,
+        "seeded_base_intensity": 0.74,
+        "seeded_concern_type": "obligation",
+        "seeded_target_ref": "leah",
+        "source_episode_overlap": [
+          "ep_good_opening_line",
+          "ep_public_break"
+        ],
+        "source_rule_match": true
+      },
+      {
+        "concern_id": "cc_attachment_threat",
+        "inferred_base_intensity": 0.59,
+        "inferred_present": true,
+        "intensity_delta": -0.02,
+        "seeded_base_intensity": 0.61,
+        "seeded_concern_type": "attachment_threat",
+        "seeded_target_ref": "leah",
+        "source_episode_overlap": [],
+        "source_rule_match": true
+      }
+    ]
+  },
+  "dominant_concern_id": "cc_obligation",
+  "dominant_concern_type": "obligation",
+  "dominant_target_ref": "leah",
+  "graph_projection": {
+    "confidence": "high",
+    "delta_energy": 0.1,
+    "delta_tension": 0.1,
+    "node_id": "beat_rehearsal_run_sheet_scripting",
+    "node_type": "beat",
+    "option_effect": "clarify",
+    "origin_pressure_refs": [
+      "cc_obligation"
+    ],
+    "payoff_refs": [
+      "ev_talk_before_runthrough"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "pressure_tags": [
+      "obligation"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "situation_id": "sit_outside_rehearsal_room",
+    "source_lane": "L2",
+    "source_ref": "prototype-middle"
+  },
+  "operator_score_breakdown": {
+    "avoidance": {
+      "appraisal_fit": 0.7,
+      "episodic_resonance": 0.12,
+      "practice_fit": 0.22,
+      "pressure": 0.97,
+      "repetition_penalty": 0.12,
+      "total": 0.61
+    },
+    "rationalization": {
+      "appraisal_fit": 0.57,
+      "episodic_resonance": 0.3,
+      "practice_fit": 0.42,
+      "pressure": 0.97,
+      "repetition_penalty": 0.08,
+      "total": 0.65
+    },
+    "rehearsal": {
+      "appraisal_fit": 0.62,
+      "episodic_resonance": 0.75,
+      "practice_fit": 0.78,
+      "pressure": 0.97,
+      "repetition_penalty": 0.05,
+      "total": 0.83
+    }
+  },
+  "practice_bias_summary": {
+    "family_votes": {
+      "rehearsal": 2.0
+    },
+    "fired_rules": [
+      {
+        "family_bonus": "rehearsal",
+        "id": "rule_precision_as_control",
+        "practice_type": "anticipated-confrontation",
+        "weight": 2.0
+      }
+    ],
+    "practice_votes": {
+      "anticipated-confrontation": 2.0
+    }
+  },
+  "reminder_episode_id": "ep_public_break",
+  "retrieval_scores": [
+    {
+      "episode_id": "ep_public_break",
+      "episode_kind": "backstory",
+      "fixture_order": 1,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "practice_type"
+      ],
+      "practice_type": "anticipated-confrontation",
+      "recency_rank": 3,
+      "score": 3,
+      "summary": "After a disastrous rehearsal, Leah told Maren, \"If you're apologizing, don't start by defending the tempo.\"\n"
+    },
+    {
+      "episode_id": "ep_good_opening_line",
+      "episode_kind": "backstory",
+      "fixture_order": 2,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "practice_type"
+      ],
+      "practice_type": "anticipated-confrontation",
+      "recency_rank": 2,
+      "score": 3,
+      "summary": "Before a difficult funding interview, Maren rehearsed one opening line until the room stopped feeling hostile enough to enter.\n"
+    },
+    {
+      "episode_id": "ep_unsent_apology_note",
+      "episode_kind": "backstory",
+      "fixture_order": 3,
+      "matched_keys": [
+        "concern_type",
+        "target_ref"
+      ],
+      "practice_type": "evasion",
+      "recency_rank": 1,
+      "score": 2,
+      "summary": "Maren once rewrote an apology note for hours and never sent it, letting revision become its own refusal.\n"
+    },
+    {
+      "episode_id": "gen_step_01_beat_rehearse_opening_line_01",
+      "episode_kind": "generated",
+      "fixture_order": 4,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "situation_id",
+        "practice_type"
+      ],
+      "practice_type": "anticipated-confrontation",
+      "recency_rank": 4,
+      "score": 4,
+      "summary": "Maren unfolds the run sheet against the hallway wall, pressing her thumbnail into the margin as she mouths a trial sentence. She stops halfway through, realizing the phrasing sounds too much like a defense of the tempo, and forces herself to start over. She keeps testing the words under her breath, waiting for the sentence to feel solid enough to carry her through the door before Leah can look up."
+    },
+    {
+      "episode_id": "gen_step_02_beat_rehearsal_outside_room",
+      "episode_kind": "generated",
+      "fixture_order": 5,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "situation_id",
+        "practice_type"
+      ],
+      "practice_type": "anticipated-confrontation",
+      "recency_rank": 5,
+      "score": 4,
+      "summary": "Maren presses the folded run sheet flat against the hallway wall, her lips moving silently as she tests another opening line. She catches herself leaning into an explanation of the tempo and immediately bites the inside of her cheek, striking the words from her mental script. The muffled sound of chairs scraping inside the rehearsal room reminds her she is running out of time to find a sentence that doesn't sound like an excuse."
+    }
+  ],
+  "selected_affordance_tags": [
+    "draft-opening-line",
+    "brace-for-accusation"
+  ],
+  "selected_operator_family": "rehearsal",
+  "selected_retrieved_episode_ids": [
+    "gen_step_02_beat_rehearsal_outside_room",
+    "gen_step_01_beat_rehearse_opening_line_01",
+    "ep_public_break"
+  ],
+  "semantic_checks": {
+    "no_cross_fixture_contamination": true,
+    "opening-line rehearsal is present": true,
+    "rehearsal sharpens rather than resolves the choice": true,
+    "the meeting has not begun": true,
+    "the rehearsal room remains psychologically active": true
+  },
+  "sequence_step": 3,
+  "timestamp": "2026-03-15T08:04:21.421135+00:00",
+  "updated_concerns": [
+    {
+      "base_intensity": 1.0,
+      "concern_type": "obligation",
+      "id": "cc_obligation",
+      "intensity_basis": "inferred_from_primitives",
+      "seed_origin": "shadow_inference",
+      "source_episode_ids": [
+        "ep_public_break",
+        "ep_good_opening_line",
+        "ep_unsent_apology_note"
+      ],
+      "source_rule_ids": [
+        "rule_shared_work_requires_approach"
+      ],
+      "target_ref": "leah",
+      "unresolved": true
+    },
+    {
+      "base_intensity": 0.44,
+      "concern_type": "attachment_threat",
+      "id": "cc_attachment_threat",
+      "intensity_basis": "inferred_from_primitives",
+      "seed_origin": "shadow_inference",
+      "source_episode_ids": [],
+      "source_rule_ids": [
+        "rule_repair_possible_but_exposing"
+      ],
+      "target_ref": "leah",
+      "unresolved": true
+    }
+  ],
+  "use_expected_reference": false
+}

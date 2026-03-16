@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai transfers the coffee cup from right hand to left and back again, his lips moving around the phrase 'I'm here'\u2014two words small enough, maybe, to fit through whatever gap is left between them\u2014but the harbor comes into the kitchen anyway, the cold off the water, the specific quality of her silence after she said what she said about honesty, and the phrase curdles until he can't tell if it's a beginning or just a way of not saying the harder thing. He tries once more, stripping the sentence to its bone: 'I got your letter,' factual, blameless, a door held open by one finger\u2014but he hears her already reading the hinge, the careful neutrality of it, and he sets the cup on the counter and keeps his back to the envelope.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_opening_line",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

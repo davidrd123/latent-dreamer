@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai refills his coffee mug even though it's still half full, watching the pour with the concentration of a man defusing something. The letter sits at the table's edge in his peripheral vision, and he keeps it there\u2014peripheral, almost manageable\u2014while he opens the cabinet and begins reorganizing the spice jars by height, a task he has never once cared about. His hands know the harbor anyway: the specific cold off the water, the way her voice had carried when she said do it honestly, and he sets the cumin down too carefully, as if stillness in the kitchen can hold the evening in place.",
+  "graph_projection": {
+    "node_id": "beat_kai_spice_ritual",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

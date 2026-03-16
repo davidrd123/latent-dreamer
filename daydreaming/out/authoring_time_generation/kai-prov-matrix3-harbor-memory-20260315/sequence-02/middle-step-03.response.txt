@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai turns the faucet on to a pressure just above a trickle, not enough to accomplish anything, and begins rinsing a glass that is already clean, watching the water sheet over the rim the way attention sheets over something it refuses to land on. The letter is at the edge of his vision the whole time, white and still, and the harbor it contains is also still\u2014tidal, he thinks, the word arriving without invitation\u2014the way certain silences are tidal, filling and filling until they have done their work without him. He sets the glass in the drying rack with a small deliberate click, the sound of a period placed at the end of nothing, and reaches for a second glass.",
+  "graph_projection": {
+    "node_id": "beat_kai_sink_ritual_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

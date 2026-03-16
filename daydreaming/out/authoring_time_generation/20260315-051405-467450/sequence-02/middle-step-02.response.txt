@@ -1,0 +1,34 @@
+{
+  "candidate_text": "The phone screen dims in her palm before she can begin typing, and Tessa tilts it awake again, not to answer but to reread, the way you reread something you've already decided about. The explanation she's been building \u2014 quietly, efficiently, clause by clause \u2014 has arrived at the part where the toast had to land cleanly, where a longer acknowledgment would have cost the room its momentum, where what she did was actually a form of care for the work itself; and the argument is so nearly complete that she can feel it becoming the true version, the one she'll remember. Through the door, the applause rises once more, approving and general, and she holds still inside it like a woman who belongs there.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

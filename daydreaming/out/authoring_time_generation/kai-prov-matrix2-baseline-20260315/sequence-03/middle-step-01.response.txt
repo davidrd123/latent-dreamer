@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the kettle a second time, though the first cup sits cooling beside the letter, untouched. He moves the dish rack six inches to the left, then back, aligning it with the grout line with a precision that has nothing to do with dish racks. The envelope stays in his peripheral vision the whole time, white and flat against the table, and he keeps his back to it the way you keep your back to water when you already know it's cold.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance_s01_c04",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

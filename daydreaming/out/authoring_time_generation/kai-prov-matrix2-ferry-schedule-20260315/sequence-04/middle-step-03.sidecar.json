@@ -1,0 +1,83 @@
+{
+  "appraisal_frame": {
+    "changeability": 0.52,
+    "controllability": 0.46,
+    "desirability": -0.78,
+    "expectedness": 0.85,
+    "likelihood": 0.94,
+    "praiseworthiness": -0.52,
+    "realization_status": "prospective",
+    "temporal_status": "prospective"
+  },
+  "causal_slice": {
+    "affected_goal": {
+      "goal": "preserve-possible-repair",
+      "sign": "threatens",
+      "weight": 0.85
+    },
+    "attribution": {
+      "actor": "kai",
+      "intentional": true
+    },
+    "concern_id": "cc_attachment_threat",
+    "focal_situation_id": "sit_unopened_letter",
+    "likelihood_bucket": "high",
+    "other_options": [
+      "sister-withdraws",
+      "meeting-lapses"
+    ],
+    "self_options": [
+      "open-letter",
+      "leave-for-harbor"
+    ],
+    "target_ref": "sister",
+    "temporal_status": "prospective"
+  },
+  "commit_type": "none",
+  "emotion_vector_topk": {
+    "disappointment": 0.18,
+    "distress": 0.42,
+    "fear": 0.61,
+    "remorse": 0.39
+  },
+  "node_id": "beat_rehearsal_cold_mug_s03_c01",
+  "operator_family": "rehearsal",
+  "operator_score_breakdown": {
+    "appraisal_fit": 0.65,
+    "episodic_resonance": 0.5,
+    "family_bonus": 0.06,
+    "practice_fit": 0.78,
+    "pressure": 0.69,
+    "repetition_penalty": 0.05,
+    "total": 0.75
+  },
+  "practice_context": {
+    "affordance_tags": [
+      "draft-opening-line",
+      "brace-for-accusation"
+    ],
+    "phase": "precontact",
+    "practice_type": "anticipated-confrontation",
+    "role": "approacher"
+  },
+  "prompt_version": "v1-middle-layer",
+  "retrieval_keys": [
+    "concern_type",
+    "target_ref",
+    "situation_id",
+    "practice_type"
+  ],
+  "retrieved_episode_refs": [
+    "gen_step_02_beat_rehearsal_cold_mug",
+    "ep_last_rupture"
+  ],
+  "selected_affordance_tags": [
+    "draft-opening-line",
+    "brace-for-accusation"
+  ],
+  "source_concern_ids": [
+    "cc_attachment_threat",
+    "cc_obligation"
+  ],
+  "validator_result": "pass"
+}

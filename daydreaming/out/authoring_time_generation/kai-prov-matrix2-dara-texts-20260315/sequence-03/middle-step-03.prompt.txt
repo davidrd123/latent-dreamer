@@ -1,0 +1,81 @@
+You are generating one candidate inner-life moment for a conducted daydreaming system.
+This moment will become a node in a traversable dream graph used later in performance.
+Generate a self-contained unit with emotional weight, not a plot outline or explanation.
+The output should show what the character does, avoids, rehearses, or remembers in one moment.
+Keep the moment concrete and behaviorally legible.
+The prose should be 2-4 sentences.
+
+THE CHARACTER:
+Wants repair, but not at the cost of saying the first true thing. Defaults to delay rituals when attachment pressure spikes.
+
+
+THE SITUATION:
+An unopened letter from Kai's estranged sister sits on the kitchen table. It asks him to meet her tonight at the harbor.
+
+
+WHAT THE SYSTEM HAS DETERMINED:
+- Dominant concern: attachment_threat aimed at sister.
+- Appraisal read: bad if faced directly (desirability -0.78), likely to matter soon (likelihood 0.82), hard to control once engaged (controllability 0.46).
+- Practice context: anticipated-confrontation in phase precontact with affordances draft-opening-line, brace-for-accusation.
+- Selected operator: rehearsal.
+- Operator semantics: Rehearsal means the character is preparing for an encounter before it happens. Show preparation, pre-speaking, or trial phrasing rather than the encounter itself.
+
+WHAT THE CHARACTER REMEMBERS:
+- Kai and his sister fought at the harbor six months ago. She said, "if you are going to stay silent, do it honestly."
+
+- Kai stands at the kitchen counter with his back to the table, mouthing words at the window above the sink—not the words he wants to say, but the words he thinks she'll accept: something about distance, about time, something that doesn't start with I'm sorry because that would be the first true thing. His lips stop moving when he gets to the part where she might say what she said at the harbor, and he feels the silence of that old unanswered call settle into his chest like ballast. He turns the faucet on, then off, then on again, as if the sound is a rehearsal for arriving.
+
+These memories should color the moment without turning into explicit exposition unless necessary.
+Generate the scene prose from the behavioral meaning of the operator, not from architecture jargon.
+
+REFERENCE STRUCTURED STATE:
+Selected concern: {"base_intensity": 0.73, "concern_type": "attachment_threat", "id": "cc_attachment_threat", "intensity_basis": "inferred_from_primitives", "seed_origin": "shadow_inference", "source_episode_ids": ["ep_last_rupture", "ep_old_harbor_memory", "ep_avoidance_consequence"], "source_rule_ids": ["rule_unanswered_repair_bid"], "target_ref": "sister", "unresolved": true}
+CausalSliceV1: {"affected_goal": {"goal": "preserve-possible-repair", "sign": "threatens", "weight": 0.85}, "attribution": {"actor": "kai", "intentional": true}, "concern_id": "cc_attachment_threat", "focal_situation_id": "sit_unopened_letter", "likelihood_bucket": "high", "other_options": ["sister-withdraws", "delay-becomes-public"], "self_options": ["open-letter", "delay-contact"], "target_ref": "sister", "temporal_status": "prospective"}
+AppraisalFrame: {"changeability": 0.52, "controllability": 0.46, "desirability": -0.78, "expectedness": 0.8, "likelihood": 0.82, "praiseworthiness": -0.6, "realization_status": "prospective", "temporal_status": "prospective"}
+PracticeContextV1: {"affordance_tags": ["draft-opening-line", "brace-for-accusation"], "phase": "precontact", "practice_type": "anticipated-confrontation", "role": "approacher"}
+
+WHAT TO GENERATE:
+- One moment.
+- The letter remains unopened.
+- The harbor should remain psychologically present even though Kai is in the kitchen.
+- Then return valid JSON only.
+
+Return this shape:
+{
+  "candidate_text": "...",
+  "graph_projection": {
+    "node_id": "...",
+    "node_type": "beat",
+    "situation_id": "...",
+    "delta_tension": 0.0,
+    "delta_energy": 0.0,
+    "setup_refs": ["..."],
+    "payoff_refs": ["..."],
+    "option_effect": "close|open|clarify|none",
+    "pressure_tags": ["..."],
+    "practice_tags": ["..."],
+    "origin_pressure_refs": ["..."],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "low|medium|high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}
+
+STRUCTURAL CONSTRAINTS:
+- Stay inside this benchmark's world. Do not mention people, places, or objects from other benchmarks.
+- The output should reflect the selected operator family and affordances.
+- The output must be graph-compilable against the benchmark fixture.
+Allowed IDs and enums for graph_projection:
+- allowed situation_id: ['sit_observed_evasion', 'sit_threshold_departure', 'sit_unopened_letter']
+- allowed setup_refs/payoff_refs: ['ev_dara_texts_kai', 'ev_harbor_meeting_tonight', 'harbor_as_shared_place', 'sit_observed_evasion', 'sit_threshold_departure', 'sit_unopened_letter']
+- allowed pressure_tags: ['attachment_threat', 'obligation']
+- allowed practice_tags: ['anticipated-confrontation', 'confession', 'evasion']
+- allowed origin_pressure_refs: ['cc_attachment_threat', 'cc_obligation']
+- source_lane must be: L2
+- scope must be: proposal
+- revisability must be: ephemeral_candidate
+- Do not use episode ids in setup_refs or payoff_refs.
+- Do not invent new ids.
+- No markdown fences.

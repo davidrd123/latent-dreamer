@@ -1,0 +1,36 @@
+{
+  "candidate_text": "Her thumb rests on the period at the end of the one sentence she has typed\u2014not a confession, just a framing\u2014and she reads it again the way she imagines Eli will, testing whether it sounds like an explanation or a defense, deciding it sounds like neither, deciding it sounds like honesty. The noise from the hall reaches her as a low, warm blur, the room still full of the version of the evening where she gave the audience what they needed, where clarity was the point, where Eli's name in the program was always going to be a separate conversation. She adds a second sentence that begins with *I think you know* and stops, because the phrase is already doing the work of an apology without costing her anything, which is exactly what she wanted and exactly what she cannot let herself notice.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_draft",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line",
+      "sit_coatroom_after_toast"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

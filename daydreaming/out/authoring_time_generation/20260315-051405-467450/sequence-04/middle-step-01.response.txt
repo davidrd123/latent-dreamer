@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa's thumb finds the credit line on the folded program before she even opens Eli's text \u2014 her name, his name, hers listed first \u2014 and she reads it the way she might read a verdict she already knew was fair. When she finally looks at the phone, she doesn't read his words so much as begin composing the context he's missing: the room had needed a throughline, someone had to hold the shape of the argument, and she had done that, which is not the same as taking something. The applause is still moving through the wall behind her, and she lets it stay there, lets it mean what it meant a few minutes ago when the meaning was still clean.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_program_reread",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.22,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

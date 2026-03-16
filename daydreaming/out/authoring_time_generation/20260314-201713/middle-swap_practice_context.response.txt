@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea unclips her festival badge from her lanyard, examining the plastic casing for smudges with intense, sudden dedication. The heavy door to Studio B hums slightly with the building's HVAC, but she keeps her eyes locked on the small printed letters of her own name. If she goes in now, she has to say what she did, and she hasn't found the right first sentence yet.",
+  "graph_projection": {
+    "node_id": "beat_avoidance_badge_focus",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "sit_studio_b_threshold",
+      "ev_public_correction_at_panel"
+    ],
+    "payoff_refs": [
+      "sit_inside_studio_b_conversation"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

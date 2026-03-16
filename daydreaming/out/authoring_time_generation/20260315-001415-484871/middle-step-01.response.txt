@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai scrubs the kitchen counter for the third time, pressing the sponge into the grout until his knuckles ache. The unopened envelope sits just inches from the wet perimeter, its crisp edges demanding an answer he isn't ready to give. He focuses intensely on a stubborn coffee stain, trying to drown out the imagined sound of waves slapping against the harbor docks and the echoing memory of her demanding an honest silence.",
+  "graph_projection": {
+    "node_id": "beat_kai_kitchen_avoidance_01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.4,
+    "delta_energy": -0.3,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

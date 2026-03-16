@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa reads Eli's text a second time, then folds the program so the credit line faces inward, and begins composing a reply in her head that opens with his name and closes, somehow, with the word 'clarity.' The hall noise still reaches her through the coatroom door\u2014applause, a chair scraping\u2014and each sound makes the remark feel less like a wound she gave and more like a decision the moment required. She turns the phone face-down without typing, because what she is rehearsing is not an apology yet; it is the version of events in which she was the one managing the room, not diminishing him.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s01_c04",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

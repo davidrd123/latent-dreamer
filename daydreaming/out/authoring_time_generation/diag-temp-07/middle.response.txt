@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa reads Eli's text a second time, and the folded program bends slightly under her thumb as she presses it flat against her palm, a small steadying gesture she doesn't register making. She begins composing a reply in her head\u2014something that starts with 'I should have named you'\u2014but the sentence keeps extending itself, accruing context: the time constraint, the donor room's restlessness, the way a long acknowledgment would have diluted the very point she was making. By the time she reaches the coatroom door, the original concession has been absorbed into a paragraph of reasons, and what remains feels less like an omission and more like a professional judgment that happened to land badly.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_c03",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.22,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

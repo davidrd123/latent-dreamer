@@ -1,0 +1,373 @@
+{
+  "ablation": "none",
+  "active_situation_id": "sit_unopened_letter",
+  "arm": "middle",
+  "candidate_compilation": {
+    "candidates_per_step": 4,
+    "rows": [
+      {
+        "candidate_index": 1,
+        "compilation_score": {
+          "against_accepted": 0.853,
+          "coverage": 0.0,
+          "distinctiveness": 0.782,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.676,
+          "specificity": 1.0,
+          "total": 0.731
+        },
+        "node_id": "beat_kai_spice_rack_avoidance",
+        "renamed_node_id_to": null,
+        "selected_operator_family": "avoidance"
+      },
+      {
+        "candidate_index": 2,
+        "compilation_score": {
+          "against_accepted": 0.439,
+          "coverage": 0.0,
+          "distinctiveness": 0.529,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.665,
+          "specificity": 1.0,
+          "total": 0.681
+        },
+        "node_id": "beat_kai_evasion_kitchen",
+        "renamed_node_id_to": null,
+        "selected_operator_family": "avoidance"
+      },
+      {
+        "candidate_index": 3,
+        "compilation_score": {
+          "against_accepted": 0.803,
+          "coverage": 0.0,
+          "distinctiveness": 0.741,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.648,
+          "specificity": 1.0,
+          "total": 0.723
+        },
+        "node_id": "beat_evasion_kitchen_distraction",
+        "renamed_node_id_to": null,
+        "selected_operator_family": "avoidance"
+      },
+      {
+        "candidate_index": 4,
+        "compilation_score": {
+          "against_accepted": 0.315,
+          "coverage": 0.0,
+          "distinctiveness": 0.48,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.728,
+          "specificity": 1.0,
+          "total": 0.746
+        },
+        "node_id": "beat_kai_kitchen_avoidance_01_s03_c04",
+        "renamed_node_id_to": "beat_kai_kitchen_avoidance_01_s03_c04",
+        "selected_operator_family": "avoidance"
+      }
+    ],
+    "selected_candidate_index": 4,
+    "selected_score": {
+      "against_accepted": 0.315,
+      "coverage": 0.0,
+      "distinctiveness": 0.48,
+      "hard_errors": [],
+      "hard_pass": true,
+      "legibility": 1.0,
+      "sibling_diversity": 0.728,
+      "specificity": 1.0,
+      "total": 0.746
+    },
+    "selection_reason": "highest_soft_score_after_hard_filter"
+  },
+  "candidate_index": 4,
+  "candidate_text": "Kai bears down on the kitchen sponge, scrubbing a spotless section of the counter until his knuckles ache. He keeps his back strictly turned to the unopened envelope on the table, trying to drown out the phantom sound of harbor water lapping against the docks with the rhythmic squeak of his cleaning. He tells himself he is just busy, not ignoring her, terrified that if he stops moving, his silence will once again become its own damning message.",
+  "concern_driver": "inferred",
+  "concern_inference": {
+    "dominant_match": true,
+    "fired_practice_bias_rules": [
+      "rule_prior_silence_had_cost"
+    ],
+    "fired_theme_rules": [
+      "rule_unanswered_repair_bid",
+      "rule_requested_response_under_deadline"
+    ],
+    "inferred_concerns": [
+      {
+        "base_intensity": 0.77,
+        "concern_type": "attachment_threat",
+        "id": "cc_attachment_threat",
+        "intensity_basis": "inferred_from_primitives",
+        "seed_origin": "shadow_inference",
+        "source_episode_ids": [
+          "ep_last_rupture",
+          "ep_old_harbor_memory",
+          "ep_avoidance_consequence"
+        ],
+        "source_rule_ids": [
+          "rule_unanswered_repair_bid"
+        ],
+        "target_ref": "sister",
+        "unresolved": true
+      },
+      {
+        "base_intensity": 0.59,
+        "concern_type": "obligation",
+        "id": "cc_obligation",
+        "intensity_basis": "inferred_from_primitives",
+        "seed_origin": "shadow_inference",
+        "source_episode_ids": [],
+        "source_rule_ids": [
+          "rule_requested_response_under_deadline"
+        ],
+        "target_ref": "sister",
+        "unresolved": true
+      }
+    ],
+    "inferred_dominant_concern_id": "cc_attachment_threat",
+    "mode": "shadow_seeded_driver",
+    "primitive_facts": [
+      "contact_requests_action",
+      "deadline_is_near",
+      "incoming_contact_from_estranged_target",
+      "known_avoidance_history",
+      "prior_rupture_unresolved",
+      "same_target_reappears"
+    ],
+    "seeded_dominant_concern_id": "cc_attachment_threat",
+    "seeded_vs_inferred": [
+      {
+        "concern_id": "cc_attachment_threat",
+        "inferred_base_intensity": 0.77,
+        "inferred_present": true,
+        "intensity_delta": 0.05,
+        "seeded_base_intensity": 0.72,
+        "seeded_concern_type": "attachment_threat",
+        "seeded_target_ref": "sister",
+        "source_episode_overlap": [
+          "ep_last_rupture",
+          "ep_old_harbor_memory"
+        ],
+        "source_rule_match": true
+      },
+      {
+        "concern_id": "cc_obligation",
+        "inferred_base_intensity": 0.59,
+        "inferred_present": true,
+        "intensity_delta": -0.05,
+        "seeded_base_intensity": 0.64,
+        "seeded_concern_type": "obligation",
+        "seeded_target_ref": "sister",
+        "source_episode_overlap": [],
+        "source_rule_match": true
+      }
+    ]
+  },
+  "dominant_concern_id": "cc_attachment_threat",
+  "dominant_concern_type": "attachment_threat",
+  "dominant_target_ref": "sister",
+  "graph_projection": {
+    "confidence": "high",
+    "delta_energy": 0.2,
+    "delta_tension": 0.4,
+    "node_id": "beat_kai_kitchen_avoidance_01_s03_c04",
+    "node_type": "beat",
+    "option_effect": "none",
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "payoff_refs": [
+      "harbor_as_shared_place"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "situation_id": "sit_unopened_letter",
+    "source_lane": "L2",
+    "source_ref": "prototype-middle"
+  },
+  "operator_score_breakdown": {
+    "avoidance": {
+      "appraisal_fit": 0.82,
+      "episodic_resonance": 1.0,
+      "practice_fit": 0.9,
+      "pressure": 0.69,
+      "repetition_penalty": 0.12,
+      "total": 0.86
+    },
+    "rationalization": {
+      "appraisal_fit": 0.66,
+      "episodic_resonance": 0.6,
+      "practice_fit": 0.58,
+      "pressure": 0.69,
+      "repetition_penalty": 0.08,
+      "total": 0.67
+    },
+    "rehearsal": {
+      "appraisal_fit": 0.51,
+      "episodic_resonance": 0.24,
+      "practice_fit": 0.35,
+      "pressure": 0.69,
+      "repetition_penalty": 0.05,
+      "total": 0.51
+    }
+  },
+  "practice_bias_summary": {
+    "family_votes": {
+      "avoidance": 2.0
+    },
+    "fired_rules": [
+      {
+        "family_bonus": "avoidance",
+        "id": "rule_prior_silence_had_cost",
+        "practice_type": "evasion",
+        "weight": 2.0
+      }
+    ],
+    "practice_votes": {
+      "evasion": 2.0
+    }
+  },
+  "reminder_episode_id": "ep_avoidance_consequence",
+  "retrieval_scores": [
+    {
+      "episode_id": "ep_last_rupture",
+      "episode_kind": "backstory",
+      "fixture_order": 1,
+      "matched_keys": [
+        "concern_type",
+        "target_ref"
+      ],
+      "practice_type": "anticipated-confrontation",
+      "recency_rank": 2,
+      "score": 2,
+      "summary": "Kai and his sister fought at the harbor six months ago. She said, \"if you are going to stay silent, do it honestly.\"\n"
+    },
+    {
+      "episode_id": "ep_old_harbor_memory",
+      "episode_kind": "backstory",
+      "fixture_order": 2,
+      "matched_keys": [
+        "concern_type",
+        "target_ref"
+      ],
+      "practice_type": null,
+      "recency_rank": 1,
+      "score": 2,
+      "summary": "As teenagers, they used to wait at the harbor after family fights and pretend the ferries made leaving easy.\n"
+    },
+    {
+      "episode_id": "ep_avoidance_consequence",
+      "episode_kind": "backstory",
+      "fixture_order": 3,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "practice_type"
+      ],
+      "practice_type": "evasion",
+      "recency_rank": 3,
+      "score": 3,
+      "summary": "Kai once ignored her call on an important night and learned too late that the silence itself had become the message.\n"
+    },
+    {
+      "episode_id": "gen_step_01_beat_kai_kitchen_avoidance_01",
+      "episode_kind": "generated",
+      "fixture_order": 4,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "situation_id",
+        "practice_type"
+      ],
+      "practice_type": "evasion",
+      "recency_rank": 4,
+      "score": 4,
+      "summary": "Kai scrubs the kitchen counter with punishing exactness, keeping his back strictly turned to the unopened envelope resting on the table. He focuses entirely on the rhythmic squeak of the sponge, trying to drown out the phantom sound of harbor water lapping against the docks. He tells himself he is just busy, not ignoring her, terrified that if he stops moving, his silence will once again become its own damning message."
+    },
+    {
+      "episode_id": "gen_step_02_beat_kitchen_scrubbing_avoidance",
+      "episode_kind": "generated",
+      "fixture_order": 5,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "situation_id",
+        "practice_type"
+      ],
+      "practice_type": "evasion",
+      "recency_rank": 5,
+      "score": 4,
+      "summary": "Kai bears down on the kitchen sponge, scrubbing a spotless section of the counter until his knuckles ache. Behind him, the unopened envelope sits heavy on the table, practically radiating the damp chill of the harbor docks. He refuses to turn around, convincing himself that as long as he keeps moving, he hasn't officially decided to leave her waiting in the dark."
+    }
+  ],
+  "selected_affordance_tags": [
+    "delay-contact",
+    "ritual-distraction"
+  ],
+  "selected_operator_family": "avoidance",
+  "selected_retrieved_episode_ids": [
+    "gen_step_02_beat_kitchen_scrubbing_avoidance",
+    "gen_step_01_beat_kai_kitchen_avoidance_01",
+    "ep_avoidance_consequence"
+  ],
+  "semantic_checks": {
+    "avoidance sharpens rather than resolves the choice": true,
+    "delay ritual is present": true,
+    "no_cross_fixture_contamination": true,
+    "the harbor remains psychologically active": true,
+    "the letter is not opened": true
+  },
+  "sequence_step": 3,
+  "timestamp": "2026-03-15T08:05:36.252309+00:00",
+  "updated_concerns": [
+    {
+      "base_intensity": 0.66,
+      "concern_type": "attachment_threat",
+      "id": "cc_attachment_threat",
+      "intensity_basis": "inferred_from_primitives",
+      "seed_origin": "shadow_inference",
+      "source_episode_ids": [
+        "ep_last_rupture",
+        "ep_old_harbor_memory",
+        "ep_avoidance_consequence"
+      ],
+      "source_rule_ids": [
+        "rule_unanswered_repair_bid"
+      ],
+      "target_ref": "sister",
+      "unresolved": true
+    },
+    {
+      "base_intensity": 0.5,
+      "concern_type": "obligation",
+      "id": "cc_obligation",
+      "intensity_basis": "inferred_from_primitives",
+      "seed_origin": "shadow_inference",
+      "source_episode_ids": [],
+      "source_rule_ids": [
+        "rule_requested_response_under_deadline"
+      ],
+      "target_ref": "sister",
+      "unresolved": true
+    }
+  ],
+  "use_expected_reference": false
+}

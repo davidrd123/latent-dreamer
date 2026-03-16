@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai stares at the sealed envelope on the kitchen table, imagining the damp chill of the harbor wind against his face. \"I just didn't know how to start,\" he whispers to the empty room, testing the excuse aloud and immediately bracing for her inevitable reply that his silence was loud enough. Instead of picking up the paper, he carefully nudges it until its edge aligns perfectly with the table's grain, buying himself another minute of quiet.",
+  "graph_projection": {
+    "node_id": "node_rehearsal_harbor_excuse_01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

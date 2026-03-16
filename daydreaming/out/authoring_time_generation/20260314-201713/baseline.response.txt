@@ -1,0 +1,33 @@
+{
+  "candidate_text": "Rhea stares at the heavy soundproof door of Studio B, her thumb tracing the edge of her silenced phone. 'I should have checked the final export before the upload,' she whispers to the empty hallway, testing the weight of the admission. She repeats the sentence twice more, forcing her pitch to drop, determined to state the bare fact before Owen can ask for an explanation.",
+  "graph_projection": {
+    "node_id": "beat_rehearse_threshold",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.4,
+    "delta_energy": 0.3,
+    "setup_refs": [
+      "ev_public_correction_at_panel",
+      "sit_studio_b_threshold"
+    ],
+    "payoff_refs": [
+      "ref_credit_dispute"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation",
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-baseline"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "candidate_text": "Kai stared at the thick envelope on the table, its seal unbroken. He mouthed the words he might say tonight at the docks. 'I am sorry I waited so long.' No, she would see right through that. He could already hear her voice echoing from their fight six months ago: 'If you are going to stay silent, do it honestly.' He braced himself for the inevitable accusation that he was still hiding behind his silence, just like the night he ignored her call. He tried another line. 'I did not know how to answer.' The letter sat there, a silent judge of his rehearsals.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_unopened_letter",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.2,
+    "delta_energy": 0.1,
+    "setup_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

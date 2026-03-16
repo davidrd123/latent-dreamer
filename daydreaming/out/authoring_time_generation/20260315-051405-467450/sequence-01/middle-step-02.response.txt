@@ -1,0 +1,35 @@
+{
+  "candidate_text": "She runs her thumb along the fold in the program, pressing the crease sharper, and reads the credit cluster again \u2014 her name clean at the top, Eli's absorbed into the institutional block \u2014 as though the layout itself had made the decision and she had only read it aloud. The applause from the hall reaches her in a small, muffled pulse, and she feels it as confirmation rather than irony: the room had received the toast well, which meant the framing had worked, which meant the work had been served. She begins composing the reply to Eli in her head, not as an apology but as a correction of his likely misreading \u2014 donors need a single name to attach a gift to, she had given them hers because she was standing at the podium, that is how attribution works in rooms like this \u2014 and the explanation is so complete and so reasonable that she holds it for a moment before noticing it has no second person in it at all.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s02_c02",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "applied_ops": [
+    {
+      "event_id": "ev_dara_texts_kai",
+      "op": "add_event"
+    },
+    {
+      "old_state": {
+        "letter_opened": false,
+        "reply_sent": false
+      },
+      "op": "patch_situation_state",
+      "patch": {
+        "external_witness_aware": true,
+        "social_pressure_source": "dara"
+      },
+      "situation_id": "sit_unopened_letter"
+    },
+    {
+      "op": "add_successor_situation_stub",
+      "situation_id": "sit_observed_evasion"
+    }
+  ],
+  "commit_semantics": "ontic",
+  "description": "Kai's phone buzzes. A text from Dara, his sister's closest friend: \"She told me she wrote to you. I know you'll do the right thing.\" The text is warm, not accusatory \u2014 but it means someone else knows, and someone else is watching.\n",
+  "provocation_file": "daydreaming/fixtures/provocations/kai_letter_provocations_v1.yaml",
+  "provocation_id": "prov_kai_sister_friend_texts",
+  "provocation_type": "external_event",
+  "successor_situation_stub": {
+    "description": "Kai's avoidance is no longer private. Someone outside the kitchen knows the letter exists and expects a response. Delay now has a social cost it did not have before.\n",
+    "id": "sit_observed_evasion",
+    "place_id": "kitchen",
+    "target_ref": "sister"
+  }
+}

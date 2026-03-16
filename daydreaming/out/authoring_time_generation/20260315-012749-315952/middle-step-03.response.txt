@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai finds himself meticulously polishing the kitchen faucet, rubbing the metal until his knuckles ache. He refuses to look at the table behind him, where the unopened envelope sits like a live wire, though he can still hear the faint, rhythmic tolling of the harbor buoy through the cracked window. As long as he focuses entirely on the squeak of the rag, he can pretend the sun isn't setting, and that his silence isn't already becoming his final answer.",
+  "graph_projection": {
+    "node_id": "beat_avoidance_faucet_polishing",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

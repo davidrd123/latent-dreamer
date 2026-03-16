@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa grips the folded event program, the muffled applause from the donor hall reminding her of the exact moment she skipped Eli's name. She drafts a reply to his text, typing that the board loses focus if a pitch gets too collaborative, actively editing out any hint of an apology. Staring at the unsent message, she lets the tension in her shoulders drop, deciding that taking the solo spotlight was a necessary tactical burden to secure their grant.",
+  "graph_projection": {
+    "node_id": "beat_rationalize_coatroom_s02_c03",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

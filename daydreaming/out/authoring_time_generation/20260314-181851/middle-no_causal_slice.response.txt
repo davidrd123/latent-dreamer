@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai scrubs the coffee stains from the kitchen counter with meticulous, punishing focus, keeping his back strictly turned to the table where the unopened envelope rests. The distant, low drone of a foghorn drifts in from the harbor, vibrating against the windowpane and making his jaw tighten. He rinses the sponge three times in scalding water, convincing himself he just needs a clean kitchen before he can sit down, ensuring his silence is at least a busy one.",
+  "graph_projection": {
+    "node_id": "node_avoidance_kitchen_scrub",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

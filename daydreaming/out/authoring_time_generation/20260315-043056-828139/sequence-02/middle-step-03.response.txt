@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa reads Eli's text a second time without moving her thumb toward the reply field, the program still folded against her palm the way she'd folded it during the toast\u2014tight, deliberate, like something that needed to stay contained. Through the coatroom door she can still hear the low current of the reception, the same room where she'd said his name once and the project's name twice, which felt, in the moment, like generosity. She turns that ratio over now and decides it was actually the right proportion, that the audience needed a single point of entry, that Eli would understand this if she explained it clearly enough\u2014and the explanation assembles itself so quickly, so completely, that it begins to feel less like a defense and more like the obvious truth she simply hasn't had a chance to deliver yet.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.1,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

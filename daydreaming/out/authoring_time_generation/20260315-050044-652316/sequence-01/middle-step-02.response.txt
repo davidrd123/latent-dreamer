@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa runs her thumb along the crease of the program\u2014the exact fold that bisects the acknowledgments page, where Eli's name would have sat between two longer ones\u2014and finds herself mentally rehearsing not an apology but a clarification: that the toast had a shape the room required, that naming everyone would have diffused the moment into obligation, that she had actually spared him the awkward pause a fuller credit would have invited. The applause cycles again through the gap under the door, and she lets it do something for her, lets it stand as evidence that the room had needed exactly what she gave it. She reads his text a second time\u2014just the three lines, nothing accusatory yet, only the silence of a question mark at the end\u2014and the not-answering assembles itself in her chest as a considered pause, a refusal to be reactive, the kind of steadiness a fair-minded person holds before speaking.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

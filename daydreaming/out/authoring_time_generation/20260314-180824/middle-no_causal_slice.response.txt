@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai stared at the thick envelope resting on the entryway table, its seal completely unbroken. He knew he was supposed to meet her at the harbor tonight, but the thought of facing her made his chest tighten. He remembered their fight six months ago, her voice echoing that if he was going to stay silent, he should do it honestly. He also remembered the time he had ignored her call, only to realize his silence had become a devastating message of its own. Still, he couldn't bring himself to tear the paper. Instead, he turned away, deciding he absolutely needed to clean the kitchen counters first. He scrubbed the already spotless marble, letting the rhythmic, repetitive motion drown out the ticking clock, desperately delaying the moment he would have to acknowledge the letter or the impending meeting.",
+  "graph_projection": {
+    "node_id": "beat_avoidance_1",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "sit_unopened_letter"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

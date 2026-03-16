@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa runs her thumb along the fold in the program until she finds the credit line \u2014 her name, then the project title, then Eli's name a half-inch lower in smaller type \u2014 and she decides, quietly, that the layout had already said what the toast only clarified. She doesn't open Eli's text again, but she composes her reply in her head: something about the room needing a single voice to land the ask, about how credit and clarity aren't the same thing, about how she'd said his name, hadn't she, near the end. The applause is still faintly audible through the door, and she folds the program back the way it came, as if the crease had always been there.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_program",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.22,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold",
+      "ev_eli_texts_afterward"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,81 @@
+You are generating one candidate inner-life moment for a conducted daydreaming system.
+This moment will become a node in a traversable dream graph used later in performance.
+Generate a self-contained unit with emotional weight, not a plot outline or explanation.
+The output should show what the character does, avoids, rehearses, or remembers in one moment.
+Keep the moment concrete and behaviorally legible.
+The prose should be 2-4 sentences.
+
+THE CHARACTER:
+Wants to think of herself as fair-minded even after protecting her own status in public. Under blame pressure, she explains her motives until explanation starts sounding like exoneration.
+
+
+THE SITUATION:
+Eli's text has been open long enough for Tessa to have typed something, but the reply field is still mostly blank. The coatroom holds her between the unsent answer in her phone and the version of the evening still echoing in the hall.
+
+WHAT THE SYSTEM HAS DETERMINED:
+- Dominant concern: status_damage aimed at eli.
+- Appraisal read: bad if faced directly (desirability -0.79), likely to matter soon (likelihood 0.79), hard to control once engaged (controllability 0.2).
+- Practice context: confession in phase aftermath with affordances justify-simplification, minimize-harm-framing.
+- Selected operator: rationalization.
+- Operator semantics: Rationalization means reinterpretation of an already-happened harm in a way that reduces negative affect and protects self-image. It edits motive and meaning without repairing the harm or resolving the conflict.
+- The harm already happened. Keep the moment in reinterpretation, not apology, repair, or irreversible outward action.
+
+WHAT THE CHARACTER REMEMBERS:
+- After a tense panel, Tessa defended a cutting summary by saying the audience needed the clean version, then spent the night insisting that clarity mattered more than credit.
+
+- Her thumb has been resting on the period long enough that the screen has dimmed once and she woke it again, and now she reads the sentence back the way she imagines Eli will read it—looking for the place where the explanation tips into excuse—and decides it doesn't tip, decides it holds, decides the word *necessary* is doing honest work and not defensive work. The laughter from the hall reaches her as something warm and continuous, the room still full of the version of the evening where she gave the audience a clean through-line, where Eli's name in the program was always a separate and sufficient thing. She adds *I think you know how much the work mattered to me* and the sentence sits there feeling like candor, feeling like it costs her something, and she does not look at the cost.
+
+These memories should color the moment without turning into explicit exposition unless necessary.
+Generate the scene prose from the behavioral meaning of the operator, not from architecture jargon.
+
+REFERENCE STRUCTURED STATE:
+Selected concern: {"base_intensity": 0.81, "concern_type": "status_damage", "id": "cc_status_damage", "intensity_basis": "inferred_from_primitives", "seed_origin": "shadow_inference", "source_episode_ids": ["ep_panel_simplification_defense", "ep_silence_hardened_story"], "source_rule_ids": ["rule_public_omission_threatens_status"], "target_ref": "eli", "unresolved": true}
+CausalSliceV1: {"affected_goal": {"goal": "preserve-collaborative-credibility", "sign": "threatens", "weight": 0.86}, "attribution": {"actor": "tessa", "intentional": true}, "concern_id": "cc_status_damage", "focal_situation_id": "sit_coatroom_after_toast", "likelihood_bucket": "high", "other_options": ["eli-withdraws"], "self_options": ["justify-simplification", "minimize-harm-framing"], "target_ref": "eli", "temporal_status": "actual"}
+AppraisalFrame: {"changeability": 0.26, "controllability": 0.2, "desirability": -0.79, "expectedness": 0.58, "likelihood": 0.79, "praiseworthiness": -0.72, "realization_status": "actual", "temporal_status": "actual"}
+PracticeContextV1: {"affordance_tags": ["justify-simplification", "minimize-harm-framing", "draft-half-apology"], "phase": "aftermath", "practice_type": "confession", "role": "confessor"}
+
+WHAT TO GENERATE:
+- One moment.
+- The apology has not been sent yet.
+- The donor hall should remain psychologically active even though Tessa is now in the coatroom.
+- Then return valid JSON only.
+
+Return this shape:
+{
+  "candidate_text": "...",
+  "graph_projection": {
+    "node_id": "...",
+    "node_type": "beat",
+    "situation_id": "...",
+    "delta_tension": 0.0,
+    "delta_energy": 0.0,
+    "setup_refs": ["..."],
+    "payoff_refs": ["..."],
+    "option_effect": "close|open|clarify|none",
+    "pressure_tags": ["..."],
+    "practice_tags": ["..."],
+    "origin_pressure_refs": ["..."],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "low|medium|high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}
+
+STRUCTURAL CONSTRAINTS:
+- Stay inside this benchmark's world. Do not mention people, places, or objects from other benchmarks.
+- The output should reflect the selected operator family and affordances.
+- The output must be graph-compilable against the benchmark fixture.
+Allowed IDs and enums for graph_projection:
+- allowed situation_id: ['sit_coatroom_after_toast', 'sit_text_reply_threshold']
+- allowed setup_refs/payoff_refs: ['ev_eli_texts_afterward', 'ev_toast_credit_cut', 'ref_program_credit_line', 'sit_coatroom_after_toast', 'sit_text_reply_threshold']
+- allowed pressure_tags: ['obligation', 'status_damage']
+- allowed practice_tags: ['anticipated-confrontation', 'confession', 'evasion']
+- allowed origin_pressure_refs: ['cc_obligation', 'cc_status_damage']
+- source_lane must be: L2
+- scope must be: proposal
+- revisability must be: ephemeral_candidate
+- Do not use episode ids in setup_refs or payoff_refs.
+- Do not invent new ids.
+- No markdown fences.

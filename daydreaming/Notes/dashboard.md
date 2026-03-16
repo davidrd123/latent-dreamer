@@ -400,25 +400,29 @@ what the performer does. This is research, not engineering.
 
 ## Milestones
 
-| Milestone | Status | Date |
-|-----------|--------|------|
-| L3 scheduler validated (Graffito pilot) | Done | 2026-03-13 |
-| L3 three-arm comparison (City Routes) | Done | 2026-03-14 |
-| Generation prototype: single-step validation | Done | 2026-03-14 |
-| Generation prototype: batch + admission | Done | 2026-03-15 |
-| Bridge test: Tessa patch | Done | 2026-03-15 |
-| Bridge test: Kai patch | Done | 2026-03-15 |
-| Supply pilot: repeatable keeper yield | In progress | |
-| Director: reliable full cascade | Not started | |
-| Inner-life visualization | Not started | |
-| Lyria RT responding to Dreamer state | Not started | |
-| First watchable run (inner life + audio) | Not started | |
-| Curation workflow / authoring membrane | Not started | |
-| Multi-situation generation (Q5/Q7/Q12) | Not started | |
-| Full Graffito graph assembled | Not started | |
-| Conductor Wizard-of-Oz test | Not started | |
-| Show Mark Friedberg a rendered run | Not started | |
-| L2 live cognitive engine | Not started | |
+Execution = current sprint or lane call. Verification = independent
+artifact check status.
+
+| Milestone | Execution | Verification | Date |
+|-----------|-----------|--------------|------|
+| L3 scheduler validated (Graffito pilot) | Done | Verified | 2026-03-13 |
+| L3 three-arm comparison (City Routes) | Done | Verified | 2026-03-14 |
+| Generation prototype: single-step validation | Done | Verified | 2026-03-14 |
+| Generation prototype: batch + admission | Done | Verified | 2026-03-15 |
+| Bridge test: Tessa patch | Done | Verified | 2026-03-15 |
+| Bridge test: Kai patch | Done | Verified | 2026-03-15 |
+| Supply pilot: keeper yield | Tessa pass / Kai narrow pass | Verified | 2026-03-15 |
+| Supply pilot: 2 patch packs per fixture + edit cost gate | In progress | Partial | |
+| Director: reliable full cascade | Not started | Pending | |
+| Inner-life visualization | Not started | Pending | |
+| Lyria RT responding to Dreamer state | Not started | Pending | |
+| First watchable run (inner life + audio) | Not started | Pending | |
+| Curation workflow / authoring membrane | Not started | Pending | |
+| Multi-situation generation (Q5/Q7/Q12) | Not started | Pending | |
+| Full Graffito graph assembled | Not started | Pending | |
+| Conductor Wizard-of-Oz test | Not started | Pending | |
+| Show Mark Friedberg a rendered run | Not started | Pending | |
+| L2 live cognitive engine | Not started | Pending | |
 
 ---
 

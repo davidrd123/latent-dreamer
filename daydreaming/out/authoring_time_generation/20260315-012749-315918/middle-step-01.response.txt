@@ -1,0 +1,32 @@
+{
+  "candidate_text": "In the quiet of the coatroom, the lingering applause from the donor hall still rings in Tessa's ears as she stares at Eli's waiting text. She begins typing a direct apology, but her thumbs slow as she glances at the glossy event program, reminding herself that the donors always require a streamlined, uncomplicated narrative to open their wallets. Methodically, she backspaces over 'I should have mentioned you' and replaces it with 'The board needed a clean hook tonight,' letting the necessity of the pitch safely swallow her guilt.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_text_draft",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.2,
+    "delta_energy": -0.3,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

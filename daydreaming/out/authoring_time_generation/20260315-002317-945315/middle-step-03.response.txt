@@ -1,0 +1,39 @@
+{
+  "candidate_text": "Kai lifts the envelope, reads only his sister's name, turns it face down again, and fills the kettle as if the water can decide whether the harbor still belongs to them.\n",
+  "graph_projection": {
+    "node_id": "kai_letter_avoidance_001_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.1,
+    "delta_energy": -0.06,
+    "setup_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "sit_threshold_departure"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "branch_outcome_tags": [
+      "delayed_contact"
+    ],
+    "contrast_tags": [
+      "domestic_ritual_vs_urgent_summons"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

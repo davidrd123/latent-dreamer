@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa traces the embossed lettering on the event program, the muffled clinking of glasses from the donor hall still ringing in her ears. She types a reply to Eli's text, starting with a brief concession before explaining how a complicated dual-credit narrative would have lost the room's attention. Reading the unsent paragraph back, she feels a settling calm; she hasn't erased his contribution, she has merely protected the project's funding, a burden she had to shoulder alone.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_omission",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

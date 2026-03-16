@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai fills the kettle past the max line and watches the overflow run down the side, then sets it on the burner and adjusts it twice, the small metallic scrape against the grate filling the kitchen with a sound that has nothing to do with the harbor. The letter sits at the corner of the table in his peripheral vision, white and still, the way a bruise sits at the edge of your awareness when you've decided not to press it yet. He opens the cabinet and counts the mugs\u2014four, the same four\u2014and the counting has a quality of thoroughness, as if the mugs require this, as if the harbor is not already assembling itself at the edge of the city in the dark.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_ritual",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "candidate_text": "A coat sleeve grazes Tessa's wrist as she shifts against the rack, and she doesn't move away from it \u2014 the small pressure is easier to hold than the phone. She reads Eli's text again without reading it, because what she is actually doing is refining the logic: the toast needed momentum, a longer credit line would have diffused the room's attention, and that diffusion would have served no one, including Eli. The explanation has become almost elegant by now, and elegance feels like evidence \u2014 like the kind of thing a fair-minded person would have arrived at, which means she probably was one.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s03_c02",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold",
+      "ref_program_credit_line"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

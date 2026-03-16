@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa reads Eli's text a third time, then sets her thumb against the screen without pressing reply, listening to the applause bleed through the coatroom door as though the room is still vouching for her. She turns the folded program over in her other hand and thinks: the remark was true, the evening needed a spine, and if the timing landed on him it was because he had left the shape of it unfinished. By the time the applause fades she has located her motive so cleanly inside the word necessary that the harm has become a form of stewardship, and the only remainder\u2014his name at the top of the unsent draft, the credit line pressed against her palm\u2014sits there without quite becoming a question.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

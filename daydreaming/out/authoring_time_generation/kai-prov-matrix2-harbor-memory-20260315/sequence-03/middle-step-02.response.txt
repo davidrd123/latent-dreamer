@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai fills the kettle with more water than he needs, setting it on the burner with the careful deliberateness of someone performing a task that matters, his back angled so the letter stays at the edge of his peripheral vision but not in it. He runs a thumb along the edge of the counter, once, twice, the way he might test a blade, and begins rehearsing under his breath a reason he could give for not going tonight\u2014something about work, something about the hour\u2014his lips barely moving, the words not quite reaching sound. The harbor is already in the room with him, salt-cold and specific, and the kettle ticks as it heats.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance_s02_c01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

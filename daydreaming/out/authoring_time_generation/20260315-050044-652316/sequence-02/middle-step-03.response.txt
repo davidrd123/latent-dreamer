@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa runs her thumbnail along the seam of her coat sleeve, a small private friction, while through the door the applause crests again and she lets it settle into her chest like a verdict she already knew was coming. The sentence she is composing for Eli has grown a second clause now\u2014something about how the room needed a through-line, how the through-line was always going to require choices, how the choices were made in service of the work and not of any one person's name\u2014and each clause feels less like defense and more like the plain account any fair witness would give. She notices she has stopped thinking about what Eli lost and started thinking about what she preserved, and for a moment the distinction seems important, even generous, as though preservation were itself a kind of care.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s03_c03",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

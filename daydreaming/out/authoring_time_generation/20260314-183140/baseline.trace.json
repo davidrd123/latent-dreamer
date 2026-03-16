@@ -1,0 +1,48 @@
+{
+  "arm": "baseline",
+  "candidate_text": "Maren stops outside the rehearsal-room door and writes three different openings on the back of the run sheet, discarding each one before she can decide which version sounds least defensive.",
+  "graph_projection": {
+    "branch_outcome_tags": [
+      "prepared_opening_line"
+    ],
+    "confidence": "medium",
+    "contrast_tags": [
+      "precision_vs_exposure"
+    ],
+    "delta_energy": 0.05,
+    "delta_tension": 0.09,
+    "node_id": "maren_opening_line_001",
+    "node_type": "beat",
+    "option_effect": "clarify",
+    "origin_pressure_refs": [
+      "cc_obligation",
+      "cc_attachment_threat"
+    ],
+    "payoff_refs": [
+      "sit_first_line_threshold"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "pressure_tags": [
+      "obligation",
+      "attachment_threat"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "ev_talk_before_runthrough"
+    ],
+    "situation_id": "sit_outside_rehearsal_room",
+    "source_lane": "L2",
+    "source_ref": "prototype-baseline"
+  },
+  "semantic_checks": {
+    "cross_fixture_contamination": true,
+    "opening-line rehearsal is present": true,
+    "rehearsal sharpens rather than resolves the choice": true,
+    "the meeting has not begun": true,
+    "the rehearsal room remains psychologically active": true
+  },
+  "timestamp": "2026-03-15T01:31:40.534654+00:00"
+}

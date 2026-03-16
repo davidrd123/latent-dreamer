@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa reads Eli's text a third time, and this time she catches herself mentally editing it\u2014softening his word 'erased' to 'overlooked,' the way you might correct a transcript\u2014while the donor laughter pushes through the coatroom wall and reminds her the evening is still succeeding, still hers. She folds the program along its existing crease, not a new one, and the small precision of that feels like fairness, like evidence of care. The sentence she is rehearsing has his name at the front and 'the room needed something they could hold onto' somewhere near the end, and she turns it over twice, deciding it is true, deciding that true is enough, while her thumb stays still above the screen.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s02_c02",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.12,
+    "delta_energy": -0.18,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

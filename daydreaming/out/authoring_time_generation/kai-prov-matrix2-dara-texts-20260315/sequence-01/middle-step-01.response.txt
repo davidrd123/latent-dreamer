@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai stands at the sink running cold water over his wrists, not washing anything, and mouths a sentence toward the window above the faucet: 'I didn't know that night would count the way it did.' He tries it again, slower, as if the harbor might be listening through the glass, then stops because the sentence already sounds like an excuse and she told him once to do his silence honestly. The letter stays on the table behind him, its corner just visible in his peripheral vision, and he does not turn around.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_sink_precontact",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

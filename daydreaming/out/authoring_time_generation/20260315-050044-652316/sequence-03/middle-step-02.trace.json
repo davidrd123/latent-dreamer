@@ -1,0 +1,389 @@
+{
+  "ablation": "none",
+  "active_situation_id": "sit_coatroom_after_toast",
+  "arm": "middle",
+  "candidate_compilation": {
+    "candidates_per_step": 4,
+    "rows": [
+      {
+        "candidate_index": 1,
+        "compilation_score": {
+          "against_accepted": 0.0,
+          "coverage": 0.0,
+          "distinctiveness": 0.095,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.236,
+          "specificity": 1.0,
+          "total": 0.669
+        },
+        "node_id": "beat_coatroom_rationalization_draft_s02_c01",
+        "renamed_node_id_to": "beat_coatroom_rationalization_draft_s02_c01",
+        "selected_operator_family": "rationalization"
+      },
+      {
+        "candidate_index": 2,
+        "compilation_score": {
+          "against_accepted": 0.0,
+          "coverage": 0.0,
+          "distinctiveness": 0.095,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.236,
+          "specificity": 1.0,
+          "total": 0.669
+        },
+        "node_id": "beat_coatroom_rationalization_draft_s02_c02",
+        "renamed_node_id_to": "beat_coatroom_rationalization_draft_s02_c02",
+        "selected_operator_family": "rationalization"
+      },
+      {
+        "candidate_index": 3,
+        "compilation_score": {
+          "against_accepted": 0.709,
+          "coverage": 0.0,
+          "distinctiveness": 0.709,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.709,
+          "specificity": 1.0,
+          "total": 0.717
+        },
+        "node_id": "beat_coatroom_rationalization_draft_s02_c03",
+        "renamed_node_id_to": "beat_coatroom_rationalization_draft_s02_c03",
+        "selected_operator_family": "rationalization"
+      },
+      {
+        "candidate_index": 4,
+        "compilation_score": {
+          "against_accepted": 0.0,
+          "coverage": 0.0,
+          "distinctiveness": 0.095,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.236,
+          "specificity": 1.0,
+          "total": 0.669
+        },
+        "node_id": "beat_coatroom_rationalization_draft_s02_c04",
+        "renamed_node_id_to": "beat_coatroom_rationalization_draft_s02_c04",
+        "selected_operator_family": "rationalization"
+      }
+    ],
+    "selected_candidate_index": 3,
+    "selected_score": {
+      "against_accepted": 0.709,
+      "coverage": 0.0,
+      "distinctiveness": 0.709,
+      "hard_errors": [],
+      "hard_pass": true,
+      "legibility": 0.75,
+      "sibling_diversity": 0.709,
+      "specificity": 1.0,
+      "total": 0.717
+    },
+    "selection_reason": "highest_soft_score_after_hard_filter"
+  },
+  "candidate_index": 3,
+  "candidate_text": "Her thumb has been resting on the period long enough that the screen has dimmed once and she woke it again, and now she reads the sentence back the way she imagines Eli will read it\u2014looking for the place where the explanation tips into excuse\u2014and decides it doesn't tip, decides it holds, decides the word *necessary* is doing honest work and not defensive work. The laughter from the hall reaches her as something warm and continuous, the room still full of the version of the evening where she gave the audience a clean through-line, where Eli's name in the program was always a separate and sufficient thing. She adds *I think you know how much the work mattered to me* and the sentence sits there feeling like candor, feeling like it costs her something, and she does not look at the cost.",
+  "concern_driver": "inferred",
+  "concern_inference": {
+    "dominant_match": true,
+    "fired_practice_bias_rules": [
+      "rule_explanation_as_self_protection"
+    ],
+    "fired_theme_rules": [
+      "rule_public_omission_threatens_status",
+      "rule_owed_acknowledgment_after_public_cut"
+    ],
+    "inferred_concerns": [
+      {
+        "base_intensity": 0.71,
+        "concern_type": "status_damage",
+        "id": "cc_status_damage",
+        "intensity_basis": "inferred_from_primitives",
+        "seed_origin": "shadow_inference",
+        "source_episode_ids": [
+          "ep_panel_simplification_defense",
+          "ep_silence_hardened_story"
+        ],
+        "source_rule_ids": [
+          "rule_public_omission_threatens_status"
+        ],
+        "target_ref": "eli",
+        "unresolved": true
+      },
+      {
+        "base_intensity": 0.65,
+        "concern_type": "obligation",
+        "id": "cc_obligation",
+        "intensity_basis": "inferred_from_primitives",
+        "seed_origin": "shadow_inference",
+        "source_episode_ids": [
+          "ep_half_apology_in_taxi"
+        ],
+        "source_rule_ids": [
+          "rule_owed_acknowledgment_after_public_cut"
+        ],
+        "target_ref": "eli",
+        "unresolved": true
+      }
+    ],
+    "inferred_dominant_concern_id": "cc_status_damage",
+    "mode": "shadow_seeded_driver",
+    "primitive_facts": [
+      "apology_is_unavoidable",
+      "character_protects_status_through_explanation",
+      "event_already_happened",
+      "public_credit_claim_cut_target_out",
+      "target_reached_out_immediately_after"
+    ],
+    "seeded_dominant_concern_id": "cc_status_damage",
+    "seeded_vs_inferred": [
+      {
+        "concern_id": "cc_status_damage",
+        "inferred_base_intensity": 0.71,
+        "inferred_present": true,
+        "intensity_delta": -0.08,
+        "seeded_base_intensity": 0.79,
+        "seeded_concern_type": "status_damage",
+        "seeded_target_ref": "eli",
+        "source_episode_overlap": [
+          "ep_panel_simplification_defense",
+          "ep_silence_hardened_story"
+        ],
+        "source_rule_match": true
+      },
+      {
+        "concern_id": "cc_obligation",
+        "inferred_base_intensity": 0.65,
+        "inferred_present": true,
+        "intensity_delta": -0.03,
+        "seeded_base_intensity": 0.68,
+        "seeded_concern_type": "obligation",
+        "seeded_target_ref": "eli",
+        "source_episode_overlap": [
+          "ep_half_apology_in_taxi"
+        ],
+        "source_rule_match": true
+      }
+    ]
+  },
+  "dominant_concern_id": "cc_status_damage",
+  "dominant_concern_type": "status_damage",
+  "dominant_target_ref": "eli",
+  "generation_temperature": 0.7,
+  "graph_projection": {
+    "confidence": "medium",
+    "delta_energy": -0.12,
+    "delta_tension": 0.15,
+    "node_id": "beat_coatroom_rationalization_draft_s02_c03",
+    "node_type": "beat",
+    "option_effect": "clarify",
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line",
+      "sit_coatroom_after_toast"
+    ],
+    "situation_id": "sit_coatroom_after_toast",
+    "source_lane": "L2",
+    "source_ref": "prototype-middle"
+  },
+  "graph_projection_normalizations": [
+    "rationalization_close_without_outward_act->clarify",
+    "origin_pressure_refs->runtime_deterministic",
+    "practice_tags->runtime_deterministic"
+  ],
+  "operator_score_breakdown": {
+    "_gap": {
+      "gap": 0.38,
+      "top_1": "rationalization",
+      "top_1_score": 0.87,
+      "top_2": "avoidance",
+      "top_2_score": 0.49
+    },
+    "avoidance": {
+      "appraisal_fit": 0.68,
+      "episodic_resonance": 0.08,
+      "family_bonus": 0.0,
+      "practice_fit": 0.18,
+      "pressure": 0.71,
+      "repetition_penalty": 0.12,
+      "total": 0.49
+    },
+    "rationalization": {
+      "appraisal_fit": 0.77,
+      "episodic_resonance": 0.52,
+      "family_bonus": 0.12,
+      "practice_fit": 0.86,
+      "pressure": 0.71,
+      "repetition_penalty": 0.08,
+      "total": 0.87
+    },
+    "rehearsal": {
+      "appraisal_fit": 0.37,
+      "episodic_resonance": 0.16,
+      "family_bonus": 0.0,
+      "practice_fit": 0.24,
+      "pressure": 0.71,
+      "repetition_penalty": 0.05,
+      "total": 0.43
+    }
+  },
+  "practice_bias_summary": {
+    "family_votes": {
+      "rationalization": 2.0
+    },
+    "fired_rules": [
+      {
+        "family_bonus": "rationalization",
+        "id": "rule_explanation_as_self_protection",
+        "practice_type": "confession",
+        "weight": 2.0
+      }
+    ],
+    "practice_votes": {
+      "confession": 2.0
+    }
+  },
+  "prompt_style": "legacy_json",
+  "reminder_episode_id": "ep_panel_simplification_defense",
+  "retrieval_scores": [
+    {
+      "episode_id": "ep_panel_simplification_defense",
+      "episode_kind": "backstory",
+      "fixture_order": 1,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "practice_type"
+      ],
+      "practice_type": "confession",
+      "recency_rank": 3,
+      "score": 3,
+      "summary": "After a tense panel, Tessa defended a cutting summary by saying the audience needed the clean version, then spent the night insisting that clarity mattered more than credit.\n"
+    },
+    {
+      "episode_id": "ep_half_apology_in_taxi",
+      "episode_kind": "backstory",
+      "fixture_order": 2,
+      "matched_keys": [
+        "target_ref",
+        "practice_type"
+      ],
+      "practice_type": "confession",
+      "recency_rank": 2,
+      "score": 2,
+      "summary": "In the back of a taxi after another collaboration fight, Tessa drafted an apology that kept turning into explanation until the apology disappeared.\n"
+    },
+    {
+      "episode_id": "ep_silence_hardened_story",
+      "episode_kind": "backstory",
+      "fixture_order": 3,
+      "matched_keys": [
+        "concern_type",
+        "target_ref"
+      ],
+      "practice_type": "evasion",
+      "recency_rank": 1,
+      "score": 2,
+      "summary": "Tessa once waited overnight to address a grievance, and by morning the silence had made the most flattering version of events feel deliberate.\n"
+    },
+    {
+      "episode_id": "gen_step_01_beat_coatroom_rationalization_draft",
+      "episode_kind": "generated",
+      "fixture_order": 4,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "situation_id",
+        "practice_type"
+      ],
+      "practice_type": "confession",
+      "recency_rank": 4,
+      "score": 4,
+      "summary": "Her thumb rests on the period at the end of the one sentence she has typed\u2014not a confession, just a framing\u2014and she reads it again the way she imagines Eli will, testing whether it sounds like an explanation or a defense, deciding it sounds like neither, deciding it sounds like honesty. The noise from the hall reaches her as a low, warm blur, the room still full of the version of the evening where she gave the audience what they needed, where clarity was the point, where Eli's name in the program was always going to be a separate conversation. She adds a second sentence that begins with *I think you know* and stops, because the phrase is already doing the work of an apology without costing her anything, which is exactly what she wanted and exactly what she cannot let herself notice."
+    }
+  ],
+  "selected_affordance_tags": [
+    "justify-simplification",
+    "minimize-harm-framing"
+  ],
+  "selected_operator_family": "rationalization",
+  "selected_retrieved_episode_ids": [
+    "gen_step_01_beat_coatroom_rationalization_draft",
+    "ep_panel_simplification_defense"
+  ],
+  "semantic_checks": {
+    "no_cross_fixture_contamination": true,
+    "rationalization is present": true,
+    "rationalization reframes rather than resolves the damage": false,
+    "the apology has not been sent": true,
+    "the donor hall remains psychologically active": true
+  },
+  "sequence_step": 2,
+  "situation_framing_mode": "round_robin_authored",
+  "situation_framing_variant": "unsent_reply_delay",
+  "structural_checks": {
+    "origin_pressure_refs_match_runtime": true,
+    "practice_tags_match_runtime": true,
+    "pressure_tags_match_runtime": true
+  },
+  "system_prompt_style": "explore_opening",
+  "timestamp": "2026-03-15T12:04:57.758903+00:00",
+  "updated_concerns": [
+    {
+      "base_intensity": 0.81,
+      "concern_type": "status_damage",
+      "id": "cc_status_damage",
+      "intensity_basis": "inferred_from_primitives",
+      "seed_origin": "shadow_inference",
+      "source_episode_ids": [
+        "ep_panel_simplification_defense",
+        "ep_silence_hardened_story"
+      ],
+      "source_rule_ids": [
+        "rule_public_omission_threatens_status"
+      ],
+      "target_ref": "eli",
+      "unresolved": true
+    },
+    {
+      "base_intensity": 0.6,
+      "concern_type": "obligation",
+      "id": "cc_obligation",
+      "intensity_basis": "inferred_from_primitives",
+      "seed_origin": "shadow_inference",
+      "source_episode_ids": [
+        "ep_half_apology_in_taxi"
+      ],
+      "source_rule_ids": [
+        "rule_owed_acknowledgment_after_public_cut"
+      ],
+      "target_ref": "eli",
+      "unresolved": true
+    }
+  ],
+  "use_expected_reference": false
+}

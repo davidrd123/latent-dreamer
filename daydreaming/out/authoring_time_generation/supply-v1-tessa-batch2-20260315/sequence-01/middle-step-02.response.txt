@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa watches Eli's text fade behind the darkening screen without touching it, and something in her settles \u2014 not relief exactly, but the beginning of an argument she hasn't lost yet. She turns the folded program over in her hand, thinking about the room, the ask, the single clean line of momentum a toast requires, and she decides that what she'd done was edit, not erase \u2014 the way any good collaborator knows when to step back from the shape of a thing so the thing can land. Through the door the applause has thinned to chairs and voices, the room already converting the moment into memory, and she realizes she is doing the same: smoothing the crease, finding the version where her name at the top was structural, not a choice.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

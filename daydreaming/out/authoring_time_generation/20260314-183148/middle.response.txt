@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Maren presses the folded run sheet against the hallway wall, uncapping her pen to draft a single sentence that won't sound like a defense of the tempo. She mouths the words silently, testing the weight of the phrasing until the space behind the closed door stops feeling quite so hostile. The rehearsal room hums with Leah's presence inside, demanding a perfect, unassailable entrance before Maren can bring herself to turn the handle.",
+  "graph_projection": {
+    "node_id": "beat_rehearse_opening_line_01",
+    "node_type": "beat",
+    "situation_id": "sit_outside_rehearsal_room",
+    "delta_tension": 0.3,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "payoff_refs": [
+      "sit_first_line_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

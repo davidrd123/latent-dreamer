@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Kai empties the silverware drawer onto the counter, meticulously wiping down each spoon and fork with a microfiber cloth. He keeps his back rigidly turned to the kitchen table, though the unopened envelope seems to project the faint, damp smell of the harbor docks right into the room. He focuses entirely on the gleaming metal in his hands, trying to ignore the creeping dread that his continued silence is already answering her invitation.",
+  "graph_projection": {
+    "node_id": "beat_evasion_silverware",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

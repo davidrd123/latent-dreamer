@@ -1,0 +1,81 @@
+{
+  "appraisal_frame": {
+    "changeability": 0.63,
+    "controllability": 0.57,
+    "desirability": -0.71,
+    "expectedness": 0.72,
+    "likelihood": 0.82,
+    "praiseworthiness": -0.44,
+    "realization_status": "prospective",
+    "temporal_status": "prospective"
+  },
+  "causal_slice": {
+    "affected_goal": {
+      "goal": "make-credible-first-approach",
+      "sign": "threatens",
+      "weight": 0.8
+    },
+    "attribution": {
+      "actor": "maren",
+      "intentional": true
+    },
+    "concern_id": "cc_obligation",
+    "focal_situation_id": "sit_outside_rehearsal_room",
+    "likelihood_bucket": "high",
+    "other_options": [
+      "leah-hardens"
+    ],
+    "self_options": [
+      "enter-room",
+      "draft-opening-line"
+    ],
+    "target_ref": "leah",
+    "temporal_status": "prospective"
+  },
+  "commit_type": "salience",
+  "emotion_vector_topk": {
+    "distress": 0.37,
+    "fear": 0.49,
+    "remorse": 0.33
+  },
+  "node_id": "maren_opening_line_001",
+  "operator_family": "rehearsal",
+  "operator_score_breakdown": {
+    "appraisal_fit": 0.61,
+    "episodic_resonance": 0.58,
+    "practice_fit": 0.78,
+    "pressure": 0.74,
+    "repetition_penalty": 0.05,
+    "total": 0.72
+  },
+  "practice_context": {
+    "affordance_tags": [
+      "draft-opening-line",
+      "brace-for-accusation",
+      "revise-framing"
+    ],
+    "phase": "precontact",
+    "practice_type": "anticipated-confrontation",
+    "role": "approacher"
+  },
+  "prompt_version": "v1-middle-layer",
+  "retrieval_keys": [
+    "concern_type",
+    "target_ref",
+    "situation_id",
+    "practice_type"
+  ],
+  "retrieved_episode_refs": [
+    "ep_public_break",
+    "ep_good_opening_line"
+  ],
+  "selected_affordance_tags": [
+    "draft-opening-line",
+    "brace-for-accusation"
+  ],
+  "source_concern_ids": [
+    "cc_obligation",
+    "cc_attachment_threat"
+  ],
+  "validator_result": "pass"
+}

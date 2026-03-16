@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the kettle past the line he needs, watching the water level with the concentration of someone defusing something, and when it clicks on he moves to wipe the counter with a cloth that is already dry, working in slow circles near the edge of the table but not toward the letter. The envelope sits in his peripheral vision like a sound he is pretending not to hear. He rehearses, briefly and without words, the particular way his hands would look opening it\u2014and stops himself by rinsing the cloth instead, wringing it out over the sink while the harbor sits six blocks away in the dark, already waiting.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa reads Eli's text a second time without typing anything back, her thumb hovering, and in the silence she hears the room still\u2014the clink of glasses, the donor laughter carrying through the wall\u2014and tells herself that what she said at the podium was the compressed version, the version the evening required, not a theft of anything. She folds the program tighter along its crease, the way she might close a parenthesis, and rehearses a sentence that begins with his name and ends with the word 'context,' because context is not an excuse, she reminds herself, it is just the part people leave out. The apology she is composing in her head keeps arriving as a correction to his reading of events rather than a acknowledgment of what the reading cost him, and she notices this without quite stopping it.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s01_c03",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.12,
+    "delta_energy": -0.18,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

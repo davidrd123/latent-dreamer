@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai refills his coffee cup even though it's still half full, watching the liquid rise with the concentration of a man defusing something, his back to the table where the letter sits. He counts the seconds the coffee maker hisses, then wipes down the already-clean counter in slow overlapping arcs, the dishcloth moving with slightly too much care. The harbor is six blocks away and he knows the tide schedule without trying to know it, the way you know the hour of a thing you are pretending not to wait for.",
+  "graph_projection": {
+    "node_id": "beat_kai_kitchen_avoidance_01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

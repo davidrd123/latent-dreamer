@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai turns the kettle's handle a quarter inch to the left, then back, centering it against some standard only he can measure. The letter has warped slightly at one corner\u2014he notices this without looking directly at it, the way you notice a sound that stopped a moment ago\u2014and he thinks about the harbor's particular cold, how it comes off the water and finds the back of your neck before you've decided to stay or go. He refolds the dish towel into thirds and sets it on the counter with a care that belongs to a different task entirely, then stands with his hands flat on the surface, pressing down as if the kitchen itself might drift.",
+  "graph_projection": {
+    "node_id": "beat_kai_ritual_distraction_letter",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

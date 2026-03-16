@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Kai aligns the salt and pepper shakers with agonizing precision, ensuring they sit exactly parallel to the edge of the unopened envelope. He turns the kitchen faucet on high to drown out the phantom sound of harbor gulls, watching the cold water spiral endlessly down the drain. If he just finishes reorganizing the counter, he tells himself, the heavy silence stretching between them won't have time to solidify into a final answer.",
+  "graph_projection": {
+    "node_id": "beat_avoidance_kitchen_sink",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

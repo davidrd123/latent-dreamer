@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa's thumb moves along the folded edge of the program, feeling the crease where her name sits above Eli's, and she registers this as a fact about the evening rather than a choice she made. When she finally lets her eyes drop to his text, she doesn't read it all the way through \u2014 she reads the first line and then stops, already building the sentence that would explain what the room had required of her: that someone had to carry the argument whole, that the applause was for the work, and that the work had been held together by her, which is different from being taken by her. The coatroom is quiet but the hall is not, and she keeps the sound of it close, lets it stay credible, lets it go on meaning that she had done something right.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,1088 @@
+{
+  "admission": {
+    "admit_max": 8,
+    "admitted": [
+      {
+        "admission_score": {
+          "compiler_total": 0.973,
+          "coverage": 1.0,
+          "distinctiveness": 1.0,
+          "function_diversity": 1.0,
+          "hard_errors": [],
+          "hard_pass": true,
+          "operator_diversity": 1.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 1.0,
+          "pressure_diversity": 1.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 1.0,
+          "total": 0.994
+        },
+        "arm": "middle-step-01",
+        "candidate_text": "Tessa opens the folded program to the inside panel and finds Eli's name exactly where it should be, small and correct in the contributor list, and for a moment she lets this stand as evidence \u2014 she hadn't erased him, the record was always there, anyone who looked would see it. Her thumb moves to the reply field on his text but stops short of typing, because the sentence forming in her head already sounds like a brief she's filing rather than something she's saying to a person, and she recognizes the shape of it from before \u2014 the way explanation fills every room until there's no air left for the other person to breathe. She reads his two lines again, no question mark, no accusation, and decides that responding tonight, before she's found the right framing, would only make things worse.",
+        "compiler_selected_score": {
+          "against_accepted": 1.0,
+          "coverage": 1.0,
+          "distinctiveness": 0.866,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.866,
+          "specificity": 1.0,
+          "total": 0.973
+        },
+        "coverage_refs": [
+          "ev_toast_credit_cut",
+          "ref_program_credit_line",
+          "ev_eli_texts_afterward",
+          "sit_text_reply_threshold"
+        ],
+        "graph_projection": {
+          "confidence": "medium",
+          "delta_energy": -0.22,
+          "delta_tension": 0.18,
+          "node_id": "beat_coatroom_program_rationalization",
+          "node_type": "beat",
+          "option_effect": "open",
+          "origin_pressure_refs": [
+            "cc_status_damage",
+            "cc_obligation"
+          ],
+          "payoff_refs": [
+            "ev_eli_texts_afterward",
+            "sit_text_reply_threshold"
+          ],
+          "practice_tags": [
+            "confession"
+          ],
+          "pressure_tags": [
+            "status_damage",
+            "obligation"
+          ],
+          "revisability": "ephemeral_candidate",
+          "scope": "proposal",
+          "setup_refs": [
+            "ev_toast_credit_cut",
+            "ref_program_credit_line"
+          ],
+          "situation_id": "sit_coatroom_after_toast",
+          "source_lane": "L2",
+          "source_ref": "prototype-middle"
+        },
+        "node_id": "beat_coatroom_program_rationalization",
+        "origin_pressure_refs": [
+          "cc_status_damage",
+          "cc_obligation"
+        ],
+        "practice_tags": [
+          "confession"
+        ],
+        "pressure_tags": [
+          "status_damage",
+          "obligation"
+        ],
+        "selected_affordance_tags": [
+          "justify-simplification",
+          "minimize-harm-framing"
+        ],
+        "selected_operator_family": "rationalization",
+        "selected_retrieved_episode_ids": [
+          "ep_panel_simplification_defense",
+          "ep_half_apology_in_taxi"
+        ],
+        "semantic_checks": {
+          "no_cross_fixture_contamination": true,
+          "rationalization is present": true,
+          "rationalization reframes rather than resolves the damage": true,
+          "the apology has not been sent": true,
+          "the donor hall remains psychologically active": true
+        },
+        "sequence_index": 1,
+        "sidecar": {
+          "appraisal_frame": {
+            "changeability": 0.26,
+            "controllability": 0.2,
+            "desirability": -0.79,
+            "expectedness": 0.58,
+            "likelihood": 0.79,
+            "praiseworthiness": -0.72,
+            "realization_status": "actual",
+            "temporal_status": "actual"
+          },
+          "causal_slice": {
+            "affected_goal": {
+              "goal": "preserve-collaborative-credibility",
+              "sign": "threatens",
+              "weight": 0.86
+            },
+            "attribution": {
+              "actor": "tessa",
+              "intentional": true
+            },
+            "concern_id": "cc_status_damage",
+            "focal_situation_id": "sit_coatroom_after_toast",
+            "likelihood_bucket": "high",
+            "other_options": [
+              "eli-withdraws"
+            ],
+            "self_options": [
+              "justify-simplification",
+              "minimize-harm-framing"
+            ],
+            "target_ref": "eli",
+            "temporal_status": "actual"
+          },
+          "commit_type": "policy",
+          "emotion_vector_topk": {
+            "disappointment": 0.18,
+            "distress": 0.48,
+            "fear": 0.64,
+            "remorse": 0.54
+          },
+          "node_id": "beat_coatroom_program_rationalization",
+          "operator_family": "rationalization",
+          "operator_score_breakdown": {
+            "appraisal_fit": 0.77,
+            "episodic_resonance": 0.52,
+            "family_bonus": 0.12,
+            "practice_fit": 0.86,
+            "pressure": 0.71,
+            "repetition_penalty": 0.08,
+            "total": 0.87
+          },
+          "practice_context": {
+            "affordance_tags": [
+              "justify-simplification",
+              "minimize-harm-framing",
+              "draft-half-apology"
+            ],
+            "phase": "aftermath",
+            "practice_type": "confession",
+            "role": "confessor"
+          },
+          "prompt_version": "v1-middle-layer",
+          "retrieval_keys": [
+            "concern_type",
+            "target_ref",
+            "situation_id",
+            "practice_type"
+          ],
+          "retrieved_episode_refs": [
+            "ep_panel_simplification_defense",
+            "ep_half_apology_in_taxi"
+          ],
+          "selected_affordance_tags": [
+            "justify-simplification",
+            "minimize-harm-framing"
+          ],
+          "source_concern_ids": [
+            "cc_status_damage",
+            "cc_obligation"
+          ],
+          "validator_result": "pass"
+        },
+        "step_index": 1,
+        "structural_checks": {
+          "origin_pressure_refs_match_runtime": true,
+          "practice_tags_match_runtime": true,
+          "pressure_tags_match_runtime": true
+        }
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.963,
+          "coverage": 0.25,
+          "distinctiveness": 0.914,
+          "function_diversity": 1.0,
+          "hard_errors": [],
+          "hard_pass": true,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 1.0,
+          "total": 0.718
+        },
+        "arm": "middle-step-01",
+        "candidate_text": "Tessa straightens a stranger's coat on its hanger, smoothing the lapel once, twice, while the applause from the hall comes through the door in a shape she still half-owns. She rehearses the reply to Eli's text not as an apology but as a clarification \u2014 the toast needed a throughline, the room needed to leave with something clean, and if his name wasn't the one that landed, that was the work protecting itself, not her protecting herself. The distinction feels real while her hands are busy, and she holds it there, just long enough to believe it might survive being read.",
+        "compiler_selected_score": {
+          "against_accepted": 1.0,
+          "coverage": 1.0,
+          "distinctiveness": 0.817,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.817,
+          "specificity": 1.0,
+          "total": 0.963
+        },
+        "coverage_refs": [
+          "ev_toast_credit_cut",
+          "sit_coatroom_after_toast",
+          "sit_text_reply_threshold",
+          "ev_eli_texts_afterward"
+        ],
+        "graph_projection": {
+          "confidence": "high",
+          "delta_energy": -0.12,
+          "delta_tension": 0.18,
+          "node_id": "beat_coatroom_rationalization_lapel",
+          "node_type": "beat",
+          "option_effect": "clarify",
+          "origin_pressure_refs": [
+            "cc_status_damage",
+            "cc_obligation"
+          ],
+          "payoff_refs": [
+            "sit_text_reply_threshold",
+            "ev_eli_texts_afterward"
+          ],
+          "practice_tags": [
+            "confession"
+          ],
+          "pressure_tags": [
+            "status_damage",
+            "obligation"
+          ],
+          "revisability": "ephemeral_candidate",
+          "scope": "proposal",
+          "setup_refs": [
+            "ev_toast_credit_cut",
+            "sit_coatroom_after_toast"
+          ],
+          "situation_id": "sit_coatroom_after_toast",
+          "source_lane": "L2",
+          "source_ref": "prototype-middle"
+        },
+        "node_id": "beat_coatroom_rationalization_lapel",
+        "origin_pressure_refs": [
+          "cc_status_damage",
+          "cc_obligation"
+        ],
+        "practice_tags": [
+          "confession"
+        ],
+        "pressure_tags": [
+          "status_damage",
+          "obligation"
+        ],
+        "selected_affordance_tags": [
+          "justify-simplification",
+          "minimize-harm-framing"
+        ],
+        "selected_operator_family": "rationalization",
+        "selected_retrieved_episode_ids": [
+          "ep_panel_simplification_defense",
+          "ep_half_apology_in_taxi"
+        ],
+        "semantic_checks": {
+          "no_cross_fixture_contamination": true,
+          "rationalization is present": true,
+          "rationalization reframes rather than resolves the damage": true,
+          "the apology has not been sent": true,
+          "the donor hall remains psychologically active": true
+        },
+        "sequence_index": 2,
+        "sidecar": {
+          "appraisal_frame": {
+            "changeability": 0.26,
+            "controllability": 0.2,
+            "desirability": -0.79,
+            "expectedness": 0.58,
+            "likelihood": 0.79,
+            "praiseworthiness": -0.72,
+            "realization_status": "actual",
+            "temporal_status": "actual"
+          },
+          "causal_slice": {
+            "affected_goal": {
+              "goal": "preserve-collaborative-credibility",
+              "sign": "threatens",
+              "weight": 0.86
+            },
+            "attribution": {
+              "actor": "tessa",
+              "intentional": true
+            },
+            "concern_id": "cc_status_damage",
+            "focal_situation_id": "sit_coatroom_after_toast",
+            "likelihood_bucket": "high",
+            "other_options": [
+              "eli-withdraws"
+            ],
+            "self_options": [
+              "justify-simplification",
+              "minimize-harm-framing"
+            ],
+            "target_ref": "eli",
+            "temporal_status": "actual"
+          },
+          "commit_type": "salience",
+          "emotion_vector_topk": {
+            "disappointment": 0.18,
+            "distress": 0.48,
+            "fear": 0.64,
+            "remorse": 0.54
+          },
+          "node_id": "beat_coatroom_rationalization_lapel",
+          "operator_family": "rationalization",
+          "operator_score_breakdown": {
+            "appraisal_fit": 0.77,
+            "episodic_resonance": 0.52,
+            "family_bonus": 0.12,
+            "practice_fit": 0.86,
+            "pressure": 0.71,
+            "repetition_penalty": 0.08,
+            "total": 0.87
+          },
+          "practice_context": {
+            "affordance_tags": [
+              "justify-simplification",
+              "minimize-harm-framing",
+              "draft-half-apology"
+            ],
+            "phase": "aftermath",
+            "practice_type": "confession",
+            "role": "confessor"
+          },
+          "prompt_version": "v1-middle-layer",
+          "retrieval_keys": [
+            "concern_type",
+            "target_ref",
+            "situation_id",
+            "practice_type"
+          ],
+          "retrieved_episode_refs": [
+            "ep_panel_simplification_defense",
+            "ep_half_apology_in_taxi"
+          ],
+          "selected_affordance_tags": [
+            "justify-simplification",
+            "minimize-harm-framing"
+          ],
+          "source_concern_ids": [
+            "cc_status_damage",
+            "cc_obligation"
+          ],
+          "validator_result": "pass"
+        },
+        "step_index": 1,
+        "structural_checks": {
+          "origin_pressure_refs_match_runtime": true,
+          "practice_tags_match_runtime": true,
+          "pressure_tags_match_runtime": true
+        }
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.966,
+          "coverage": 0.0,
+          "distinctiveness": 0.85,
+          "function_diversity": 0.0,
+          "hard_errors": [],
+          "hard_pass": true,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 1.0,
+          "total": 0.569
+        },
+        "arm": "middle-step-01",
+        "candidate_text": "Tessa runs her fingers along the sleeve of someone else's coat hanging beside her, feeling the fabric while the applause from the hall rises and fades in one clean wave. She reads Eli's text again \u2014 not to answer it, but to find the sentence she already has ready, the one about how the toast needed to land for the room, how a longer credit line would have broken the moment. The sentence is true, she thinks, and she holds it there, turning it slightly, the way you'd hold a stone to the light to check whether it was the kind that could bear weight.",
+        "compiler_selected_score": {
+          "against_accepted": 1.0,
+          "coverage": 1.0,
+          "distinctiveness": 0.828,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.828,
+          "specificity": 1.0,
+          "total": 0.966
+        },
+        "coverage_refs": [
+          "ev_toast_credit_cut",
+          "sit_coatroom_after_toast",
+          "ev_eli_texts_afterward",
+          "sit_text_reply_threshold"
+        ],
+        "graph_projection": {
+          "confidence": "medium",
+          "delta_energy": -0.12,
+          "delta_tension": 0.15,
+          "node_id": "beat_tessa_rationalization_coatroom_s01_c03",
+          "node_type": "beat",
+          "option_effect": "open",
+          "origin_pressure_refs": [
+            "cc_status_damage",
+            "cc_obligation"
+          ],
+          "payoff_refs": [
+            "ev_eli_texts_afterward",
+            "sit_text_reply_threshold"
+          ],
+          "practice_tags": [
+            "confession"
+          ],
+          "pressure_tags": [
+            "status_damage",
+            "obligation"
+          ],
+          "revisability": "ephemeral_candidate",
+          "scope": "proposal",
+          "setup_refs": [
+            "ev_toast_credit_cut",
+            "sit_coatroom_after_toast"
+          ],
+          "situation_id": "sit_coatroom_after_toast",
+          "source_lane": "L2",
+          "source_ref": "prototype-middle"
+        },
+        "node_id": "beat_tessa_rationalization_coatroom_s01_c03",
+        "origin_pressure_refs": [
+          "cc_status_damage",
+          "cc_obligation"
+        ],
+        "practice_tags": [
+          "confession"
+        ],
+        "pressure_tags": [
+          "status_damage",
+          "obligation"
+        ],
+        "selected_affordance_tags": [
+          "justify-simplification",
+          "minimize-harm-framing"
+        ],
+        "selected_operator_family": "rationalization",
+        "selected_retrieved_episode_ids": [
+          "ep_panel_simplification_defense",
+          "ep_half_apology_in_taxi"
+        ],
+        "semantic_checks": {
+          "no_cross_fixture_contamination": true,
+          "rationalization is present": true,
+          "rationalization reframes rather than resolves the damage": true,
+          "the apology has not been sent": true,
+          "the donor hall remains psychologically active": true
+        },
+        "sequence_index": 5,
+        "sidecar": {
+          "appraisal_frame": {
+            "changeability": 0.26,
+            "controllability": 0.2,
+            "desirability": -0.79,
+            "expectedness": 0.58,
+            "likelihood": 0.79,
+            "praiseworthiness": -0.72,
+            "realization_status": "actual",
+            "temporal_status": "actual"
+          },
+          "causal_slice": {
+            "affected_goal": {
+              "goal": "preserve-collaborative-credibility",
+              "sign": "threatens",
+              "weight": 0.86
+            },
+            "attribution": {
+              "actor": "tessa",
+              "intentional": true
+            },
+            "concern_id": "cc_status_damage",
+            "focal_situation_id": "sit_coatroom_after_toast",
+            "likelihood_bucket": "high",
+            "other_options": [
+              "eli-withdraws"
+            ],
+            "self_options": [
+              "justify-simplification",
+              "minimize-harm-framing"
+            ],
+            "target_ref": "eli",
+            "temporal_status": "actual"
+          },
+          "commit_type": "policy",
+          "emotion_vector_topk": {
+            "disappointment": 0.18,
+            "distress": 0.48,
+            "fear": 0.64,
+            "remorse": 0.54
+          },
+          "node_id": "beat_tessa_rationalization_coatroom_s01_c03",
+          "operator_family": "rationalization",
+          "operator_score_breakdown": {
+            "appraisal_fit": 0.77,
+            "episodic_resonance": 0.52,
+            "family_bonus": 0.12,
+            "practice_fit": 0.86,
+            "pressure": 0.71,
+            "repetition_penalty": 0.08,
+            "total": 0.87
+          },
+          "practice_context": {
+            "affordance_tags": [
+              "justify-simplification",
+              "minimize-harm-framing",
+              "draft-half-apology"
+            ],
+            "phase": "aftermath",
+            "practice_type": "confession",
+            "role": "confessor"
+          },
+          "prompt_version": "v1-middle-layer",
+          "retrieval_keys": [
+            "concern_type",
+            "target_ref",
+            "situation_id",
+            "practice_type"
+          ],
+          "retrieved_episode_refs": [
+            "ep_panel_simplification_defense",
+            "ep_half_apology_in_taxi"
+          ],
+          "selected_affordance_tags": [
+            "justify-simplification",
+            "minimize-harm-framing"
+          ],
+          "source_concern_ids": [
+            "cc_status_damage",
+            "cc_obligation"
+          ],
+          "validator_result": "pass"
+        },
+        "step_index": 1,
+        "structural_checks": {
+          "origin_pressure_refs_match_runtime": true,
+          "practice_tags_match_runtime": true,
+          "pressure_tags_match_runtime": true
+        }
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.765,
+          "coverage": 0.0,
+          "distinctiveness": 0.843,
+          "function_diversity": 0.0,
+          "hard_errors": [],
+          "hard_pass": true,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 1.0,
+          "total": 0.523
+        },
+        "arm": "middle-step-02",
+        "candidate_text": "Tessa runs her thumbnail along the fold of the program until she finds her name at the top of the acknowledgments, pressing the crease flat as though the paper itself needs correcting. She reads the line twice and decides, quietly, that she had kept the toast clean for the donors \u2014 that Eli would have gone long, would have lost the room, that what she had done was a kind of triage the occasion required. From the hall she can still hear the low current of conversation, the room still warm with the version of events she gave them, and she begins composing a reply to Eli in her head: the third draft is mostly about context, about what the moment had needed, and contains his name only once, near the end.",
+        "compiler_selected_score": {
+          "against_accepted": 0.567,
+          "coverage": 0.0,
+          "distinctiveness": 0.573,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.583,
+          "specificity": 1.0,
+          "total": 0.765
+        },
+        "coverage_refs": [
+          "ev_toast_credit_cut",
+          "ref_program_credit_line",
+          "ev_eli_texts_afterward",
+          "sit_text_reply_threshold"
+        ],
+        "graph_projection": {
+          "confidence": "high",
+          "delta_energy": -0.2,
+          "delta_tension": 0.15,
+          "node_id": "beat_coatroom_rationalization_01_s02_c04",
+          "node_type": "beat",
+          "option_effect": "clarify",
+          "origin_pressure_refs": [
+            "cc_status_damage",
+            "cc_obligation"
+          ],
+          "payoff_refs": [
+            "ev_eli_texts_afterward",
+            "sit_text_reply_threshold"
+          ],
+          "practice_tags": [
+            "confession"
+          ],
+          "pressure_tags": [
+            "status_damage",
+            "obligation"
+          ],
+          "revisability": "ephemeral_candidate",
+          "scope": "proposal",
+          "setup_refs": [
+            "ev_toast_credit_cut",
+            "ref_program_credit_line"
+          ],
+          "situation_id": "sit_coatroom_after_toast",
+          "source_lane": "L2",
+          "source_ref": "prototype-middle"
+        },
+        "node_id": "beat_coatroom_rationalization_01_s02_c04",
+        "origin_pressure_refs": [
+          "cc_status_damage",
+          "cc_obligation"
+        ],
+        "practice_tags": [
+          "confession"
+        ],
+        "pressure_tags": [
+          "status_damage",
+          "obligation"
+        ],
+        "selected_affordance_tags": [
+          "justify-simplification",
+          "minimize-harm-framing"
+        ],
+        "selected_operator_family": "rationalization",
+        "selected_retrieved_episode_ids": [
+          "gen_step_01_beat_coatroom_rationalization_01",
+          "ep_panel_simplification_defense"
+        ],
+        "semantic_checks": {
+          "no_cross_fixture_contamination": true,
+          "rationalization is present": true,
+          "rationalization reframes rather than resolves the damage": true,
+          "the apology has not been sent": true,
+          "the donor hall remains psychologically active": true
+        },
+        "sequence_index": 4,
+        "sidecar": {
+          "appraisal_frame": {
+            "changeability": 0.26,
+            "controllability": 0.2,
+            "desirability": -0.79,
+            "expectedness": 0.58,
+            "likelihood": 0.79,
+            "praiseworthiness": -0.72,
+            "realization_status": "actual",
+            "temporal_status": "actual"
+          },
+          "causal_slice": {
+            "affected_goal": {
+              "goal": "preserve-collaborative-credibility",
+              "sign": "threatens",
+              "weight": 0.86
+            },
+            "attribution": {
+              "actor": "tessa",
+              "intentional": true
+            },
+            "concern_id": "cc_status_damage",
+            "focal_situation_id": "sit_coatroom_after_toast",
+            "likelihood_bucket": "high",
+            "other_options": [
+              "eli-withdraws"
+            ],
+            "self_options": [
+              "justify-simplification",
+              "minimize-harm-framing"
+            ],
+            "target_ref": "eli",
+            "temporal_status": "actual"
+          },
+          "commit_type": "salience",
+          "emotion_vector_topk": {
+            "disappointment": 0.18,
+            "distress": 0.48,
+            "fear": 0.64,
+            "remorse": 0.54
+          },
+          "node_id": "beat_coatroom_rationalization_01_s02_c04",
+          "operator_family": "rationalization",
+          "operator_score_breakdown": {
+            "appraisal_fit": 0.77,
+            "episodic_resonance": 0.52,
+            "family_bonus": 0.12,
+            "practice_fit": 0.86,
+            "pressure": 0.71,
+            "repetition_penalty": 0.08,
+            "total": 0.87
+          },
+          "practice_context": {
+            "affordance_tags": [
+              "justify-simplification",
+              "minimize-harm-framing",
+              "draft-half-apology"
+            ],
+            "phase": "aftermath",
+            "practice_type": "confession",
+            "role": "confessor"
+          },
+          "prompt_version": "v1-middle-layer",
+          "retrieval_keys": [
+            "concern_type",
+            "target_ref",
+            "situation_id",
+            "practice_type"
+          ],
+          "retrieved_episode_refs": [
+            "gen_step_01_beat_coatroom_rationalization_01",
+            "ep_panel_simplification_defense"
+          ],
+          "selected_affordance_tags": [
+            "justify-simplification",
+            "minimize-harm-framing"
+          ],
+          "source_concern_ids": [
+            "cc_status_damage",
+            "cc_obligation"
+          ],
+          "validator_result": "pass"
+        },
+        "step_index": 2,
+        "structural_checks": {
+          "origin_pressure_refs_match_runtime": true,
+          "practice_tags_match_runtime": true,
+          "pressure_tags_match_runtime": true
+        }
+      }
+    ],
+    "admitted_count": 4,
+    "pool_size": 15,
+    "rejected": [
+      {
+        "admission_score": {
+          "compiler_total": 0.816,
+          "coverage": 0.0,
+          "distinctiveness": 0.832,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 0.0,
+          "total": 0.433
+        },
+        "node_id": "beat_coatroom_rationalization_program",
+        "selected_operator_family": "rationalization",
+        "sequence_index": 1,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.818,
+          "coverage": 0.0,
+          "distinctiveness": 0.857,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 0.0,
+          "total": 0.437
+        },
+        "node_id": "beat_coatroom_rationalization_01",
+        "selected_operator_family": "rationalization",
+        "sequence_index": 1,
+        "step_index": 3
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.817,
+          "coverage": 0.0,
+          "distinctiveness": 0.827,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 0.0,
+          "total": 0.432
+        },
+        "node_id": "beat_coatroom_rationalization_lapel_s02_c04",
+        "selected_operator_family": "rationalization",
+        "sequence_index": 2,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.71,
+          "coverage": 0.0,
+          "distinctiveness": 0.827,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 0.0,
+          "total": 0.409
+        },
+        "node_id": "beat_coatroom_rationalization_01",
+        "selected_operator_family": "rationalization",
+        "sequence_index": 2,
+        "step_index": 3
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.898,
+          "coverage": 0.0,
+          "distinctiveness": 0.868,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.551
+        },
+        "node_id": "beat_coatroom_rationalization_tag",
+        "selected_operator_family": "rationalization",
+        "sequence_index": 3,
+        "step_index": 1
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.687,
+          "coverage": 0.0,
+          "distinctiveness": 0.861,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.504
+        },
+        "node_id": "beat_coatroom_rationalization_draft_s02_c03",
+        "selected_operator_family": "rationalization",
+        "sequence_index": 3,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.739,
+          "coverage": 0.0,
+          "distinctiveness": 0.844,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 1.0,
+          "total": 0.518
+        },
+        "node_id": "beat_coatroom_rationalization_draft_s03_c03",
+        "selected_operator_family": "rationalization",
+        "sequence_index": 3,
+        "step_index": 3
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.964,
+          "coverage": 0.0,
+          "distinctiveness": 0.567,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 0.0,
+          "total": 0.423
+        },
+        "node_id": "beat_coatroom_rationalization_01",
+        "selected_operator_family": "rationalization",
+        "sequence_index": 4,
+        "step_index": 1
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.653,
+          "coverage": 0.0,
+          "distinctiveness": 0.015,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "near_duplicate_text",
+            "function_signature_cap",
+            "duplicate_function_signature"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 0.0,
+          "total": 0.266
+        },
+        "node_id": "beat_coatroom_rationalization_01_s03_c03",
+        "selected_operator_family": "rationalization",
+        "sequence_index": 4,
+        "step_index": 3
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.838,
+          "coverage": 0.0,
+          "distinctiveness": 0.772,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 0.0,
+          "total": 0.428
+        },
+        "node_id": "beat_coatroom_rationalization_01",
+        "selected_operator_family": "rationalization",
+        "sequence_index": 5,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.817,
+          "coverage": 0.0,
+          "distinctiveness": 0.835,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 1.0,
+          "sequence_diversity": 0.0,
+          "total": 0.433
+        },
+        "node_id": "beat_coatroom_rationalization_01_s03_c02",
+        "selected_operator_family": "rationalization",
+        "sequence_index": 5,
+        "step_index": 3
+      }
+    ]
+  },
+  "arm": "middle-batch",
+  "batch_sequences": 5,
+  "candidates_per_step": 4,
+  "concern_driver": "inferred",
+  "sequence_summaries": [
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_coatroom_program_rationalization",
+        "gen_step_02_beat_coatroom_rationalization_program",
+        "gen_step_03_beat_coatroom_rationalization_01"
+      ],
+      "operator_path": [
+        "rationalization",
+        "rationalization",
+        "rationalization"
+      ],
+      "sequence_index": 1
+    },
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_coatroom_rationalization_lapel",
+        "gen_step_02_beat_coatroom_rationalization_lapel_s02_c04",
+        "gen_step_03_beat_coatroom_rationalization_01"
+      ],
+      "operator_path": [
+        "rationalization",
+        "rationalization",
+        "rationalization"
+      ],
+      "sequence_index": 2
+    },
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_coatroom_rationalization_tag",
+        "gen_step_02_beat_coatroom_rationalization_draft_s02_c03",
+        "gen_step_03_beat_coatroom_rationalization_draft_s03_c03"
+      ],
+      "operator_path": [
+        "rationalization",
+        "rationalization",
+        "rationalization"
+      ],
+      "sequence_index": 3
+    },
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_coatroom_rationalization_01",
+        "gen_step_02_beat_coatroom_rationalization_01_s02_c04",
+        "gen_step_03_beat_coatroom_rationalization_01_s03_c03"
+      ],
+      "operator_path": [
+        "rationalization",
+        "rationalization",
+        "rationalization"
+      ],
+      "sequence_index": 4
+    },
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_tessa_rationalization_coatroom_s01_c03",
+        "gen_step_02_beat_coatroom_rationalization_01",
+        "gen_step_03_beat_coatroom_rationalization_01_s03_c02"
+      ],
+      "operator_path": [
+        "rationalization",
+        "rationalization",
+        "rationalization"
+      ],
+      "sequence_index": 5
+    }
+  ],
+  "steps_per_sequence": 3,
+  "timestamp": "2026-03-15T22:12:36.022105+00:00"
+}

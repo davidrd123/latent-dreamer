@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Maren stands outside the rehearsal room, obsessively smoothing the edges of the folded run sheet as if it were the apology note she spent hours rewriting; the letter remains unopened in her pocket. She tells herself she is just waiting to script an opening line that doesn't defend the tempo, but the meticulous reorganization of her papers has already become its own refusal to enter. The harbor remains psychologically present, a heavy, stalling fog in her mind, even though Kai is miles away in the kitchen. By focusing entirely on the sharp creases of the run sheet, she successfully avoids reaching for the door handle.",
+  "graph_projection": {
+    "node_id": "beat_maren_evasion_hallway",
+    "node_type": "beat",
+    "situation_id": "sit_outside_rehearsal_room",
+    "delta_tension": 0.15,
+    "delta_energy": -0.25,
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "payoff_refs": [
+      "ev_talk_before_runthrough"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

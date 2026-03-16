@@ -13,6 +13,7 @@ Last updated: 2026-03-15
 |-----|-------------|
 | [dashboard.md](dashboard.md) | Project status, phase map, parallel tracks, milestones |
 | [current-sprint.md](current-sprint.md) | Current objective, frozen recipe, immediate tasks, decision gates |
+| [executor / verifier protocol](executor-verifier-protocol.md) | Milestone-based autonomy with independent verification |
 | this file | Where to find everything |
 
 ---
@@ -21,6 +22,7 @@ Last updated: 2026-03-15
 
 | Doc | What it covers |
 |-----|---------------|
+| [current synthesis](DeepResearch/2026-03-13/pressure-engine-reframe/36-current-synthesis.md) | Current read on what is settled, proven, open, and what seam comes next |
 | [settled-architecture](DeepResearch/2026-03-13/pressure-engine-reframe/11-settled-architecture.md) | L1/L2/L3 three-layer architecture, settled decisions |
 | [graph-interface-contract](DeepResearch/2026-03-13/pressure-engine-reframe/21-graph-interface-contract.md) | Thin graph seam, field split, what goes in the graph vs. sidecar |
 | [L2 schema](DeepResearch/2026-03-13/pressure-engine-reframe/28-l2-schema-from-5pro.md) | CausalSlice, AppraisalFrame, PracticeContext, reappraisal rules |

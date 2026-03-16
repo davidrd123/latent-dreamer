@@ -1,0 +1,73 @@
+# Kai generated seed 19 playlist
+
+cycle 1: k_start_table_letter
+name: Letter on the table
+situation: sit_unopened_letter
+option_effect: inspect
+visual_description: The letter stays unopened on the table while the kitchen gives Kai smaller tasks to do instead of answering it.
+
+cycle 2: k_patch_contrast
+name: Coffee hiss and tide count
+situation: sit_unopened_letter
+option_effect: inspect
+visual_description: Kai refills his coffee cup even though it's still half full, watching the liquid rise with the concentration of a man defusing something, his back to the table where the letter sits. He counts the seconds the coffee maker hisses, then wipes down the already-clean counter in slow overlapping arcs, the dishcloth moving with slightly too much care. The harbor is six blocks away and he knows the tide schedule without trying to know it, the way you know the hour of a thing you are pretending not to wait for.
+
+cycle 3: k_scaffold_threshold_entry
+name: Departure threshold entered
+situation: sit_threshold_departure
+option_effect: prepare
+visual_description: The decision has stopped being abstract; leaving for the harbor is now the only action that still counts as an answer.
+
+cycle 4: k_scaffold_departure_commit
+name: Departure finally chosen
+situation: sit_threshold_departure
+option_effect: commit
+visual_description: He stops translating the evening into chores, takes what he needs, and lets the answer become movement instead of delay.
+
+cycle 5: k_scaffold_threshold_hesitation
+name: Threshold hesitation
+situation: sit_threshold_departure
+option_effect: inspect
+visual_description: He can feel the shape of leaving, but the kitchen still offers him one more useless task before he has to choose it or refuse it.
+
+cycle 6: k_scaffold_return_cover
+name: Return to ritual
+situation: sit_unopened_letter
+option_effect: return
+visual_description: He leaves the letter unopened and lets the kitchen take him back into motions that feel responsible only because they can be repeated.
+
+cycle 7: k_scaffold_threshold_entry
+name: Departure threshold entered
+situation: sit_threshold_departure
+option_effect: prepare
+visual_description: The decision has stopped being abstract; leaving for the harbor is now the only action that still counts as an answer.
+
+cycle 8: k_scaffold_departure_commit
+name: Departure finally chosen
+situation: sit_threshold_departure
+option_effect: commit
+visual_description: He stops translating the evening into chores, takes what he needs, and lets the answer become movement instead of delay.
+
+cycle 9: k_scaffold_return_cover
+name: Return to ritual
+situation: sit_unopened_letter
+option_effect: return
+visual_description: He leaves the letter unopened and lets the kitchen take him back into motions that feel responsible only because they can be repeated.
+
+cycle 10: k_patch_bridge
+name: Return address covered
+situation: sit_unopened_letter
+option_effect: prepare
+visual_description: Kai refills his coffee cup though it is still half full, watching the pour with the concentration of someone defusing something, and when he sets the mug down its base lands precisely over the letter's corner, covering just enough of the return address that he doesn't have to see her handwriting. The harbor is there anyway—the particular cold of it, the way she had said do it honestly while the water made its indifferent sounds behind her—and he moves to the counter and begins wiping it in slow circles, the cloth finding the same clean patch twice, three times. He knows the silence is already composing itself into a message, the way it did before, and he wipes again.
+
+cycle 11: k_scaffold_threshold_entry
+name: Departure threshold entered
+situation: sit_threshold_departure
+option_effect: prepare
+visual_description: The decision has stopped being abstract; leaving for the harbor is now the only action that still counts as an answer.
+
+cycle 12: k_scaffold_departure_commit
+name: Departure finally chosen
+situation: sit_threshold_departure
+option_effect: commit
+visual_description: He stops translating the evening into chores, takes what he needs, and lets the answer become movement instead of delay.

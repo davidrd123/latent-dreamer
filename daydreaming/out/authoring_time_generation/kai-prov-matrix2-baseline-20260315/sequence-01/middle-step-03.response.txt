@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the kettle past the line marked for two cups, watching the tap run a beat too long before shutting it off, and sets it on the burner with the small deliberate care of a man performing competence. He adjusts it twice against a mark in the grate that needs no adjusting, his back held toward the table with the practiced ease of someone who has rehearsed not-looking until it became posture. The water begins to tick and hiss, and the sound opens something\u2014harbor wind in the pauses between sentences, the particular quality of her silence on the other end of a call he once let ring out\u2014and he starts counting the element's clicks as though a high enough number will constitute having made a choice.",
+  "graph_projection": {
+    "node_id": "beat_kettle_ritual_evasion",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

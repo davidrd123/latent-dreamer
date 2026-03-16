@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa traces the embossed letters of her solo credit on the folded event program, the muffled bursts of laughter from the donor hall reminding her of the room's fragile attention span. She looks down at Eli's unanswered text and begins typing that she had to streamline the pitch to secure the funding they both needed. Staring at the unsent draft, she convinces herself that omitting Eli wasn't a betrayal, but a necessary executive decision made for the good of the project.",
+  "graph_projection": {
+    "node_id": "node_tessa_rationalizes_coatroom",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

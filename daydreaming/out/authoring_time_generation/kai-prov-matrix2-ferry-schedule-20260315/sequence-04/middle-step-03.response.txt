@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai stands at the counter with his back to the letter, moving his thumb along the rim of a coffee mug that went cold an hour ago, quietly mouthing something that isn't quite a sentence yet\u2014something that starts with 'I didn't mean for it to go this long' and trails off before it can become a promise. He tries the phrase again, adjusting the weight on the word 'mean,' as if the right inflection might make it land without opening him to the counter-charge he already hears in her voice: then what did you mean. The harbor is present the way cold water is present before you step in\u2014he can feel the distance to it precisely, and he is still here, thumb on the rim, rehearsing.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_cold_mug_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

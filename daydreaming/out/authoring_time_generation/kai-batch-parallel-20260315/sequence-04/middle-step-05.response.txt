@@ -1,0 +1,30 @@
+{
+  "candidate_text": "Kai focuses entirely on the rhythmic scrape of the sponge against the cast iron skillet, refusing to turn around and face the kitchen table. He turns the faucet on full blast, letting the scalding water rush over his hands to drown out the phantom smell of salt and the creak of the harbor docks. The white envelope remains perfectly still behind him, its unread demand for tonight hanging heavy in the steam-filled room.",
+  "graph_projection": {
+    "node_id": "beat_evasion_kitchen_sink",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": 0.4,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

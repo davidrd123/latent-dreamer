@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai fills the kettle past the line and watches the overflow run cold across his fingers before he sets it down, then adjusts the burner flame once, and again, though the first position was fine. The letter sits at the far edge of the table where he put it when he came in\u2014not hidden, just not central\u2014and he opens the cabinet and counts the mugs the way he has counted them before, four, always four, as if the number might have changed and checking it is a thing that needs doing now. His hands find the dish towel next, folding it into thirds along a crease that is already there, and the harbor comes in anyway through some cold seam in the room, the smell of it, the specific dark of that waterfront at night, arriving without permission while he stands with his back to the table and his face toward nothing in particular.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

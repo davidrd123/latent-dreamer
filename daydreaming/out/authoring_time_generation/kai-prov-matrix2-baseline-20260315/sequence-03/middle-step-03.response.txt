@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai turns the cold tea in his hands, rotating the mug slowly as though reading something in the ceramic, and the envelope sits at the edge of his vision the way a word sits at the edge of remembering\u2014present, pressuring, almost nameable. He gets up to check the window latch, which he checked an hour ago, and the motion takes him past the table without looking down, a small choreography he has practiced without knowing he was practicing it. Outside the glass the sky is the particular blue that comes just before dark commits to itself, and somewhere in that color is a harbor, and in the harbor is the version of tonight that is still technically possible, and he stands at the window long enough to watch it become less so.",
+  "graph_projection": {
+    "node_id": "beat_kai_window_evasion",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

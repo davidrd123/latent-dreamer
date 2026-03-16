@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea stares at the heavy soundproof door of Studio B, her thumb hovering over her locked phone screen. \"The credit omission was a drafting error, and I am fixing it,\" she whispers to the empty hallway, testing the weight of the words. She repeats the sentence twice more, anchoring herself to the script so she won't fall into the trap of explaining herself before she states exactly what she did.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_studio_b_threshold",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.2,
+    "delta_energy": 0.1,
+    "setup_refs": [
+      "sit_studio_b_threshold",
+      "ev_public_correction_at_panel"
+    ],
+    "payoff_refs": [
+      "ref_credit_dispute"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

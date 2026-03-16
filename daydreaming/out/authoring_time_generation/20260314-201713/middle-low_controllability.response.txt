@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea stares at her phone screen, meticulously deleting spam emails with intense, artificial focus while the heavy door of Studio B looms in her peripheral vision. She mouths the words, 'I should have clarified the timeline,' trying to script an opening line that satisfies Owen's demand to state what she did before explaining it. Knowing that letting this sit overnight would turn her silence into an admission, she still cannot bring herself to reach for the handle, instead opening another app to buy sixty more seconds of safety.",
+  "graph_projection": {
+    "node_id": "beat_avoidance_threshold",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "sit_studio_b_threshold",
+      "ev_public_correction_at_panel"
+    ],
+    "payoff_refs": [
+      "sit_inside_studio_b_conversation"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

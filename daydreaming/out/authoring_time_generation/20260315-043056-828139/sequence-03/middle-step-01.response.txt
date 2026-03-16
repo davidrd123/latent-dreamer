@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa reads Eli's text a second time without typing anything back, her thumb hovering, and in the silence she finds herself composing not an answer but a case: the toast had to move fast, the room needed a single name to hold onto, and Eli's work was in there, just compressed\u2014which is not the same as erased. The folded program is still in her other hand and she is aware of the applause still faintly audible through the coatroom door, the whole donor hall still lit and warm behind her, full of people who heard what she said and nodded. She turns the program over once, as if checking the back for something, and the motion lets her finish the thought: she had protected the project, not herself, and those are different things, even if from the outside they looked the same tonight.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s01_c04",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.05,
+    "delta_energy": -0.15,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

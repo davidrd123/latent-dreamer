@@ -89,6 +89,109 @@ def load_yaml(path: Path) -> Dict[str, Any]:
     return data
 
 
+##############################################################################
+# Provocation overlay
+##############################################################################
+
+
+def load_provocation(provocation_file: Path, provocation_id: str) -> Dict[str, Any]:
+    """Load one provocation by id from a provocation sidecar YAML."""
+    data = load_yaml(provocation_file)
+    for prov in data.get("provocations", []):
+        if prov.get("id") == provocation_id:
+            return prov
+    available = [p.get("id") for p in data.get("provocations", [])]
+    raise ValueError(f"Provocation '{provocation_id}' not found in {provocation_file}. Available: {available}")
+
+
+def apply_provocation(fixture: Dict[str, Any], provocation: Dict[str, Any]) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    """Apply a provocation to an in-memory fixture view. Returns (patched_fixture, applied_ops).
+
+    The base fixture is NOT mutated — a deep copy is made.
+    Supports overlay ops:
+      - boost_episode_recency: change an episode's recency_rank
+      - patch_episode_retrieval_tags: update retrieval_tags on one episode
+      - patch_situation_state: update typed fields on a situation's current_state
+      - add_event: add a new event to the fixture view
+    """
+    patched = deepcopy(fixture)
+    applied_ops: List[Dict[str, Any]] = []
+
+    for delta in provocation.get("fact_deltas", []):
+        op = delta.get("op")
+
+        if op == "boost_episode_recency":
+            episode_id = delta["episode_id"]
+            new_rank = int(delta["new_recency_rank"])
+            for ep in patched.get("backstory_episodes", []):
+                if ep["id"] == episode_id:
+                    old_rank = ep.get("recency_rank", 0)
+                    ep["recency_rank"] = new_rank
+                    applied_ops.append({"op": op, "episode_id": episode_id, "old_rank": old_rank, "new_rank": new_rank})
+                    break
+            else:
+                raise ValueError(f"Episode '{episode_id}' not found in fixture for boost_episode_recency")
+
+        elif op == "patch_episode_retrieval_tags":
+            episode_id = delta["episode_id"]
+            patch = delta["patch"]
+            for ep in patched.get("backstory_episodes", []):
+                if ep["id"] == episode_id:
+                    old_tags = dict(ep.get("retrieval_tags", {}))
+                    updated_tags = dict(old_tags)
+                    updated_tags.update(patch)
+                    ep["retrieval_tags"] = updated_tags
+                    applied_ops.append(
+                        {
+                            "op": op,
+                            "episode_id": episode_id,
+                            "old_tags": old_tags,
+                            "patch": patch,
+                        }
+                    )
+                    break
+            else:
+                raise ValueError(f"Episode '{episode_id}' not found in fixture for patch_episode_retrieval_tags")
+
+        elif op == "patch_situation_state":
+            situation_id = delta["situation_id"]
+            patch = delta["patch"]
+            for sit in patched.get("situations", []):
+                if sit["id"] == situation_id:
+                    if "current_state" not in sit:
+                        sit["current_state"] = {}
+                    old_state = dict(sit["current_state"])
+                    sit["current_state"].update(patch)
+                    applied_ops.append({"op": op, "situation_id": situation_id, "old_state": old_state, "patch": patch})
+                    break
+            else:
+                raise ValueError(f"Situation '{situation_id}' not found in fixture for patch_situation_state")
+
+        elif op == "add_event":
+            event = delta["event"]
+            if "events" not in patched:
+                patched["events"] = []
+            patched["events"].append(event)
+            # Also add to setup/payoff resolution targets
+            if "prototype_contract" in patched:
+                refs = patched["prototype_contract"].get("graph_requirements", {}).get("setup_payoff_refs_resolve_against", [])
+                # The event id becomes a resolvable ref
+            applied_ops.append({"op": op, "event_id": event["id"]})
+
+        else:
+            raise ValueError(f"Unknown provocation op: {op}")
+
+    # If there is a successor_situation_stub, add it to the fixture view
+    stub = provocation.get("successor_situation_stub")
+    if stub and isinstance(stub, dict) and stub.get("id"):
+        if "situations" not in patched:
+            patched["situations"] = []
+        patched["situations"].append(stub)
+        applied_ops.append({"op": "add_successor_situation_stub", "situation_id": stub["id"]})
+
+    return patched, applied_ops
+
+
 def dump_json(path: Path, payload: Dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
@@ -190,6 +293,43 @@ def is_threshold_situation(situation: Dict[str, Any]) -> bool:
     return any(token in text for token in ("threshold", "outside", "door", "hallway"))
 
 
+def synthesize_runtime_primitive_facts(
+    fixture: Dict[str, Any],
+    active_situation_id: Optional[str] = None,
+) -> set[str]:
+    active_situation = resolve_situation(fixture, active_situation_id)
+    current_state = active_situation.get("current_state", {})
+    facts: set[str] = set()
+
+    if current_state.get("departure_time_known"):
+        facts.add("deadline_is_concrete")
+
+    minutes_remaining = current_state.get("minutes_remaining")
+    try:
+        minutes_value = int(minutes_remaining)
+    except (TypeError, ValueError):
+        minutes_value = None
+    if minutes_value is not None:
+        if minutes_value <= 60:
+            facts.add("deadline_is_imminent")
+        if minutes_value <= 30:
+            facts.add("deadline_is_critical")
+
+    if current_state.get("external_witness_aware"):
+        facts.update({"external_witness_aware", "third_party_expectation_present", "avoidance_is_observed"})
+
+    if current_state.get("social_pressure_source"):
+        facts.add("third_party_expectation_present")
+
+    if "ev_dara_texts_kai" in event_ids(fixture):
+        facts.update({"external_witness_aware", "third_party_expectation_present", "avoidance_is_observed"})
+
+    if "sit_observed_evasion" in situation_ids(fixture):
+        facts.add("avoidance_has_social_cost")
+
+    return facts
+
+
 def normalize_concern_rules(fixture: Dict[str, Any]) -> Dict[str, Any]:
     extraction = fixture.get("concern_extraction", {})
     theme_rules = extraction.get("theme_rules") or extraction.get("concern_extraction_rules") or []
@@ -219,7 +359,7 @@ def normalize_concern_rules(fixture: Dict[str, Any]) -> Dict[str, Any]:
 
 def infer_concerns_from_primitives(fixture: Dict[str, Any]) -> Dict[str, Any]:
     normalized = normalize_concern_rules(fixture)
-    primitive_facts = normalized["primitive_facts"]
+    primitive_facts = normalized["primitive_facts"] | synthesize_runtime_primitive_facts(fixture)
     seeded_concerns = fixture.get("concern_extraction", {}).get("extracted_concerns", [])
     seeded_by_pair = {
         (item["concern_type"], item["target_ref"]): item
@@ -261,6 +401,18 @@ def infer_concerns_from_primitives(fixture: Dict[str, Any]) -> Dict[str, Any]:
             min(0.95, 0.45 + 0.14 * len(entry["source_rule_ids"]) + 0.06 * len(supporting_episode_ids)),
             2,
         )
+        intensity_bonus = 0.0
+        if concern_type == "obligation":
+            if "deadline_is_concrete" in primitive_facts:
+                intensity_bonus += 0.04
+            if "deadline_is_imminent" in primitive_facts:
+                intensity_bonus += 0.08
+            if "third_party_expectation_present" in primitive_facts:
+                intensity_bonus += 0.14
+        elif concern_type == "attachment_threat" and "avoidance_is_observed" in primitive_facts:
+            intensity_bonus += 0.04
+        if intensity_bonus:
+            entry["base_intensity"] = round(min(0.95, entry["base_intensity"] + intensity_bonus), 2)
 
     inferred_concerns = sorted(
         candidate_pairs.values(),
@@ -309,6 +461,7 @@ def infer_concerns_from_primitives(fixture: Dict[str, Any]) -> Dict[str, Any]:
 def summarize_practice_biases(fixture: Dict[str, Any], concern_inference: Dict[str, Any]) -> Dict[str, Any]:
     normalized = normalize_concern_rules(fixture)
     fired_ids = set(concern_inference.get("fired_practice_bias_rules", []))
+    primitive_facts = set(concern_inference.get("primitive_facts", []))
     practice_votes: Dict[str, float] = {}
     family_votes: Dict[str, float] = {}
     fired_rules: List[Dict[str, Any]] = []
@@ -330,6 +483,32 @@ def summarize_practice_biases(fixture: Dict[str, Any], concern_inference: Dict[s
                 "weight": weight,
                 "practice_type": practice_type,
                 "family_bonus": family_bonus,
+            }
+        )
+
+    if "deadline_is_imminent" in primitive_facts:
+        weight = 2.25
+        practice_votes["anticipated-confrontation"] = practice_votes.get("anticipated-confrontation", 0.0) + weight
+        family_votes["rehearsal"] = family_votes.get("rehearsal", 0.0) + 1.0
+        fired_rules.append(
+            {
+                "id": "runtime_deadline_imminent",
+                "weight": weight,
+                "practice_type": "anticipated-confrontation",
+                "family_bonus": "rehearsal",
+            }
+        )
+
+    if "third_party_expectation_present" in primitive_facts:
+        weight = 2.75
+        practice_votes["anticipated-confrontation"] = practice_votes.get("anticipated-confrontation", 0.0) + weight
+        family_votes["rehearsal"] = family_votes.get("rehearsal", 0.0) + 1.25
+        fired_rules.append(
+            {
+                "id": "runtime_third_party_expectation",
+                "weight": weight,
+                "practice_type": "anticipated-confrontation",
+                "family_bonus": "rehearsal",
             }
         )
 
@@ -399,8 +578,18 @@ def build_causal_slice(
     active_situation = resolve_situation(fixture, active_situation_id)
     actor_id = fixture["characters"][0]["id"]
     concern_type = concern["concern_type"]
-    primitive_facts = set(fixture.get("concern_extraction", {}).get("primitive_facts", []))
+    primitive_facts = set(fixture.get("concern_extraction", {}).get("primitive_facts", [])) | synthesize_runtime_primitive_facts(
+        fixture,
+        active_situation["id"],
+    )
+    deadline_is_imminent = "deadline_is_imminent" in primitive_facts
+    third_party_expectation = "third_party_expectation_present" in primitive_facts
     if concern_type == "attachment_threat":
+        other_options = ["sister-withdraws"]
+        if deadline_is_imminent:
+            other_options.append("meeting-lapses")
+        if third_party_expectation:
+            other_options.append("delay-becomes-public")
         return {
             "focal_situation_id": active_situation["id"],
             "concern_id": concern["id"],
@@ -413,8 +602,8 @@ def build_causal_slice(
             "attribution": {"actor": actor_id, "intentional": True},
             "temporal_status": "prospective",
             "likelihood_bucket": "high",
-            "self_options": ["open-letter", "delay-contact"],
-            "other_options": ["sister-withdraws"],
+            "self_options": ["open-letter", "leave-for-harbor"] if deadline_is_imminent else ["open-letter", "delay-contact"],
+            "other_options": other_options,
         }
     if concern_type == "status_damage":
         aftermath = bool(active_situation.get("current_state", {}).get("event_over")) or "event_already_happened" in primitive_facts
@@ -455,20 +644,32 @@ def build_causal_slice(
         }
     if concern_type == "obligation":
         threshold = is_threshold_situation(active_situation)
+        goal = "make-credible-first-approach" if threshold else "respond-before-deadline"
+        weight = 0.80 if threshold else 0.70
+        self_options = ["draft-opening-line", "enter-room"] if threshold else ["reply-now", "prepare-response"]
+        other_options = ["target-hardens"] if threshold else ["request-lapses"]
+        if deadline_is_imminent:
+            weight += 0.08
+            if not threshold:
+                self_options = ["reply-now", "leave-for-harbor"]
+                other_options = ["meeting-lapses"]
+        if third_party_expectation:
+            weight += 0.08
+            other_options = list(other_options) + ["delay-becomes-visible"]
         return {
             "focal_situation_id": active_situation["id"],
             "concern_id": concern["id"],
             "target_ref": concern["target_ref"],
             "affected_goal": {
-                "goal": "make-credible-first-approach" if threshold else "respond-before-deadline",
+                "goal": goal,
                 "sign": "threatens",
-                "weight": 0.80 if threshold else 0.70,
+                "weight": min(0.92, weight),
             },
             "attribution": {"actor": actor_id, "intentional": True},
             "temporal_status": "prospective",
             "likelihood_bucket": "high",
-            "self_options": ["draft-opening-line", "enter-room"] if threshold else ["reply-now", "prepare-response"],
-            "other_options": ["target-hardens"] if threshold else ["request-lapses"],
+            "self_options": self_options,
+            "other_options": other_options,
         }
 
     return {
@@ -535,6 +736,7 @@ def derive_appraisal_frame(
     concern_lookup = {item["id"]: item for item in fixture["concern_extraction"]["extracted_concerns"]}
     concern_type = concern_lookup.get(causal_slice["concern_id"], {}).get("concern_type", "attachment_threat")
     active_situation = resolve_situation(fixture, causal_slice.get("focal_situation_id"))
+    runtime_facts = synthesize_runtime_primitive_facts(fixture, causal_slice.get("focal_situation_id"))
     threshold = is_threshold_situation(active_situation)
     practice_votes = (practice_bias_summary or {}).get("practice_votes", {})
     actual = causal_slice["temporal_status"] == "actual"
@@ -572,6 +774,15 @@ def derive_appraisal_frame(
     if actual and concern_type == "status_damage" and intentional and threatens:
         praiseworthiness = -0.72
     expectedness = 0.58 if actual else 0.72 if threshold and causal_slice["temporal_status"] == "prospective" else 0.76 if causal_slice["temporal_status"] == "prospective" else 0.50
+    if "deadline_is_concrete" in runtime_facts:
+        likelihood = min(0.95, likelihood + 0.05)
+        expectedness += 0.04
+    if "deadline_is_imminent" in runtime_facts:
+        likelihood = min(0.97, likelihood + 0.07)
+        expectedness += 0.05
+    if "third_party_expectation_present" in runtime_facts:
+        praiseworthiness -= 0.08
+        expectedness += 0.04
 
     return {
         "desirability": round(desirability, 2),
@@ -3539,6 +3750,17 @@ def parse_args() -> argparse.Namespace:
         help="How to vary the physical scene entry across sequences.",
     )
     parser.add_argument(
+        "--provocation-file",
+        type=Path,
+        default=None,
+        help="Path to a provocation sidecar YAML.",
+    )
+    parser.add_argument(
+        "--provocation-id",
+        default=None,
+        help="ID of the provocation to apply from the sidecar file.",
+    )
+    parser.add_argument(
         "--generation-temperature",
         type=float,
         default=0.2,
@@ -3648,6 +3870,24 @@ def main() -> int:
     output_dir = resolve_output_dir(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # --- Provocation overlay ---
+    provocation_trace: Optional[Dict[str, Any]] = None
+    if args.provocation_file and args.provocation_id:
+        provocation = load_provocation(args.provocation_file, args.provocation_id)
+        fixture, applied_ops = apply_provocation(fixture, provocation)
+        provocation_trace = {
+            "provocation_id": args.provocation_id,
+            "provocation_file": str(args.provocation_file),
+            "provocation_type": provocation.get("provocation_type"),
+            "commit_semantics": provocation.get("commit_semantics"),
+            "description": provocation.get("description", ""),
+            "applied_ops": applied_ops,
+            "successor_situation_stub": provocation.get("successor_situation_stub"),
+        }
+        dump_json(output_dir / "provocation.trace.json", provocation_trace)
+    elif args.provocation_file or args.provocation_id:
+        raise ValueError("Both --provocation-file and --provocation-id are required together.")
+
     if args.batch_sequences > 1:
         if args.arm != "middle":
             raise ValueError("Batch mode currently supports only --arm middle.")
@@ -3672,6 +3912,8 @@ def main() -> int:
             )
             dump_text(output_dir / "fixture-path.txt", str(fixture_path))
             dump_json(output_dir / "fixture-snapshot.json", fixture)
+            if provocation_trace:
+                batch_trace["provocation"] = provocation_trace
             dump_json(output_dir / "batch.trace.json", batch_trace)
             dump_text(output_dir / "batch.summary.md", build_batch_summary(fixture_path, args.provider, args.model, batch_trace))
             for run in sequence_runs:

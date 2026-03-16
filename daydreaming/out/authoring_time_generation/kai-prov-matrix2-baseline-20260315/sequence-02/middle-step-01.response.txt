@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai rinses the same mug twice, watching the water spiral down, and when he sets it on the drying rack he positions it with a care that belongs to a different task entirely. The letter is in his peripheral vision the whole time\u2014he doesn't look away from it so much as arrange himself so that looking away is unnecessary. He runs his thumb along the edge of the faucet handle, a small calibrating gesture, as if the pressure of the water is the thing that requires his full attention right now, and not the harbor already assembling itself somewhere behind his sternum.",
+  "graph_projection": {
+    "node_id": "beat_kai_ritual_distraction_kitchen",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

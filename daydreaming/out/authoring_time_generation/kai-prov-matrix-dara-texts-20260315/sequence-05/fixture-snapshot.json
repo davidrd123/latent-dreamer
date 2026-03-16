@@ -1,0 +1,502 @@
+{
+  "backstory_episodes": [
+    {
+      "emotional_charge": {
+        "blame": "high",
+        "loss": "high",
+        "repair_possibility": "low"
+      },
+      "id": "ep_last_rupture",
+      "involved_targets": [
+        "sister"
+      ],
+      "place_id": "harbor",
+      "recency_rank": 2,
+      "retrieval_tags": {
+        "concern_type": "attachment_threat",
+        "practice_type": "anticipated-confrontation",
+        "target_ref": "sister"
+      },
+      "summary": "Kai and his sister fought at the harbor six months ago. She said, \"if you are going to stay silent, do it honestly.\"\n"
+    },
+    {
+      "emotional_charge": {
+        "fragility": "high",
+        "warmth": "medium"
+      },
+      "id": "ep_old_harbor_memory",
+      "involved_targets": [
+        "sister"
+      ],
+      "place_id": "harbor",
+      "recency_rank": 1,
+      "retrieval_tags": {
+        "concern_type": "attachment_threat",
+        "place_id": "harbor",
+        "target_ref": "sister"
+      },
+      "summary": "As teenagers, they used to wait at the harbor after family fights and pretend the ferries made leaving easy.\n"
+    },
+    {
+      "emotional_charge": {
+        "guilt": "high",
+        "regret": "high"
+      },
+      "id": "ep_avoidance_consequence",
+      "involved_targets": [
+        "sister"
+      ],
+      "place_id": "kitchen",
+      "recency_rank": 3,
+      "retrieval_tags": {
+        "concern_type": "attachment_threat",
+        "practice_type": "evasion",
+        "target_ref": "sister"
+      },
+      "summary": "Kai once ignored her call on an important night and learned too late that the silence itself had become the message.\n"
+    }
+  ],
+  "benchmark_step": {
+    "dominant_concern_id": "cc_attachment_threat",
+    "expected_commit_type": "salience",
+    "expected_practice_context": {
+      "affordance_tags": [
+        "delay-contact",
+        "ritual-distraction",
+        "prepare-excuse"
+      ],
+      "phase": "precontact",
+      "practice_type": "evasion",
+      "role": "evader"
+    },
+    "expected_retrieval_candidates": [
+      {
+        "episode_id": "ep_avoidance_consequence",
+        "expected_score": 3,
+        "matched_keys": [
+          "concern_type",
+          "target_ref",
+          "practice_type"
+        ]
+      },
+      {
+        "episode_id": "ep_last_rupture",
+        "expected_score": 2,
+        "matched_keys": [
+          "concern_type",
+          "target_ref"
+        ]
+      },
+      {
+        "episode_id": "ep_old_harbor_memory",
+        "expected_score": 2,
+        "matched_keys": [
+          "concern_type",
+          "target_ref"
+        ],
+        "note": "This episode records `place_id = harbor`, not `situation_id`. Under strict v1 retrieval it does not match the active situation key. It still clears the minimum score on concern and target, but loses the tie-break to the more recent rupture episode.\n"
+      }
+    ],
+    "expected_selected_affordance_tags": [
+      "delay-contact",
+      "ritual-distraction"
+    ],
+    "expected_selected_family": "avoidance",
+    "forbidden_cross_fixture_terms": [
+      "maren",
+      "leah",
+      "rehearsal room",
+      "backstage hallway",
+      "run sheet"
+    ],
+    "prompt_constraints": [
+      "The letter remains unopened.",
+      "The harbor should remain psychologically present even though Kai is in the kitchen."
+    ]
+  },
+  "characters": [
+    {
+      "behavioral_defaults": [
+        "ritual_distraction_under_pressure",
+        "delayed_contact",
+        "excuse_building"
+      ],
+      "contradictions": [
+        "wants repair with his sister",
+        "fears loss of control once contact begins",
+        "uses silence as a defense and then suffers the consequences"
+      ],
+      "description": "Wants repair, but not at the cost of saying the first true thing. Defaults to delay rituals when attachment pressure spikes.\n",
+      "id": "kai",
+      "role": "focal_character"
+    }
+  ],
+  "concern_extraction": {
+    "extracted_concerns": [
+      {
+        "base_intensity": 0.72,
+        "concern_type": "attachment_threat",
+        "id": "cc_attachment_threat",
+        "intensity_basis": "fixture_constant",
+        "seed_origin": "benchmark_seeded",
+        "source_episode_ids": [
+          "ep_last_rupture",
+          "ep_old_harbor_memory"
+        ],
+        "source_rule_ids": [
+          "rule_unanswered_repair_bid"
+        ],
+        "target_ref": "sister",
+        "unresolved": true
+      },
+      {
+        "base_intensity": 0.64,
+        "concern_type": "obligation",
+        "id": "cc_obligation",
+        "intensity_basis": "fixture_constant",
+        "seed_origin": "benchmark_seeded",
+        "source_episode_ids": [
+          "ep_avoidance_consequence"
+        ],
+        "source_rule_ids": [
+          "rule_requested_response_under_deadline"
+        ],
+        "target_ref": "sister",
+        "unresolved": true
+      }
+    ],
+    "mode": "benchmark_hand_specified_after_theme_rules",
+    "note": "v1 records the path from narrative primitives to active concerns with tiny theme-rule-style triggers, then hand-specifies the resulting concern instances for the benchmark run.\n",
+    "practice_bias_rules": [
+      {
+        "biases": {
+          "family_bonus": "avoidance",
+          "practice_type": "evasion"
+        },
+        "id": "rule_prior_silence_had_cost",
+        "rationale": "Prior avoidance consequences make delay rituals more available and more dangerous in the present step.\n",
+        "when": [
+          "known_avoidance_history",
+          "same_target_reappears"
+        ]
+      }
+    ],
+    "primitive_facts": [
+      "incoming_contact_from_estranged_target",
+      "prior_rupture_unresolved",
+      "contact_requests_action",
+      "deadline_is_near",
+      "known_avoidance_history",
+      "same_target_reappears"
+    ],
+    "theme_rules": [
+      {
+        "id": "rule_unanswered_repair_bid",
+        "when": [
+          "incoming_contact_from_estranged_target",
+          "prior_rupture_unresolved"
+        ],
+        "yields": {
+          "concern_type": "attachment_threat",
+          "rationale": "A new bid for contact from an estranged attachment target threatens possible repair precisely because engagement may fail.\n",
+          "target_ref": "sister"
+        }
+      },
+      {
+        "id": "rule_requested_response_under_deadline",
+        "when": [
+          "contact_requests_action",
+          "deadline_is_near"
+        ],
+        "yields": {
+          "concern_type": "obligation",
+          "rationale": "A request that demands reply or appearance under time pressure creates duty pressure even before the content is faced.\n",
+          "target_ref": "sister"
+        }
+      }
+    ]
+  },
+  "events": [
+    {
+      "anchor_places": [
+        "harbor"
+      ],
+      "description": "The harbor meeting requested for tonight remains pending.",
+      "id": "ev_harbor_meeting_tonight"
+    },
+    {
+      "anchor_places": [
+        "kitchen"
+      ],
+      "description": "Dara, Maren's closest friend, texts Kai to say she knows about the letter. The tone is warm but the subtext is: someone is expecting him to respond.\n",
+      "id": "ev_dara_texts_kai",
+      "pressure_tags": [
+        "obligation"
+      ]
+    }
+  ],
+  "fixture_id": "authoring_time_generation_kai_letter_v1",
+  "places": [
+    {
+      "description": "The domestic surface where delay rituals can masquerade as choice.",
+      "id": "kitchen"
+    },
+    {
+      "description": "A charged meeting place where rupture and possible repair overlap.",
+      "id": "harbor"
+    }
+  ],
+  "prototype_contract": {
+    "graph_requirements": {
+      "option_effect_vocabulary": [
+        "close",
+        "open",
+        "clarify",
+        "none"
+      ],
+      "provenance_enums": {
+        "revisability": [
+          "fixed",
+          "editable",
+          "ephemeral_candidate"
+        ],
+        "scope": [
+          "authored",
+          "projection",
+          "proposal"
+        ],
+        "source_lane": [
+          "L1",
+          "L2",
+          "L3",
+          "human"
+        ]
+      },
+      "required_graph_fields": [
+        "node_id",
+        "node_type",
+        "situation_id",
+        "delta_tension",
+        "delta_energy",
+        "setup_refs",
+        "payoff_refs",
+        "option_effect",
+        "pressure_tags",
+        "practice_tags",
+        "origin_pressure_refs",
+        "source_lane",
+        "scope",
+        "confidence",
+        "revisability",
+        "source_ref"
+      ],
+      "setup_payoff_refs_resolve_against": [
+        "events.id",
+        "situations.id",
+        "reference_markers.id"
+      ]
+    },
+    "operator_families": [
+      "rehearsal",
+      "rationalization",
+      "avoidance"
+    ],
+    "practice_types": [
+      "evasion",
+      "anticipated-confrontation",
+      "confession"
+    ],
+    "retrieval": {
+      "accepted_generated_episodes_reenter_on_next_step": true,
+      "keys_in_order": [
+        "concern_type",
+        "target_ref",
+        "situation_id",
+        "practice_type"
+      ],
+      "max_retrieved_episodes": 2,
+      "min_score": 2,
+      "tie_break": [
+        "recency_rank_desc",
+        "fixture_order_asc"
+      ]
+    }
+  },
+  "purpose": "Benchmark fixture for the authoring-time generation prototype. Mirrors the worked trace in daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/29-worked-trace-kai-unopened-letter.md and the implementation constraints in daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/30-authoring-time-generation-prototype-spec.md.\n",
+  "reference_markers": [
+    {
+      "description": "The harbor as a charged shared place carrying both rupture and possible repair.\n",
+      "id": "harbor_as_shared_place"
+    }
+  ],
+  "situations": [
+    {
+      "current_state": {
+        "external_witness_aware": true,
+        "letter_opened": false,
+        "reply_sent": false,
+        "social_pressure_source": "dara"
+      },
+      "description": "An unopened letter from Kai's estranged sister sits on the kitchen table. It asks him to meet her tonight at the harbor.\n",
+      "id": "sit_unopened_letter",
+      "implied_future_place": "harbor",
+      "place_id": "kitchen",
+      "target_ref": "sister",
+      "time_pressure": "tonight"
+    },
+    {
+      "description": "The threshold moment where Kai either leaves for the harbor or allows delay to harden into a decision.\n",
+      "id": "sit_threshold_departure",
+      "place_id": "kitchen"
+    },
+    {
+      "description": "Kai's avoidance is no longer private. Someone outside the kitchen knows the letter exists and expects a response. Delay now has a social cost it did not have before.\n",
+      "id": "sit_observed_evasion",
+      "place_id": "kitchen",
+      "target_ref": "sister"
+    }
+  ],
+  "source_refs": [
+    "/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/27-authoring-time-generation-reframe.md",
+    "/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/28-l2-schema-from-5pro.md",
+    "/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/29-worked-trace-kai-unopened-letter.md",
+    "/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/30-authoring-time-generation-prototype-spec.md"
+  ],
+  "targets": [
+    {
+      "description": "A charged attachment target whose bids for contact reopen guilt, obligation, and fear of exposure.\n",
+      "id": "sister",
+      "relation_to_kai": "estranged_sister"
+    }
+  ],
+  "title": "Kai and the Unopened Letter",
+  "worked_trace_reference": {
+    "expected_appraisal_frame": {
+      "changeability": 0.34,
+      "controllability": 0.28,
+      "desirability": -0.78,
+      "expectedness": 0.76,
+      "likelihood": 0.82,
+      "praiseworthiness": -0.52,
+      "realization_status": "prospective",
+      "temporal_status": "prospective"
+    },
+    "expected_causal_slice": {
+      "affected_goal": {
+        "goal": "preserve-possible-repair",
+        "sign": "threatens",
+        "weight": 0.85
+      },
+      "attribution": {
+        "actor": "kai",
+        "intentional": true
+      },
+      "concern_id": "cc_attachment_threat",
+      "focal_situation_id": "sit_unopened_letter",
+      "likelihood_bucket": "high",
+      "other_options": [
+        "sister-withdraws"
+      ],
+      "self_options": [
+        "open-letter",
+        "delay-contact"
+      ],
+      "target_ref": "sister",
+      "temporal_status": "prospective"
+    },
+    "expected_emotion_vector_topk": {
+      "distress": 0.46,
+      "fear": 0.62,
+      "remorse": 0.39
+    },
+    "expected_generated_candidate": {
+      "graph_projection": {
+        "branch_outcome_tags": [
+          "delayed_contact"
+        ],
+        "confidence": "medium",
+        "contrast_tags": [
+          "domestic_ritual_vs_urgent_summons"
+        ],
+        "delta_energy": -0.06,
+        "delta_tension": 0.1,
+        "node_id": "kai_letter_avoidance_001",
+        "node_type": "beat",
+        "option_effect": "clarify",
+        "origin_pressure_refs": [
+          "cc_attachment_threat",
+          "cc_obligation"
+        ],
+        "payoff_refs": [
+          "sit_threshold_departure"
+        ],
+        "practice_tags": [
+          "evasion"
+        ],
+        "pressure_tags": [
+          "attachment_threat",
+          "obligation"
+        ],
+        "revisability": "ephemeral_candidate",
+        "scope": "proposal",
+        "setup_refs": [
+          "ev_harbor_meeting_tonight"
+        ],
+        "situation_id": "sit_unopened_letter",
+        "source_lane": "L2",
+        "source_ref": "worked-trace-29"
+      },
+      "literal_text_oracle": false,
+      "reference_exemplar_text": "Kai lifts the envelope, reads only his sister's name, turns it face down again, and fills the kettle as if the water can decide whether the harbor still belongs to them.\n",
+      "semantic_expectations": [
+        "delay ritual is present",
+        "the letter is not opened",
+        "the harbor remains psychologically active",
+        "avoidance sharpens rather than resolves the choice"
+      ]
+    },
+    "expected_operator_score_breakdown": {
+      "avoidance": {
+        "appraisal_fit": 0.82,
+        "episodic_resonance": 0.62,
+        "practice_fit": 0.9,
+        "pressure": 0.72,
+        "repetition_penalty": 0.12,
+        "total": 0.8
+      },
+      "rationalization": {
+        "appraisal_fit": 0.66,
+        "episodic_resonance": 0.55,
+        "practice_fit": 0.58,
+        "pressure": 0.72,
+        "repetition_penalty": 0.08,
+        "total": 0.68
+      },
+      "rehearsal": {
+        "appraisal_fit": 0.51,
+        "episodic_resonance": 0.48,
+        "practice_fit": 0.35,
+        "pressure": 0.72,
+        "repetition_penalty": 0.05,
+        "total": 0.57
+      }
+    },
+    "expected_reappraisal": {
+      "commit_type": "salience",
+      "updated_concerns": [
+        {
+          "concern_id": "cc_attachment_threat",
+          "new_intensity": 0.82,
+          "old_intensity": 0.72,
+          "rationale": "focus_intensified"
+        },
+        {
+          "concern_id": "cc_obligation",
+          "new_intensity": 0.59,
+          "old_intensity": 0.64,
+          "rationale": "brief_diversion_without_resolution"
+        }
+      ]
+    }
+  }
+}

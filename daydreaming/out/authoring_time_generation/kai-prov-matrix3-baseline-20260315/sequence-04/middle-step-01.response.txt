@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the kettle a second time, though the first is already hot, watching the water climb past the fill line while the envelope sits at the edge of his vision like a word he won't say aloud. He sets the kettle down and straightens it twice, then aligns the dish towel with the counter edge, his hands moving with the careful attention of a man doing something important. The harbor is three miles away and the light outside is already going amber, and he knows exactly what that means, and he straightens the towel again.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

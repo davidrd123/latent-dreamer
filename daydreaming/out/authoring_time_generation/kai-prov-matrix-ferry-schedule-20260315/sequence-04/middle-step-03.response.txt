@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai refills his coffee cup though it is still half full, standing at the counter with his back to the table, watching the liquid rise with the focused attention of someone defusing something. The letter sits behind him\u2014he can feel its approximate weight the way you feel a door left open in winter\u2014and he begins mentally composing the route to the harbor, the parking, the walk along the dock, rehearsing the logistics of going so thoroughly that it starts to resemble a decision. He sets the cup down, picks up a dish towel, folds it once, folds it again.",
+  "graph_projection": {
+    "node_id": "beat_kai_ritual_avoidance_letter_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

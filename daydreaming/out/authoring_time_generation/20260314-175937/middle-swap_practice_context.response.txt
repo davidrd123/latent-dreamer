@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai stared at the thick envelope on the kitchen counter, his thumb tracing the edge without breaking the seal. 'Hey, I finally got your letter,' he mouthed to the empty room, testing the weight of the words. It sounded too casual, too hollow. He closed his eyes, bracing for the inevitable echo of her voice from the harbor six months ago: 'If you are going to stay silent, do it honestly.' He knew if he delayed this any longer, the unopened envelope would just become another missed call, another night where his silence became the message. Still, his hands remained flat on the counter, rehearsing apologies he wasn't quite ready to send.",
+  "graph_projection": {
+    "node_id": "beat_rehearse_unopened_letter",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.15,
+    "delta_energy": -0.10,
+    "setup_refs": [
+      "ep_last_rupture",
+      "ep_old_harbor_memory"
+    ],
+    "payoff_refs": [],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "attachment_threat",
+      "prospective_threat"
+    ],
+    "practice_tags": [
+      "draft-opening-line",
+      "brace-for-accusation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

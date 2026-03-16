@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa traces the embossed lettering on the event program, listening to the muffled bursts of applause still vibrating through the floorboards from the donor hall. She stares at Eli's unanswered text, her thumb hovering over the keyboard as she types out that the investors just needed a streamlined narrative. Carefully backspacing to erase a half-formed apology, she tells herself that securing the project's momentum was the only way to protect them both.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_coatroom",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.1,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

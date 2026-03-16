@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai opens the cabinet above the kettle and takes out a second mug, sets it on the counter, then stands looking at two mugs and one untouched cup of tea as if the arithmetic of this requires solving. The letter is in his peripheral vision the whole time, a white rectangle he keeps not-looking at with the practiced discipline of someone who has learned that looking directly at a thing makes it more real. He thinks about the tide\u2014not metaphorically, but specifically, the way the water pulls back from the harbor pylons at this hour, exposing the dark line of barnacles\u2014and the thinking feels like being almost there, which is close enough to going that it costs him something without requiring anything.",
+  "graph_projection": {
+    "node_id": "beat_kai_two_mugs_delay",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

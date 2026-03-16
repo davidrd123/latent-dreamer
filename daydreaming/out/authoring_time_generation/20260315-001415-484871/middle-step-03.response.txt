@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Kai takes the kitchen shears and begins meticulously snipping the dead leaves off the potted pothos above the sink, keeping his back to the table. He counts the dry stems as they drop into the basin, a steady rhythm that almost blocks out the thought of the cold wind sweeping off the harbor water. The envelope remains untouched behind him, its silence growing heavier with every minute he spends perfecting the plant's silhouette—a familiar quiet he knows will eventually become the message itself.",
+  "graph_projection": {
+    "node_id": "beat_avoidance_pothos",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

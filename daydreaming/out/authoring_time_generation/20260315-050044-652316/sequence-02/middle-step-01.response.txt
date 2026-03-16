@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa holds her phone with the screen face-down against her palm, the applause still audible through the door like a tide that hasn't finished deciding whether to come in or pull back. She finds herself rehearsing not what she did but why it was necessary\u2014the room needed the clean version, Eli would have buried the point in qualifications, someone had to hold the line\u2014and the rehearsal feels almost like generosity, like she is doing the work of understanding so that Eli won't have to. The coat she came in here to retrieve is still on its hook, untouched.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_001",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "sit_coatroom_after_toast"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold",
+      "ev_eli_texts_afterward"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

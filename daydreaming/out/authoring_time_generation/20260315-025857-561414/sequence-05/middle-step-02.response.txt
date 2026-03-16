@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa traces the embossed lettering on the event program, listening to the muffled, affluent laughter still drifting from the donor hall. She drafts a reply to Eli explaining that the board simply responds better to a single, unified narrative, framing the omission as a strategic necessity for their shared budget rather than a personal slight. She carefully deletes a half-formed apology at the end of the message, convincing herself that saying sorry would only make a routine PR decision look like a betrayal.",
+  "graph_projection": {
+    "node_id": "beat_rationalize_coatroom_text",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.1,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

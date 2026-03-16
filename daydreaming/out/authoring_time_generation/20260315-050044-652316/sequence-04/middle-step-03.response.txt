@@ -1,0 +1,35 @@
+{
+  "candidate_text": "She turns the program over so the credit line faces her palm, and the muffled applause from the hall arrives in a low swell that she feels more in her sternum than hears. The sentence is almost finished now: the toast had one job, the window was thirty seconds, and a room full of donors needs a name they already trust, not a name they are still learning\u2014which is, she decides, a form of protection, actually, a form of care for the work itself. She smooths the program's edge against the seam of her coat pocket, the motion small and private, and the argument settles into something that feels not like a defense but like the plain shape of what happened, the way a fact feels once you have handled it enough times. Eli's text stays unread at the edge of the screen, and she is not avoiding it so much as finishing the thought first, because it would be unfair to respond before she is sure she understands her own reasoning.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

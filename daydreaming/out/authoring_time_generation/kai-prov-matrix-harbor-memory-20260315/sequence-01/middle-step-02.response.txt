@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai opens the cabinet and counts the tea bags by touch, index finger moving along the row with unnecessary precision, though he already knows there are seven and he only wants one. The letter sits in his peripheral vision like a sound he is pretending not to hear, and he catches himself calculating the drive to the harbor\u2014twenty minutes, maybe less at this hour\u2014before he shuts the calculation down and focuses instead on straightening the mugs by their handles, each one turned to face the same direction. His first cup has gone cold beside the envelope, and he does not reach for it.",
+  "graph_projection": {
+    "node_id": "beat_kai_ritual_distraction_kitchen",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

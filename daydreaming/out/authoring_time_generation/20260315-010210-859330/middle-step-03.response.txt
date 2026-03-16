@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai bears down on the kitchen sponge, scrubbing a spotless section of the counter until his knuckles ache. He keeps his back strictly turned to the unopened envelope on the table, trying to drown out the phantom sound of harbor water lapping against the docks with the rhythmic squeak of his cleaning. He tells himself he is just busy, not ignoring her, terrified that if he stops moving, his silence will once again become its own damning message.",
+  "graph_projection": {
+    "node_id": "beat_kai_kitchen_avoidance_01_s03_c04",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.4,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "harbor_as_shared_place"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

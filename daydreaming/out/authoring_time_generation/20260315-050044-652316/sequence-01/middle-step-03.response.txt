@@ -1,0 +1,35 @@
+{
+  "candidate_text": "She runs her thumbnail along the fold bisecting the program\u2014the crease landing exactly over the acknowledgments column, over the white space where his name would have sat\u2014and the pressure of that small edge becomes the thing she focuses on instead of the text. What she rehearses is not an apology but a context: the room had a momentum, a donor toast is not a credits roll, and pulling the moment apart into equal shares would have made everyone smaller, including Eli, especially Eli. The applause still leaks under the door in a low wash and she lets it mean something, lets it testify that the shape she chose had worked, that working was its own kind of fairness. His question mark sits unanswered on the screen and she holds the phone face-down against the program, which she tells herself is patience.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

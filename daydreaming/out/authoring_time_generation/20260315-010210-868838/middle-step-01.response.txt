@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea stares at the heavy soundproof door of Studio B, her thumb hovering over her locked phone screen as she mouths her opening line. \"Owen, before we look at the mix, I need to clarify the credit sheet,\" she whispers, testing the weight of the words. She shakes her head, remembering his sharp correction at the festival panel, and tries again with a lower, firmer tone. \"I drafted the arrangement\u2014no, say what you did before you explain it,\" she mutters, forcing herself not to improvise.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_studio_b_threshold_s01_c04",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.3,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "sit_studio_b_threshold",
+      "ev_public_correction_at_panel"
+    ],
+    "payoff_refs": [
+      "sit_inside_studio_b_conversation"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

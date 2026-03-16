@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai disassembles the coffee maker with surgical precision, laying each piece on a towel exactly three inches from the unopened envelope. He scrubs the glass carafe until it squeaks, a sharp sound that mimics the boats rubbing against the harbor docks in the evening tide. He tells himself he just needs to finish this one chore before he sits down to read it, letting the safe, heavy silence stretch out a little longer.",
+  "graph_projection": {
+    "node_id": "beat_evasion_coffee_maker_01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "sit_unopened_letter"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

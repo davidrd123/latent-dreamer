@@ -1,0 +1,83 @@
+{
+  "appraisal_frame": {
+    "changeability": 0.34,
+    "controllability": 0.28,
+    "desirability": -0.78,
+    "expectedness": 0.76,
+    "likelihood": 0.82,
+    "praiseworthiness": -0.52,
+    "realization_status": "prospective",
+    "temporal_status": "prospective"
+  },
+  "causal_slice": {
+    "affected_goal": {
+      "goal": "preserve-possible-repair",
+      "sign": "threatens",
+      "weight": 0.85
+    },
+    "attribution": {
+      "actor": "kai",
+      "intentional": true
+    },
+    "concern_id": "cc_attachment_threat",
+    "focal_situation_id": "sit_unopened_letter",
+    "likelihood_bucket": "high",
+    "other_options": [
+      "sister-withdraws"
+    ],
+    "self_options": [
+      "open-letter",
+      "delay-contact"
+    ],
+    "target_ref": "sister",
+    "temporal_status": "prospective"
+  },
+  "commit_type": "none",
+  "emotion_vector_topk": {
+    "disappointment": 0.18,
+    "distress": 0.46,
+    "fear": 0.62,
+    "remorse": 0.39
+  },
+  "node_id": "beat_kai_kettle_ritual_s03_c04",
+  "operator_family": "avoidance",
+  "operator_score_breakdown": {
+    "appraisal_fit": 0.74,
+    "episodic_resonance": 0.68,
+    "family_bonus": 0.12,
+    "practice_fit": 0.9,
+    "pressure": 0.69,
+    "repetition_penalty": 0.12,
+    "total": 0.89
+  },
+  "practice_context": {
+    "affordance_tags": [
+      "delay-contact",
+      "ritual-distraction",
+      "prepare-excuse"
+    ],
+    "phase": "precontact",
+    "practice_type": "evasion",
+    "role": "evader"
+  },
+  "prompt_version": "v1-middle-layer",
+  "retrieval_keys": [
+    "concern_type",
+    "target_ref",
+    "situation_id",
+    "practice_type"
+  ],
+  "retrieved_episode_refs": [
+    "gen_step_02_beat_kai_ritual_distraction_kitchen",
+    "ep_avoidance_consequence"
+  ],
+  "selected_affordance_tags": [
+    "delay-contact",
+    "ritual-distraction"
+  ],
+  "source_concern_ids": [
+    "cc_attachment_threat",
+    "cc_obligation"
+  ],
+  "validator_result": "pass"
+}

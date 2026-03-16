@@ -1,0 +1,39 @@
+{
+  "candidate_text": "Kai rehearses opening the envelope and then the first sentence he might speak at the harbor, stopping each version before it sounds like an apology.",
+  "graph_projection": {
+    "node_id": "maren_opening_line_001",
+    "node_type": "beat",
+    "situation_id": "sit_outside_rehearsal_room",
+    "delta_tension": 0.09,
+    "delta_energy": 0.05,
+    "setup_refs": [
+      "ev_talk_before_runthrough"
+    ],
+    "payoff_refs": [
+      "sit_first_line_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "obligation",
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_obligation",
+      "cc_attachment_threat"
+    ],
+    "branch_outcome_tags": [
+      "prepared_opening_line"
+    ],
+    "contrast_tags": [
+      "precision_vs_exposure"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

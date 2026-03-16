@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai stared at the thick envelope resting on the kitchen counter, his sister's familiar handwriting looping across the front. He remembered the sting of her words at the harbor six months ago—'if you are going to stay silent, do it honestly'—and the heavy realization from another night when his ignored calls had spoken louder than any excuse. His chest tightened. Instead of reaching for the letter, he turned his back to it, methodically pulling out the coffee grinder and focusing entirely on the loud, grinding noise to drown out the silence. He would read it later. Just not right now.",
+  "graph_projection": {
+    "node_id": "beat_avoid_letter_1",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.2,
+    "delta_energy": -0.3,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "sit_unopened_letter"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

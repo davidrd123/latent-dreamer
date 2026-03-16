@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai turns the faucet handle a quarter-turn tighter than needed, listening for the drip to stop, and when it doesn't he turns it again\u2014the small hydraulic problem suddenly the most important thing in the room. The letter is behind him on the table, its envelope still sealed, and he is aware of its exact position the way you are aware of a door you are pretending not to stand in front of. He thinks about the harbor without meaning to: the dark water, the particular cold that comes off it, his sister's face arranged into whatever expression she has been rehearsing since she wrote the address in her handwriting. The faucet drips once more and he straightens up and does not turn around.",
+  "graph_projection": {
+    "node_id": "beat_kai_faucet_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

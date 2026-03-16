@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai turns the cold kettle in a slow half-circle on the burner, aligning its handle with a seam in the tile he has no reason to care about, and the precision of the gesture is the only precision he can manage right now. The letter's warped edge catches the light at the corner of his vision the way a sound catches just before you name it\u2014present, insistent, almost a shape\u2014and he turns slightly away, as if adjusting his angle to the window, as if the harbor dark out there is something he is consulting rather than hiding inside. His reflection holds still against the glass while his hands find the dish towel again, and he is sixteen and thirty-four at once, both times choosing the water over the word, both times learning nothing he will admit to yet.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance_s03_c02",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

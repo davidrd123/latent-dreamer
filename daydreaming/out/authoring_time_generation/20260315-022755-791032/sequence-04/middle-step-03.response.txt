@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa traces the embossed lettering on the event program, the clinking glasses from the donor hall echoing through the thin coatroom door. She drafts a reply to Eli's text, explaining that the board demands a single point of contact for the grant, framing her omission as a shield rather than a theft. Deleting a half-formed apology, she convinces herself that absorbing the spotlight was a necessary tactical burden to keep their project alive.",
+  "graph_projection": {
+    "node_id": "node_tessa_rationalize_coatroom",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

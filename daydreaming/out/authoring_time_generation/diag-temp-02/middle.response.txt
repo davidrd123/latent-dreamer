@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa smooths the folded program against her palm, her thumb running over the crease where Eli's name does not appear in the acknowledgments, and she finds herself composing the sentence she would say if he called: that the toast had to move fast, that donors lose the thread when credit gets distributed too widely, that she had protected the work by protecting the room's attention. The hall noise still reaches her through the coatroom door, applause-shaped and approving, and she lets it sit behind the sentence like evidence. She reads Eli's text again\u2014just three words, no punctuation\u2014and decides that what she said was true, which is almost the same as deciding it was fair.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_c03",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

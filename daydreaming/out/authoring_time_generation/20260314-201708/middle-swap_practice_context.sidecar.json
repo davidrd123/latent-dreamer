@@ -1,0 +1,81 @@
+{
+  "appraisal_frame": {
+    "changeability": 0.34,
+    "controllability": 0.28,
+    "desirability": -0.76,
+    "expectedness": 0.76,
+    "likelihood": 0.82,
+    "praiseworthiness": -0.52,
+    "realization_status": "prospective",
+    "temporal_status": "prospective"
+  },
+  "causal_slice": {
+    "affected_goal": {
+      "goal": "preserve-working-credibility",
+      "sign": "threatens",
+      "weight": 0.83
+    },
+    "attribution": {
+      "actor": "rhea",
+      "intentional": true
+    },
+    "concern_id": "cc_status_damage",
+    "focal_situation_id": "sit_studio_b_threshold",
+    "likelihood_bucket": "high",
+    "other_options": [
+      "owen-rejects-repair"
+    ],
+    "self_options": [
+      "draft-opening-line",
+      "enter-studio"
+    ],
+    "target_ref": "owen",
+    "temporal_status": "prospective"
+  },
+  "commit_type": "policy",
+  "emotion_vector_topk": {
+    "distress": 0.44,
+    "fear": 0.41,
+    "remorse": 0.38
+  },
+  "node_id": "rhea_studio_rehearsal_001",
+  "operator_family": "avoidance",
+  "operator_score_breakdown": {
+    "appraisal_fit": 0.82,
+    "episodic_resonance": 0.38,
+    "practice_fit": 0.9,
+    "pressure": 0.76,
+    "repetition_penalty": 0.12,
+    "total": 0.76
+  },
+  "practice_context": {
+    "affordance_tags": [
+      "delay-entry",
+      "reorganize-badge",
+      "rehearse-later"
+    ],
+    "phase": "threshold",
+    "practice_type": "evasion",
+    "role": "evader"
+  },
+  "prompt_version": "v1-middle-layer",
+  "retrieval_keys": [
+    "concern_type",
+    "target_ref",
+    "situation_id",
+    "practice_type"
+  ],
+  "retrieved_episode_refs": [
+    "ep_delayed_reply_cost",
+    "ep_panel_correction"
+  ],
+  "selected_affordance_tags": [
+    "delay-entry",
+    "reorganize-badge"
+  ],
+  "source_concern_ids": [
+    "cc_status_damage",
+    "cc_obligation"
+  ],
+  "validator_result": "pass"
+}

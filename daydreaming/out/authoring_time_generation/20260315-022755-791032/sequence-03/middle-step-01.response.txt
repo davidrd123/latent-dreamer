@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa stares at the blinking cursor beneath Eli's text, the muffled applause from the donor hall still echoing through the coatroom wall. She types out a reply explaining that the donors just needed a clean, simple narrative to keep the funding momentum going, not a complicated breakdown of who did what. The sentence looks perfectly reasonable on the screen—a necessary simplification for the sake of the project, not a deliberate slight. She deletes the word \"sorry\" from the beginning of the draft, deciding that apologizing would only make a standard PR decision seem like a betrayal.",
+  "graph_projection": {
+    "node_id": "beat_rationalize_simplification",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

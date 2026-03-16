@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai bears down on the cast-iron skillet with the steel wool, scrubbing the already-clean metal until his knuckles ache. The unopened envelope sits just at the edge of his peripheral vision, its silence threatening to become an answer all on its own if he waits too long. He tells himself he just needs to finish the kitchen first, though the scent of lemon soap is already losing ground to the phantom chill of harbor salt.",
+  "graph_projection": {
+    "node_id": "beat_kai_skillet_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.4,
+    "delta_energy": -0.3,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "sit_unopened_letter"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

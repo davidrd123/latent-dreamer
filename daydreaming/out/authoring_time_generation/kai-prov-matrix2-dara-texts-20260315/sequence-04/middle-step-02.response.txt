@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai mouths the opening line a third time\u2014'I didn't know how'\u2014and this time lets it run further in his head, testing whether anything honest follows, but what comes is only the sound of his sister's voice from six months ago cutting back at him across the harbor water. He presses his thumb harder against the counter edge, a small calibration, as if pain at a manageable scale is practice for pain at an unmanageable one. The letter stays behind him, and he stays turned away from it, and the harbor is already in the room whether he faces it or not.",
+  "graph_projection": {
+    "node_id": "beat_kai_rehearsal_counter_s02_c04",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

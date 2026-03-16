@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai rinsed the same clean coffee mug for the fourth time, his eyes fixed on the thick, cream-colored envelope sitting dead center on the kitchen table. He hadn't broken the seal, but the faint watermark of the harbor ferry company on the back flap told him everything he needed to know about tonight. He could almost hear the low, throbbing hum of the departing boats—the sound that used to promise them an easy escape as teenagers, and the exact same sound that had swallowed her voice six months ago when she demanded he at least be honest in his silence. He turned the faucet off, then immediately turned it back on. If he opened the letter, he would have to decide. If he went to the docks, he would have to say the first true thing. Instead, he reached for a sponge, scrubbing at an invisible stain on the counter, terrified that by stalling, the silence was already becoming his reply.",
+  "graph_projection": {
+    "node_id": "beat_kai_delay_ritual_01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter_harbor",
+    "delta_tension": 0.6,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "teen_ferry_escape",
+      "silence_as_message"
+    ],
+    "payoff_refs": [
+      "harbor_fight_honesty"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "attachment_avoidance",
+      "guilt",
+      "fear_of_exposure"
+    ],
+    "practice_tags": [
+      "delay_ritual",
+      "cleaning_as_stalling"
+    ],
+    "origin_pressure_refs": [
+      "sister_bid_for_contact"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-baseline"
+  }
+}

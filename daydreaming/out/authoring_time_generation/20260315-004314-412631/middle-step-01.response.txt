@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai turns his back to the kitchen table and begins scrubbing the already-clean stovetop with meticulous, punishing focus. The unopened envelope sits perfectly still behind him, heavy with the looming reality of the harbor and the echo of her demanding an honest silence. If he just keeps his hands moving, he doesn't have to decide whether his absence tonight will become another message he can never take back.",
+  "graph_projection": {
+    "node_id": "beat_kai_scrubs_stove",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": 0.4,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "harbor_as_shared_place"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

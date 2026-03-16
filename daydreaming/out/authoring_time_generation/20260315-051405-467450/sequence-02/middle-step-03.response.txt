@@ -1,0 +1,35 @@
+{
+  "candidate_text": "She tilts the phone awake again without unlocking it, just enough to see Eli's name sitting there, and her thumb hovers while she finishes the sentence she's been composing \u2014 not in the text field, but somewhere quieter, where it can't be held against her: the room needed to move, the work needed to land, and cutting the attribution line was the kindest thing she could have done for everyone including him. The applause through the door rises and then settles into the particular warmth of a room well-fed and grateful, and she absorbs it sideways, not quite claiming it but not stepping back from it either. The explanation has closed around itself now, sealed, and what's left isn't guilt exactly \u2014 it's the mild vigilance of someone who has already decided what happened and is only waiting for the conversation to catch up.",
+  "graph_projection": {
+    "node_id": "beat_rationalization_coatroom_hover",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

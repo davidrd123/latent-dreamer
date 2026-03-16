@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the electric kettle a second time, though the first cup sits untouched and cooling beside the letter, which he has angled slightly so the handwriting faces away from him. He wipes the counter in long strokes, following the grain of the laminate with a focus that belongs to a different task entirely, one that requires this much attention, this much time. The harbor is there anyway\u2014he can feel the particular cold of it, the way her voice carried over the water when she said what she said\u2014and the wiping continues, the kettle begins to hiss, and the letter does not move.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_delay",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

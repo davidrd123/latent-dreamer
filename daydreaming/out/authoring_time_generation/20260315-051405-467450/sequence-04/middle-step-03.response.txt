@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa watches the phone screen dim on Eli's half-read text and does not tap it back to life, because the sentence she is composing in her head still needs another few seconds to become true. She turns the folded program over in her hand, her name creasing under her thumb, and tells herself that the room had needed someone to hold the argument whole \u2014 that this is a fact about the evening, a structural requirement, the same way a building needs load-bearing walls. The muffled sound of the hall still reaches her, and she keeps it close, lets it go on sounding like vindication, lets it stay just loud enough to make the explanation feel less like a story she is writing and more like one she is simply remembering.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_dimscreen",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.22,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

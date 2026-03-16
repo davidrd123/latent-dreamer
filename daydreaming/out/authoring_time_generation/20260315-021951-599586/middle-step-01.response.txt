@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa stares at the blinking cursor beneath Eli's text, her thumb hovering over the keyboard as muffled applause from the donor hall bleeds through the coatroom wall. She begins typing that she had to keep the toast streamlined for the board's sake, deliberately deleting the word 'sorry' to make room for the context. If she can just frame the omission as a structural necessity rather than a personal slight, she won't have to feel like the villain of his evening.",
+  "graph_projection": {
+    "node_id": "beat_rationalize_toast_omission",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

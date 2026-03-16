@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai scrubs the kitchen sink's drain with an old toothbrush, pressing hard enough to fray the bristles. Behind him, the unopened letter rests on the table, radiating the cold, salt-heavy air of the harbor docks. He focuses entirely on the rhythm of his hands, convincing himself that as long as he stays busy, his silence isn't an answer yet.",
+  "graph_projection": {
+    "node_id": "beat_avoidance_scrubbing_01_s01_c03",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.4,
+    "delta_energy": 0.3,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

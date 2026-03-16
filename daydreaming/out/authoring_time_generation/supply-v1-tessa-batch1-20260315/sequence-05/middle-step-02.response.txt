@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa reads Eli's text a third time, her thumb hovering, while through the door the applause collapses into the low murmur of chairs being pushed back from tables. She isn't composing an answer yet \u2014 she is testing the explanation she already has, the one about how a longer credit line in the toast would have broken the room's momentum, how the room needed to feel the work as one clean thing. The explanation is accurate, she decides, and accuracy feels like it should count for something, should do some of the work that an apology would otherwise have to do.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

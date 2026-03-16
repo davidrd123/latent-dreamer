@@ -1,0 +1,39 @@
+{
+  "arm": "baseline",
+  "candidate_text": "Kai stands over the unopened letter for too long, tracing the edge of the paper before leaving it on the table and pretending the night has not started deciding for him.",
+  "graph_projection": {
+    "confidence": "medium",
+    "delta_energy": -0.02,
+    "delta_tension": 0.07,
+    "node_id": "kai_letter_baseline_001",
+    "node_type": "beat",
+    "option_effect": "clarify",
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "payoff_refs": [
+      "sit_threshold_departure"
+    ],
+    "practice_tags": [],
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "situation_id": "sit_unopened_letter",
+    "source_lane": "L2",
+    "source_ref": "prototype-baseline"
+  },
+  "semantic_checks": {
+    "avoidance sharpens rather than resolves the choice": true,
+    "delay ritual is present": false,
+    "the harbor remains psychologically active": false,
+    "the letter is not opened": true
+  },
+  "timestamp": "2026-03-15T00:56:15.073514+00:00"
+}

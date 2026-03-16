@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the kettle past the max line, pours a little out, then fills it again to the same wrong level, his hands doing something that looks like care. The letter sits at the edge of his vision the way a word you can't say sits at the edge of your tongue \u2014 he knows its shape without touching it, knows the harbor is in there somewhere, the cold smell of it, the particular dark that comes off the water at night. He thinks about what he would say if he went, rehearses nothing, and instead opens the cabinet above the stove and reorganizes the spice jars into a row that was already a row.",
+  "graph_projection": {
+    "node_id": "beat_kettle_ritual_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "sit_threshold_departure",
+      "sit_observed_evasion"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

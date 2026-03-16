@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa's thumb rests on the phone without pressing send, and she reaches with her free hand to straighten a stranger's coat on its hanger, smoothing the lapel as though the gesture is finishing a sentence. The reply she's been composing isn't an apology \u2014 it's a clarification, the kind that begins with the room's needs and ends, quietly, with her own good intentions, the word 'credit' never appearing once. Through the door the applause rises and then softens, and she lets herself be briefly included in it, because the work did need a throughline, and if that's true then the rest follows, and if the rest follows then the text she hasn't sent yet is honest.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

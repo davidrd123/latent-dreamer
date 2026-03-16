@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai turns his back to the kitchen table and begins aggressively polishing the already gleaming faucet, his knuckles white around the sponge. The sharp white edges of the unopened envelope seem to burn a hole in his peripheral vision, carrying the faint, imagined scent of low tide and diesel fuel. He scrubs harder, desperate to drown out the ticking clock and the creeping realization that his silence is already answering her invitation to the docks.",
+  "graph_projection": {
+    "node_id": "beat_avoid_faucet_polish",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

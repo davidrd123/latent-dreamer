@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai opens the cabinet above the kettle and counts the tea tins by touch\u2014chamomile, then the loose-leaf black, then the one that ran out months ago and that he keeps meaning to throw away\u2014his fingers moving across the lids with the care of someone cataloguing something important. The harbor arrives anyway: the particular cold that comes off the water at night, the way sound carries there, and he knows without turning that the envelope is still sealed, that its edges are still square, that it is waiting the way she has always waited for him to be ready first. He sets the empty tin back in its place.",
+  "graph_projection": {
+    "node_id": "beat_kai_cabinet_ritual",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.15,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

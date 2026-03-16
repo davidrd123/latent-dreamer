@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the electric kettle a second time, though the first kettle is still warm, and he sets it to boil with the deliberate attention of someone defusing something small. The letter sits at the edge of his peripheral vision, and he does not look at it directly, but he has already memorized the slant of her handwriting through the envelope\u2014the way her capital K still leans into the next letter like it wants to finish the word before it starts. He runs a dish towel along the counter in slow strokes, the harbor arriving in his hands before it arrives in his mind: the particular cold off the water that night, her voice saying do it honestly, and the understanding, arriving again now, that the kettle and the towel and the second cup of tea are themselves a kind of message he is already sending.",
+  "graph_projection": {
+    "node_id": "beat_kai_kitchen_avoidance_ritual",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

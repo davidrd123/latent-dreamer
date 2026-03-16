@@ -1,0 +1,42 @@
+{
+  "arm": "baseline",
+  "candidate_text": "Maren presses her thumb into the sharp crease of the folded run sheet, treating it like an unopened letter she lacks the nerve to read. Even though Kai is miles away in the kitchen overlooking the harbor, the only storm she feels is waiting behind this rehearsal room door with Leah. She mouths her opening apology to the wood grain three times, letting the silent, obsessive revision become its own safe evasion.",
+  "graph_projection": {
+    "confidence": "high",
+    "delta_energy": -0.3,
+    "delta_tension": 0.5,
+    "node_id": "beat_maren_evasion_01",
+    "node_type": "beat",
+    "option_effect": "close",
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "payoff_refs": [
+      "ev_talk_before_runthrough"
+    ],
+    "practice_tags": [
+      "evasion",
+      "anticipated-confrontation"
+    ],
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "situation_id": "sit_outside_rehearsal_room",
+    "source_lane": "L2",
+    "source_ref": "prototype-baseline"
+  },
+  "semantic_checks": {
+    "opening-line rehearsal is present": true,
+    "rehearsal sharpens rather than resolves the choice": true,
+    "the meeting has not begun": true,
+    "the rehearsal room remains psychologically active": true
+  },
+  "timestamp": "2026-03-15T01:27:23.527486+00:00"
+}

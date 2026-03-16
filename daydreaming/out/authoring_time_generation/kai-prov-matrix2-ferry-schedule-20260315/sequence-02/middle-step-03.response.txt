@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai turns the faucet on and stands at the sink, trying out the sentence 'I got your letter' the way you try on a coat you already know doesn't fit\u2014saying it once to the window glass, then again softer, listening for the place where it stops sounding like language and starts sounding like the thing he's actually afraid to say. The harbor comes in anyway: the cold, the specific way her voice landed on 'honestly' six months ago like she was setting something down and not picking it up again. He mouths a second line\u2014'I've been thinking'\u2014but it opens too fast, goes somewhere he can't control, so he lets it dissolve and goes back to the first one, which is true the way a closed door is true. Behind him, the envelope stays where it is, its silence doing the work he won't.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_faucet_line",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

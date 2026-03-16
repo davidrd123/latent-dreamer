@@ -1,0 +1,140 @@
+{
+  "ablation": "no_causal_slice",
+  "arm": "middle",
+  "candidate_text": "Maren grips the folded run sheet like an unopened letter, tracing its sharp crease with her thumb instead of reaching for the rehearsal room doorknob. She stares intently at the scuffed linoleum, trying to distract herself with a safe memory of Kai in the kitchen, but the cold, hostile harbor of her past arguments with Leah remains psychologically present. If she just waits out here until the hallway stops feeling so dangerous, she tells herself, a defenseless opening line about the tempo will finally come to her.",
+  "dominant_concern_id": "cc_obligation",
+  "graph_projection": {
+    "confidence": "high",
+    "delta_energy": -0.2,
+    "delta_tension": 0.3,
+    "node_id": "beat_maren_hallway_evasion_01",
+    "node_type": "beat",
+    "option_effect": "close",
+    "origin_pressure_refs": [
+      "cc_obligation"
+    ],
+    "payoff_refs": [
+      "ev_talk_before_runthrough"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "pressure_tags": [
+      "obligation"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "situation_id": "sit_outside_rehearsal_room",
+    "source_lane": "L2",
+    "source_ref": "prototype-middle"
+  },
+  "operator_score_breakdown": {
+    "avoidance": {
+      "appraisal_fit": 0.5,
+      "episodic_resonance": 0.08,
+      "practice_fit": 0.9,
+      "pressure": 0.74,
+      "repetition_penalty": 0.12,
+      "total": 0.59
+    },
+    "rationalization": {
+      "appraisal_fit": 0.5,
+      "episodic_resonance": 0.2,
+      "practice_fit": 0.58,
+      "pressure": 0.74,
+      "repetition_penalty": 0.08,
+      "total": 0.56
+    },
+    "rehearsal": {
+      "appraisal_fit": 0.5,
+      "episodic_resonance": 0.5,
+      "practice_fit": 0.35,
+      "pressure": 0.74,
+      "repetition_penalty": 0.05,
+      "total": 0.57
+    }
+  },
+  "retrieval_scores": [
+    {
+      "episode_id": "ep_public_break",
+      "fixture_order": 1,
+      "matched_keys": [
+        "concern_type",
+        "target_ref"
+      ],
+      "recency_rank": 3,
+      "score": 2,
+      "summary": "After a disastrous rehearsal, Leah told Maren, \"If you're apologizing, don't start by defending the tempo.\"\n"
+    },
+    {
+      "episode_id": "ep_good_opening_line",
+      "fixture_order": 2,
+      "matched_keys": [
+        "concern_type",
+        "target_ref"
+      ],
+      "recency_rank": 2,
+      "score": 2,
+      "summary": "Before a difficult funding interview, Maren rehearsed one opening line until the room stopped feeling hostile enough to enter.\n"
+    },
+    {
+      "episode_id": "ep_unsent_apology_note",
+      "fixture_order": 3,
+      "matched_keys": [
+        "concern_type",
+        "target_ref"
+      ],
+      "recency_rank": 1,
+      "score": 2,
+      "summary": "Maren once rewrote an apology note for hours and never sent it, letting revision become its own refusal.\n"
+    }
+  ],
+  "selected_affordance_tags": [
+    "delay-contact"
+  ],
+  "selected_operator_family": "avoidance",
+  "semantic_checks": {
+    "opening-line rehearsal is present": true,
+    "rehearsal sharpens rather than resolves the choice": true,
+    "the meeting has not begun": true,
+    "the rehearsal room remains psychologically active": true
+  },
+  "timestamp": "2026-03-15T01:28:02.906505+00:00",
+  "updated_concerns": [
+    {
+      "base_intensity": 0.84,
+      "concern_type": "obligation",
+      "id": "cc_obligation",
+      "intensity_basis": "fixture_constant",
+      "seed_origin": "benchmark_seeded",
+      "source_episode_ids": [
+        "ep_public_break",
+        "ep_good_opening_line"
+      ],
+      "source_rule_ids": [
+        "rule_shared_work_requires_approach"
+      ],
+      "target_ref": "leah",
+      "unresolved": true
+    },
+    {
+      "base_intensity": 0.56,
+      "concern_type": "attachment_threat",
+      "id": "cc_attachment_threat",
+      "intensity_basis": "fixture_constant",
+      "seed_origin": "benchmark_seeded",
+      "source_episode_ids": [
+        "ep_public_break",
+        "ep_unsent_apology_note"
+      ],
+      "source_rule_ids": [
+        "rule_repair_possible_but_exposing"
+      ],
+      "target_ref": "leah",
+      "unresolved": true
+    }
+  ]
+}

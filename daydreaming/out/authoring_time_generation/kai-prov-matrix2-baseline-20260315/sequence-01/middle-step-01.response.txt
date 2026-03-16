@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the kettle with more water than he needs, watching the tap run a beat too long before shutting it off. He sets the kettle on the burner and adjusts it twice, centering it against a mark in the grate that doesn't require centering, his back kept deliberately toward the table. The sound of water beginning to heat fills the kitchen the way harbor wind used to fill the pauses between them, and he finds himself counting the small clicks of the element as though arriving at a high enough number will constitute a decision.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance_s01_c03",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

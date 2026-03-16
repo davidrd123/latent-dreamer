@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa stares at the blinking cursor beneath Eli's text, her thumb hovering over the keyboard as the muffled applause from the donor hall bleeds through the coatroom walls. She starts typing that she only omitted his name because the donors needed a streamlined narrative, a clean version of the project's history to keep them engaged. By the third sentence, the draft isn't an apology anymore; it's a perfectly reasoned defense of why her choice in the spotlight was actually the most responsible thing to do for both of them.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_text",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": 0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

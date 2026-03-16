@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa's thumb rests on the phone's edge rather than the screen itself, a half-degree of distance she doesn't examine. Through the coatroom door the applause is thinning into chair-scrape and laughter, the room still warm with the toast she shaped, and she lets that warmth do some of the work\u2014telling herself that what landed cleanly out there is evidence of good judgment, not omission. She has drafted the reply four times without sending it, each version a little more collaborative in its pronouns, the word 'we' appearing where 'I' had been, until the original cut starts to read like a shared editorial call Eli was simply absent for.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_draft",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the kettle past the line marked on its side, watching the water climb until the overflow risk gives him something small and real to manage, then sets it on the burner with the careful placement of someone defusing rather than cooking. He takes the dish towel from its hook and turns to the counter, his back arranged precisely against the table's direction, moving the cloth in long deliberate strokes across ceramic that is already clean\u2014each pass a small argument that there is still something here requiring his attention. The harbor is there anyway, not as image but as pressure behind the sternum, the particular cold of it, the way sound carries flat across open water, and he presses the towel harder against the counter as if friction might hold the evening in place a little longer.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance_s03_c02",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "sit_threshold_departure",
+      "sit_observed_evasion"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

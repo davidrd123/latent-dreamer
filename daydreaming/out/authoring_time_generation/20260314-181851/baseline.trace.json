@@ -1,0 +1,42 @@
+{
+  "arm": "baseline",
+  "candidate_text": "Kai slides the thick envelope to the exact center of the kitchen table, carefully aligning its edges with the wood grain. He turns on the faucet, letting the cold water run over his hands while he stares out the window, straining to hear the low, distant blast of the harbor ferries. As long as the paper remains sealed, he doesn't have to decide if his absence tonight will be another dishonest silence.",
+  "graph_projection": {
+    "confidence": "high",
+    "delta_energy": -0.2,
+    "delta_tension": 0.3,
+    "node_id": "beat_delay_ritual_faucet",
+    "node_type": "beat",
+    "option_effect": "none",
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "situation_id": "sit_unopened_letter",
+    "source_lane": "L2",
+    "source_ref": "prototype-baseline"
+  },
+  "semantic_checks": {
+    "avoidance sharpens rather than resolves the choice": true,
+    "delay ritual is present": true,
+    "the harbor remains psychologically active": true,
+    "the letter is not opened": false
+  },
+  "timestamp": "2026-03-15T01:19:13.081611+00:00"
+}

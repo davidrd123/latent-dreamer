@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai stands at the kitchen counter with his back to the table, mouthing a sentence he hasn't finished yet\u2014something that starts with 'I didn't know how'\u2014his lips moving just enough that he'd be embarrassed if anyone saw. He tries the line a second time, slower, and it still sounds like an excuse before it sounds like anything true, so he stops and presses his thumb against the edge of the counter until the pressure is the only thing he's tracking. The letter is behind him, and the harbor is behind the letter, and somewhere in that distance is the version of him who let a silence become a message.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_unopened_letter",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

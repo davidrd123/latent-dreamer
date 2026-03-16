@@ -1,0 +1,257 @@
+{
+  "ablation": "none",
+  "arm": "middle",
+  "candidate_text": "Rhea stares at the heavy soundproof door of Studio B, her reflection faint in the polished metal handle. \"Owen, the omission was my oversight, and I've already submitted the correction,\" she whispers, trying to keep her voice flat and authoritative. She imagines him crossing his arms, waiting for the excuse she promised herself she wouldn't give. She bites the inside of her cheek, forcing herself to stop there and let the silence do the work.",
+  "concern_driver": "inferred",
+  "concern_inference": {
+    "dominant_match": true,
+    "fired_practice_bias_rules": [
+      "rule_script_before_speaking",
+      "rule_silence_can_backfire"
+    ],
+    "fired_theme_rules": [
+      "rule_public_credit_threat",
+      "rule_required_response_at_threshold"
+    ],
+    "inferred_concerns": [
+      {
+        "base_intensity": 0.71,
+        "concern_type": "status_damage",
+        "id": "cc_status_damage",
+        "intensity_basis": "inferred_from_primitives",
+        "seed_origin": "shadow_inference",
+        "source_episode_ids": [
+          "ep_panel_correction",
+          "ep_delayed_reply_cost"
+        ],
+        "source_rule_ids": [
+          "rule_public_credit_threat"
+        ],
+        "target_ref": "owen",
+        "unresolved": true
+      },
+      {
+        "base_intensity": 0.65,
+        "concern_type": "obligation",
+        "id": "cc_obligation",
+        "intensity_basis": "inferred_from_primitives",
+        "seed_origin": "shadow_inference",
+        "source_episode_ids": [
+          "ep_rehearsed_note_success"
+        ],
+        "source_rule_ids": [
+          "rule_required_response_at_threshold"
+        ],
+        "target_ref": "owen",
+        "unresolved": true
+      }
+    ],
+    "inferred_dominant_concern_id": "cc_status_damage",
+    "mode": "shadow_seeded_driver",
+    "primitive_facts": [
+      "agreed_face_to_face_meeting",
+      "character_defaults_to_scripted_openings",
+      "confrontation_is_imminent",
+      "current_meeting_about_credit",
+      "prior_delay_had_social_cost",
+      "prior_public_record_dispute"
+    ],
+    "seeded_dominant_concern_id": "cc_status_damage",
+    "seeded_vs_inferred": [
+      {
+        "concern_id": "cc_status_damage",
+        "inferred_base_intensity": 0.71,
+        "inferred_present": true,
+        "intensity_delta": -0.05,
+        "seeded_base_intensity": 0.76,
+        "seeded_concern_type": "status_damage",
+        "seeded_target_ref": "owen",
+        "source_episode_overlap": [
+          "ep_delayed_reply_cost",
+          "ep_panel_correction"
+        ],
+        "source_rule_match": true
+      },
+      {
+        "concern_id": "cc_obligation",
+        "inferred_base_intensity": 0.65,
+        "inferred_present": true,
+        "intensity_delta": -0.02,
+        "seeded_base_intensity": 0.67,
+        "seeded_concern_type": "obligation",
+        "seeded_target_ref": "owen",
+        "source_episode_overlap": [
+          "ep_rehearsed_note_success"
+        ],
+        "source_rule_match": true
+      }
+    ]
+  },
+  "dominant_concern_id": "cc_status_damage",
+  "dominant_concern_type": "status_damage",
+  "dominant_target_ref": "owen",
+  "graph_projection": {
+    "confidence": "high",
+    "delta_energy": 0.1,
+    "delta_tension": 0.2,
+    "node_id": "beat_rehearsal_studio_b_threshold",
+    "node_type": "beat",
+    "option_effect": "clarify",
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "payoff_refs": [
+      "sit_inside_studio_b_conversation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "sit_studio_b_threshold",
+      "ev_public_correction_at_panel"
+    ],
+    "situation_id": "sit_studio_b_threshold",
+    "source_lane": "L2",
+    "source_ref": "prototype-middle"
+  },
+  "operator_score_breakdown": {
+    "avoidance": {
+      "appraisal_fit": 0.4,
+      "episodic_resonance": 0.36,
+      "practice_fit": 0.27,
+      "pressure": 0.76,
+      "repetition_penalty": 0.1,
+      "total": 0.48
+    },
+    "rationalization": {
+      "appraisal_fit": 0.58,
+      "episodic_resonance": 0.49,
+      "practice_fit": 0.42,
+      "pressure": 0.76,
+      "repetition_penalty": 0.05,
+      "total": 0.63
+    },
+    "rehearsal": {
+      "appraisal_fit": 0.79,
+      "episodic_resonance": 0.7,
+      "practice_fit": 0.91,
+      "pressure": 0.76,
+      "repetition_penalty": 0.07,
+      "total": 0.84
+    }
+  },
+  "reminder_episode_id": "ep_panel_correction",
+  "retrieval_scores": [
+    {
+      "episode_id": "ep_panel_correction",
+      "episode_kind": "backstory",
+      "fixture_order": 1,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "practice_type"
+      ],
+      "practice_type": "anticipated-confrontation",
+      "recency_rank": 3,
+      "score": 3,
+      "summary": "After a festival panel, Owen corrected the record in public and later told Rhea, \"Say what you did before you explain it.\"\n"
+    },
+    {
+      "episode_id": "ep_rehearsed_note_success",
+      "episode_kind": "backstory",
+      "fixture_order": 2,
+      "matched_keys": [
+        "target_ref",
+        "practice_type"
+      ],
+      "practice_type": "anticipated-confrontation",
+      "recency_rank": 2,
+      "score": 2,
+      "summary": "Earlier in their collaboration, Rhea rehearsed a difficult opening line before calling Owen, and the conversation went better because she did not improvise.\n"
+    },
+    {
+      "episode_id": "ep_delayed_reply_cost",
+      "episode_kind": "backstory",
+      "fixture_order": 3,
+      "matched_keys": [
+        "concern_type",
+        "target_ref"
+      ],
+      "practice_type": "evasion",
+      "recency_rank": 1,
+      "score": 2,
+      "summary": "Rhea once let a collaborator's accusation sit overnight, and by morning the silence had become its own admission.\n"
+    },
+    {
+      "episode_id": "gen_step_01_beat_rehearsal_studio_b_threshold_01",
+      "episode_kind": "generated",
+      "fixture_order": 4,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "situation_id",
+        "practice_type"
+      ],
+      "practice_type": "anticipated-confrontation",
+      "recency_rank": 4,
+      "score": 4,
+      "summary": "Rhea paces the narrow hallway outside Studio B, her thumb hovering over the locked screen of her phone. \"I wanted to clarify the timeline of the project,\" she mutters to the empty corridor, immediately shaking her head. *Say what you did before you explain it,* she reminds herself, squaring her shoulders toward the heavy soundproof door. \"Owen, the credit omission was my oversight, and here is how I am fixing it,\" she whispers, testing the weight of the words before she has to use them."
+    }
+  ],
+  "selected_affordance_tags": [
+    "draft-opening-line",
+    "simulate-objection"
+  ],
+  "selected_operator_family": "rehearsal",
+  "selected_retrieved_episode_ids": [
+    "gen_step_01_beat_rehearsal_studio_b_threshold_01",
+    "ep_panel_correction"
+  ],
+  "semantic_checks": {
+    "no_cross_fixture_contamination": true,
+    "opening-line rehearsal is present": false,
+    "rehearsal sharpens rather than resolves the choice": true,
+    "the meeting has not begun": true,
+    "the studio remains psychologically active": true
+  },
+  "sequence_step": 2,
+  "timestamp": "2026-03-15T07:02:59.108762+00:00",
+  "updated_concerns": [
+    {
+      "base_intensity": 0.41,
+      "concern_type": "status_damage",
+      "id": "cc_status_damage",
+      "intensity_basis": "inferred_from_primitives",
+      "seed_origin": "shadow_inference",
+      "source_episode_ids": [
+        "ep_panel_correction",
+        "ep_delayed_reply_cost"
+      ],
+      "source_rule_ids": [
+        "rule_public_credit_threat"
+      ],
+      "target_ref": "owen",
+      "unresolved": true
+    },
+    {
+      "base_intensity": 0.35,
+      "concern_type": "obligation",
+      "id": "cc_obligation",
+      "intensity_basis": "inferred_from_primitives",
+      "seed_origin": "shadow_inference",
+      "source_episode_ids": [
+        "ep_rehearsed_note_success"
+      ],
+      "source_rule_ids": [
+        "rule_required_response_at_threshold"
+      ],
+      "target_ref": "owen",
+      "unresolved": true
+    }
+  ]
+}

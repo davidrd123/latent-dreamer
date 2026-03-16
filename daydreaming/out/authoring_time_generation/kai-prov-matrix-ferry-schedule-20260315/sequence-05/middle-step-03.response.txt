@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai refills the kettle he already filled, tipping water from the glass he was holding into the spout with the careful attention of someone performing a task that matters, and the overflow runs over his fingers before he notices. The letter is still on the table behind him\u2014he knows its exact position without looking, the way you know a bruise without pressing it\u2014and the harbor is out there past the window he has arranged himself not to face, where she might already be deciding how long she'll wait. He rehearses the version of tonight where the letter stays sealed and the harbor fills up with dark water and she finally stops expecting, and he holds that version up like something he might choose, and it fits the way a wrong key almost fits, familiar in the hand but not turning anything.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

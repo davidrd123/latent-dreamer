@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa presses the event program flatter against her palm, as if the fold itself is something she can correct, while the muffled sound of the donor hall still moves through the coatroom door. She reads Eli's text a second time and finds, without deciding to, that she has already begun composing the distinction in her head: not that she took credit, but that she gave the audience what the moment required, which is a different thing, a necessary thing. The program lists both their names, she notices, which feels like evidence of something, though she is careful not to examine what. She doesn't type a reply yet; she is still finding the version of the story that is true enough to send.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_program_s01_c02",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold",
+      "ev_eli_texts_afterward"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

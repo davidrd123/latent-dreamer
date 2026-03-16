@@ -1,0 +1,143 @@
+{
+  "ablation": "none",
+  "arm": "middle",
+  "candidate_text": "Rhea stares at the heavy acoustic door of Studio B, her thumb hovering over her phone's locked screen. 'I wanted to clarify the timeline of the project,' she whispers to the empty hallway, immediately shaking her head. Remembering Owen's past advice to state her actions before explaining them, she squares her shoulders and tries again. 'I left your name off the submission, and I need to fix it,' she murmurs, locking the phrasing into her mind so she won't have to improvise.",
+  "dominant_concern_id": "cc_status_damage",
+  "graph_projection": {
+    "confidence": "high",
+    "delta_energy": 0.3,
+    "delta_tension": 0.2,
+    "node_id": "beat_rehearsal_studio_b_threshold",
+    "node_type": "beat",
+    "option_effect": "clarify",
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "payoff_refs": [
+      "sit_inside_studio_b_conversation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "sit_studio_b_threshold",
+      "ev_public_correction_at_panel"
+    ],
+    "situation_id": "sit_studio_b_threshold",
+    "source_lane": "L2",
+    "source_ref": "prototype-middle"
+  },
+  "operator_score_breakdown": {
+    "avoidance": {
+      "appraisal_fit": 0.4,
+      "episodic_resonance": 0.36,
+      "practice_fit": 0.27,
+      "pressure": 0.76,
+      "repetition_penalty": 0.1,
+      "total": 0.48
+    },
+    "rationalization": {
+      "appraisal_fit": 0.58,
+      "episodic_resonance": 0.49,
+      "practice_fit": 0.42,
+      "pressure": 0.76,
+      "repetition_penalty": 0.05,
+      "total": 0.63
+    },
+    "rehearsal": {
+      "appraisal_fit": 0.79,
+      "episodic_resonance": 0.7,
+      "practice_fit": 0.91,
+      "pressure": 0.76,
+      "repetition_penalty": 0.07,
+      "total": 0.84
+    }
+  },
+  "retrieval_scores": [
+    {
+      "episode_id": "ep_panel_correction",
+      "fixture_order": 1,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "practice_type"
+      ],
+      "recency_rank": 3,
+      "score": 3,
+      "summary": "After a festival panel, Owen corrected the record in public and later told Rhea, \"Say what you did before you explain it.\"\n"
+    },
+    {
+      "episode_id": "ep_rehearsed_note_success",
+      "fixture_order": 2,
+      "matched_keys": [
+        "target_ref",
+        "practice_type"
+      ],
+      "recency_rank": 2,
+      "score": 2,
+      "summary": "Earlier in their collaboration, Rhea rehearsed a difficult opening line before calling Owen, and the conversation went better because she did not improvise.\n"
+    },
+    {
+      "episode_id": "ep_delayed_reply_cost",
+      "fixture_order": 3,
+      "matched_keys": [
+        "concern_type",
+        "target_ref"
+      ],
+      "recency_rank": 1,
+      "score": 2,
+      "summary": "Rhea once let a collaborator's accusation sit overnight, and by morning the silence had become its own admission.\n"
+    }
+  ],
+  "selected_affordance_tags": [
+    "draft-opening-line",
+    "simulate-objection"
+  ],
+  "selected_operator_family": "rehearsal",
+  "semantic_checks": {
+    "no_cross_fixture_contamination": true,
+    "opening-line rehearsal is present": true,
+    "rehearsal sharpens rather than resolves the choice": false,
+    "the meeting has not begun": true,
+    "the studio remains psychologically active": true
+  },
+  "timestamp": "2026-03-15T03:17:44.325016+00:00",
+  "updated_concerns": [
+    {
+      "base_intensity": 0.61,
+      "concern_type": "status_damage",
+      "id": "cc_status_damage",
+      "intensity_basis": "fixture_constant",
+      "seed_origin": "benchmark_seeded",
+      "source_episode_ids": [
+        "ep_panel_correction",
+        "ep_delayed_reply_cost"
+      ],
+      "source_rule_ids": [
+        "rule_public_credit_threat"
+      ],
+      "target_ref": "owen",
+      "unresolved": true
+    },
+    {
+      "base_intensity": 0.52,
+      "concern_type": "obligation",
+      "id": "cc_obligation",
+      "intensity_basis": "fixture_constant",
+      "seed_origin": "benchmark_seeded",
+      "source_episode_ids": [
+        "ep_rehearsed_note_success"
+      ],
+      "source_rule_ids": [
+        "rule_required_response_at_threshold"
+      ],
+      "target_ref": "owen",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea stares at the heavy acoustic door of Studio B, her thumb hovering over her phone's locked screen. 'I wanted to clarify the timeline of the project,' she whispers to the empty hallway, immediately shaking her head. Remembering Owen's past advice to state her actions before explaining them, she squares her shoulders and tries again. 'I left your name off the submission, and I need to fix it,' she murmurs, locking the phrasing into her mind so she won't have to improvise.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_studio_b_threshold",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.2,
+    "delta_energy": 0.3,
+    "setup_refs": [
+      "sit_studio_b_threshold",
+      "ev_public_correction_at_panel"
+    ],
+    "payoff_refs": [
+      "sit_inside_studio_b_conversation"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

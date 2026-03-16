@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa leans against the cool plaster of the coatroom wall, the muffled applause from the donor hall still vibrating through the floorboards. She stares at the blinking cursor beneath Eli's message and types, \"The donors just needed a clean narrative,\" feeling the familiar, comforting weight of that logic settle in her chest. It wasn't about erasing him, she tells herself as she carefully deletes the word \"sorry\" from the draft; it was about protecting the project's momentum when it mattered most.",
+  "graph_projection": {
+    "node_id": "beat_rationalize_coatroom",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

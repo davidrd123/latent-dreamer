@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai turns his back to the kitchen table and attacks the grout behind the sink with an old toothbrush, scrubbing with a punishing, rhythmic focus. The unopened envelope sits perfectly still behind him, yet the phantom chill of harbor wind seems to draft through the sealed window. As long as he keeps his hands moving and his eyes locked on the porcelain, he can delay the moment his silence becomes an answer.",
+  "graph_projection": {
+    "node_id": "beat_evasion_grout_scrub",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": 0.4,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

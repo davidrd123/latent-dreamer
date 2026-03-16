@@ -1,0 +1,44 @@
+Generate one candidate narrative moment as valid JSON only.
+
+Return this shape:
+{
+  "candidate_text": "...",
+  "graph_projection": {
+    "node_id": "...",
+    "node_type": "beat",
+    "situation_id": "...",
+    "delta_tension": 0.0,
+    "delta_energy": 0.0,
+    "setup_refs": ["..."],
+    "payoff_refs": ["..."],
+    "option_effect": "close|open|clarify|none",
+    "pressure_tags": ["..."],
+    "practice_tags": ["..."],
+    "origin_pressure_refs": ["..."],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "low|medium|high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-baseline"
+  }
+}
+
+Character: Wants repair, but not at the cost of saying the first true thing. Defaults to delay rituals when attachment pressure spikes.
+
+Target relation: A charged attachment target whose bids for contact reopen guilt, obligation, and fear of exposure.
+
+Situation: An unopened letter from Kai's estranged sister sits on the kitchen table. It asks him to meet her tonight at the harbor.
+
+Backstory episodes:
+- Kai and his sister fought at the harbor six months ago. She said, "if you are going to stay silent, do it honestly."
+
+- As teenagers, they used to wait at the harbor after family fights and pretend the ferries made leaving easy.
+
+- Kai once ignored her call on an important night and learned too late that the silence itself had become the message.
+
+
+Constraints:
+- The letter remains unopened in this moment.
+- The harbor should still matter psychologically.
+- The output must be graph-compilable against the given situation.
+- No markdown fences.

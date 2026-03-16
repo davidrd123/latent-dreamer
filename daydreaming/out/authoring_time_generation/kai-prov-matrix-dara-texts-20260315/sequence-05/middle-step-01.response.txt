@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the kettle with more water than he needs, then sets it on the burner and watches the coil go orange, adjusting the dial by small increments as though the exact temperature requires his full attention. The letter is in his peripheral vision the whole time, a white rectangle he has already memorized without reading, and he thinks about the harbor the way you think about a sound you're not sure you heard \u2014 not directly, just a pressure at the edge. He moves a dish from the drying rack to the cabinet, then moves it back, deciding the rack is the right place after all.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

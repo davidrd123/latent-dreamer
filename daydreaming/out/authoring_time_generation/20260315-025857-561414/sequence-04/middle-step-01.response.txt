@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa stares at Eli's unanswered text, her thumb hovering over the keyboard to draft a quick apology for the omission. Hearing the muffled laughter still echoing from the donor hall, she deletes the 'I'm sorry' and begins typing an explanation about how the board needed a streamlined, single-founder narrative to secure the funding. She folds the event program tighter in her hand, convincing herself that simplifying the credit was just a necessary tactical sacrifice for the project's survival.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_toast_omission",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

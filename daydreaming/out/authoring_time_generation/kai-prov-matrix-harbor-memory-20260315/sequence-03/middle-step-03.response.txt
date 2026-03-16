@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai fills the electric kettle a second time, though the first cup sits untouched and cooling on the counter beside the letter. He is very deliberate about the water level, watching the line rise to exactly the maximum mark, and when he sets it back on its base he positions it so the handle faces the window\u2014toward the dark where the harbor would be if the kitchen faced that way, which it doesn't. The letter stays at the edge of his peripheral vision like a sound he has decided not to hear yet, and he keeps his hands busy opening and closing the cabinet where the mugs are, not taking one.",
+  "graph_projection": {
+    "node_id": "beat_kettle_ritual_evasion_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

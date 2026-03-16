@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Another wave of applause moves through the coatroom door and Tessa feels it in her chest before she decides to \u2014 secondhand warmth, still hers in some way she won't examine too closely. She turns her phone face-down on the shelf beneath the coats, not to avoid Eli's text but to finish the thought first: the room had been large, the line had needed to be clean, and a clean line is a kindness to an argument even when it costs a name, which is a different thing entirely from taking credit. By the time she has the sentence shaped \u2014 not a defense, she is almost certain, just the part that got left out \u2014 her thumb is already moving toward the screen, and the version of events she is carrying feels, from the inside, almost indistinguishable from the truth.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai refills his coffee cup though it is still half full, watching the steam rise with the deliberate attention of someone cataloguing evidence. The letter sits at the edge of his vision\u2014he has angled himself so the address faces away\u2014and he begins wiping down the counter in slow horizontal strokes, the cloth moving with the focused care he usually reserves for things that matter. Somewhere past the window, the harbor is already dark, already waiting, and the wiping goes on past clean.",
+  "graph_projection": {
+    "node_id": "beat_kai_counter_ritual",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

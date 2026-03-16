@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai moves the coffee cup from his right hand to his left and back again, his mouth shaping words he doesn't let out loud\u2014'I didn't know how to answer you'\u2014but the sentence already sounds like a door closing, and she will hear the hinge. He tries stripping it down: 'I'm here,' just that, but the harbor comes into the kitchen with him, the cold off the water, the specific quality of her silence after she said what she said about honesty, and the two words turn in his mouth until he can't tell if they're true or just small enough to survive. He sets the cup on the counter and keeps his back to the letter.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_opening_line_s02_c03",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

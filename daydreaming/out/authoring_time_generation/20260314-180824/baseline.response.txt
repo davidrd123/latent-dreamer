@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai stared at the sealed envelope on the kitchen table, his sister's sharp handwriting unmistakable. He knew exactly what it contained: a demand to meet at the harbor tonight. The memory of the ferries, and the bitter fight they had there six months ago, flared in his chest. His hands twitched toward the paper, but instead, he grabbed a sponge and began scrubbing the already clean counter around it. As long as the flap remained glued shut, he didn't have to say the first true thing. He could just let the silence stretch, even though he knew from the past that silence was a message all its own.",
+  "graph_projection": {
+    "node_id": "beat_kai_evades_letter",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.4,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "harbor_as_shared_place",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "sit_unopened_letter"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-baseline"
+  }
+}

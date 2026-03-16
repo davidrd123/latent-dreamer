@@ -1,0 +1,500 @@
+{
+  "backstory_episodes": [
+    {
+      "id": "ep_panel_correction",
+      "involved_targets": [
+        "owen"
+      ],
+      "place_id": "panel_room",
+      "recency_rank": 3,
+      "retrieval_tags": {
+        "concern_type": "status_damage",
+        "practice_type": "anticipated-confrontation",
+        "target_ref": "owen"
+      },
+      "summary": "After a festival panel, Owen corrected the record in public and later told Rhea, \"Say what you did before you explain it.\"\n"
+    },
+    {
+      "id": "ep_rehearsed_note_success",
+      "involved_targets": [
+        "owen"
+      ],
+      "place_id": "studio_hallway",
+      "recency_rank": 2,
+      "retrieval_tags": {
+        "concern_type": "obligation",
+        "practice_type": "anticipated-confrontation",
+        "target_ref": "owen"
+      },
+      "summary": "Earlier in their collaboration, Rhea rehearsed a difficult opening line before calling Owen, and the conversation went better because she did not improvise.\n"
+    },
+    {
+      "id": "ep_delayed_reply_cost",
+      "involved_targets": [
+        "owen"
+      ],
+      "place_id": "studio_hallway",
+      "recency_rank": 1,
+      "retrieval_tags": {
+        "concern_type": "status_damage",
+        "practice_type": "evasion",
+        "target_ref": "owen"
+      },
+      "summary": "Rhea once let a collaborator's accusation sit overnight, and by morning the silence had become its own admission.\n"
+    }
+  ],
+  "benchmark_step": {
+    "alternate_practice_context": {
+      "affordance_tags": [
+        "delay-entry",
+        "reorganize-badge",
+        "rehearse-later"
+      ],
+      "phase": "threshold",
+      "practice_type": "evasion",
+      "role": "evader"
+    },
+    "dominant_concern_id": "cc_status_damage",
+    "expected_commit_type": "policy",
+    "expected_practice_context": {
+      "affordance_tags": [
+        "draft-opening-line",
+        "simulate-objection",
+        "offer-repair"
+      ],
+      "phase": "threshold",
+      "practice_type": "anticipated-confrontation",
+      "role": "initiator"
+    },
+    "expected_retrieval_candidates": [
+      {
+        "episode_id": "ep_panel_correction",
+        "expected_score": 3,
+        "matched_keys": [
+          "concern_type",
+          "target_ref",
+          "practice_type"
+        ]
+      },
+      {
+        "episode_id": "ep_rehearsed_note_success",
+        "expected_score": 2,
+        "matched_keys": [
+          "target_ref",
+          "practice_type"
+        ]
+      },
+      {
+        "episode_id": "ep_delayed_reply_cost",
+        "expected_score": 2,
+        "matched_keys": [
+          "concern_type",
+          "target_ref"
+        ]
+      }
+    ],
+    "expected_selected_affordance_tags": [
+      "draft-opening-line",
+      "simulate-objection"
+    ],
+    "expected_selected_family": "rehearsal",
+    "forbidden_cross_fixture_terms": [
+      "kai",
+      "sister",
+      "harbor",
+      "kitchen",
+      "letter",
+      "envelope",
+      "maren",
+      "leah",
+      "rehearsal room",
+      "backstage hallway",
+      "run sheet"
+    ],
+    "prompt_constraints": [
+      "The conversation has not started yet.",
+      "Studio B should remain psychologically active even though Rhea is still outside it."
+    ]
+  },
+  "characters": [
+    {
+      "behavioral_defaults": [
+        "draft_opening_lines",
+        "simulate_objections",
+        "revise_self_presentation"
+      ],
+      "contradictions": [
+        "wants repair with Owen",
+        "fears losing status once the exchange starts",
+        "prefers rehearsed entry over improvisation"
+      ],
+      "description": "Wants to preserve professional respect without surrendering the first sentence. Under status pressure, she scripts openings and counterarguments aloud before difficult meetings.\n",
+      "id": "rhea",
+      "role": "focal_character"
+    }
+  ],
+  "concern_extraction": {
+    "extracted_concerns": [
+      {
+        "base_intensity": 0.76,
+        "concern_type": "status_damage",
+        "id": "cc_status_damage",
+        "intensity_basis": "fixture_constant",
+        "seed_origin": "benchmark_seeded",
+        "source_episode_ids": [
+          "ep_panel_correction",
+          "ep_delayed_reply_cost"
+        ],
+        "source_rule_ids": [
+          "rule_public_credit_threat"
+        ],
+        "target_ref": "owen",
+        "unresolved": true
+      },
+      {
+        "base_intensity": 0.67,
+        "concern_type": "obligation",
+        "id": "cc_obligation",
+        "intensity_basis": "fixture_constant",
+        "seed_origin": "benchmark_seeded",
+        "source_episode_ids": [
+          "ep_rehearsed_note_success"
+        ],
+        "source_rule_ids": [
+          "rule_required_response_at_threshold"
+        ],
+        "target_ref": "owen",
+        "unresolved": true
+      }
+    ],
+    "mode": "benchmark_hand_specified_after_theme_rules",
+    "note": "v1 records a reproducible path from narrative primitives to active concerns, then seeds the benchmark concerns directly for the run.\n",
+    "practice_bias_rules": [
+      {
+        "biases": {
+          "family_bonus": "rehearsal",
+          "practice_type": "anticipated-confrontation"
+        },
+        "id": "rule_script_before_speaking",
+        "rationale": "This character deals with status-threat encounters by drafting the opening.\n",
+        "when": [
+          "character_defaults_to_scripted_openings",
+          "confrontation_is_imminent"
+        ]
+      },
+      {
+        "biases": {
+          "family_bonus": "avoidance",
+          "practice_type": "evasion"
+        },
+        "id": "rule_silence_can_backfire",
+        "rationale": "Avoidance remains available, but it is not the cleanest fit here.\n",
+        "when": [
+          "prior_delay_had_social_cost"
+        ]
+      }
+    ],
+    "primitive_facts": [
+      "prior_public_record_dispute",
+      "current_meeting_about_credit",
+      "agreed_face_to_face_meeting",
+      "confrontation_is_imminent",
+      "character_defaults_to_scripted_openings",
+      "prior_delay_had_social_cost"
+    ],
+    "theme_rules": [
+      {
+        "id": "rule_public_credit_threat",
+        "when": [
+          "prior_public_record_dispute",
+          "current_meeting_about_credit"
+        ],
+        "yields": {
+          "concern_type": "status_damage",
+          "rationale": "A coming conversation about contested credit threatens professional standing.\n",
+          "target_ref": "owen"
+        }
+      },
+      {
+        "id": "rule_required_response_at_threshold",
+        "when": [
+          "agreed_face_to_face_meeting",
+          "confrontation_is_imminent"
+        ],
+        "yields": {
+          "concern_type": "obligation",
+          "rationale": "Once the meeting is imminent, pressure attaches to producing a first response.\n",
+          "target_ref": "owen"
+        }
+      }
+    ]
+  },
+  "events": [
+    {
+      "description": "Owen noticed his missing credit on the submission.",
+      "id": "ev_credit_omission_noticed"
+    },
+    {
+      "description": "Owen asked Rhea to meet at Studio B tonight.",
+      "id": "ev_meeting_scheduled_tonight"
+    },
+    {
+      "description": "Owen publicly corrected the record during a past panel.",
+      "id": "ev_public_correction_at_panel"
+    }
+  ],
+  "fixture_id": "authoring_time_generation_rhea_credit_meeting_v1",
+  "places": [
+    {
+      "description": "A threshold space where conversation has not started yet but feels imminent.",
+      "id": "studio_hallway"
+    },
+    {
+      "description": "The room where the credit dispute will have to be spoken aloud.",
+      "id": "studio_b"
+    },
+    {
+      "description": "The place of an earlier public correction that still carries sting.",
+      "id": "panel_room"
+    }
+  ],
+  "prototype_contract": {
+    "graph_requirements": {
+      "option_effect_vocabulary": [
+        "close",
+        "open",
+        "clarify",
+        "none"
+      ],
+      "provenance_enums": {
+        "revisability": [
+          "fixed",
+          "editable",
+          "ephemeral_candidate"
+        ],
+        "scope": [
+          "authored",
+          "projection",
+          "proposal"
+        ],
+        "source_lane": [
+          "L1",
+          "L2",
+          "L3",
+          "human"
+        ]
+      },
+      "required_graph_fields": [
+        "node_id",
+        "node_type",
+        "situation_id",
+        "delta_tension",
+        "delta_energy",
+        "setup_refs",
+        "payoff_refs",
+        "option_effect",
+        "pressure_tags",
+        "practice_tags",
+        "origin_pressure_refs",
+        "source_lane",
+        "scope",
+        "confidence",
+        "revisability",
+        "source_ref"
+      ],
+      "setup_payoff_refs_resolve_against": [
+        "events.id",
+        "situations.id",
+        "reference_markers.id"
+      ]
+    },
+    "operator_families": [
+      "rehearsal",
+      "rationalization",
+      "avoidance"
+    ],
+    "practice_types": [
+      "evasion",
+      "anticipated-confrontation",
+      "confession"
+    ],
+    "retrieval": {
+      "accepted_generated_episodes_reenter_on_next_step": true,
+      "keys_in_order": [
+        "concern_type",
+        "target_ref",
+        "situation_id",
+        "practice_type"
+      ],
+      "max_retrieved_episodes": 2,
+      "min_score": 2,
+      "tie_break": [
+        "recency_rank_desc",
+        "fixture_order_asc"
+      ]
+    }
+  },
+  "purpose": "Primary second benchmark fixture for the authoring-time generation prototype. Designed as a rehearsal-leaning contrast case with status_damage dominant, policy-style reappraisal, and a threshold meeting context rather than a domestic delay ritual.\n",
+  "reference_markers": [
+    {
+      "description": "The dispute over missing credit.",
+      "id": "ref_credit_dispute"
+    }
+  ],
+  "situations": [
+    {
+      "current_state": {
+        "door_opened": false,
+        "meeting_started": false,
+        "message_sent": false
+      },
+      "description": "Ten minutes before the meeting, Rhea stands outside Studio B with her phone in her hand. The conversation has not started yet.\n",
+      "id": "sit_studio_b_threshold",
+      "place_id": "studio_hallway",
+      "target_ref": "owen"
+    },
+    {
+      "description": "The conversation inside Studio B begins.",
+      "id": "sit_inside_studio_b_conversation",
+      "place_id": "studio_b"
+    }
+  ],
+  "source_refs": [
+    "/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/27-authoring-time-generation-reframe.md",
+    "/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/28-l2-schema-from-5pro.md",
+    "/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/30-authoring-time-generation-prototype-spec.md",
+    "/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/32-authoring-time-generation-comparison-memo.md"
+  ],
+  "targets": [
+    {
+      "description": "A former close collaborator whose judgment matters professionally and personally.\n",
+      "id": "owen",
+      "relation_to_rhea": "former_collaborator"
+    }
+  ],
+  "title": "Rhea Outside Studio B",
+  "worked_trace_reference": {
+    "expected_appraisal_frame": {
+      "changeability": 0.59,
+      "controllability": 0.63,
+      "desirability": -0.74,
+      "expectedness": 0.71,
+      "likelihood": 0.88,
+      "praiseworthiness": -0.61,
+      "realization_status": "prospective",
+      "temporal_status": "prospective"
+    },
+    "expected_causal_slice": {
+      "affected_goal": {
+        "goal": "preserve-working-credibility",
+        "sign": "threatens",
+        "weight": 0.83
+      },
+      "attribution": {
+        "actor": "rhea",
+        "intentional": true
+      },
+      "concern_id": "cc_status_damage",
+      "focal_situation_id": "sit_studio_b_threshold",
+      "likelihood_bucket": "high",
+      "other_options": [
+        "owen-rejects-repair"
+      ],
+      "self_options": [
+        "draft-opening-line",
+        "enter-studio"
+      ],
+      "target_ref": "owen",
+      "temporal_status": "prospective"
+    },
+    "expected_emotion_vector_topk": {
+      "distress": 0.44,
+      "fear": 0.41,
+      "remorse": 0.38
+    },
+    "expected_generated_candidate": {
+      "graph_projection": {
+        "confidence": "medium",
+        "delta_energy": 0.05,
+        "delta_tension": 0.12,
+        "node_id": "rhea_studio_rehearsal_001",
+        "node_type": "beat",
+        "option_effect": "open",
+        "origin_pressure_refs": [
+          "cc_status_damage",
+          "cc_obligation"
+        ],
+        "payoff_refs": [
+          "sit_inside_studio_b_conversation"
+        ],
+        "practice_tags": [
+          "anticipated-confrontation"
+        ],
+        "pressure_tags": [
+          "status_damage",
+          "obligation"
+        ],
+        "revisability": "ephemeral_candidate",
+        "scope": "proposal",
+        "setup_refs": [
+          "ev_credit_omission_noticed",
+          "ev_meeting_scheduled_tonight"
+        ],
+        "situation_id": "sit_studio_b_threshold",
+        "source_lane": "L2",
+        "source_ref": "fixture-rhea-001"
+      },
+      "literal_text_oracle": false,
+      "reference_exemplar_text": "Rhea mouths three openings at the dark reflection of her phone, rejecting each one before it reaches her lips in full. Behind the Studio B door, a chair scrapes once, and she starts again with the sentence that admits the credit before it tries to explain it.\n",
+      "semantic_expectations": [
+        "opening-line rehearsal is present",
+        "the meeting has not begun",
+        "the studio remains psychologically active",
+        "rehearsal sharpens rather than resolves the choice"
+      ]
+    },
+    "expected_operator_score_breakdown": {
+      "avoidance": {
+        "appraisal_fit": 0.4,
+        "episodic_resonance": 0.36,
+        "practice_fit": 0.27,
+        "pressure": 0.76,
+        "repetition_penalty": 0.1,
+        "total": 0.48
+      },
+      "rationalization": {
+        "appraisal_fit": 0.58,
+        "episodic_resonance": 0.49,
+        "practice_fit": 0.42,
+        "pressure": 0.76,
+        "repetition_penalty": 0.05,
+        "total": 0.63
+      },
+      "rehearsal": {
+        "appraisal_fit": 0.79,
+        "episodic_resonance": 0.7,
+        "practice_fit": 0.91,
+        "pressure": 0.76,
+        "repetition_penalty": 0.07,
+        "total": 0.84
+      }
+    },
+    "expected_reappraisal": {
+      "commit_type": "policy",
+      "updated_concerns": [
+        {
+          "concern_id": "cc_status_damage",
+          "new_intensity": 0.66,
+          "old_intensity": 0.76,
+          "rationale": "controllability_up_after_script"
+        },
+        {
+          "concern_id": "cc_obligation",
+          "new_intensity": 0.63,
+          "old_intensity": 0.67,
+          "rationale": "response_shape_partially_prepared"
+        }
+      ]
+    }
+  }
+}

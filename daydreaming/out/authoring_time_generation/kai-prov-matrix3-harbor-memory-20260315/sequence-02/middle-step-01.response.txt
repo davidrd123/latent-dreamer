@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai wipes down the already-clean counter in slow, deliberate strokes, the cloth moving in the same oval pattern three times, four times, his back to the table. The letter sits at the edge of his peripheral vision like a sound he is pretending not to hear, and he turns on the faucet to rinse nothing, the water running cold over his wrist. He knows the harbor from the inside of his chest\u2014the specific quality of wind off the water the night she said do it honestly\u2014and so he wrings the cloth out carefully, hangs it over the faucet handle, and straightens the dish soap so its label faces out.",
+  "graph_projection": {
+    "node_id": "beat_kai_counter_ritual",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

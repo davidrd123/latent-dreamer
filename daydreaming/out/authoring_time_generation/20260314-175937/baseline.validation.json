@@ -1,0 +1,7 @@
+{
+  "errors": [
+    "setup_refs contains non-resolvable refs: ['teen_ferry_escape', 'silence_as_message']",
+    "payoff_refs contains non-resolvable refs: ['harbor_fight_honesty']"
+  ],
+  "valid": false
+}

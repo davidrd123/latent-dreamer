@@ -1,0 +1,289 @@
+--- 04-5pro-nearest-neighbor-questions.original.md
++++ 04-5pro-nearest-neighbor-questions.md
+@@ -103,6 +103,286 @@
+   → operator pipeline too modular? Does the sequential
+   decomposition lose something that a more holistic approach
+   would preserve?
++
++#### D1 answer
++
++##### 1. Direct answer
++
++Do **not** treat Loyall/Hap and ABL as evidence that the current
++`v1` authoring-time L2 chain is wrong. Treat them as evidence that we
++are currently solving **one** of the two required problems and mostly
++not solving the other.
++
++The current repo is strong on **authoring-time inner-process
++selection**:
++
++- `CharacterConcern -> CausalSliceV1 -> AppraisalFrame ->
++  PracticeContextV1 -> operator scoring -> generated candidate +
++  provenance sidecar` (`28-l2-schema-from-5pro.md`)
++- a worked trace where each step visibly changes what kind of moment is
++  produced (`29-worked-trace-kai-unopened-letter.md`)
++- a deliberate operator cut where authored irrationality is already
++  first-class (`35-operator-taxonomy-status.md`)
++
++It is weak on **live situation execution once a move has begun**:
++
++- no Hap-style concurrent goal runtime
++- no ABL-style active execution object
++- no explicit continuation / interruption substrate for an in-progress
++  multi-step social move
++- runtime visibility mostly as traces, provenance sidecars, and thin
++  playback packets rather than a live inspectable execution tree
++  (`11-settled-architecture.md`,
++  `experiential-design/17-game-engine-architecture.md`,
++  `experiential-design/21-graffito-v0-playback-contract.md`)
++
++So the answer to D1 is:
++
++- **authored irrationality** is already one of our real strengths, and
++  Loyall mostly validates keeping it
++- **concurrency, interruption, and continuation** matter, but they
++  point at a missing runtime layer, not at a fatal flaw in the current
++  one-beat authoring-time pipeline
++- **ABT-like inspectability** is a real runtime gap for the watchable
++  experience
++- **modularity is not yet the problem**; dead summaries and over-thin
++  projections are the problem
++
++That means the right response is **not** "replace the modular L2 chain
++with a holistic character monolith." The right response is:
++
++1. keep the current L2 authoring-time chain
++2. add a narrow conflict/continuation story where it is actually
++   load-bearing
++3. do not leak that richer runtime state into the graph seam or stage
++   packet
++
++##### 2. What to import
++
++###### From Loyall/Hap
++
++**a. Keep irrationality as a design constraint, not a tolerated bug.**
++
++Loyall's warning is basically a defense of the current operator cut.
++`avoidance`, `rationalization`, and `rehearsal` are exactly the kind of
++non-optimizing, self-protective, personality-specific moves that a
++believable-agent runtime must support on purpose. Do not let later
++cleanup pressure recast them as planner failure or prompt garnish.
++
++**b. Add explicit concern conflict, but in a lightweight form.**
++
++Right now the L2 chain often reads as if one dominant concern wins the
++cycle and everything else becomes residue. That is acceptable for `v1`
++one-beat generation, but it is too lossy as a general story about
++character pressure. The Kai trace already shows beats shaped by both
++`attachment_threat` and `obligation`, even though one concern is marked
++as dominant.
++
++Minimum viable import:
++
++- keep `dominant_concern`, but also preserve `secondary_concern_ids[]`
++  or a small `conflict_signature`
++- let operator scoring see at least the top two live concerns when they
++  materially disagree
++- expose that conflict in provenance, not just in hidden scratch state
++
++This is a cheap Hap-shaped correction. It gives us some of the value of
++concurrent pursuit without pretending we have a full live parallel-goal
++runtime.
++
++**c. Add visible limits.**
++
++Loyall is right that believable agents should look resource-bounded.
++That does **not** mean simulating a whole cognitive bottleneck now. It
++means the system should not look like every concern and every affordance
++are equally live. A small active-concern set and explicit conflict note
++are enough for now.
++
++###### From ABL
++
++**d. Separate start guards from continue guards, but only for extended
++moves.**
++
++This distinction does **not** buy much inside the current single-beat
++authoring-time generator. If the operator produces one candidate node,
++then "can this start?" and "can this continue?" collapse into the same
++selection moment.
++
++The instant we have a live, interruptible social move that unfolds over
++multiple steps, ABL's split becomes load-bearing:
++
++- `precondition` / start guard = when a move may begin
++- `context_condition` / continue guard = when it may keep running
++- interrupt handler = what to do when the situation changes under it
++
++That belongs in a missing runtime social-execution layer, not in the
++current graph node schema and not in the playback packet.
++
++**e. Add a minimal active execution object for situations.**
++
++The `19-abl-extraction.md` note already names the right import:
++
++```text
++SituationRuntime {
++  active_moves[]
++  local_shared_state
++  interrupt_handlers[]
++  continue_guards[]
++  sync_points[]
++}
++```
++
++That is the right scale. Not a full ABL clone. Not a new global engine.
++Just enough runtime state to answer:
++
++- what is currently being tried
++- what must remain true for it to keep going
++- what interruptions are currently armed
++- where multi-character re-sync points exist
++
++Add one more field the repo now needs:
++
++```text
++active_concern_conflicts[]
++```
++
++So the runtime can say not just "Kai is evading" but "Kai is evading
++under attachment-threat/obligation conflict." That is much closer to
++what the dashboard eventually needs to show.
++
++##### 3. What to skip
++
++**Do not import Hap/ABL wholesale.**
++
++Skip:
++
++- the full Hap/ABL runtime as a new core substrate
++- a full Active Behavior Tree exported everywhere
++- full reflective meta-behavior rewrite power
++- context-condition machinery attached to one-beat authoring-time node
++  generation
++- a monolithic runtime that collapses authoring-time L2, runtime L3,
++  and stage playback into one ontology
++- any design that turns the thin playback packet into an ontology dump
++
++The current architecture is explicit that the graph seam and the stage
++seam stay thin (`11-settled-architecture.md`,
++`21-graffito-v0-playback-contract.md`). The normalized cycle packet has
++fields like node, family, tension, energy, dwell, revisit history, and
++text grounding. That is a projection surface. It is not where an ABT or
++rich practice runtime belongs.
++
++So do **not** respond to the ABT gap by inflating `DreamDirective`, the
++graph node schema, or the playback packet until they become live engine
++state in disguise. That would rot the level boundary immediately.
++
++Also skip the opposite overreaction: replacing the modular middle layer
++with one giant prompt because Loyall warns about modularity. The Kai
++worked trace says the current decomposition is earning its keep. Remove
++`CausalSlice`, `AppraisalFrame`, or `PracticeContext`, and operator
++choice becomes much harder to justify. The problem is not that the
++objects are separate. The problem would be if they stopped doing real
++work and devolved into decorative summaries.
++
++##### 4. What changes our architecture
++
++**Near-term: almost nothing structural in the authoring lane.**
++
++Keep:
++
++- `CausalSliceV1`
++- `AppraisalFrame`
++- `PracticeContextV1`
++- operator scoring
++- graph-thin output + richer provenance sidecar
++
++That stack is already the repo's strongest answer to Loyall's
++"authored irrationality" demand, and `34-broader-application-surface.md`
++is right that these objects function as acting-style given
++circumstances, not dead paperwork.
++
++**The real architectural addition is runtime-only.**
++
++What changes is the missing layer between:
++
++- selected/authored move
++- and rendered observation of that move unfolding in time
++
++That layer is not the graph. It is not the playback packet. It is not
++`FixtureDeltaV1`. It is a narrow live execution object for an active
++social situation.
++
++So the architecture change is:
++
++- add `SituationRuntime` (or equivalent name) as a runtime-only object
++- let dashboard / inner-life visualization read a projection of it
++- keep graph nodes as residue / compiled authored material
++- keep provenance sidecars as authoring-time explanation
++- keep stage packets thin
++
++One cheap authoring-lane change **is** worth making earlier:
++stop collapsing obviously mixed-pressure beats down to one concern where
++that destroys explanation. A `dominant_concern + secondary concerns`
++representation is enough.
++
++##### 5. Priority
++
++**Before the next provocation-delta experiment:**
++
++- do **not** build ABL runtime machinery
++- do **not** change the graph seam
++- do **not** touch the playback contract
++- only consider the cheap import: preserve secondary concern / conflict
++  in scoring and provenance where it obviously matters
++
++The next near seam is still the provocation object (`36-current-
++synthesis.md`), not full live situation execution.
++
++**Before full graph assembly / multi-step multi-situation work:**
++
++- define the runtime-only home for continuation / interruption state so
++  later work has somewhere honest to live
++- do not yet expand it into full multi-agent joint-behavior machinery
++
++**During watchable-runtime work:**
++
++This is where the ABL/Hap imports become real. `dashboard.md` is blunt
++that "watching a mind" is still unresolved, and the current system has
++little beyond trace viewer + packets. If the runtime is supposed to be
++interesting to watch, an ABT-lite `SituationRuntime` becomes important.
++
++That is when to add:
++
++- active move visibility
++- continue guards
++- interrupt handlers
++- maybe joint sync points for multi-character moves
++
++**Only after there is an actual failure they address:**
++
++- team memory
++- joint-behavior negotiation
++- richer reflective control over running behaviors
++
++Those are good ABL steals. They are just not first.
++
++#### D1 bottom line
++
++Loyall/Hap and ABL do **not** show that the current L2
++`CausalSlice -> Appraisal -> Practice -> operator` chain is too modular
++or psychologically thin. They show that the repo has a missing
++**runtime execution substrate** for situations once a move is live.
++
++So the correct architectural read is:
++
++- keep the current authoring-time chain
++- preserve authored irrationality aggressively
++- add lightweight concern conflict representation soon
++- add ABT-lite situation runtime later, for watchable execution
++- keep the graph seam and playback packet thin
++
++That is the import line. Everything else is either premature or the
++wrong layer.
+ 
+ ### D2. FAtiMA vs. our middle layer
+ 

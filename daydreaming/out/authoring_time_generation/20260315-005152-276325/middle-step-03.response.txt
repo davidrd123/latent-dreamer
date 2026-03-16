@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea paces a tight circle outside the heavy acoustic door of Studio B, her phone gripped tightly in her hand. \"Owen, the submission went out without your name on it,\" she murmurs to the empty hallway, deliberately dropping her pitch to sound factual rather than apologetic. She pauses, imagining his immediate, sharp intake of breath, and quickly rehearses her pivot to the repair strategy before she can lose her nerve.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_studio_b_threshold_s03_c04",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.2,
+    "delta_energy": 0.1,
+    "setup_refs": [
+      "sit_studio_b_threshold",
+      "ev_public_correction_at_panel"
+    ],
+    "payoff_refs": [
+      "sit_inside_studio_b_conversation"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

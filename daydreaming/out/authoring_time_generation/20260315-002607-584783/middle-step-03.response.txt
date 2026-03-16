@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Kai pours another thick ribbon of lemon soap into the sink, plunging his hands into the scalding water to scrub a skillet that has been clean for ten minutes. The unopened envelope rests on the edge of the counter, its sharp white corners demanding a response he isn't ready to give. He focuses entirely on the circular motion of the steel wool, trying to drown out the phantom smell of cold harbor salt creeping into the kitchen.",
+  "graph_projection": {
+    "node_id": "beat_avoidance_skillet_scrub",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.4,
+    "delta_energy": 0.3,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "candidate_text": "Tessa stares at the blinking cursor in Eli's text thread, the muffled clinking of glasses and warm laughter from the donor hall still bleeding through the coatroom door. She types 'I'm sorry about the toast,' but immediately deletes it, telling herself that a messy apology right now would only confuse the clean narrative the board just bought. Slipping the phone into her pocket, she decides it is actually more professional to wait until tomorrow, when the fundraising pressure isn't forcing her hand.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_delay",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": -0.3,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession",
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

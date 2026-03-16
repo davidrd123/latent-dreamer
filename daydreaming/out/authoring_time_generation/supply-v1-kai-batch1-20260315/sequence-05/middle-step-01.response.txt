@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the electric kettle a second time, though the first cup sits untouched and already cold beside the letter. He measures the tea leaves with a precision he never bothers with normally, leveling the spoon against the rim of the tin, counting seconds under his breath\u2014the kind of focus that requires just enough attention to crowd out the smell of salt water he keeps almost noticing, as if the harbor has followed the envelope indoors. The letter does not move, and he does not look at it, but his back stays angled toward it the way a person angles away from a window when they don't want to be seen from outside.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_ritual",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

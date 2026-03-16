@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai refolds the dish towel he already folded, smoothing the same crease twice, while the overfilled kettle begins to hiss at the element\u2014a sound he lets run longer than he should, as if the noise is doing something useful. The letter has not moved, and neither has he toward it; he knows the harbor is out there past the window he is not facing, the same harbor where she would be standing in a few hours, and the knowing sits in his chest like a stone he keeps choosing not to put down. He rehearses, quietly, the version of tonight where the letter stays sealed until it is too late to reach the harbor, and he finds the shape of that silence familiar, almost restful, and then finds it unbearable, and then familiar again.",
+  "graph_projection": {
+    "node_id": "beat_kettle_avoidance_01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

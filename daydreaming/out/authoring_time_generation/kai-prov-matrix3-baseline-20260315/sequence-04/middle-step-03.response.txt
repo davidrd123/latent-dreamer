@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai runs the sponge around the inside of the mug a third time, the ceramic already dry enough to squeak, and he turns the faucet on a little higher so the sound fills more of the room. The harbor is in the window's light whether he names it or not\u2014that particular amber thinning toward dusk belongs to the water, and he knows it, and he turns slightly further from the window. He has not moved toward the table in eleven minutes, which is not the same as forgetting the letter is there; it is the same as knowing exactly where it is and choosing the precise radius that keeps it at the edge of his peripheral field, close enough that leaving the kitchen would feel like abandonment, far enough that opening it would require a decision he has not yet made.",
+  "graph_projection": {
+    "node_id": "beat_kai_sponge_ritual_s03_c03",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

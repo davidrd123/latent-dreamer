@@ -1,0 +1,927 @@
+{
+  "admission": {
+    "admit_max": 8,
+    "admitted": [
+      {
+        "admission_score": {
+          "compiler_total": 0.903,
+          "coverage": 1.0,
+          "distinctiveness": 1.0,
+          "function_diversity": 1.0,
+          "hard_errors": [],
+          "hard_pass": true,
+          "operator_diversity": 1.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 1.0,
+          "pressure_diversity": 1.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.974
+        },
+        "arm": "middle-step-01",
+        "candidate_text": "Kai fills the kettle with more water than he needs, watching the tap run a beat too long before shutting it off. He sets the kettle on the burner and adjusts it twice, centering it against a mark in the grate that doesn't require centering, his back kept deliberately toward the table. The sound of water beginning to heat fills the kitchen the way harbor wind used to fill the pauses between them, and he finds himself counting the small clicks of the element as though arriving at a high enough number will constitute a decision.",
+        "compiler_selected_score": {
+          "against_accepted": 1.0,
+          "coverage": 1.0,
+          "distinctiveness": 0.889,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.889,
+          "specificity": 1.0,
+          "total": 0.903
+        },
+        "coverage_refs": [
+          "sit_unopened_letter",
+          "harbor_as_shared_place",
+          "ev_harbor_meeting_tonight",
+          "sit_threshold_departure"
+        ],
+        "graph_projection": {
+          "confidence": "high",
+          "delta_energy": -0.12,
+          "delta_tension": 0.18,
+          "node_id": "beat_kai_kettle_avoidance_s01_c03",
+          "node_type": "beat",
+          "option_effect": "none",
+          "origin_pressure_refs": [
+            "cc_attachment_threat",
+            "cc_obligation"
+          ],
+          "payoff_refs": [
+            "ev_harbor_meeting_tonight",
+            "sit_threshold_departure"
+          ],
+          "practice_tags": [
+            "evasion"
+          ],
+          "pressure_tags": [
+            "attachment_threat",
+            "obligation"
+          ],
+          "revisability": "ephemeral_candidate",
+          "scope": "proposal",
+          "setup_refs": [
+            "sit_unopened_letter",
+            "harbor_as_shared_place"
+          ],
+          "situation_id": "sit_unopened_letter",
+          "source_lane": "L2",
+          "source_ref": "prototype-middle"
+        },
+        "node_id": "beat_kai_kettle_avoidance_s01_c03",
+        "origin_pressure_refs": [
+          "cc_attachment_threat",
+          "cc_obligation"
+        ],
+        "practice_tags": [
+          "evasion"
+        ],
+        "pressure_tags": [
+          "attachment_threat",
+          "obligation"
+        ],
+        "selected_affordance_tags": [
+          "delay-contact",
+          "ritual-distraction"
+        ],
+        "selected_operator_family": "avoidance",
+        "selected_retrieved_episode_ids": [
+          "ep_avoidance_consequence",
+          "ep_last_rupture"
+        ],
+        "semantic_checks": {
+          "avoidance sharpens rather than resolves the choice": true,
+          "delay ritual is present": true,
+          "no_cross_fixture_contamination": true,
+          "the harbor remains psychologically active": true,
+          "the letter is not opened": false
+        },
+        "sequence_index": 1,
+        "sidecar": {
+          "appraisal_frame": {
+            "changeability": 0.34,
+            "controllability": 0.28,
+            "desirability": -0.78,
+            "expectedness": 0.76,
+            "likelihood": 0.82,
+            "praiseworthiness": -0.52,
+            "realization_status": "prospective",
+            "temporal_status": "prospective"
+          },
+          "causal_slice": {
+            "affected_goal": {
+              "goal": "preserve-possible-repair",
+              "sign": "threatens",
+              "weight": 0.85
+            },
+            "attribution": {
+              "actor": "kai",
+              "intentional": true
+            },
+            "concern_id": "cc_attachment_threat",
+            "focal_situation_id": "sit_unopened_letter",
+            "likelihood_bucket": "high",
+            "other_options": [
+              "sister-withdraws"
+            ],
+            "self_options": [
+              "open-letter",
+              "delay-contact"
+            ],
+            "target_ref": "sister",
+            "temporal_status": "prospective"
+          },
+          "commit_type": "none",
+          "emotion_vector_topk": {
+            "disappointment": 0.18,
+            "distress": 0.46,
+            "fear": 0.62,
+            "remorse": 0.39
+          },
+          "node_id": "beat_kai_kettle_avoidance_s01_c03",
+          "operator_family": "avoidance",
+          "operator_score_breakdown": {
+            "appraisal_fit": 0.74,
+            "episodic_resonance": 0.38,
+            "family_bonus": 0.12,
+            "practice_fit": 0.9,
+            "pressure": 0.77,
+            "repetition_penalty": 0.12,
+            "total": 0.86
+          },
+          "practice_context": {
+            "affordance_tags": [
+              "delay-contact",
+              "ritual-distraction",
+              "prepare-excuse"
+            ],
+            "phase": "precontact",
+            "practice_type": "evasion",
+            "role": "evader"
+          },
+          "prompt_version": "v1-middle-layer",
+          "retrieval_keys": [
+            "concern_type",
+            "target_ref",
+            "situation_id",
+            "practice_type"
+          ],
+          "retrieved_episode_refs": [
+            "ep_avoidance_consequence",
+            "ep_last_rupture"
+          ],
+          "selected_affordance_tags": [
+            "delay-contact",
+            "ritual-distraction"
+          ],
+          "source_concern_ids": [
+            "cc_attachment_threat",
+            "cc_obligation"
+          ],
+          "validator_result": "pass"
+        },
+        "step_index": 1,
+        "structural_checks": {
+          "origin_pressure_refs_match_runtime": true,
+          "practice_tags_match_runtime": true,
+          "pressure_tags_match_runtime": true
+        }
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.746,
+          "coverage": 0.0,
+          "distinctiveness": 0.926,
+          "function_diversity": 1.0,
+          "hard_errors": [],
+          "hard_pass": true,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.627
+        },
+        "arm": "middle-step-03",
+        "candidate_text": "Kai turns the cold tea in his hands, rotating the mug slowly as though reading something in the ceramic, and the envelope sits at the edge of his vision the way a word sits at the edge of remembering\u2014present, pressuring, almost nameable. He gets up to check the window latch, which he checked an hour ago, and the motion takes him past the table without looking down, a small choreography he has practiced without knowing he was practicing it. Outside the glass the sky is the particular blue that comes just before dark commits to itself, and somewhere in that color is a harbor, and in the harbor is the version of tonight that is still technically possible, and he stands at the window long enough to watch it become less so.",
+        "compiler_selected_score": {
+          "against_accepted": 0.857,
+          "coverage": 0.0,
+          "distinctiveness": 0.857,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.857,
+          "specificity": 1.0,
+          "total": 0.746
+        },
+        "coverage_refs": [
+          "sit_unopened_letter",
+          "harbor_as_shared_place",
+          "ev_harbor_meeting_tonight",
+          "sit_threshold_departure"
+        ],
+        "graph_projection": {
+          "confidence": "high",
+          "delta_energy": -0.12,
+          "delta_tension": 0.18,
+          "node_id": "beat_kai_window_evasion",
+          "node_type": "beat",
+          "option_effect": "close",
+          "origin_pressure_refs": [
+            "cc_attachment_threat",
+            "cc_obligation"
+          ],
+          "payoff_refs": [
+            "ev_harbor_meeting_tonight",
+            "sit_threshold_departure"
+          ],
+          "practice_tags": [
+            "evasion"
+          ],
+          "pressure_tags": [
+            "attachment_threat",
+            "obligation"
+          ],
+          "revisability": "ephemeral_candidate",
+          "scope": "proposal",
+          "setup_refs": [
+            "sit_unopened_letter",
+            "harbor_as_shared_place"
+          ],
+          "situation_id": "sit_unopened_letter",
+          "source_lane": "L2",
+          "source_ref": "prototype-middle"
+        },
+        "node_id": "beat_kai_window_evasion",
+        "origin_pressure_refs": [
+          "cc_attachment_threat",
+          "cc_obligation"
+        ],
+        "practice_tags": [
+          "evasion"
+        ],
+        "pressure_tags": [
+          "attachment_threat",
+          "obligation"
+        ],
+        "selected_affordance_tags": [
+          "delay-contact",
+          "ritual-distraction"
+        ],
+        "selected_operator_family": "avoidance",
+        "selected_retrieved_episode_ids": [
+          "gen_step_02_beat_kai_ritual_avoidance_01",
+          "ep_avoidance_consequence"
+        ],
+        "semantic_checks": {
+          "avoidance sharpens rather than resolves the choice": true,
+          "delay ritual is present": true,
+          "no_cross_fixture_contamination": true,
+          "the harbor remains psychologically active": true,
+          "the letter is not opened": false
+        },
+        "sequence_index": 3,
+        "sidecar": {
+          "appraisal_frame": {
+            "changeability": 0.34,
+            "controllability": 0.28,
+            "desirability": -0.78,
+            "expectedness": 0.76,
+            "likelihood": 0.82,
+            "praiseworthiness": -0.52,
+            "realization_status": "prospective",
+            "temporal_status": "prospective"
+          },
+          "causal_slice": {
+            "affected_goal": {
+              "goal": "preserve-possible-repair",
+              "sign": "threatens",
+              "weight": 0.85
+            },
+            "attribution": {
+              "actor": "kai",
+              "intentional": true
+            },
+            "concern_id": "cc_attachment_threat",
+            "focal_situation_id": "sit_unopened_letter",
+            "likelihood_bucket": "high",
+            "other_options": [
+              "sister-withdraws"
+            ],
+            "self_options": [
+              "open-letter",
+              "delay-contact"
+            ],
+            "target_ref": "sister",
+            "temporal_status": "prospective"
+          },
+          "commit_type": "ontic",
+          "emotion_vector_topk": {
+            "disappointment": 0.18,
+            "distress": 0.46,
+            "fear": 0.62,
+            "remorse": 0.39
+          },
+          "node_id": "beat_kai_window_evasion",
+          "operator_family": "avoidance",
+          "operator_score_breakdown": {
+            "appraisal_fit": 0.74,
+            "episodic_resonance": 0.68,
+            "family_bonus": 0.12,
+            "practice_fit": 0.9,
+            "pressure": 0.69,
+            "repetition_penalty": 0.12,
+            "total": 0.89
+          },
+          "practice_context": {
+            "affordance_tags": [
+              "delay-contact",
+              "ritual-distraction",
+              "prepare-excuse"
+            ],
+            "phase": "precontact",
+            "practice_type": "evasion",
+            "role": "evader"
+          },
+          "prompt_version": "v1-middle-layer",
+          "retrieval_keys": [
+            "concern_type",
+            "target_ref",
+            "situation_id",
+            "practice_type"
+          ],
+          "retrieved_episode_refs": [
+            "gen_step_02_beat_kai_ritual_avoidance_01",
+            "ep_avoidance_consequence"
+          ],
+          "selected_affordance_tags": [
+            "delay-contact",
+            "ritual-distraction"
+          ],
+          "source_concern_ids": [
+            "cc_attachment_threat",
+            "cc_obligation"
+          ],
+          "validator_result": "pass"
+        },
+        "step_index": 3,
+        "structural_checks": {
+          "origin_pressure_refs_match_runtime": true,
+          "practice_tags_match_runtime": true,
+          "pressure_tags_match_runtime": true
+        }
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.9,
+          "coverage": 0.0,
+          "distinctiveness": 0.898,
+          "function_diversity": 0.0,
+          "hard_errors": [],
+          "hard_pass": true,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.557
+        },
+        "arm": "middle-step-01",
+        "candidate_text": "Kai rinses the same mug twice, watching the water spiral down, and when he sets it on the drying rack he positions it with a care that belongs to a different task entirely. The letter is in his peripheral vision the whole time\u2014he doesn't look away from it so much as arrange himself so that looking away is unnecessary. He runs his thumb along the edge of the faucet handle, a small calibrating gesture, as if the pressure of the water is the thing that requires his full attention right now, and not the harbor already assembling itself somewhere behind his sternum.",
+        "compiler_selected_score": {
+          "against_accepted": 1.0,
+          "coverage": 1.0,
+          "distinctiveness": 0.874,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.874,
+          "specificity": 1.0,
+          "total": 0.9
+        },
+        "coverage_refs": [
+          "sit_unopened_letter",
+          "harbor_as_shared_place",
+          "ev_harbor_meeting_tonight",
+          "sit_threshold_departure"
+        ],
+        "graph_projection": {
+          "confidence": "high",
+          "delta_energy": -0.12,
+          "delta_tension": 0.18,
+          "node_id": "beat_kai_ritual_distraction_kitchen",
+          "node_type": "beat",
+          "option_effect": "none",
+          "origin_pressure_refs": [
+            "cc_attachment_threat",
+            "cc_obligation"
+          ],
+          "payoff_refs": [
+            "ev_harbor_meeting_tonight",
+            "sit_threshold_departure"
+          ],
+          "practice_tags": [
+            "evasion"
+          ],
+          "pressure_tags": [
+            "attachment_threat",
+            "obligation"
+          ],
+          "revisability": "ephemeral_candidate",
+          "scope": "proposal",
+          "setup_refs": [
+            "sit_unopened_letter",
+            "harbor_as_shared_place"
+          ],
+          "situation_id": "sit_unopened_letter",
+          "source_lane": "L2",
+          "source_ref": "prototype-middle"
+        },
+        "node_id": "beat_kai_ritual_distraction_kitchen",
+        "origin_pressure_refs": [
+          "cc_attachment_threat",
+          "cc_obligation"
+        ],
+        "practice_tags": [
+          "evasion"
+        ],
+        "pressure_tags": [
+          "attachment_threat",
+          "obligation"
+        ],
+        "selected_affordance_tags": [
+          "delay-contact",
+          "ritual-distraction"
+        ],
+        "selected_operator_family": "avoidance",
+        "selected_retrieved_episode_ids": [
+          "ep_avoidance_consequence",
+          "ep_last_rupture"
+        ],
+        "semantic_checks": {
+          "avoidance sharpens rather than resolves the choice": true,
+          "delay ritual is present": true,
+          "no_cross_fixture_contamination": true,
+          "the harbor remains psychologically active": true,
+          "the letter is not opened": false
+        },
+        "sequence_index": 2,
+        "sidecar": {
+          "appraisal_frame": {
+            "changeability": 0.34,
+            "controllability": 0.28,
+            "desirability": -0.78,
+            "expectedness": 0.76,
+            "likelihood": 0.82,
+            "praiseworthiness": -0.52,
+            "realization_status": "prospective",
+            "temporal_status": "prospective"
+          },
+          "causal_slice": {
+            "affected_goal": {
+              "goal": "preserve-possible-repair",
+              "sign": "threatens",
+              "weight": 0.85
+            },
+            "attribution": {
+              "actor": "kai",
+              "intentional": true
+            },
+            "concern_id": "cc_attachment_threat",
+            "focal_situation_id": "sit_unopened_letter",
+            "likelihood_bucket": "high",
+            "other_options": [
+              "sister-withdraws"
+            ],
+            "self_options": [
+              "open-letter",
+              "delay-contact"
+            ],
+            "target_ref": "sister",
+            "temporal_status": "prospective"
+          },
+          "commit_type": "none",
+          "emotion_vector_topk": {
+            "disappointment": 0.18,
+            "distress": 0.46,
+            "fear": 0.62,
+            "remorse": 0.39
+          },
+          "node_id": "beat_kai_ritual_distraction_kitchen",
+          "operator_family": "avoidance",
+          "operator_score_breakdown": {
+            "appraisal_fit": 0.74,
+            "episodic_resonance": 0.38,
+            "family_bonus": 0.12,
+            "practice_fit": 0.9,
+            "pressure": 0.77,
+            "repetition_penalty": 0.12,
+            "total": 0.86
+          },
+          "practice_context": {
+            "affordance_tags": [
+              "delay-contact",
+              "ritual-distraction",
+              "prepare-excuse"
+            ],
+            "phase": "precontact",
+            "practice_type": "evasion",
+            "role": "evader"
+          },
+          "prompt_version": "v1-middle-layer",
+          "retrieval_keys": [
+            "concern_type",
+            "target_ref",
+            "situation_id",
+            "practice_type"
+          ],
+          "retrieved_episode_refs": [
+            "ep_avoidance_consequence",
+            "ep_last_rupture"
+          ],
+          "selected_affordance_tags": [
+            "delay-contact",
+            "ritual-distraction"
+          ],
+          "source_concern_ids": [
+            "cc_attachment_threat",
+            "cc_obligation"
+          ],
+          "validator_result": "pass"
+        },
+        "step_index": 1,
+        "structural_checks": {
+          "origin_pressure_refs_match_runtime": true,
+          "practice_tags_match_runtime": true,
+          "pressure_tags_match_runtime": true
+        }
+      }
+    ],
+    "admitted_count": 3,
+    "pool_size": 15,
+    "rejected": [
+      {
+        "admission_score": {
+          "compiler_total": 0.7,
+          "coverage": 0.0,
+          "distinctiveness": 0.607,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 0.0,
+          "total": 0.366
+        },
+        "node_id": "beat_kettle_ritual_s02_c04",
+        "selected_operator_family": "avoidance",
+        "sequence_index": 1,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.575,
+          "coverage": 0.0,
+          "distinctiveness": 0.607,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 0.0,
+          "total": 0.339
+        },
+        "node_id": "beat_kettle_ritual_evasion",
+        "selected_operator_family": "avoidance",
+        "sequence_index": 1,
+        "step_index": 3
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.575,
+          "coverage": 0.0,
+          "distinctiveness": 0.0,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "near_duplicate_text",
+            "function_signature_cap",
+            "duplicate_function_signature"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 0.0,
+          "total": 0.241
+        },
+        "node_id": "beat_kai_mug_ritual",
+        "selected_operator_family": "avoidance",
+        "sequence_index": 2,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.575,
+          "coverage": 0.0,
+          "distinctiveness": 0.0,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "near_duplicate_text",
+            "function_signature_cap",
+            "duplicate_function_signature"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 0.0,
+          "total": 0.241
+        },
+        "node_id": "beat_kai_mug_ritual_s03_c01",
+        "selected_operator_family": "avoidance",
+        "sequence_index": 2,
+        "step_index": 3
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.904,
+          "coverage": 0.0,
+          "distinctiveness": 0.875,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 0.0,
+          "total": 0.454
+        },
+        "node_id": "beat_kai_kettle_avoidance_s01_c04",
+        "selected_operator_family": "avoidance",
+        "sequence_index": 3,
+        "step_index": 1
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.748,
+          "coverage": 0.0,
+          "distinctiveness": 0.857,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 0.0,
+          "total": 0.417
+        },
+        "node_id": "beat_kai_ritual_avoidance_01",
+        "selected_operator_family": "avoidance",
+        "sequence_index": 3,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.901,
+          "coverage": 0.0,
+          "distinctiveness": 0.786,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.539
+        },
+        "node_id": "beat_kai_kettle_avoidance",
+        "selected_operator_family": "avoidance",
+        "sequence_index": 4,
+        "step_index": 1
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.748,
+          "coverage": 0.0,
+          "distinctiveness": 0.848,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.515
+        },
+        "node_id": "beat_kettle_avoidance_s02_c03",
+        "selected_operator_family": "avoidance",
+        "sequence_index": 4,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.587,
+          "coverage": 0.0,
+          "distinctiveness": 0.845,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.479
+        },
+        "node_id": "beat_kai_kettle_delay",
+        "selected_operator_family": "avoidance",
+        "sequence_index": 4,
+        "step_index": 3
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.903,
+          "coverage": 0.0,
+          "distinctiveness": 0.856,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.551
+        },
+        "node_id": "beat_kai_dish_towel_avoidance",
+        "selected_operator_family": "avoidance",
+        "sequence_index": 5,
+        "step_index": 1
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.745,
+          "coverage": 0.0,
+          "distinctiveness": 0.896,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.522
+        },
+        "node_id": "beat_kai_faucet_avoidance",
+        "selected_operator_family": "avoidance",
+        "sequence_index": 5,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.739,
+          "coverage": 0.0,
+          "distinctiveness": 0.883,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.519
+        },
+        "node_id": "beat_kai_faucet_avoidance_s03_c04",
+        "selected_operator_family": "avoidance",
+        "sequence_index": 5,
+        "step_index": 3
+      }
+    ]
+  },
+  "arm": "middle-batch",
+  "batch_sequences": 5,
+  "candidates_per_step": 4,
+  "concern_driver": "inferred",
+  "sequence_summaries": [
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_kai_kettle_avoidance_s01_c03",
+        "gen_step_02_beat_kettle_ritual_s02_c04",
+        "gen_step_03_beat_kettle_ritual_evasion"
+      ],
+      "operator_path": [
+        "avoidance",
+        "avoidance",
+        "avoidance"
+      ],
+      "sequence_index": 1
+    },
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_kai_ritual_distraction_kitchen",
+        "gen_step_02_beat_kai_mug_ritual",
+        "gen_step_03_beat_kai_mug_ritual_s03_c01"
+      ],
+      "operator_path": [
+        "avoidance",
+        "avoidance",
+        "avoidance"
+      ],
+      "sequence_index": 2
+    },
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_kai_kettle_avoidance_s01_c04",
+        "gen_step_02_beat_kai_ritual_avoidance_01",
+        "gen_step_03_beat_kai_window_evasion"
+      ],
+      "operator_path": [
+        "avoidance",
+        "avoidance",
+        "avoidance"
+      ],
+      "sequence_index": 3
+    },
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_kai_kettle_avoidance",
+        "gen_step_02_beat_kettle_avoidance_s02_c03",
+        "gen_step_03_beat_kai_kettle_delay"
+      ],
+      "operator_path": [
+        "avoidance",
+        "avoidance",
+        "avoidance"
+      ],
+      "sequence_index": 4
+    },
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_kai_dish_towel_avoidance",
+        "gen_step_02_beat_kai_faucet_avoidance",
+        "gen_step_03_beat_kai_faucet_avoidance_s03_c04"
+      ],
+      "operator_path": [
+        "avoidance",
+        "avoidance",
+        "avoidance"
+      ],
+      "sequence_index": 5
+    }
+  ],
+  "steps_per_sequence": 3,
+  "timestamp": "2026-03-16T01:47:27.445207+00:00"
+}

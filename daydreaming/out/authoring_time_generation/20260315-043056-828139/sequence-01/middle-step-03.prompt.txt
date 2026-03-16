@@ -1,0 +1,82 @@
+You are generating one candidate inner-life moment for a conducted daydreaming system.
+This moment will become a node in a traversable dream graph used later in performance.
+Generate a self-contained unit with emotional weight, not a plot outline or explanation.
+The output should show what the character does, avoids, rehearses, or remembers in one moment.
+Keep the moment concrete and behaviorally legible.
+The prose should be 2-4 sentences.
+
+THE CHARACTER:
+Wants to think of herself as fair-minded even after protecting her own status in public. Under blame pressure, she explains her motives until explanation starts sounding like exoneration.
+
+
+THE SITUATION NOW:
+Minutes after the donor toast, Tessa stands in the coatroom with the folded event program in one hand and Eli's text open on her phone. The public remark cannot be unsaid.
+
+
+ACTIVE PRESSURES:
+- status_damage toward eli (intensity 0.91)
+- obligation toward eli (intensity 0.71)
+
+WHAT THE CHARACTER WANTS TO PROTECT OR PRESERVE:
+- preserve-collaborative-credibility
+
+WHAT MAKES THIS HARD RIGHT NOW:
+- direct engagement feels bad (-0.79); it matters soon (0.79); once engaged it feels hard to control (0.2).
+
+THE CURRENT MOVE:
+- Rationalization means reinterpretation of an already-happened harm in a way that reduces negative affect and protects self-image. It edits motive and meaning without repairing the harm or resolving the conflict. The live practice is confession in phase aftermath. Available handles right now: justify-simplification, minimize-harm-framing.
+- The harm already happened. Keep the moment in reinterpretation, not apology, repair, or irreversible outward action.
+
+WHAT THE CHARACTER REMEMBERS:
+- After a tense panel, Tessa defended a cutting summary by saying the audience needed the clean version, then spent the night insisting that clarity mattered more than credit.
+
+- Tessa reads Eli's text a second time without moving her thumb toward the reply field, the folded program pressing a crease into her palm. Through the coatroom door she can still hear the room settling into dessert, the same room where she said what she said, and the sound makes the explanation she is already composing feel more necessary, not less. She runs it again in her head—the timeline was compressed, the audience needed orientation, Eli's name was in the program—and each pass makes the remark feel less like a cut and more like a reasonable editorial call that anyone in her position would have made. The apology she is not yet writing would have started the same way.
+
+Write from the given circumstances, not from architecture jargon or labels.
+Do not mention causal slices, appraisal frames, practice contexts, or operator names in the prose.
+
+WHAT TO GENERATE:
+- One moment.
+- The apology has not been sent yet.
+- The donor hall should remain psychologically active even though Tessa is now in the coatroom.
+- Then return valid JSON only.
+
+Return this shape:
+{
+  "candidate_text": "...",
+  "graph_projection": {
+    "node_id": "...",
+    "node_type": "beat",
+    "situation_id": "...",
+    "delta_tension": 0.0,
+    "delta_energy": 0.0,
+    "setup_refs": ["..."],
+    "payoff_refs": ["..."],
+    "option_effect": "close|open|clarify|none",
+    "pressure_tags": ["..."],
+    "practice_tags": ["..."],
+    "origin_pressure_refs": ["..."],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "low|medium|high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}
+
+STRUCTURAL CONSTRAINTS:
+- Stay inside this benchmark's world. Do not mention people, places, or objects from other benchmarks.
+- The output should reflect the current move behaviorally, not as explanation about the system.
+- The output must be graph-compilable against the benchmark fixture.
+Allowed IDs and enums for graph_projection:
+- allowed situation_id: ['sit_coatroom_after_toast', 'sit_text_reply_threshold']
+- allowed setup_refs/payoff_refs: ['ev_eli_texts_afterward', 'ev_toast_credit_cut', 'ref_program_credit_line', 'sit_coatroom_after_toast', 'sit_text_reply_threshold']
+- allowed pressure_tags: ['obligation', 'status_damage']
+- allowed practice_tags: ['anticipated-confrontation', 'confession', 'evasion']
+- allowed origin_pressure_refs: ['cc_obligation', 'cc_status_damage']
+- source_lane must be: L2
+- scope must be: proposal
+- revisability must be: ephemeral_candidate
+- Do not use episode ids in setup_refs or payoff_refs.
+- Do not invent new ids.
+- No markdown fences.

@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai turns on the faucet to rinse a mug that doesn't need rinsing, and the sound of the water fills the kitchen the way he needs it to\u2014present, purposeful, covering. He has been calculating, without quite admitting he is calculating, how long the walk to the harbor would take if he left at the last possible moment, and the number keeps revising itself upward. The letter lies face-down where he put it, and he doesn't look at it, but he knows its exact position the way you know a bruise without touching it, and the gray at the window is deepening in a way that feels less like evening and more like a door closing.",
+  "graph_projection": {
+    "node_id": "beat_kai_faucet_evasion",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

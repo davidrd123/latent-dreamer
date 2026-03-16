@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa traces the embossed lettering on the event program, listening to the muffled laughter still echoing from the donor hall. She types a draft reply to Eli, carefully explaining that the donors needed a clean, unified narrative rather than a complex list of contributors. By framing her omission as a strategic necessity for the project's funding, she feels the knot of guilt in her chest begin to loosen. She deletes a half-formed apology from the text box, deciding that clarity and the board's comfort simply had to come first.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_omission",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa leans against the cool plaster of the coatroom wall, the muffled laughter from the donor hall bleeding through the drywall. She types a reply to Eli's text, framing her omission at the podium as a necessary evil to keep the investors from getting bogged down in technicalities. Staring at the screen, she convinces herself that the clean narrative protects them both in the long run. She carefully deletes the word \"sorry\" from the draft, deciding that an apology would falsely admit to a betrayal rather than a strategic necessity.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_coatroom",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.3,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

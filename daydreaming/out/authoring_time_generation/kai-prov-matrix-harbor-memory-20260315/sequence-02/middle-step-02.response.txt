@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai runs the dish towel along the edge of the counter a second time, the same strip of laminate he already dried, and somewhere in the motion he is also standing at the harbor at sixteen, watching his sister's back as she walked away from a fight he'd refused to finish\u2014he'd gone quiet then too, let the water do the talking. The kettle has been cold for several minutes. He knows this because he filled it a third time without turning it on, and now it just sits there, heavy and useless, the way he is standing here being heavy and useless, while the letter's warped envelope holds its shape at the table's edge like something that has learned to wait. He does not move toward it; he moves toward the window instead, where the night outside is the same dark as the harbor, and he watches his own reflection instead of the dark.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance_s02_c03",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

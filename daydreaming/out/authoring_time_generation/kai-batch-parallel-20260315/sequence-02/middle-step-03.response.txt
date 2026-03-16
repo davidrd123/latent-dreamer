@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai takes apart the coffee grinder, meticulously sweeping old grounds from the burrs with a tiny brush. The envelope remains untouched on the table behind him, its sharp white edges demanding an answer before the sun sets. He focuses entirely on the rhythmic sweeping motion, trying to block out the imagined smell of low tide and the creeping dread that his silence is already speaking for him.",
+  "graph_projection": {
+    "node_id": "beat_kai_grinder_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

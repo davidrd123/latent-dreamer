@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Maren presses the folded run sheet against the hallway wall, uncapping her pen to write and immediately cross out three different opening sentences. She mouths the words silently, trying to strip any defensive mention of tempo from the apology, but each revision feels more like a shield than a genuine approach. Through the door, the sound of Leah shifting her chair makes the hallway feel suddenly too narrow, forcing Maren to brace for the accusation she knows is coming.",
+  "graph_projection": {
+    "node_id": "beat_rehearse_opening_line",
+    "node_type": "beat",
+    "situation_id": "sit_outside_rehearsal_room",
+    "delta_tension": 0.3,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "payoff_refs": [
+      "ev_talk_before_runthrough"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

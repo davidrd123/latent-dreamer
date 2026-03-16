@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai aligns the edge of the unopened envelope perfectly parallel to the grain of the kitchen table, careful not to actually lift the flap. He turns his back to it and opens the refrigerator, staring blankly at the shelves while letting the hum of the compressor drown out the imagined, rhythmic slapping of water against the harbor docks. If he just stays frozen in this kitchen routine long enough, the sun will set, and his absence will deliver the message for him.",
+  "graph_projection": {
+    "node_id": "beat_avoidance_fridge_stare",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": -0.4,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

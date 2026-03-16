@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the kettle past the line marked on its side, watching the water climb with the focus of someone who has assigned this task great importance. The letter sits at the edge of his vision, white against the wood, and he rotates his shoulders slightly so it falls behind him\u2014not thrown away, just reclassified into the category of things he will deal with after the water boils. He adjusts the kettle's position on the burner once, then again, listening to the element tick toward heat, and underneath that small domestic sound is another sound he will not name: the way harbor water moves against pilings at night, patient and indifferent to whether anyone shows up.",
+  "graph_projection": {
+    "node_id": "beat_kettle_avoidance_s02_c03",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.15,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

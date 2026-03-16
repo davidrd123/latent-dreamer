@@ -1,0 +1,36 @@
+{
+  "candidate_text": "Tessa turns the coat check tag over again, the embossed number pressing its small oval into her palm, and she finds herself rehearsing the sentence before the apology \u2014 the one that explains why the summary had to be clean, why the audience needed that, why any reasonable person in her position would have made the same call. The laughter from the hall reaches her muffled and slightly wrong, and she lets it land as evidence: the evening worked, which means the choice was defensible, which means she was protecting something real and not just herself. She looks at *I know that looked like* on the screen and adds *a simplification* because that word keeps the harm small and technical, a matter of craft rather than omission, and she holds her thumb over send without pressing it.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_draft_s02_c03",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line",
+      "sit_coatroom_after_toast"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

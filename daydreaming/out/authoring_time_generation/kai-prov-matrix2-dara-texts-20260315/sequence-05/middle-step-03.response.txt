@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai stands at the counter with his back to the table, mouthing a sentence he has not decided on yet\u2014something that starts with 'I know I owe you' and keeps collapsing before the verb. His thumb traces the rim of a coffee mug that went cold an hour ago, and the harbor is right there in his chest, the specific gray of that evening, her voice saying do it honestly, which means she already knew the shape of what he does. He tries again, quieter, almost no sound: 'I should have picked up'\u2014then stops, because that sentence belongs to the wrong night, and he is not sure anymore which night he would be apologizing for.",
+  "graph_projection": {
+    "node_id": "beat_kai_rehearsal_kitchen_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

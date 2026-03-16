@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea stares at the heavy acoustic door of Studio B, her thumb tracing the edge of her phone case as she mouths her opening line. \"I left your name off the submission, and we need to fix it,\" she whispers, pitching her voice lower to strip out any hint of an apology. *Say what you did before you explain it,* she reminds herself, anchoring the rehearsed phrase in her mind so she won't improvise when the door finally opens.",
+  "graph_projection": {
+    "node_id": "beat_rhea_rehearsal_studio_b",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.2,
+    "delta_energy": 0.3,
+    "setup_refs": [
+      "ev_public_correction_at_panel",
+      "sit_studio_b_threshold"
+    ],
+    "payoff_refs": [
+      "ref_credit_dispute"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

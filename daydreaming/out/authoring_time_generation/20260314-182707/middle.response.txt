@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Maren presses the folded run sheet against her leg, silently mouthing the first words she plans to say to Leah through the closed door. She whispers a tentative opening, but immediately discards it before it can sound like a defense of her tempo. She tries again, reshaping the syllables in the quiet hallway, waiting for the exact arrangement of words that will make the room feel safe enough to enter.",
+  "graph_projection": {
+    "node_id": "beat_rehearse_opening_line",
+    "node_type": "beat",
+    "situation_id": "sit_outside_rehearsal_room",
+    "delta_tension": 0.3,
+    "delta_energy": 0.1,
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "payoff_refs": [
+      "ev_talk_before_runthrough"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

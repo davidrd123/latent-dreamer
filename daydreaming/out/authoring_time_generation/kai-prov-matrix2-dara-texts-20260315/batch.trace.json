@@ -1,0 +1,800 @@
+{
+  "admission": {
+    "admit_max": 8,
+    "admitted": [
+      {
+        "admission_score": {
+          "compiler_total": 0.892,
+          "coverage": 1.0,
+          "distinctiveness": 1.0,
+          "function_diversity": 1.0,
+          "hard_errors": [],
+          "hard_pass": true,
+          "operator_diversity": 1.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 1.0,
+          "pressure_diversity": 1.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.971
+        },
+        "arm": "middle-step-01",
+        "candidate_text": "Kai stands at the sink running cold water over his wrists, not washing anything, and mouths a sentence toward the window above the faucet: 'I didn't know that night would count the way it did.' He tries it again, slower, as if the harbor might be listening through the glass, then stops because the sentence already sounds like an excuse and she told him once to do his silence honestly. The letter stays on the table behind him, its corner just visible in his peripheral vision, and he does not turn around.",
+        "compiler_selected_score": {
+          "against_accepted": 1.0,
+          "coverage": 1.0,
+          "distinctiveness": 0.837,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.837,
+          "specificity": 1.0,
+          "total": 0.892
+        },
+        "coverage_refs": [
+          "sit_unopened_letter",
+          "harbor_as_shared_place",
+          "ev_harbor_meeting_tonight",
+          "sit_threshold_departure"
+        ],
+        "graph_projection": {
+          "confidence": "medium",
+          "delta_energy": -0.12,
+          "delta_tension": 0.18,
+          "node_id": "beat_rehearsal_sink_precontact",
+          "node_type": "beat",
+          "option_effect": "none",
+          "origin_pressure_refs": [
+            "cc_attachment_threat",
+            "cc_obligation"
+          ],
+          "payoff_refs": [
+            "ev_harbor_meeting_tonight",
+            "sit_threshold_departure"
+          ],
+          "practice_tags": [
+            "anticipated-confrontation"
+          ],
+          "pressure_tags": [
+            "attachment_threat",
+            "obligation"
+          ],
+          "revisability": "ephemeral_candidate",
+          "scope": "proposal",
+          "setup_refs": [
+            "sit_unopened_letter",
+            "harbor_as_shared_place"
+          ],
+          "situation_id": "sit_unopened_letter",
+          "source_lane": "L2",
+          "source_ref": "prototype-middle"
+        },
+        "node_id": "beat_rehearsal_sink_precontact",
+        "origin_pressure_refs": [
+          "cc_attachment_threat",
+          "cc_obligation"
+        ],
+        "practice_tags": [
+          "anticipated-confrontation"
+        ],
+        "pressure_tags": [
+          "attachment_threat",
+          "obligation"
+        ],
+        "selected_affordance_tags": [
+          "draft-opening-line",
+          "brace-for-accusation"
+        ],
+        "selected_operator_family": "rehearsal",
+        "selected_retrieved_episode_ids": [
+          "ep_last_rupture",
+          "ep_avoidance_consequence"
+        ],
+        "semantic_checks": {
+          "avoidance sharpens rather than resolves the choice": true,
+          "delay ritual is present": true,
+          "no_cross_fixture_contamination": true,
+          "the harbor remains psychologically active": true,
+          "the letter is not opened": false
+        },
+        "sequence_index": 1,
+        "sidecar": {
+          "appraisal_frame": {
+            "changeability": 0.52,
+            "controllability": 0.46,
+            "desirability": -0.78,
+            "expectedness": 0.8,
+            "likelihood": 0.82,
+            "praiseworthiness": -0.6,
+            "realization_status": "prospective",
+            "temporal_status": "prospective"
+          },
+          "causal_slice": {
+            "affected_goal": {
+              "goal": "preserve-possible-repair",
+              "sign": "threatens",
+              "weight": 0.85
+            },
+            "attribution": {
+              "actor": "kai",
+              "intentional": true
+            },
+            "concern_id": "cc_attachment_threat",
+            "focal_situation_id": "sit_unopened_letter",
+            "likelihood_bucket": "high",
+            "other_options": [
+              "sister-withdraws",
+              "delay-becomes-public"
+            ],
+            "self_options": [
+              "open-letter",
+              "delay-contact"
+            ],
+            "target_ref": "sister",
+            "temporal_status": "prospective"
+          },
+          "commit_type": "none",
+          "emotion_vector_topk": {
+            "disappointment": 0.18,
+            "distress": 0.42,
+            "fear": 0.56,
+            "remorse": 0.45
+          },
+          "node_id": "beat_rehearsal_sink_precontact",
+          "operator_family": "rehearsal",
+          "operator_score_breakdown": {
+            "appraisal_fit": 0.63,
+            "episodic_resonance": 0.33,
+            "family_bonus": 0.07,
+            "practice_fit": 0.78,
+            "pressure": 0.81,
+            "repetition_penalty": 0.05,
+            "total": 0.76
+          },
+          "practice_context": {
+            "affordance_tags": [
+              "draft-opening-line",
+              "brace-for-accusation"
+            ],
+            "phase": "precontact",
+            "practice_type": "anticipated-confrontation",
+            "role": "approacher"
+          },
+          "prompt_version": "v1-middle-layer",
+          "retrieval_keys": [
+            "concern_type",
+            "target_ref",
+            "situation_id",
+            "practice_type"
+          ],
+          "retrieved_episode_refs": [
+            "ep_last_rupture",
+            "ep_avoidance_consequence"
+          ],
+          "selected_affordance_tags": [
+            "draft-opening-line",
+            "brace-for-accusation"
+          ],
+          "source_concern_ids": [
+            "cc_attachment_threat",
+            "cc_obligation"
+          ],
+          "validator_result": "pass"
+        },
+        "step_index": 1,
+        "structural_checks": {
+          "origin_pressure_refs_match_runtime": true,
+          "practice_tags_match_runtime": true,
+          "pressure_tags_match_runtime": true
+        }
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.89,
+          "coverage": 0.0,
+          "distinctiveness": 0.837,
+          "function_diversity": 0.0,
+          "hard_errors": [],
+          "hard_pass": true,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.545
+        },
+        "arm": "middle-step-01",
+        "candidate_text": "Kai stands at the kitchen counter with his back to the table, mouthing words at the window above the sink\u2014not the words he wants to say, but the words he thinks she'll accept: something about distance, about time, something that doesn't start with I'm sorry because that would be the first true thing. His lips stop moving when he gets to the part where she might say what she said at the harbor, and he feels the silence of that old unanswered call settle into his chest like ballast. He turns the faucet on, then off, then on again, as if the sound is a rehearsal for arriving.",
+        "compiler_selected_score": {
+          "against_accepted": 1.0,
+          "coverage": 1.0,
+          "distinctiveness": 0.824,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.824,
+          "specificity": 1.0,
+          "total": 0.89
+        },
+        "coverage_refs": [
+          "sit_unopened_letter",
+          "harbor_as_shared_place",
+          "ev_harbor_meeting_tonight",
+          "sit_threshold_departure"
+        ],
+        "graph_projection": {
+          "confidence": "medium",
+          "delta_energy": -0.12,
+          "delta_tension": 0.18,
+          "node_id": "beat_kai_rehearsal_kitchen",
+          "node_type": "beat",
+          "option_effect": "none",
+          "origin_pressure_refs": [
+            "cc_attachment_threat",
+            "cc_obligation"
+          ],
+          "payoff_refs": [
+            "ev_harbor_meeting_tonight",
+            "sit_threshold_departure"
+          ],
+          "practice_tags": [
+            "anticipated-confrontation"
+          ],
+          "pressure_tags": [
+            "attachment_threat",
+            "obligation"
+          ],
+          "revisability": "ephemeral_candidate",
+          "scope": "proposal",
+          "setup_refs": [
+            "sit_unopened_letter",
+            "harbor_as_shared_place"
+          ],
+          "situation_id": "sit_unopened_letter",
+          "source_lane": "L2",
+          "source_ref": "prototype-middle"
+        },
+        "node_id": "beat_kai_rehearsal_kitchen",
+        "origin_pressure_refs": [
+          "cc_attachment_threat",
+          "cc_obligation"
+        ],
+        "practice_tags": [
+          "anticipated-confrontation"
+        ],
+        "pressure_tags": [
+          "attachment_threat",
+          "obligation"
+        ],
+        "selected_affordance_tags": [
+          "draft-opening-line",
+          "brace-for-accusation"
+        ],
+        "selected_operator_family": "rehearsal",
+        "selected_retrieved_episode_ids": [
+          "ep_last_rupture",
+          "ep_avoidance_consequence"
+        ],
+        "semantic_checks": {
+          "avoidance sharpens rather than resolves the choice": true,
+          "delay ritual is present": true,
+          "no_cross_fixture_contamination": true,
+          "the harbor remains psychologically active": true,
+          "the letter is not opened": false
+        },
+        "sequence_index": 3,
+        "sidecar": {
+          "appraisal_frame": {
+            "changeability": 0.52,
+            "controllability": 0.46,
+            "desirability": -0.78,
+            "expectedness": 0.8,
+            "likelihood": 0.82,
+            "praiseworthiness": -0.6,
+            "realization_status": "prospective",
+            "temporal_status": "prospective"
+          },
+          "causal_slice": {
+            "affected_goal": {
+              "goal": "preserve-possible-repair",
+              "sign": "threatens",
+              "weight": 0.85
+            },
+            "attribution": {
+              "actor": "kai",
+              "intentional": true
+            },
+            "concern_id": "cc_attachment_threat",
+            "focal_situation_id": "sit_unopened_letter",
+            "likelihood_bucket": "high",
+            "other_options": [
+              "sister-withdraws",
+              "delay-becomes-public"
+            ],
+            "self_options": [
+              "open-letter",
+              "delay-contact"
+            ],
+            "target_ref": "sister",
+            "temporal_status": "prospective"
+          },
+          "commit_type": "none",
+          "emotion_vector_topk": {
+            "disappointment": 0.18,
+            "distress": 0.42,
+            "fear": 0.56,
+            "remorse": 0.45
+          },
+          "node_id": "beat_kai_rehearsal_kitchen",
+          "operator_family": "rehearsal",
+          "operator_score_breakdown": {
+            "appraisal_fit": 0.63,
+            "episodic_resonance": 0.33,
+            "family_bonus": 0.07,
+            "practice_fit": 0.78,
+            "pressure": 0.81,
+            "repetition_penalty": 0.05,
+            "total": 0.76
+          },
+          "practice_context": {
+            "affordance_tags": [
+              "draft-opening-line",
+              "brace-for-accusation"
+            ],
+            "phase": "precontact",
+            "practice_type": "anticipated-confrontation",
+            "role": "approacher"
+          },
+          "prompt_version": "v1-middle-layer",
+          "retrieval_keys": [
+            "concern_type",
+            "target_ref",
+            "situation_id",
+            "practice_type"
+          ],
+          "retrieved_episode_refs": [
+            "ep_last_rupture",
+            "ep_avoidance_consequence"
+          ],
+          "selected_affordance_tags": [
+            "draft-opening-line",
+            "brace-for-accusation"
+          ],
+          "source_concern_ids": [
+            "cc_attachment_threat",
+            "cc_obligation"
+          ],
+          "validator_result": "pass"
+        },
+        "step_index": 1,
+        "structural_checks": {
+          "origin_pressure_refs_match_runtime": true,
+          "practice_tags_match_runtime": true,
+          "pressure_tags_match_runtime": true
+        }
+      }
+    ],
+    "admitted_count": 2,
+    "pool_size": 15,
+    "rejected": [
+      {
+        "admission_score": {
+          "compiler_total": 0.7,
+          "coverage": 0.0,
+          "distinctiveness": 0.619,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 0.0,
+          "total": 0.368
+        },
+        "node_id": "beat_kai_sink_rehearsal_s02_c04",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 1,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.575,
+          "coverage": 0.0,
+          "distinctiveness": 0.619,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 0.0,
+          "total": 0.341
+        },
+        "node_id": "beat_rehearsal_faucet_window",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 1,
+        "step_index": 3
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.812,
+          "coverage": 0.0,
+          "distinctiveness": 0.819,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.5,
+          "sequence_diversity": 1.0,
+          "total": 0.52
+        },
+        "node_id": "beat_kai_rehearsal_sink_s01_c04",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 2,
+        "step_index": 1
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.5,
+          "coverage": 0.0,
+          "distinctiveness": 0.819,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.5,
+          "sequence_diversity": 1.0,
+          "total": 0.451
+        },
+        "node_id": "beat_kai_sink_rehearsal",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 2,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.5,
+          "coverage": 0.0,
+          "distinctiveness": 0.819,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.5,
+          "sequence_diversity": 1.0,
+          "total": 0.451
+        },
+        "node_id": "beat_kai_sink_rehearsal_s03_c01",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 2,
+        "step_index": 3
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.575,
+          "coverage": 0.0,
+          "distinctiveness": 0.0,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "near_duplicate_text",
+            "function_signature_cap",
+            "duplicate_function_signature"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 0.0,
+          "total": 0.241
+        },
+        "node_id": "beat_kai_faucet_rehearsal",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 3,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.575,
+          "coverage": 0.0,
+          "distinctiveness": 0.0,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "near_duplicate_text",
+            "function_signature_cap",
+            "duplicate_function_signature"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 0.0,
+          "total": 0.241
+        },
+        "node_id": "beat_kai_faucet_rehearsal_s03_c01",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 3,
+        "step_index": 3
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.808,
+          "coverage": 0.0,
+          "distinctiveness": 0.798,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.5,
+          "sequence_diversity": 1.0,
+          "total": 0.515
+        },
+        "node_id": "beat_rehearsal_unopened_letter",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 4,
+        "step_index": 1
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.662,
+          "coverage": 0.0,
+          "distinctiveness": 0.892,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.5,
+          "sequence_diversity": 1.0,
+          "total": 0.498
+        },
+        "node_id": "beat_kai_rehearsal_counter_s02_c04",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 4,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.5,
+          "coverage": 0.0,
+          "distinctiveness": 0.892,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.5,
+          "sequence_diversity": 1.0,
+          "total": 0.463
+        },
+        "node_id": "beat_kai_rehearsal_counter",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 4,
+        "step_index": 3
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.888,
+          "coverage": 0.0,
+          "distinctiveness": 0.817,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.541
+        },
+        "node_id": "beat_rehearsal_unopened_letter",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 5,
+        "step_index": 1
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.575,
+          "coverage": 0.0,
+          "distinctiveness": 0.817,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "duplicate_node_id",
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.472
+        },
+        "node_id": "beat_kai_rehearsal_kitchen",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 5,
+        "step_index": 2
+      },
+      {
+        "admission_score": {
+          "compiler_total": 0.575,
+          "coverage": 0.0,
+          "distinctiveness": 0.817,
+          "function_diversity": 0.0,
+          "hard_errors": [
+            "function_signature_cap"
+          ],
+          "hard_pass": false,
+          "operator_diversity": 0.0,
+          "overdetermination_gain": 1.0,
+          "practice_diversity": 0.0,
+          "pressure_diversity": 0.0,
+          "semantic_quality": 0.75,
+          "sequence_diversity": 1.0,
+          "total": 0.472
+        },
+        "node_id": "beat_kai_rehearsal_kitchen_s03_c01",
+        "selected_operator_family": "rehearsal",
+        "sequence_index": 5,
+        "step_index": 3
+      }
+    ]
+  },
+  "arm": "middle-batch",
+  "batch_sequences": 5,
+  "candidates_per_step": 4,
+  "concern_driver": "inferred",
+  "provocation": {
+    "applied_ops": [
+      {
+        "event_id": "ev_dara_texts_kai",
+        "op": "add_event"
+      },
+      {
+        "old_state": {
+          "letter_opened": false,
+          "reply_sent": false
+        },
+        "op": "patch_situation_state",
+        "patch": {
+          "external_witness_aware": true,
+          "social_pressure_source": "dara"
+        },
+        "situation_id": "sit_unopened_letter"
+      },
+      {
+        "op": "add_successor_situation_stub",
+        "situation_id": "sit_observed_evasion"
+      }
+    ],
+    "commit_semantics": "ontic",
+    "description": "Kai's phone buzzes. A text from Dara, his sister's closest friend: \"She told me she wrote to you. I know you'll do the right thing.\" The text is warm, not accusatory \u2014 but it means someone else knows, and someone else is watching.\n",
+    "provocation_file": "daydreaming/fixtures/provocations/kai_letter_provocations_v1.yaml",
+    "provocation_id": "prov_kai_sister_friend_texts",
+    "provocation_type": "external_event",
+    "successor_situation_stub": {
+      "description": "Kai's avoidance is no longer private. Someone outside the kitchen knows the letter exists and expects a response. Delay now has a social cost it did not have before.\n",
+      "id": "sit_observed_evasion",
+      "place_id": "kitchen",
+      "target_ref": "sister"
+    }
+  },
+  "sequence_summaries": [
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_rehearsal_sink_precontact",
+        "gen_step_02_beat_kai_sink_rehearsal_s02_c04",
+        "gen_step_03_beat_rehearsal_faucet_window"
+      ],
+      "operator_path": [
+        "rehearsal",
+        "rehearsal",
+        "rehearsal"
+      ],
+      "sequence_index": 1
+    },
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_kai_rehearsal_sink_s01_c04",
+        "gen_step_02_beat_kai_sink_rehearsal",
+        "gen_step_03_beat_kai_sink_rehearsal_s03_c01"
+      ],
+      "operator_path": [
+        "rehearsal",
+        "rehearsal",
+        "rehearsal"
+      ],
+      "sequence_index": 2
+    },
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_kai_rehearsal_kitchen",
+        "gen_step_02_beat_kai_faucet_rehearsal",
+        "gen_step_03_beat_kai_faucet_rehearsal_s03_c01"
+      ],
+      "operator_path": [
+        "rehearsal",
+        "rehearsal",
+        "rehearsal"
+      ],
+      "sequence_index": 3
+    },
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_rehearsal_unopened_letter",
+        "gen_step_02_beat_kai_rehearsal_counter_s02_c04",
+        "gen_step_03_beat_kai_rehearsal_counter"
+      ],
+      "operator_path": [
+        "rehearsal",
+        "rehearsal",
+        "rehearsal"
+      ],
+      "sequence_index": 4
+    },
+    {
+      "accepted_count": 3,
+      "generated_episode_ids": [
+        "gen_step_01_beat_rehearsal_unopened_letter",
+        "gen_step_02_beat_kai_rehearsal_kitchen",
+        "gen_step_03_beat_kai_rehearsal_kitchen_s03_c01"
+      ],
+      "operator_path": [
+        "rehearsal",
+        "rehearsal",
+        "rehearsal"
+      ],
+      "sequence_index": 5
+    }
+  ],
+  "steps_per_sequence": 3,
+  "timestamp": "2026-03-16T01:46:53.741413+00:00"
+}

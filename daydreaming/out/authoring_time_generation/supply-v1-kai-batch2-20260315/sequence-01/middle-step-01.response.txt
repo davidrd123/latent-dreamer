@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the electric kettle past the max line, watches water bead and run down the side, then wipes it with a dish towel he folds twice and sets exactly parallel to the counter's edge. The letter is in his peripheral vision the whole time, a white rectangle he keeps just outside the center of his gaze, the way you don't look directly at something bright. He runs the tap a moment longer than the kettle needs, the sound of water filling the kitchen the way harbor wind once filled a silence he never answered.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

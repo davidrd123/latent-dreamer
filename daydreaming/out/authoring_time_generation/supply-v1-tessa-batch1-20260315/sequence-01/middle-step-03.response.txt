@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa folds the program once more along its existing crease, pressing the edge flat with her thumbnail the way you'd close a case. The applause from the hall rises again and she lets herself feel, briefly, that it belongs to the work \u2014 all of it, the whole arc \u2014 and that Eli's name in the contributor list is there, printed, permanent, which is more than a mention from a podium would have been anyway. She reads his text a second time without her thumb moving toward the keyboard, because a response drafted in a coatroom, against noise, after wine, would not be her clearest thinking, and she owes him her clearest thinking. The program goes into her coat pocket, face-down, and she decides the most honest thing she can do right now is wait until she can be fair.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

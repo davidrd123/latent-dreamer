@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa's coat is still on the hook \u2014 she hasn't reached for it \u2014 and through the door another swell of applause fills the coatroom just long enough for her to feel it against her sternum, secondhand warmth from a room she shaped. She turns the toast over in her mind the way you turn a stone to find the clean face: not the moment she dropped Eli's name from the credit line, but the reason, the room's size, the way a clean line holds where a complicated one buckles, the way someone had to hold the shape of the thing. By the time she has assembled it into something she could say aloud \u2014 not an excuse, she tells herself, a context \u2014 Eli's text is still dark on the screen, still waiting, and she is still not lying exactly, only finishing the thought before she opens it.",
+  "graph_projection": {
+    "node_id": "beat_tessa_coat_rationalization",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "arm": "baseline",
+  "candidate_text": "Maren presses the folded run sheet against the hallway wall, uncapping her pen to draft a single, bulletproof sentence in the margin. She writes 'About the tempo,' stares at it for three seconds, and then aggressively scribbles it out until the paper tears. Through the heavy door, the sudden scrape of Leah\u2019s chair echoes, making the hallway feel instantly too small to hold another revision.",
+  "graph_projection": {
+    "confidence": "high",
+    "delta_energy": 0.2,
+    "delta_tension": 0.4,
+    "node_id": "beat_maren_hallway_revision_01",
+    "node_type": "beat",
+    "option_effect": "open",
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "payoff_refs": [
+      "sit_first_line_threshold"
+    ],
+    "practice_tags": [
+      "evasion",
+      "anticipated-confrontation"
+    ],
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "situation_id": "sit_outside_rehearsal_room",
+    "source_lane": "L2",
+    "source_ref": "prototype-baseline"
+  },
+  "semantic_checks": {
+    "cross_fixture_contamination": true,
+    "opening-line rehearsal is present": true,
+    "rehearsal sharpens rather than resolves the choice": true,
+    "the meeting has not begun": true,
+    "the rehearsal room remains psychologically active": true
+  },
+  "timestamp": "2026-03-15T01:32:00.887459+00:00"
+}

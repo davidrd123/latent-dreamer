@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the electric kettle a second time, though the first cup is still sitting untouched and warm on the counter, and he watches the water level rise with the focused attention of someone reading fine print. The letter is at the edge of his vision the whole time, a white rectangle he keeps not looking at directly, the way you don't look at a bruise you aren't ready to name. He knows the harbor faces west; he knows what the light does there at dusk; he knows exactly how long it takes to drive from here, which means he also knows, with the precision of someone who has done this before, how much longer he can stand here before the delay itself becomes the answer.",
+  "graph_projection": {
+    "node_id": "beat_kettle_delay_001",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

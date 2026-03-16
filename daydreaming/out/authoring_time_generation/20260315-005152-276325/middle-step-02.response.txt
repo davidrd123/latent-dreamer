@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea shifts her weight outside the heavy acoustic door of Studio B, staring at the brass handle as if it might turn on its own. \"I submitted the draft without your name,\" she mutters to the empty hallway, forcing herself to state the bare fact before offering any excuses. She imagines Owen's immediate frown and quickly rehearses her follow-up, trying to strip the defensive tremor from her voice. She repeats the sequence twice more, locking the phrasing into her muscle memory before she has to pull the handle.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_studio_b_threshold_s02_c02",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.2,
+    "delta_energy": 0.1,
+    "setup_refs": [
+      "ev_public_correction_at_panel",
+      "sit_studio_b_threshold"
+    ],
+    "payoff_refs": [
+      "ref_credit_dispute"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

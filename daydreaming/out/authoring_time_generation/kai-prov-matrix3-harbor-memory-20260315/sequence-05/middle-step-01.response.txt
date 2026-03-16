@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the electric kettle past the max line, watches the water tremble at the brim, then carefully pours a little out\u2014too much care for something that doesn't matter. The letter lies where he set it, corner aligned with the table's edge as though neatness could hold the harbor at a distance. He rehearses, almost subvocally, the word *tonight*, but stops before it becomes a sentence, because a sentence would require a next sentence, and the next one is the true one.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_delay",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

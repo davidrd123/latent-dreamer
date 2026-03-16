@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai stands at the kitchen counter with his back to the letter, mouthing a sentence he hasn't finished yet\u2014something that starts with 'I know I\u2014' and stops there, his jaw resetting like he's trying a different key in the same lock. The envelope sits behind him, its weight distributed across the whole room, and the harbor is somehow already in the kitchen: the particular cold of that night, her voice cutting through the wind with a precision that still feels like a verdict. He tries again, quieter, almost inaudible: 'I didn't know the silence would\u2014' and stops again, because he can hear exactly how she would answer that, and the answer is that he did know, and she knows he knew.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_kitchen_precontact",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

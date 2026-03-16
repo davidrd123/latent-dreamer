@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai opens the cabinet above the stove and counts the mugs\u2014four, though he lives alone\u2014then closes it and opens it again as if the number might have changed. The kettle has begun to hiss, not yet boiling, and he turns the flame down to keep it there, suspended, neither ready nor abandoned. The letter is behind him the way the harbor is behind him: a specific cold, a specific dark, the particular silence of water that doesn't need him to look at it to be there. He knows the handwriting on the envelope without having seen it yet, the way you know a voice before the first word arrives.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "sit_threshold_departure",
+      "sit_observed_evasion"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

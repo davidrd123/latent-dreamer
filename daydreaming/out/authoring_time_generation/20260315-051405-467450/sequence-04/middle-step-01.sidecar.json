@@ -1,0 +1,83 @@
+{
+  "appraisal_frame": {
+    "changeability": 0.26,
+    "controllability": 0.2,
+    "desirability": -0.79,
+    "expectedness": 0.58,
+    "likelihood": 0.79,
+    "praiseworthiness": -0.72,
+    "realization_status": "actual",
+    "temporal_status": "actual"
+  },
+  "causal_slice": {
+    "affected_goal": {
+      "goal": "preserve-collaborative-credibility",
+      "sign": "threatens",
+      "weight": 0.86
+    },
+    "attribution": {
+      "actor": "tessa",
+      "intentional": true
+    },
+    "concern_id": "cc_status_damage",
+    "focal_situation_id": "sit_coatroom_after_toast",
+    "likelihood_bucket": "high",
+    "other_options": [
+      "eli-withdraws"
+    ],
+    "self_options": [
+      "justify-simplification",
+      "minimize-harm-framing"
+    ],
+    "target_ref": "eli",
+    "temporal_status": "actual"
+  },
+  "commit_type": "salience",
+  "emotion_vector_topk": {
+    "disappointment": 0.18,
+    "distress": 0.48,
+    "fear": 0.64,
+    "remorse": 0.54
+  },
+  "node_id": "beat_coatroom_program_reread",
+  "operator_family": "rationalization",
+  "operator_score_breakdown": {
+    "appraisal_fit": 0.77,
+    "episodic_resonance": 0.52,
+    "family_bonus": 0.12,
+    "practice_fit": 0.86,
+    "pressure": 0.71,
+    "repetition_penalty": 0.08,
+    "total": 0.87
+  },
+  "practice_context": {
+    "affordance_tags": [
+      "justify-simplification",
+      "minimize-harm-framing",
+      "draft-half-apology"
+    ],
+    "phase": "aftermath",
+    "practice_type": "confession",
+    "role": "confessor"
+  },
+  "prompt_version": "v1-middle-layer",
+  "retrieval_keys": [
+    "concern_type",
+    "target_ref",
+    "situation_id",
+    "practice_type"
+  ],
+  "retrieved_episode_refs": [
+    "ep_panel_simplification_defense",
+    "ep_half_apology_in_taxi"
+  ],
+  "selected_affordance_tags": [
+    "justify-simplification",
+    "minimize-harm-framing"
+  ],
+  "source_concern_ids": [
+    "cc_status_damage",
+    "cc_obligation"
+  ],
+  "validator_result": "pass"
+}

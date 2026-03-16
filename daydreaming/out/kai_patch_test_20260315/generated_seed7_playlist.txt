@@ -1,0 +1,73 @@
+# Kai generated seed 7 playlist
+
+cycle 1: k_start_table_letter
+name: Letter on the table
+situation: sit_unopened_letter
+option_effect: inspect
+visual_description: The letter stays unopened on the table while the kitchen gives Kai smaller tasks to do instead of answering it.
+
+cycle 2: k_patch_intensifier
+name: Counter cleaned past clean
+situation: sit_unopened_letter
+option_effect: inspect
+visual_description: Kai refills his coffee cup though it is still half full, watching the steam rise with the deliberate attention of someone cataloguing evidence. The letter sits at the edge of his vision—he has angled himself so the address faces away—and he begins wiping down the counter in slow horizontal strokes, the cloth moving with the focused care he usually reserves for things that matter. Somewhere past the window, the harbor is already dark, already waiting, and the wiping goes on past clean.
+
+cycle 3: k_patch_bridge
+name: Return address covered
+situation: sit_unopened_letter
+option_effect: prepare
+visual_description: Kai refills his coffee cup though it is still half full, watching the pour with the concentration of someone defusing something, and when he sets the mug down its base lands precisely over the letter's corner, covering just enough of the return address that he doesn't have to see her handwriting. The harbor is there anyway—the particular cold of it, the way she had said do it honestly while the water made its indifferent sounds behind her—and he moves to the counter and begins wiping it in slow circles, the cloth finding the same clean patch twice, three times. He knows the silence is already composing itself into a message, the way it did before, and he wipes again.
+
+cycle 4: k_scaffold_threshold_entry
+name: Departure threshold entered
+situation: sit_threshold_departure
+option_effect: prepare
+visual_description: The decision has stopped being abstract; leaving for the harbor is now the only action that still counts as an answer.
+
+cycle 5: k_scaffold_departure_commit
+name: Departure finally chosen
+situation: sit_threshold_departure
+option_effect: commit
+visual_description: He stops translating the evening into chores, takes what he needs, and lets the answer become movement instead of delay.
+
+cycle 6: k_scaffold_return_cover
+name: Return to ritual
+situation: sit_unopened_letter
+option_effect: return
+visual_description: He leaves the letter unopened and lets the kitchen take him back into motions that feel responsible only because they can be repeated.
+
+cycle 7: k_scaffold_threshold_entry
+name: Departure threshold entered
+situation: sit_threshold_departure
+option_effect: prepare
+visual_description: The decision has stopped being abstract; leaving for the harbor is now the only action that still counts as an answer.
+
+cycle 8: k_scaffold_departure_commit
+name: Departure finally chosen
+situation: sit_threshold_departure
+option_effect: commit
+visual_description: He stops translating the evening into chores, takes what he needs, and lets the answer become movement instead of delay.
+
+cycle 9: k_scaffold_return_cover
+name: Return to ritual
+situation: sit_unopened_letter
+option_effect: return
+visual_description: He leaves the letter unopened and lets the kitchen take him back into motions that feel responsible only because they can be repeated.
+
+cycle 10: k_patch_bridge
+name: Return address covered
+situation: sit_unopened_letter
+option_effect: prepare
+visual_description: Kai refills his coffee cup though it is still half full, watching the pour with the concentration of someone defusing something, and when he sets the mug down its base lands precisely over the letter's corner, covering just enough of the return address that he doesn't have to see her handwriting. The harbor is there anyway—the particular cold of it, the way she had said do it honestly while the water made its indifferent sounds behind her—and he moves to the counter and begins wiping it in slow circles, the cloth finding the same clean patch twice, three times. He knows the silence is already composing itself into a message, the way it did before, and he wipes again.
+
+cycle 11: k_scaffold_threshold_entry
+name: Departure threshold entered
+situation: sit_threshold_departure
+option_effect: prepare
+visual_description: The decision has stopped being abstract; leaving for the harbor is now the only action that still counts as an answer.
+
+cycle 12: k_scaffold_departure_commit
+name: Departure finally chosen
+situation: sit_threshold_departure
+option_effect: commit
+visual_description: He stops translating the evening into chores, takes what he needs, and lets the answer become movement instead of delay.

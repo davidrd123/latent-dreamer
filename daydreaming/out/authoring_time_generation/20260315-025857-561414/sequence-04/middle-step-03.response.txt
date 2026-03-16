@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa traces the sharp crease of the folded program, the muffled laughter from the donor hall bleeding through the coatroom wall. Staring at Eli's unanswered text, she whispers to herself that the board needed a single, clean narrative to approve the funding. She types out, 'I had to secure the runway for us,' letting the strategic excuse harden into a shield that makes her public omission feel like a necessary sacrifice.",
+  "graph_projection": {
+    "node_id": "beat_rationalize_coatroom_s03_c02",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": 0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

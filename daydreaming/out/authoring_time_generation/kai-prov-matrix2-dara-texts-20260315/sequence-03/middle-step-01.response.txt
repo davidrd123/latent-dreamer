@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai stands at the kitchen counter with his back to the table, mouthing words at the window above the sink\u2014not the words he wants to say, but the words he thinks she'll accept: something about distance, about time, something that doesn't start with I'm sorry because that would be the first true thing. His lips stop moving when he gets to the part where she might say what she said at the harbor, and he feels the silence of that old unanswered call settle into his chest like ballast. He turns the faucet on, then off, then on again, as if the sound is a rehearsal for arriving.",
+  "graph_projection": {
+    "node_id": "beat_kai_rehearsal_kitchen",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

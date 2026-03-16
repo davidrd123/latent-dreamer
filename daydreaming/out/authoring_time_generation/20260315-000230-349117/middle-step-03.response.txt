@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai meticulously reorganizes the spice rack, aligning every glass jar to face perfectly forward while keeping his back to the table where the unopened envelope sits. He focuses entirely on the sharp, grounding scent of black pepper, trying to drown out the phantom rhythm of water slapping against the harbor docks. If he just keeps his hands busy until the sun goes down, his absence will deliver the message for him.",
+  "graph_projection": {
+    "node_id": "beat_kai_spice_rack_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

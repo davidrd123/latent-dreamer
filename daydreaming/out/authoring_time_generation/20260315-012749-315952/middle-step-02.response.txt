@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai discovers a sudden, absolute necessity to reorganize the spice rack, aligning every glass jar so the faded labels face perfectly forward. He keeps his back rigidly turned toward the kitchen table and the unopened envelope resting there, humming under his breath to drown out the distant, rhythmic clang of the harbor buoy drifting through the open window. If he can just keep his hands busy until the sun sets, he won't have to decide if this frantic tidying is merely a delay, or the final, deafening silence she will receive as his answer.",
+  "graph_projection": {
+    "node_id": "beat_kai_spice_rack_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.4,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "harbor_as_shared_place"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

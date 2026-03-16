@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai stands at the counter with his back to the letter, lips moving slightly as he tries out a sentence he'll never say first: 'I didn't pick up because I was afraid of what you'd ask me to be.' He lets the sentence dissolve, replaces it with something safer\u2014'I got your letter'\u2014then catches himself, because that one is just an announcement, not an opening, and she would know the difference. The harbor is in the room with him, the specific cold of it, the way her voice had carried across the water, and he turns on the faucet for no reason, letting the sound fill the space where his answer should be.",
+  "graph_projection": {
+    "node_id": "beat_kai_rehearsal_kitchen_s01_c04",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

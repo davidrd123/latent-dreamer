@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai pulls every mug from the cupboard, lining them up by height on the counter with agonizing precision. The unopened envelope sits just at the edge of his peripheral vision, its silence threatening to solidify into an answer he isn't ready to give. He focuses entirely on aligning the handles, trying to ignore how the hum of the refrigerator sounds exactly like the low drone of boat engines at the harbor.",
+  "graph_projection": {
+    "node_id": "beat_avoidance_mug_alignment",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.4,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "harbor_as_shared_place"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

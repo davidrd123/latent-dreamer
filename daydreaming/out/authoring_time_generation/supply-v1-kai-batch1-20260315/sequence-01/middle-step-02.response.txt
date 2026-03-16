@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai fills the electric kettle a second time, though the first cup sits cooling beside the letter, untouched. He reads the side of the tea tin with the same careful attention he might give a contract, mouthing the origin notes\u2014Darjeeling, second flush, muscatel\u2014as if the words require memorization. The harbor is somewhere in his peripheral vision anyway, not outside the window but in the particular angle of afternoon light on the table, the same low salt-grey that was behind her face when she said what she said six months ago; he registers it and turns slightly, so the letter is no longer in front of him, only beside him, which is different.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_ritual_s02_c01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

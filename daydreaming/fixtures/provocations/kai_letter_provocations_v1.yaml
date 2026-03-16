@@ -1,0 +1,176 @@
+# Kai Letter Provocations — v1
+#
+# Hand-authored SituationProvocationProposal sidecars for the
+# provocation seam experiment. Three typed provocations against
+# the Kai unopened-letter fixture.
+#
+# Purpose: test whether overlaying a provocation before
+# build_causal_slice() produces structurally new generation
+# output vs. the no-delta baseline.
+#
+# Schema: SituationProvocationProposal (working draft from
+# Ask-B-01.md and Ask-B-02.md)
+#
+# Usage: the pipeline overlay loads one of these, patches the
+# fixture view, and generates reactions from the updated view.
+# The provocation is a sidecar — it does NOT mutate the base
+# fixture file.
+
+provocations:
+
+  # --- Provocation 1: Salience sharpen ---
+  #
+  # No world change. A memory surfaces with new specificity.
+  # Should change retrieval (harbor episodes become more relevant)
+  # and possibly operator scoring (rehearsal or rationalization
+  # may become more competitive if the memory carries blame).
+  #
+  # Expected signal: different retrieved episodes or different
+  # operator winner at step 1.
+  # Expected non-signal: situation description unchanged,
+  # practice type unchanged.
+
+  - id: prov_kai_harbor_memory_sharpens
+    base_situation_id: sit_unopened_letter
+    provocation_type: pressure_shift
+    commit_semantics: salience
+    description: >
+      Kai remembers the exact last thing Maren said at the harbor:
+      "If you are going to stay silent, do it honestly." The words
+      arrive with the specific sound of ferry engines idling behind
+      them. The memory is no longer a summary — it has a texture.
+    fact_deltas:
+      - op: boost_episode_recency
+        episode_id: ep_last_rupture
+        new_recency_rank: 4
+      - op: patch_episode_retrieval_tags
+        episode_id: ep_last_rupture
+        patch:
+          practice_type: anticipated-confrontation
+    successor_situation_stub: null
+    pressure_tags: [attachment_threat]
+    source_lane: human
+    source_agent: human
+    scope: proposal
+    confidence: high
+    revisability: ephemeral_candidate
+    source_ref: provocation-experiment-v1
+    notes: >
+      Pure pressure shift. Nothing in the world changed. A memory
+      became sharper. The overlay op is concrete: bump
+      ep_last_rupture's recency_rank to 4 (above the current max
+      of 3) and temporarily patch its retrieval tags so the memory
+      matches anticipated confrontation rather than just past
+      rupture. The pipeline should see different retrieval
+      results, and the CausalSlice may shift because the remembered
+      words carry explicit blame.
+
+  # --- Provocation 2: Threshold / knowledge shift ---
+  #
+  # The abstract deadline becomes concrete. A physical artifact
+  # makes the time pressure real.
+  #
+  # Expected signal: CausalSlice temporal_status and likelihood
+  # shift. Appraisal controllability may drop (the deadline is
+  # no longer vague). Operator scoring should shift because
+  # higher likelihood + lower controllability favors different
+  # appraisal_fit patterns.
+  # Expected non-signal: no new situation, no new event. The
+  # same situation becomes sharper.
+
+  - id: prov_kai_ferry_schedule_visible
+    base_situation_id: sit_unopened_letter
+    provocation_type: threshold_shift
+    commit_semantics: salience
+    description: >
+      The ferry schedule is pinned to the kitchen notice board.
+      The 7:40 PM departure is circled. The harbor meeting is no
+      longer "tonight" in the abstract. It is 7:40 PM, and it
+      is now 6:55.
+    fact_deltas:
+      - op: patch_situation_state
+        situation_id: sit_unopened_letter
+        patch:
+          departure_time_known: true
+          minutes_remaining: 45
+    successor_situation_stub: null
+    pressure_tags: [obligation, attachment_threat]
+    source_lane: human
+    source_agent: human
+    scope: proposal
+    confidence: high
+    revisability: ephemeral_candidate
+    source_ref: provocation-experiment-v1
+    notes: >
+      Pure threshold shift. The ferry schedule was always there —
+      Kai just noticed it. No social dimension, no new actor. The
+      effect on appraisal should be significant: likelihood jumps,
+      controllability drops, temporal_status shifts from vaguely
+      prospective to concretely imminent. The overlay op is
+      concrete: patch two current_state fields on the existing
+      situation.
+
+  # --- Provocation 3: Ontic event (external world change) ---
+  #
+  # New information arrives from outside. The world actually
+  # changes. This should produce the strongest pipeline response
+  # because it introduces a new situation element.
+  #
+  # Expected signal: new concern pressure (social obligation
+  # from a third party), possible practice shift (evasion
+  # becomes harder when someone else is watching), operator
+  # scoring should shift because the social audience changes
+  # the avoidance calculus.
+  # Expected non-signal: the letter is still unopened. The
+  # harbor meeting is still pending.
+
+  - id: prov_kai_sister_friend_texts
+    base_situation_id: sit_unopened_letter
+    provocation_type: external_event
+    commit_semantics: ontic
+    description: >
+      Kai's phone buzzes. A text from Dara, his sister's closest
+      friend: "She told me she wrote to you. I know you'll do the
+      right thing." The text is warm, not accusatory — but it
+      means someone else knows, and someone else is watching.
+    fact_deltas:
+      - op: add_event
+        event:
+          id: ev_dara_texts_kai
+          description: >
+            Dara, Maren's closest friend, texts Kai to say she
+            knows about the letter. The tone is warm but the
+            subtext is: someone is expecting him to respond.
+          anchor_places: [kitchen]
+          pressure_tags: [obligation]
+      - op: patch_situation_state
+        situation_id: sit_unopened_letter
+        patch:
+          external_witness_aware: true
+          social_pressure_source: dara
+    successor_situation_stub:
+      id: sit_observed_evasion
+      description: >
+        Kai's avoidance is no longer private. Someone outside the
+        kitchen knows the letter exists and expects a response.
+        Delay now has a social cost it did not have before.
+      place_id: kitchen
+      target_ref: sister
+    pressure_tags: [obligation, attachment_threat]
+    source_lane: human
+    source_agent: human
+    scope: proposal
+    confidence: high
+    revisability: ephemeral_candidate
+    source_ref: provocation-experiment-v1
+    notes: >
+      This is the strongest provocation — an ontic world change.
+      New information arrives. The evasion calculus changes because
+      avoidance now has a social witness. The practice context
+      should shift: pure evasion becomes harder when someone else
+      is watching. This tests whether the pipeline can generate a
+      reaction to a changed social situation, not just a sharpened
+      internal state.
+      The successor_situation_stub is deliberately minimal — it
+      names the new social reality without prescribing what Kai
+      does about it.

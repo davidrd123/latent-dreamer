@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the kettle past the line he needs, then sets it on the burner and watches the element glow, giving himself the task of watching it the way a person gives a dog a stick to carry. The harbor is twenty minutes away\u2014he knows this without meaning to, the way you know the weight of something you are trying not to pick up\u2014and the knowledge sits in his chest while his hands busy themselves tearing the paper tag from a tea bag and folding it into smaller and smaller squares. The letter has not moved, but he has arranged himself so that the kettle is between him and it, a small warm obstacle, and he is being very careful about the folding.",
+  "graph_projection": {
+    "node_id": "beat_kai_kettle_ritual_s03_c04",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.15,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

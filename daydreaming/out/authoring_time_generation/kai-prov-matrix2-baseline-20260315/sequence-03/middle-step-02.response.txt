@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai turns on the tap to rinse a glass that is already clean, and the sound of the water fills the kitchen the way harbor sounds fill a harbor\u2014ambient, indifferent, covering. He dries the glass with a slowness that is almost ceremonial, holding it up once to check for spots that aren't there, and somewhere in the motion he is already rehearsing the version of tonight where he simply didn't see the letter until it was too late, the harbor already dark, his sister already gone back to wherever she came from. The envelope doesn't move. The first cup of tea has gone cold enough that drinking it now would be a small punishment, and he reaches for it anyway.",
+  "graph_projection": {
+    "node_id": "beat_kai_ritual_avoidance_01",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

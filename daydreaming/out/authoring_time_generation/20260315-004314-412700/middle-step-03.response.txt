@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea taps the edge of her phone against her thigh, staring intently at a promotional email while her lips silently form the first words of her defense. The frosted glass of Studio B's door is less than two feet away, but she shifts her weight away from it, pretending to compose a highly urgent reply instead of reaching for the handle. She knows that letting Owen's narrative harden overnight will cost her, but right now, the meticulous correction of a typo in her drafts folder feels infinitely safer than stepping inside.",
+  "graph_projection": {
+    "node_id": "beat_evasion_studio_b_threshold",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "sit_studio_b_threshold",
+      "ref_credit_dispute"
+    ],
+    "payoff_refs": [
+      "sit_inside_studio_b_conversation"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

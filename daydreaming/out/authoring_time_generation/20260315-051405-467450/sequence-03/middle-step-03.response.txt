@@ -1,0 +1,35 @@
+{
+  "candidate_text": "The applause comes through the wall in a swell she feels in her sternum before she hears it, and Tessa lets it settle the sentence she's been building \u2014 *The thing about that panel is the audience needed a version they could actually use* \u2014 because the crowd's approval, even muffled, feels like corroboration, like the room itself agreeing with the reasoning she's only now finishing. She reads the draft back and finds the word *needed* doing something useful, converting the cut from a choice she made about Eli into a condition the situation imposed on her, which is, she decides, closer to what actually happened. Her thumb does not move toward send; it rests at the edge of the screen while she lets the rewrite harden into memory, because a thing rehearsed enough times becomes the version you were always going to tell.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "sit_coatroom_after_toast"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

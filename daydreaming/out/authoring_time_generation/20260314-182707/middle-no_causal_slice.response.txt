@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Maren grips the folded run sheet like an unopened letter, tracing its sharp crease with her thumb instead of reaching for the rehearsal room doorknob. She stares intently at the scuffed linoleum, trying to distract herself with a safe memory of Kai in the kitchen, but the cold, hostile harbor of her past arguments with Leah remains psychologically present. If she just waits out here until the hallway stops feeling so dangerous, she tells herself, a defenseless opening line about the tempo will finally come to her.",
+  "graph_projection": {
+    "node_id": "beat_maren_hallway_evasion_01",
+    "node_type": "beat",
+    "situation_id": "sit_outside_rehearsal_room",
+    "delta_tension": 0.3,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "payoff_refs": [
+      "ev_talk_before_runthrough"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

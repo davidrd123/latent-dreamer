@@ -1,0 +1,33 @@
+{
+  "candidate_text": "Kai stared at the unopened envelope on the counter, his sister's familiar handwriting pulling at a knot in his chest. 'If you are going to stay silent, do it honestly,' she had told him at the harbor six months ago. He remembered the weight of his phone buzzing on that other night, how his refusal to answer had spoken louder than any words. Yet, the dread of another rupture felt too heavy to hold. Instead of reaching for the letter, Kai turned his back to it and began meticulously wiping down the already spotless espresso machine. He focused entirely on the rhythmic, circular motion of the cloth, letting the mechanical routine delay the moment of contact, even as he knew this new silence was already becoming a message of its own.",
+  "graph_projection": {
+    "node_id": "beat_avoidance_ritual_001",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter_01",
+    "delta_tension": 0.15,
+    "delta_energy": -0.10,
+    "setup_refs": [
+      "ep_old_harbor_memory",
+      "ep_last_rupture"
+    ],
+    "payoff_refs": [],
+    "option_effect": "open",
+    "pressure_tags": [
+      "attachment_threat",
+      "avoidance_behavior"
+    ],
+    "practice_tags": [
+      "delay-contact",
+      "ritual-distraction",
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

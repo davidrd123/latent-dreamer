@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa reads Eli's text a second time, then folds the program so the credit line faces inward, and begins composing a reply in her head that opens with his name and a comma and then stalls there. The hall noise still reaches her through the coatroom door\u2014glasses, low laughter, the donor's voice carrying\u2014and she finds herself thinking that the toast had to move fast, that a long acknowledgment would have broken the room's attention, that Eli would understand this if she explained the timing. The explanation feels, briefly, like generosity toward him: she is giving him the reason, which is more than most people offer. She does not send anything yet, but the reply she is rehearsing has already quietly replaced the harm with a context, and the context is starting to feel like the whole story.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

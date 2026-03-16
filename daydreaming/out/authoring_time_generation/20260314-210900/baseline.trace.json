@@ -1,0 +1,43 @@
+{
+  "arm": "baseline",
+  "candidate_text": "Rhea mouths two openings at the dark reflection of her phone outside Studio B, crossing out the second one before she can decide whether it sounds like repair or self-defense.",
+  "graph_projection": {
+    "confidence": "medium",
+    "delta_energy": 0.05,
+    "delta_tension": 0.12,
+    "node_id": "rhea_studio_rehearsal_001",
+    "node_type": "beat",
+    "option_effect": "open",
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "payoff_refs": [
+      "sit_inside_studio_b_conversation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "ev_credit_omission_noticed",
+      "ev_meeting_scheduled_tonight"
+    ],
+    "situation_id": "sit_studio_b_threshold",
+    "source_lane": "L2",
+    "source_ref": "prototype-baseline"
+  },
+  "semantic_checks": {
+    "no_cross_fixture_contamination": true,
+    "opening-line rehearsal is present": true,
+    "rehearsal sharpens rather than resolves the choice": true,
+    "the meeting has not begun": true,
+    "the studio remains psychologically active": true
+  },
+  "timestamp": "2026-03-15T04:09:00.049274+00:00"
+}

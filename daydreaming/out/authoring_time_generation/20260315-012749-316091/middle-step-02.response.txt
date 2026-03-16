@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Maren stares at the ink bleeding through the folded run sheet, her thumb tracing over the heavily crossed-out drafts of her opening line. She whispers, \"I'm sorry about the pacing,\" to the empty hallway, but immediately winces, knowing Leah will instantly recognize the defensive pivot. A sudden burst of scales from the piano inside the rehearsal room forces her to grip the paper tighter, bracing herself for the confrontation she is still trying to script her way out of.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_hallway_drafting_s02_c04",
+    "node_type": "beat",
+    "situation_id": "sit_outside_rehearsal_room",
+    "delta_tension": 0.3,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "payoff_refs": [
+      "ev_talk_before_runthrough"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

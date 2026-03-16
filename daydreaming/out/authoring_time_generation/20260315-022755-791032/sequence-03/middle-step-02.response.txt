@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa traces the embossed lettering on the event program, listening to the muffled clinking of glasses from the donor hall next door. She drafts a reply to Eli's text, carefully framing her speech as a necessary simplification to keep the investors focused on the big picture. Reading the words back, she feels the knot in her chest loosen; it wasn't a theft of credit, just a strategic omission for the sake of the project's survival. She backspaces over the word \"sorry,\" refusing to apologize for doing what had to be done.",
+  "graph_projection": {
+    "node_id": "node_tessa_rationalizes_coatroom",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

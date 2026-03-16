@@ -1,0 +1,36 @@
+{
+  "candidate_text": "Her thumb rests against the coat she hasn't put on yet, the wool bunched slightly in her grip, and she reads the unsent sentence again\u2014*I think you know how much the work mattered to me*\u2014feeling its weight as something offered rather than something withheld. The laughter from the hall moves through the door in a low continuous wave, and she lets it carry the version of the evening where the panel had needed a clean line, where the audience had needed that, where *necessary* was a description and not a defense. She adds nothing, removes nothing, and the sentence holds its shape the way a good argument holds\u2014not because it answers everything but because it sounds like it does.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_draft_s03_c03",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line",
+      "sit_coatroom_after_toast"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

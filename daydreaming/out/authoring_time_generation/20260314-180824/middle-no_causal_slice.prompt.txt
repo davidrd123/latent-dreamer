@@ -1,0 +1,54 @@
+First, reason about what this character would do in this situation given the appraisal and practice context.
+Think through how the selected operator manifests as behavior and how the retrieved episodes shape the moment.
+Then generate one candidate narrative moment as valid JSON only.
+
+Return this shape:
+{
+  "candidate_text": "...",
+  "graph_projection": {
+    "node_id": "...",
+    "node_type": "beat",
+    "situation_id": "...",
+    "delta_tension": 0.0,
+    "delta_energy": 0.0,
+    "setup_refs": ["..."],
+    "payoff_refs": ["..."],
+    "option_effect": "close|open|clarify|none",
+    "pressure_tags": ["..."],
+    "practice_tags": ["..."],
+    "origin_pressure_refs": ["..."],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "low|medium|high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}
+
+Selected concern: {"base_intensity": 0.72, "concern_type": "attachment_threat", "id": "cc_attachment_threat", "intensity_basis": "fixture_constant", "seed_origin": "benchmark_seeded", "source_episode_ids": ["ep_last_rupture", "ep_old_harbor_memory"], "source_rule_ids": ["rule_unanswered_repair_bid"], "target_ref": "sister", "unresolved": true}
+AppraisalFrame: {"changeability": 0.34, "controllability": 0.28, "desirability": -0.78, "expectedness": 0.76, "likelihood": 0.82, "praiseworthiness": -0.52, "realization_status": "prospective", "temporal_status": "prospective"}
+PracticeContextV1: {"affordance_tags": ["delay-contact", "ritual-distraction", "prepare-excuse"], "phase": "precontact", "practice_type": "evasion", "role": "evader"}
+Selected operator family: avoidance
+Selected affordance tags: ["delay-contact", "ritual-distraction"]
+Retrieved episodes:
+- Kai once ignored her call on an important night and learned too late that the silence itself had become the message.
+
+- Kai and his sister fought at the harbor six months ago. She said, "if you are going to stay silent, do it honestly."
+
+
+Constraints:
+- The letter remains unopened in this moment.
+- The output should reflect the selected operator family and affordances.
+- The output must be graph-compilable against the benchmark fixture.
+Allowed IDs and enums for graph_projection:
+- allowed situation_id: ['sit_threshold_departure', 'sit_unopened_letter']
+- allowed setup_refs/payoff_refs: ['ev_harbor_meeting_tonight', 'harbor_as_shared_place', 'sit_threshold_departure', 'sit_unopened_letter']
+- allowed pressure_tags: ['attachment_threat', 'obligation']
+- allowed practice_tags: ['anticipated-confrontation', 'confession', 'evasion']
+- allowed origin_pressure_refs: ['cc_attachment_threat', 'cc_obligation']
+- source_lane must be: L2
+- scope must be: proposal
+- revisability must be: ephemeral_candidate
+- Do not use episode ids in setup_refs or payoff_refs.
+- Do not invent new ids.
+- No markdown fences.

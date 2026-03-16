@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Maren flattens the run sheet against the cool cinderblock wall, her pen hovering over a fresh patch of white space. She silently mouths, \"I wanted to talk about yesterday,\" but immediately shakes her head, anticipating Leah's inevitable accusation that she's just defending the tempo again. Inside the room, the sharp scrape of a chair leg against the floor makes Maren flinch, and she quickly scribbles out her latest attempt until the damp paper tears.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_drafting_line",
+    "node_type": "beat",
+    "situation_id": "sit_outside_rehearsal_room",
+    "delta_tension": 0.2,
+    "delta_energy": 0.1,
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "payoff_refs": [
+      "sit_first_line_threshold"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "obligation"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

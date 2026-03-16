@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa reads Eli's text a second time without moving her thumb toward the reply field, the folded program pressing a crease into her palm. Through the coatroom door she can still hear the room settling into dessert, the same room where she said what she said, and the sound makes the explanation she is already composing feel more necessary, not less. She runs it again in her head\u2014the timeline was compressed, the audience needed orientation, Eli's name was in the program\u2014and each pass makes the remark feel less like a cut and more like a reasonable editorial call that anyone in her position would have made. The apology she is not yet writing would have started the same way.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s03_c01",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

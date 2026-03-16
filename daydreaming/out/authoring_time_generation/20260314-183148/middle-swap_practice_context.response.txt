@@ -1,0 +1,31 @@
+{
+  "candidate_text": "Maren unfolds and refolds the run sheet, pressing the crease until her thumbnail aches. She uncaps her pen to draft a new opening sentence in the margin, immediately crossing out a half-written defense of yesterday's tempo. The muffled sound of chairs scraping inside the rehearsal room makes her freeze, but instead of reaching for the door handle, she flips the paper over to start a fresh draft on the blank side.",
+  "graph_projection": {
+    "node_id": "beat_evasion_run_sheet_drafting",
+    "node_type": "beat",
+    "situation_id": "sit_outside_rehearsal_room",
+    "delta_tension": 0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "sit_outside_rehearsal_room"
+    ],
+    "payoff_refs": [
+      "sit_first_line_threshold"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

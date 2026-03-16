@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai drops to his knees with an old toothbrush, deciding the kitchen floor grout requires immediate, punishing attention. He scrubs furiously, letting the harsh, rhythmic scraping drown out the low blast of a ship's horn echoing up from the harbor. As long as he keeps his eyes locked on the dirty tiles, he doesn't have to look at the envelope on the table, and he doesn't have to decide what his silence will mean this time.",
+  "graph_projection": {
+    "node_id": "beat_kai_grout_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.4,
+    "delta_energy": 0.6,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

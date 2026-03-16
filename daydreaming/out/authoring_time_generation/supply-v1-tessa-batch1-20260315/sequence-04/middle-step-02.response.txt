@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa runs her thumbnail along the fold of the program until she finds her name at the top of the acknowledgments, pressing the crease flat as though the paper itself needs correcting. She reads the line twice and decides, quietly, that she had kept the toast clean for the donors \u2014 that Eli would have gone long, would have lost the room, that what she had done was a kind of triage the occasion required. From the hall she can still hear the low current of conversation, the room still warm with the version of events she gave them, and she begins composing a reply to Eli in her head: the third draft is mostly about context, about what the moment had needed, and contains his name only once, near the end.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s02_c04",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

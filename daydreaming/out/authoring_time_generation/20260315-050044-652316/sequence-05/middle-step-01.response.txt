@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa's thumb hovers over Eli's name on the screen, but what she's actually doing is listening to the applause bleed through the coatroom door\u2014measuring it, the way you measure a room you've already left your mark on. She rehearses the first sentence of a reply: not an apology, exactly, but a framing, something about how the toast needed to land cleanly for the donors, how credit is a long-game thing, how Eli would have said the same if the positions were reversed. The sentence keeps growing a second clause, and then a third, each one reasonable, each one moving the original harm further back until it's almost a decision they made together.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_hover",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold",
+      "ref_program_credit_line"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

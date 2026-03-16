@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai turns his back to the kitchen table and begins scrubbing the already-clean cast iron skillet with meticulous, punishing focus. The envelope sits untouched behind him, its sharp white edges demanding an answer he isn't ready to give. He runs the faucet on high, letting the rush of water drown out the imagined sound of the harbor tide and the memory of her asking him to at least be honest in his silence.",
+  "graph_projection": {
+    "node_id": "beat_kai_kitchen_avoidance_01_s01_c03",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.4,
+    "delta_energy": 0.3,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa runs her fingers along the sleeve of someone else's coat hanging beside her, feeling the fabric while the applause from the hall rises and fades in one clean wave. She reads Eli's text again \u2014 not to answer it, but to find the sentence she already has ready, the one about how the toast needed to land for the room, how a longer credit line would have broken the moment. The sentence is true, she thinks, and she holds it there, turning it slightly, the way you'd hold a stone to the light to check whether it was the kind that could bear weight.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalization_coatroom_s01_c03",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "sit_coatroom_after_toast"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

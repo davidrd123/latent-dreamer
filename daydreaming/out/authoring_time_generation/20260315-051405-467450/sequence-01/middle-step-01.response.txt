@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa opens the program to the credit line \u2014 her name, then the foundation's, then Eli's folded into a cluster of institutional acknowledgments \u2014 and she reads it twice as though it might exonerate her on its own, the way a receipt proves a purchase was fair. The applause from the hall is still audible, thin through the coatroom door, and she finds herself composing the reply not as an apology but as a clarification: the toast had to move quickly, donors don't retain compound attributions, she had protected the work by protecting its legibility. The explanation arrives fully formed and reasonable, and she lets it settle before she notices that Eli's name has not appeared in it once.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_program_s01_c02",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ref_program_credit_line"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

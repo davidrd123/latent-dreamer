@@ -331,18 +331,26 @@ Key steals from the nearest-neighbor analysis:
   character inconsistency usually masks retrieval failure, not
   reasoning failure. Validates retrieval-focused work (Q8).
 
-### Open question from the extractions
+### Counterfactual preservation — answered (D6)
 
-**Counterfactual preservation** (D6 in `04-5pro-nearest-neighbor-
-questions.md`): Mueller's DAYDREAMER maintains unrealized
-scenarios (abandoned rehearsals, fantasy reversals) as traversable
-memory. Our system currently discards rejected candidates. If the
-"watching a mind" experience requires seeing what the character
-*almost* did alongside what they *actually* did, that changes the
-generation pipeline's relationship to rejected material and the
-visualization architecture. This is the most architecturally
-consequential open question from the nearest-neighbor analysis.
-Awaiting 5 Pro reply.
+Mueller's DAYDREAMER maintains unrealized scenarios as traversable
+memory. 5 Pro's answer: **yes, preserve unrealized alternatives,
+but narrowly.** One preserved sibling per step as a
+`CounterfactualEpisodeV1` with explicit `modality` and
+`realization_status`. Feed it back into retrieval so the character
+can remember what they almost did. The dashboard needs a ghosted
+"strongest unrealized line" channel — but only the strongest, not
+every discard.
+
+Key design rule: `commit_type = none` should still yield an
+Episode. "Not enacted" ≠ "not remembered."
+
+Priority: early architectural correction. Before full watchable
+runtime work, but not before the cheapest visual/audio run. The
+kernel already has hypothetical preservation; the generation lane
+doesn't yet.
+
+See `replies-04/D6-counterfactual-preservation.md`.
 
 ---
 
@@ -445,6 +453,39 @@ The important behavioral rule is:
 That is the clearest current answer to what should happen when a new
 situation arrives.
 
+### Continuity hook now looks likely
+
+The newer nearest-neighbor replies sharpen one thing beyond the earlier
+Ask B answers:
+
+- concerns are pressure
+- they are probably **not enough** by themselves to carry
+  multi-situation intentional continuity
+
+The most likely next small object here is a lightweight
+**`PursuitThreadV1`** or reserved `pursuit_ref`, kept lane-local at
+first.
+
+That should be treated as:
+
+- a continuity hook
+- a verifier/audit handle
+- not a reason to replace `L3` with a planner
+
+It belongs after the provocation seam is real, but before claiming
+serious multi-situation coherence.
+
+### Belief / observation should stay selective
+
+The narrative-planning replies also sharpen the boundary here:
+
+- keep authored truth as base world state
+- add selective belief / observation / automatic-aftermath semantics
+  only where secrecy, concealment, or mistaken inference matter
+
+Do **not** make full belief-state reasoning the new baseline cost of
+every scene.
+
 ### Reduced context for provocations
 
 The Provocation Generator should not see raw internal state dumps.
@@ -506,6 +547,14 @@ evaluation questions:
 The first is now partly answered.
 The second is still open.
 
+The newest replies sharpen what that second question likely needs:
+
+- viewer-facing runtime projections richer than the current thin
+  Director-facing packet
+- explicit execution/selection state that is live, not just logged
+- probably one ghosted "strongest unrealized line" or counterfactual
+  channel, kept lane-local rather than dumped into the graph
+
 ### Where we sit on the evaluation ladder
 
 From `experiential-design/13-project-state.md`:
@@ -531,13 +580,13 @@ Ten questions (D1-D10) are out to 5 Pro via
 understanding without changing direction. Four could change
 the architecture:
 
-### D7 (provocation seam)
-Could argue for a fourth state object — a lightweight
-**pursuit thread** bridging concern-level intensity tracking
-with situation-level intentional coherence. If 5 Pro says
-"you need a pursuit object," FixtureDeltaV1 provocations
-would need to reference which pursuit they're advancing or
-disrupting, not just which situation they affect.
+### D7 (provocation seam) — answered
+Confirmed the four-object split. Pursuit thread is a reserved
+hook (`pursuit_ref`), not a v1 object. Two new optional fields
+from Sabre: `observation_scope` (who notices?) and
+`automatic_aftermath` (mandatory consequences). Add after the
+first successful provocation experiment, not before.
+See `replies-04/D7-provocation-seam-answer.md`.
 
 ### D9 (falsification)
 Could reframe the middle layer's role. If the answer is
@@ -548,22 +597,24 @@ conductor), not for the generation pipeline. That's a
 clarifying reframe, not a rejection — but it changes what
 we invest in.
 
-### D6 (counterfactual preservation)
-Could change the generation pipeline's relationship to
-rejected material. If unrealized alternatives (abandoned
-rehearsals, rejected rationalizations) should be preserved
-as traversable memory, that adds a new object class and
-changes the inner-life visualization architecture.
+### D6 (counterfactual preservation) — answered
+Yes, preserve one unrealized sibling per step as lane-local
+`CounterfactualEpisodeV1`. Not in the graph. Not every discard.
+Early architectural correction, not v1 blocker. The kernel
+already has hypothetical preservation; the generation lane needs
+to catch up. See `replies-04/D6-counterfactual-preservation.md`.
 
 ### D10 (sequencing)
 Will govern what gets built next. Which imports belong
 before the provocation experiment, which after, which
 should wait for the watchable-runtime front.
 
-Until these replies land, the current architecture and
-sprint plan stand. But the synthesis should be re-read
-after D7/D9 arrive — those two are the most likely to
-shift the ground.
+D6 and D7 are now answered. Both confirmed rather than
+disrupted the current direction. D9 (falsification) and
+D10 (sequencing) are still pending — D9 is the most likely
+to shift the ground if it comes back saying the middle
+layer's value is primarily steerability rather than
+generation quality.
 
 ---
 
@@ -615,6 +666,11 @@ If you want the nearest-neighbor comparison:
 13. `reading-list/20-fatima-extraction.md` (meta-belief seam pattern)
 14. `reading-list/21-narrative-planning-extraction.md` (pursuit threads)
 
+If you want the D-question replies (provocation seam + counterfactual):
+
+15. `first-round-03/deep-research-03/replies-04/D6-counterfactual-preservation.md`
+16. `first-round-03/deep-research-03/replies-04/D7-provocation-seam-answer.md`
+
 If you want the pending deep-research questions:
 
-15. `first-round-03/deep-research-03/04-5pro-nearest-neighbor-questions.md`
+17. `first-round-03/deep-research-03/04-5pro-nearest-neighbor-questions.md`

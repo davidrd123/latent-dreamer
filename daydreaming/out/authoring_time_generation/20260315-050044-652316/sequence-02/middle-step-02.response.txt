@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Tessa turns her phone over once, screen-up, then back down against her palm, and the muffled applause through the door lands on her like a slow confirmation\u2014the room approved, which means the room understood, which means the version she gave them was the right version. She finds herself composing a sentence in her head that begins not with sorry but with the thing you have to understand is, and the sentence feels careful and fair, the way a person who cares about fairness would speak, and she lets it run a little longer, adding clauses, until it has the texture of an explanation that Eli himself might eventually arrive at on his own. The coat on its hook stays untouched; she is not ready to carry something out of here yet.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_01_s02_c02",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "sit_coatroom_after_toast"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold",
+      "ev_eli_texts_afterward"
+    ],
+    "option_effect": "open",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

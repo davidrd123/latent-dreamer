@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai adjusts the dish towel on the oven handle with the kind of precision that belongs to someone who has nowhere else to put his hands, straightening it once, then again, the cotton edge aligned to some standard only the delay requires. The letter's corner catches the light the way the harbor catches light at dusk \u2014 flat and cold and patient \u2014 and he knows without turning that it is still there, that it has not opened itself, that tonight the harbor will fill with the specific silence of someone who waited. He moves to the window above the sink and watches the street instead, cataloguing the ordinary traffic of the block with slightly too much attention, as if the answer to her letter might arrive from that direction, or as if watching hard enough at the wrong thing might use up the hour before he has to decide.",
+  "graph_projection": {
+    "node_id": "beat_kai_ritual_distraction_letter",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "medium",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,6 +1,6 @@
 # Local Source Ingest Manifest
 
-Generated: 2026-03-14T09:27:51Z
+Generated: 2026-03-16T00:34:19Z
 
 Manual PDFs from `human-fetched/` have been normalized into `raw/` and `text/`.
 
@@ -22,3 +22,12 @@ Manual PDFs from `human-fetched/` have been normalized into `raw/` and `text/`.
 | ATMS_alt | pdf | raw 2205023 bytes | txt 35180 bytes |
 | Wordcraft | pdf | raw 3059451 bytes | txt 91181 bytes |
 | EventSourcing | html | raw 57268 bytes | txt 37570 bytes |
+| Loyall | pdf | raw 923895 bytes | txt 544227 bytes |
+| ABL | pdf | raw 45393 bytes | txt 37950 bytes |
+| FAtiMA | pdf | raw 4101242 bytes | txt 97476 bytes |
+| NarrativePlanning | pdf | raw 670228 bytes | txt 150222 bytes |
+| Sabre | pdf | raw 155960 bytes | txt 46378 bytes |
+| MINSTREL_Remixed | pdf | raw 617640 bytes | txt 29688 bytes |
+| CreativeProcess | pdf | raw 15092894 bytes | txt 643376 bytes |
+| GenerativeAgents | pdf | raw 11947867 bytes | txt 131713 bytes |
+| CharacterIsDestiny | pdf | raw 6371059 bytes | txt 77183 bytes |

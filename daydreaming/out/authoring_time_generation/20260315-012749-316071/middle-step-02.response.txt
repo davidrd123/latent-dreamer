@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea paces a tight circle outside Studio B, the heavy soundproof door looming like a judge. \"I wrote the bridge, and we need to fix the credits,\" she murmurs to the empty hallway, immediately wincing at the pleading note in her own voice. Remembering Owen's blunt advice from the festival panel, she stops pacing and forces her chin up. \"I wrote the bridge,\" she says aloud, practicing the flat, unapologetic delivery she will need the second she crosses the threshold.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_studio_b_threshold_s02_c03",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.1,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "ev_public_correction_at_panel",
+      "ref_credit_dispute"
+    ],
+    "payoff_refs": [
+      "sit_inside_studio_b_conversation"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

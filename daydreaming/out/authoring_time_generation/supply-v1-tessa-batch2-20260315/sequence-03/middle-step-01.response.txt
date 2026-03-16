@@ -1,0 +1,35 @@
+{
+  "candidate_text": "She turns the coat-check tag over and over between her fingers, the cardboard edge going soft from the heat of her palm, and reads back what she's typed: *I know that landed wrong, but the room needed something they could hold onto.* The hall noise seeps under the door \u2014 someone laughing at the tail of a toast \u2014 and she lets it fill the silence where Eli's name should go, because naming him would make this an apology, and she isn't sure it needs to be one yet. She's already told herself twice that clarity was the point, that she would have said the same thing about anyone's work, and the third time the thought arrives it comes wearing the shape of a conclusion rather than a defense.",
+  "graph_projection": {
+    "node_id": "beat_coatroom_rationalization_draft_s01_c04",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": 0.15,
+    "delta_energy": -0.2,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "sit_coatroom_after_toast"
+    ],
+    "payoff_refs": [
+      "ev_eli_texts_afterward",
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage",
+      "obligation"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

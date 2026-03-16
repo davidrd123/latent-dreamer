@@ -1,0 +1,173 @@
+--- a/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/first-round-03/deep-research-03/04-5pro-nearest-neighbor-questions.md
++++ b/daydreaming/Notes/DeepResearch/2026-03-13/pressure-engine-reframe/first-round-03/deep-research-03/04-5pro-nearest-neighbor-questions.md
+@@ -37,4 +37,170 @@
+   - retrieval adequacy
+   - or something else?
+ 
++#### D8 answer: steal scaffolding, not ontology
++
++1. **Direct answer**
++
++Treat these papers as **retrieval, trace, and evaluation baselines**,
++not as replacement architectures. Import the scaffolding that makes
++LLM behavior more inspectable and diagnosable. Do not import the
++untyped "the prompt is the mind" control loop.
++
++- **Generative Agents** contributes better sidecar discipline:
++  human-readable memory traces, scheduled evidence-bearing
++  reflection, explicit commitment objects, and multi-factor
++  retrieval.
++- **Character is Destiny** contributes better evaluation
++  discipline: scenario-specific evidence packets,
++  motive-recovery diagnostics, decision-point legibility tests,
++  and prefix-time analysis.
++- Neither source gives a runtime cognition architecture we should
++  swap in. The middle layer still earns its keep if it remains the
++  thing that names concern, appraisal, practice, and operator
++  choice. The LLM-first imports should improve evidence packaging,
++  provenance, and verification around that layer, not flatten it.
++
++2. **What to import**
++
++From **Generative Agents**, import minimum viable versions of:
++
++- **Human-legible memory trace as sidecar, not state.**
++  Append-only observations, retrieved evidence, reflections, and
++  commitments with timestamps and source refs. This belongs in
++  logs, dashboard feeds, and provenance sidecars, not in the graph
++  seam.
++- **Multi-factor retrieval as baseline discipline.** Use recency,
++  salience, and relevance, but apply them over the current typed
++  episode pool and source-balanced retrieval policy. Do this after
++  fixing the current self-priming bug; otherwise you are
++  decorating a broken source policy.
++- **Scheduled evidence-bearing reflection.** Periodic summaries
++  that cite source episodes and produce compact claims such as
++  "Kai is rehearsing an encounter but still avoiding contact."
++  These should be cached summaries for authoring review and
++  dashboard narration, not free-floating canonical memory.
++- **Explicit future-commitment objects.** Typed "intends / plans /
++  dreads doing X" residue can live in `CarryForwardStateV1` or a
++  sidecar ledger. Do not store prose plans as world truth.
++- **Ablation posture.** Treat the LLM-first stack as the baseline
++  to beat. Remove reflection, retrieval, dossier guidance, or
++  typed middle-layer fields and see what actually breaks.
++
++From **Character is Destiny**, import minimum viable versions of:
++
++- **Compact dossier-guided retrieval.** Use a short character
++  dossier or concern summary to steer retrieval of
++  scenario-specific evidence packets. In this repo that means:
++  `CausalSliceV1` + `AppraisalFrame` + `PracticeContextV1` +
++  selected operator + dossier-guided evidence packet, not
++  dossier-alone prompting.
++- **Decision-point legibility benchmark.** Pick a later beat or
++  node, hide the future, and test whether the prior material makes
++  that beat recoverable.
++- **Failure split: retrieval vs motive vs choice.** The evaluator
++  should say whether the system failed to retrieve relevant
++  evidence, failed to recover the operative motive, or failed to
++  map motive to the selected move.
++- **Prefix-time analysis.** Ask when the later beat becomes
++  inferable from accumulated setup. This is useful for
++  setup/payoff timing and over/under-determination.
++- **Decision-type stratification.** Separate loyalty/rupture,
++  threat response, obligation, value expression, and similar
++  classes so we stop averaging unlike failures together.
++
++3. **What to skip**
++
++Do not import from **Generative Agents**:
++
++- the untyped natural-language memory stream as canonical state
++- reflection memories as a substitute for
++  `CharacterConcern -> CausalSliceV1 -> AppraisalFrame -> PracticeContextV1`
++- one collapsed loop that fuses `L2` cognition and `L3`
++  traversal
++- LLM-rated "importance" as pressure semantics
++- prompt-time natural-language accumulation as the main long-term
++  memory substrate
++
++Do not import from **Character is Destiny**:
++
++- the idea that an offline multiple-choice benchmark is a runtime
++  architecture
++- the idea that retrieved text spans are equivalent to episodic
++  memory
++- the assumption that every scene has one canonical correct action
++- raw benchmark accuracy as the primary quality metric for this
++  project
++
++Also skip the tempting hybrid mistake:
++
++- replacing the current typed retrieval and evaluation work with
++  one big role-play prompt plus better retrieval. That is exactly
++  how prompt-state masquerades as cognition.
++
++4. **What changes our architecture**
++
++Allowed structural changes:
++
++- Add a **`ScenarioEvidencePacketV1`** or similarly named
++  sidecar: dossier-guided, source-balanced, scenario-specific
++  evidence bundle used for prompting and evaluation.
++- Add **`ReflectionNoteV1`** as a scheduled summary object with
++  explicit source refs.
++- Add **`FutureCommitmentV1`** or lightweight commitment residue
++  in `CarryForwardStateV1`, not in the graph seam.
++- Add a **`DecisionLegibilityEvalV1`** layer on top of the
++  current structural, operator-signature, and diversity
++  evaluation stack.
++
++Changes to resist:
++
++- The graph remains thin. No raw memories, reflections, plans, or
++  live retrieval pools cross the graph membrane.
++- The prompt-conditioning rule remains middle-layer first. The
++  evidence packet refines retrieval; it does not replace
++  `CausalSliceV1`, `AppraisalFrame`, or `PracticeContextV1`.
++- `L2` and `L3` stay separate. Generative Agents is below that
++  split, not an argument against it.
++
++5. **Priority**
++
++Needed now, before or during the next phase:
++
++- **Retrieval discipline first.** Fix source balancing and
++  self-priming, then assemble scenario-specific evidence packets.
++  Do not jump straight to fancier LLM retrieval while generated
++  memory is still crowding out authored backstory.
++- **Lightweight Character-is-Destiny-style evaluator.** Add
++  failure attribution for retrieval adequacy, motive recovery,
++  and choice legibility. This belongs alongside the current
++  structural evaluator, not as a replacement for it.
++- **Memory trace sidecar.** Cheap win for dashboard legibility
++  and debugging.
++
++Needed after provocation experiments start working:
++
++- scheduled evidence-bearing reflection notes
++- lightweight future-commitment objects if they materially
++  improve carry-forward specificity or provocation quality
++
++Later, once watchable-runtime work is underway:
++
++- prefix-time analysis at graph scale
++- user-facing reflection and trace views derived from the
++  sidecars
++- broader decision-type benchmark suite
++
++If we build one lightweight evaluator now, make it
++**`DecisionLegibilityEvalV1`**, not a multiple-choice scoreboard.
++It should score a chain:
++
++1. did the evidence packet contain the operative setup?
++2. could the evaluator recover the operative motive?
++3. is the selected beat legible from that motive and setup?
++4. at what prefix did that become recoverable?
++
++Final-choice accuracy comes last. The strongest lesson from
++Character is Destiny is that an apparently wrong choice often
++starts as a retrieval or motive-packaging failure upstream.
++
+ ### D9. Falsification: what would prove our differentiator is overrated?

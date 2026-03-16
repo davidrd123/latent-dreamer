@@ -1,0 +1,547 @@
+{
+  "arm": "middle-sequence",
+  "candidates_per_step": 4,
+  "concern_driver": "inferred",
+  "final_concerns": [
+    {
+      "base_intensity": 0.66,
+      "concern_type": "attachment_threat",
+      "id": "cc_attachment_threat",
+      "intensity_basis": "inferred_from_primitives",
+      "seed_origin": "shadow_inference",
+      "source_episode_ids": [
+        "ep_last_rupture",
+        "ep_old_harbor_memory",
+        "ep_avoidance_consequence"
+      ],
+      "source_rule_ids": [
+        "rule_unanswered_repair_bid"
+      ],
+      "target_ref": "sister",
+      "unresolved": true
+    },
+    {
+      "base_intensity": 0.5,
+      "concern_type": "obligation",
+      "id": "cc_obligation",
+      "intensity_basis": "inferred_from_primitives",
+      "seed_origin": "shadow_inference",
+      "source_episode_ids": [],
+      "source_rule_ids": [
+        "rule_requested_response_under_deadline"
+      ],
+      "target_ref": "sister",
+      "unresolved": true
+    }
+  ],
+  "generated_episode_ids": [
+    "gen_step_01_beat_kai_kettle_avoidance",
+    "gen_step_02_beat_kai_kettle_avoidance_s02_c01",
+    "gen_step_03_beat_kai_kettle_avoidance_s03_c02"
+  ],
+  "generation_temperature": 0.7,
+  "prompt_style": "legacy_json",
+  "sequence_index": 3,
+  "situation_framing_mode": "default",
+  "steps": [
+    {
+      "accepted": true,
+      "candidate_compilation": {
+        "candidates_per_step": 4,
+        "rows": [
+          {
+            "candidate_index": 1,
+            "compilation_score": {
+              "against_accepted": 1.0,
+              "coverage": 1.0,
+              "distinctiveness": 0.807,
+              "hard_errors": [],
+              "hard_pass": true,
+              "legibility": 0.75,
+              "sibling_diversity": 0.807,
+              "specificity": 1.0,
+              "total": 0.886
+            },
+            "node_id": "beat_kai_ritual_distraction_kitchen",
+            "renamed_node_id_to": null,
+            "selected_operator_family": "avoidance"
+          },
+          {
+            "candidate_index": 2,
+            "compilation_score": {
+              "against_accepted": 1.0,
+              "coverage": 1.0,
+              "distinctiveness": 0.856,
+              "hard_errors": [],
+              "hard_pass": true,
+              "legibility": 0.75,
+              "sibling_diversity": 0.856,
+              "specificity": 1.0,
+              "total": 0.896
+            },
+            "node_id": "beat_kai_kettle_avoidance",
+            "renamed_node_id_to": null,
+            "selected_operator_family": "avoidance"
+          },
+          {
+            "candidate_index": 3,
+            "compilation_score": {
+              "against_accepted": 1.0,
+              "coverage": 1.0,
+              "distinctiveness": 0.819,
+              "hard_errors": [],
+              "hard_pass": true,
+              "legibility": 0.5,
+              "sibling_diversity": 0.819,
+              "specificity": 1.0,
+              "total": 0.814
+            },
+            "node_id": "beat_avoidance_kitchen_ritual",
+            "renamed_node_id_to": null,
+            "selected_operator_family": "avoidance"
+          },
+          {
+            "candidate_index": 4,
+            "compilation_score": {
+              "against_accepted": 1.0,
+              "coverage": 1.0,
+              "distinctiveness": 0.83,
+              "hard_errors": [],
+              "hard_pass": true,
+              "legibility": 0.5,
+              "sibling_diversity": 0.83,
+              "specificity": 1.0,
+              "total": 0.816
+            },
+            "node_id": "beat_kai_kettle_ritual",
+            "renamed_node_id_to": null,
+            "selected_operator_family": "avoidance"
+          }
+        ],
+        "selected_candidate_index": 2,
+        "selected_score": {
+          "against_accepted": 1.0,
+          "coverage": 1.0,
+          "distinctiveness": 0.856,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.856,
+          "specificity": 1.0,
+          "total": 0.896
+        },
+        "selection_reason": "highest_soft_score_after_hard_filter"
+      },
+      "dominant_concern_id": "cc_attachment_threat",
+      "graph_projection": {
+        "confidence": "medium",
+        "delta_energy": -0.12,
+        "delta_tension": 0.18,
+        "node_id": "beat_kai_kettle_avoidance",
+        "node_type": "beat",
+        "option_effect": "none",
+        "origin_pressure_refs": [
+          "cc_attachment_threat",
+          "cc_obligation"
+        ],
+        "payoff_refs": [
+          "ev_harbor_meeting_tonight",
+          "sit_threshold_departure"
+        ],
+        "practice_tags": [
+          "evasion"
+        ],
+        "pressure_tags": [
+          "attachment_threat",
+          "obligation"
+        ],
+        "revisability": "ephemeral_candidate",
+        "scope": "proposal",
+        "setup_refs": [
+          "sit_unopened_letter",
+          "harbor_as_shared_place"
+        ],
+        "situation_id": "sit_unopened_letter",
+        "source_lane": "L2",
+        "source_ref": "prototype-middle"
+      },
+      "reminder_episode_id": null,
+      "segment_index": 1,
+      "selected_operator_family": "avoidance",
+      "selected_retrieved_episode_ids": [
+        "ep_avoidance_consequence",
+        "ep_last_rupture"
+      ],
+      "situation_framing_variant": "default",
+      "step_index": 1,
+      "updated_concerns": [
+        {
+          "base_intensity": 0.73,
+          "concern_type": "attachment_threat",
+          "id": "cc_attachment_threat",
+          "intensity_basis": "inferred_from_primitives",
+          "seed_origin": "shadow_inference",
+          "source_episode_ids": [
+            "ep_last_rupture",
+            "ep_old_harbor_memory",
+            "ep_avoidance_consequence"
+          ],
+          "source_rule_ids": [
+            "rule_unanswered_repair_bid"
+          ],
+          "target_ref": "sister",
+          "unresolved": true
+        },
+        {
+          "base_intensity": 0.56,
+          "concern_type": "obligation",
+          "id": "cc_obligation",
+          "intensity_basis": "inferred_from_primitives",
+          "seed_origin": "shadow_inference",
+          "source_episode_ids": [],
+          "source_rule_ids": [
+            "rule_requested_response_under_deadline"
+          ],
+          "target_ref": "sister",
+          "unresolved": true
+        }
+      ]
+    },
+    {
+      "accepted": true,
+      "boundary_from_previous": {
+        "reasons": [],
+        "segment_decision": "same_segment",
+        "temporal_relation": "during"
+      },
+      "candidate_compilation": {
+        "candidates_per_step": 4,
+        "rows": [
+          {
+            "candidate_index": 1,
+            "compilation_score": {
+              "against_accepted": 0.0,
+              "coverage": 0.0,
+              "distinctiveness": 0.0,
+              "hard_errors": [],
+              "hard_pass": true,
+              "legibility": 0.75,
+              "sibling_diversity": 0.0,
+              "specificity": 1.0,
+              "total": 0.575
+            },
+            "node_id": "beat_kai_kettle_avoidance_s02_c01",
+            "renamed_node_id_to": "beat_kai_kettle_avoidance_s02_c01",
+            "selected_operator_family": "avoidance"
+          },
+          {
+            "candidate_index": 2,
+            "compilation_score": {
+              "against_accepted": 0.0,
+              "coverage": 0.0,
+              "distinctiveness": 0.0,
+              "hard_errors": [],
+              "hard_pass": true,
+              "legibility": 0.75,
+              "sibling_diversity": 0.0,
+              "specificity": 1.0,
+              "total": 0.575
+            },
+            "node_id": "beat_kettle_ritual_avoidance",
+            "renamed_node_id_to": null,
+            "selected_operator_family": "avoidance"
+          },
+          {
+            "candidate_index": 3,
+            "compilation_score": {
+              "against_accepted": 0.0,
+              "coverage": 0.0,
+              "distinctiveness": 0.0,
+              "hard_errors": [],
+              "hard_pass": true,
+              "legibility": 0.75,
+              "sibling_diversity": 0.0,
+              "specificity": 1.0,
+              "total": 0.575
+            },
+            "node_id": "beat_kettle_avoidance",
+            "renamed_node_id_to": null,
+            "selected_operator_family": "avoidance"
+          },
+          {
+            "candidate_index": 4,
+            "compilation_score": {
+              "against_accepted": 0.0,
+              "coverage": 0.0,
+              "distinctiveness": 0.0,
+              "hard_errors": [],
+              "hard_pass": true,
+              "legibility": 0.75,
+              "sibling_diversity": 0.0,
+              "specificity": 1.0,
+              "total": 0.575
+            },
+            "node_id": "beat_kettle_avoidance_s02_c04",
+            "renamed_node_id_to": "beat_kettle_avoidance_s02_c04",
+            "selected_operator_family": "avoidance"
+          }
+        ],
+        "selected_candidate_index": 1,
+        "selected_score": {
+          "against_accepted": 0.0,
+          "coverage": 0.0,
+          "distinctiveness": 0.0,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.0,
+          "specificity": 1.0,
+          "total": 0.575
+        },
+        "selection_reason": "highest_soft_score_after_hard_filter"
+      },
+      "dominant_concern_id": "cc_attachment_threat",
+      "graph_projection": {
+        "confidence": "high",
+        "delta_energy": -0.12,
+        "delta_tension": 0.18,
+        "node_id": "beat_kai_kettle_avoidance_s02_c01",
+        "node_type": "beat",
+        "option_effect": "none",
+        "origin_pressure_refs": [
+          "cc_attachment_threat",
+          "cc_obligation"
+        ],
+        "payoff_refs": [
+          "ev_harbor_meeting_tonight",
+          "sit_threshold_departure"
+        ],
+        "practice_tags": [
+          "evasion"
+        ],
+        "pressure_tags": [
+          "attachment_threat",
+          "obligation"
+        ],
+        "revisability": "ephemeral_candidate",
+        "scope": "proposal",
+        "setup_refs": [
+          "sit_unopened_letter"
+        ],
+        "situation_id": "sit_unopened_letter",
+        "source_lane": "L2",
+        "source_ref": "prototype-middle"
+      },
+      "reminder_episode_id": "ep_avoidance_consequence",
+      "segment_index": 1,
+      "selected_operator_family": "avoidance",
+      "selected_retrieved_episode_ids": [
+        "gen_step_01_beat_kai_kettle_avoidance",
+        "ep_avoidance_consequence"
+      ],
+      "situation_framing_variant": "default",
+      "step_index": 2,
+      "updated_concerns": [
+        {
+          "base_intensity": 0.69,
+          "concern_type": "attachment_threat",
+          "id": "cc_attachment_threat",
+          "intensity_basis": "inferred_from_primitives",
+          "seed_origin": "shadow_inference",
+          "source_episode_ids": [
+            "ep_last_rupture",
+            "ep_old_harbor_memory",
+            "ep_avoidance_consequence"
+          ],
+          "source_rule_ids": [
+            "rule_unanswered_repair_bid"
+          ],
+          "target_ref": "sister",
+          "unresolved": true
+        },
+        {
+          "base_intensity": 0.53,
+          "concern_type": "obligation",
+          "id": "cc_obligation",
+          "intensity_basis": "inferred_from_primitives",
+          "seed_origin": "shadow_inference",
+          "source_episode_ids": [],
+          "source_rule_ids": [
+            "rule_requested_response_under_deadline"
+          ],
+          "target_ref": "sister",
+          "unresolved": true
+        }
+      ]
+    },
+    {
+      "accepted": true,
+      "boundary_from_previous": {
+        "reasons": [],
+        "segment_decision": "same_segment",
+        "temporal_relation": "during"
+      },
+      "candidate_compilation": {
+        "candidates_per_step": 4,
+        "rows": [
+          {
+            "candidate_index": 1,
+            "compilation_score": {
+              "against_accepted": 0.0,
+              "coverage": 0.0,
+              "distinctiveness": 0.004,
+              "hard_errors": [],
+              "hard_pass": true,
+              "legibility": 0.75,
+              "sibling_diversity": 0.01,
+              "specificity": 1.0,
+              "total": 0.576
+            },
+            "node_id": "beat_kai_kettle_avoidance_s03_c01",
+            "renamed_node_id_to": "beat_kai_kettle_avoidance_s03_c01",
+            "selected_operator_family": "avoidance"
+          },
+          {
+            "candidate_index": 2,
+            "compilation_score": {
+              "against_accepted": 0.031,
+              "coverage": 0.0,
+              "distinctiveness": 0.031,
+              "hard_errors": [],
+              "hard_pass": true,
+              "legibility": 0.75,
+              "sibling_diversity": 0.031,
+              "specificity": 1.0,
+              "total": 0.581
+            },
+            "node_id": "beat_kai_kettle_avoidance_s03_c02",
+            "renamed_node_id_to": "beat_kai_kettle_avoidance_s03_c02",
+            "selected_operator_family": "avoidance"
+          },
+          {
+            "candidate_index": 3,
+            "compilation_score": {
+              "against_accepted": 0.0,
+              "coverage": 0.0,
+              "distinctiveness": 0.004,
+              "hard_errors": [],
+              "hard_pass": true,
+              "legibility": 0.75,
+              "sibling_diversity": 0.01,
+              "specificity": 1.0,
+              "total": 0.576
+            },
+            "node_id": "beat_kai_kettle_avoidance_s03_c03",
+            "renamed_node_id_to": "beat_kai_kettle_avoidance_s03_c03",
+            "selected_operator_family": "avoidance"
+          },
+          {
+            "candidate_index": 4,
+            "compilation_score": {
+              "against_accepted": 0.0,
+              "coverage": 0.0,
+              "distinctiveness": 0.004,
+              "hard_errors": [],
+              "hard_pass": true,
+              "legibility": 0.75,
+              "sibling_diversity": 0.01,
+              "specificity": 1.0,
+              "total": 0.576
+            },
+            "node_id": "beat_kai_kettle_avoidance_s03_c04",
+            "renamed_node_id_to": "beat_kai_kettle_avoidance_s03_c04",
+            "selected_operator_family": "avoidance"
+          }
+        ],
+        "selected_candidate_index": 2,
+        "selected_score": {
+          "against_accepted": 0.031,
+          "coverage": 0.0,
+          "distinctiveness": 0.031,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.75,
+          "sibling_diversity": 0.031,
+          "specificity": 1.0,
+          "total": 0.581
+        },
+        "selection_reason": "highest_soft_score_after_hard_filter"
+      },
+      "dominant_concern_id": "cc_attachment_threat",
+      "graph_projection": {
+        "confidence": "high",
+        "delta_energy": -0.12,
+        "delta_tension": 0.18,
+        "node_id": "beat_kai_kettle_avoidance_s03_c02",
+        "node_type": "beat",
+        "option_effect": "none",
+        "origin_pressure_refs": [
+          "cc_attachment_threat",
+          "cc_obligation"
+        ],
+        "payoff_refs": [
+          "ev_harbor_meeting_tonight",
+          "sit_threshold_departure"
+        ],
+        "practice_tags": [
+          "evasion"
+        ],
+        "pressure_tags": [
+          "attachment_threat",
+          "obligation"
+        ],
+        "revisability": "ephemeral_candidate",
+        "scope": "proposal",
+        "setup_refs": [
+          "sit_unopened_letter"
+        ],
+        "situation_id": "sit_unopened_letter",
+        "source_lane": "L2",
+        "source_ref": "prototype-middle"
+      },
+      "reminder_episode_id": "ep_avoidance_consequence",
+      "segment_index": 1,
+      "selected_operator_family": "avoidance",
+      "selected_retrieved_episode_ids": [
+        "gen_step_02_beat_kai_kettle_avoidance_s02_c01",
+        "ep_avoidance_consequence"
+      ],
+      "situation_framing_variant": "default",
+      "step_index": 3,
+      "updated_concerns": [
+        {
+          "base_intensity": 0.66,
+          "concern_type": "attachment_threat",
+          "id": "cc_attachment_threat",
+          "intensity_basis": "inferred_from_primitives",
+          "seed_origin": "shadow_inference",
+          "source_episode_ids": [
+            "ep_last_rupture",
+            "ep_old_harbor_memory",
+            "ep_avoidance_consequence"
+          ],
+          "source_rule_ids": [
+            "rule_unanswered_repair_bid"
+          ],
+          "target_ref": "sister",
+          "unresolved": true
+        },
+        {
+          "base_intensity": 0.5,
+          "concern_type": "obligation",
+          "id": "cc_obligation",
+          "intensity_basis": "inferred_from_primitives",
+          "seed_origin": "shadow_inference",
+          "source_episode_ids": [],
+          "source_rule_ids": [
+            "rule_requested_response_under_deadline"
+          ],
+          "target_ref": "sister",
+          "unresolved": true
+        }
+      ]
+    }
+  ],
+  "system_prompt_style": "consider_alternatives",
+  "timestamp": "2026-03-16T01:24:42.205279+00:00"
+}

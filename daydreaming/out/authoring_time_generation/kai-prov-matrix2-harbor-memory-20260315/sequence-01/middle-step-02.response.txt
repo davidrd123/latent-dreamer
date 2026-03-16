@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai fills the electric kettle a second time, though the first kettle is still warm, and watches the water level rise past the line he needs, his hands staying on the counter a moment longer than the task requires. He does not look at the table\u2014not a refusal exactly, more the practiced geometry of a man who has learned to arrange his body so that certain things remain in peripheral vision, present but not yet real. The harbor exists in the kitchen in the faint smell of his jacket hanging by the door, in the way the ticking element sounds almost like a boat line pulled taut, in the particular quality of his stillness as he reaches, finally, for a mug he does not fill.",
+  "graph_projection": {
+    "node_id": "beat_kettle_ritual_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

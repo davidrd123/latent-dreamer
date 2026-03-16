@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai wipes down the already-clean counter in long strokes, the cloth moving with the slow deliberateness of someone performing usefulness, and when his hand passes near the letter he redirects it without looking, the way you steer around a puddle you've already decided not to acknowledge. The envelope's corner holds its precise alignment with the table edge\u2014he set it that way and hasn't touched it since, as if the right angle is a kind of promise to himself that he is still in control of the geometry of the room. Somewhere below the sound of the kettle settling he can feel the harbor, the particular cold of it, and he moves to the window above the sink instead, where the glass shows him only the yard.",
+  "graph_projection": {
+    "node_id": "beat_kai_counter_wipe_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.15,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

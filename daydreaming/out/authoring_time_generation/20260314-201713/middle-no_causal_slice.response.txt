@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea stands outside the heavy door of Studio B, scrolling through her inbox with rigid, exaggerated focus. She rereads a mundane email three times, letting the bright screen blur the silence of the hallway so she doesn't have to look at the doorknob. The longer she waits, the more the silence feels like an admission, but right now, staring at the phone is easier than figuring out her first sentence.",
+  "graph_projection": {
+    "node_id": "beat_rhea_avoidance_studio_b",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_meeting_scheduled_tonight",
+      "sit_studio_b_threshold"
+    ],
+    "payoff_refs": [
+      "ref_credit_dispute"
+    ],
+    "option_effect": "close",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

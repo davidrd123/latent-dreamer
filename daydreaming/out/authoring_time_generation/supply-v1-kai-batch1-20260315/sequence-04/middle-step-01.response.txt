@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai refolds the dish towel on the counter\u2014once, then again, aligning the edges with a precision the task doesn't require, the letter still face-down where he set it without reading the front. He turns on the faucet to rinse a mug that is already clean, and the sound of the water fills the kitchen the way silence used to fill a phone line he once let ring out. The harbor is maybe three miles away, and he is aware of its direction the way you are aware of a bruise you keep almost touching.",
+  "graph_projection": {
+    "node_id": "beat_kai_dish_towel_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

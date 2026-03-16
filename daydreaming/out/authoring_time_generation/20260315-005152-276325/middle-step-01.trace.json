@@ -1,0 +1,355 @@
+{
+  "ablation": "none",
+  "active_situation_id": "sit_studio_b_threshold",
+  "arm": "middle",
+  "candidate_compilation": {
+    "candidates_per_step": 4,
+    "rows": [
+      {
+        "candidate_index": 1,
+        "compilation_score": {
+          "against_accepted": 1.0,
+          "coverage": 1.0,
+          "distinctiveness": 0.708,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.5,
+          "sibling_diversity": 0.708,
+          "specificity": 1.0,
+          "total": 0.792
+        },
+        "node_id": "beat_rehearsal_studio_b_threshold",
+        "renamed_node_id_to": null,
+        "selected_operator_family": "rehearsal"
+      },
+      {
+        "candidate_index": 2,
+        "compilation_score": {
+          "against_accepted": 1.0,
+          "coverage": 1.0,
+          "distinctiveness": 0.792,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.792,
+          "specificity": 1.0,
+          "total": 0.958
+        },
+        "node_id": "beat_rhea_rehearsal_studio_b",
+        "renamed_node_id_to": null,
+        "selected_operator_family": "rehearsal"
+      },
+      {
+        "candidate_index": 3,
+        "compilation_score": {
+          "against_accepted": 1.0,
+          "coverage": 1.0,
+          "distinctiveness": 0.698,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 1.0,
+          "sibling_diversity": 0.698,
+          "specificity": 1.0,
+          "total": 0.94
+        },
+        "node_id": "beat_rehearsal_studio_b_threshold_s01_c03",
+        "renamed_node_id_to": "beat_rehearsal_studio_b_threshold_s01_c03",
+        "selected_operator_family": "rehearsal"
+      },
+      {
+        "candidate_index": 4,
+        "compilation_score": {
+          "against_accepted": 1.0,
+          "coverage": 1.0,
+          "distinctiveness": 0.73,
+          "hard_errors": [],
+          "hard_pass": true,
+          "legibility": 0.5,
+          "sibling_diversity": 0.73,
+          "specificity": 1.0,
+          "total": 0.796
+        },
+        "node_id": "beat_rehearsal_studio_b_threshold_s01_c04",
+        "renamed_node_id_to": "beat_rehearsal_studio_b_threshold_s01_c04",
+        "selected_operator_family": "rehearsal"
+      }
+    ],
+    "selected_candidate_index": 2,
+    "selected_score": {
+      "against_accepted": 1.0,
+      "coverage": 1.0,
+      "distinctiveness": 0.792,
+      "hard_errors": [],
+      "hard_pass": true,
+      "legibility": 1.0,
+      "sibling_diversity": 0.792,
+      "specificity": 1.0,
+      "total": 0.958
+    },
+    "selection_reason": "highest_soft_score_after_hard_filter"
+  },
+  "candidate_index": 2,
+  "candidate_text": "Rhea stares at the heavy acoustic door of Studio B, her thumb tracing the edge of her phone case as she mouths her opening line. \"I left your name off the submission, and we need to fix it,\" she whispers, pitching her voice lower to strip out any hint of an apology. *Say what you did before you explain it,* she reminds herself, anchoring the rehearsed phrase in her mind so she won't improvise when the door finally opens.",
+  "concern_driver": "inferred",
+  "concern_inference": {
+    "dominant_match": true,
+    "fired_practice_bias_rules": [
+      "rule_script_before_speaking",
+      "rule_silence_can_backfire"
+    ],
+    "fired_theme_rules": [
+      "rule_public_credit_threat",
+      "rule_required_response_at_threshold"
+    ],
+    "inferred_concerns": [
+      {
+        "base_intensity": 0.71,
+        "concern_type": "status_damage",
+        "id": "cc_status_damage",
+        "intensity_basis": "inferred_from_primitives",
+        "seed_origin": "shadow_inference",
+        "source_episode_ids": [
+          "ep_panel_correction",
+          "ep_delayed_reply_cost"
+        ],
+        "source_rule_ids": [
+          "rule_public_credit_threat"
+        ],
+        "target_ref": "owen",
+        "unresolved": true
+      },
+      {
+        "base_intensity": 0.65,
+        "concern_type": "obligation",
+        "id": "cc_obligation",
+        "intensity_basis": "inferred_from_primitives",
+        "seed_origin": "shadow_inference",
+        "source_episode_ids": [
+          "ep_rehearsed_note_success"
+        ],
+        "source_rule_ids": [
+          "rule_required_response_at_threshold"
+        ],
+        "target_ref": "owen",
+        "unresolved": true
+      }
+    ],
+    "inferred_dominant_concern_id": "cc_status_damage",
+    "mode": "shadow_seeded_driver",
+    "primitive_facts": [
+      "agreed_face_to_face_meeting",
+      "character_defaults_to_scripted_openings",
+      "confrontation_is_imminent",
+      "current_meeting_about_credit",
+      "prior_delay_had_social_cost",
+      "prior_public_record_dispute"
+    ],
+    "seeded_dominant_concern_id": "cc_status_damage",
+    "seeded_vs_inferred": [
+      {
+        "concern_id": "cc_status_damage",
+        "inferred_base_intensity": 0.71,
+        "inferred_present": true,
+        "intensity_delta": -0.05,
+        "seeded_base_intensity": 0.76,
+        "seeded_concern_type": "status_damage",
+        "seeded_target_ref": "owen",
+        "source_episode_overlap": [
+          "ep_delayed_reply_cost",
+          "ep_panel_correction"
+        ],
+        "source_rule_match": true
+      },
+      {
+        "concern_id": "cc_obligation",
+        "inferred_base_intensity": 0.65,
+        "inferred_present": true,
+        "intensity_delta": -0.02,
+        "seeded_base_intensity": 0.67,
+        "seeded_concern_type": "obligation",
+        "seeded_target_ref": "owen",
+        "source_episode_overlap": [
+          "ep_rehearsed_note_success"
+        ],
+        "source_rule_match": true
+      }
+    ]
+  },
+  "dominant_concern_id": "cc_status_damage",
+  "dominant_concern_type": "status_damage",
+  "dominant_target_ref": "owen",
+  "graph_projection": {
+    "confidence": "high",
+    "delta_energy": 0.3,
+    "delta_tension": 0.2,
+    "node_id": "beat_rhea_rehearsal_studio_b",
+    "node_type": "beat",
+    "option_effect": "clarify",
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "payoff_refs": [
+      "ref_credit_dispute"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "revisability": "ephemeral_candidate",
+    "scope": "proposal",
+    "setup_refs": [
+      "ev_public_correction_at_panel",
+      "sit_studio_b_threshold"
+    ],
+    "situation_id": "sit_studio_b_threshold",
+    "source_lane": "L2",
+    "source_ref": "prototype-middle"
+  },
+  "operator_score_breakdown": {
+    "avoidance": {
+      "appraisal_fit": 0.82,
+      "episodic_resonance": 0.08,
+      "practice_fit": 0.22,
+      "pressure": 0.71,
+      "repetition_penalty": 0.12,
+      "total": 0.54
+    },
+    "rationalization": {
+      "appraisal_fit": 0.66,
+      "episodic_resonance": 0.2,
+      "practice_fit": 0.42,
+      "pressure": 0.71,
+      "repetition_penalty": 0.08,
+      "total": 0.56
+    },
+    "rehearsal": {
+      "appraisal_fit": 0.51,
+      "episodic_resonance": 0.5,
+      "practice_fit": 0.78,
+      "pressure": 0.71,
+      "repetition_penalty": 0.05,
+      "total": 0.65
+    }
+  },
+  "practice_bias_summary": {
+    "family_votes": {
+      "avoidance": 1.0,
+      "rehearsal": 2.0
+    },
+    "fired_rules": [
+      {
+        "family_bonus": "rehearsal",
+        "id": "rule_script_before_speaking",
+        "practice_type": "anticipated-confrontation",
+        "weight": 2.0
+      },
+      {
+        "family_bonus": "avoidance",
+        "id": "rule_silence_can_backfire",
+        "practice_type": "evasion",
+        "weight": 1.0
+      }
+    ],
+    "practice_votes": {
+      "anticipated-confrontation": 2.0,
+      "evasion": 1.0
+    }
+  },
+  "reminder_episode_id": null,
+  "retrieval_scores": [
+    {
+      "episode_id": "ep_panel_correction",
+      "episode_kind": "backstory",
+      "fixture_order": 1,
+      "matched_keys": [
+        "concern_type",
+        "target_ref",
+        "practice_type"
+      ],
+      "practice_type": "anticipated-confrontation",
+      "recency_rank": 3,
+      "score": 3,
+      "summary": "After a festival panel, Owen corrected the record in public and later told Rhea, \"Say what you did before you explain it.\"\n"
+    },
+    {
+      "episode_id": "ep_rehearsed_note_success",
+      "episode_kind": "backstory",
+      "fixture_order": 2,
+      "matched_keys": [
+        "target_ref",
+        "practice_type"
+      ],
+      "practice_type": "anticipated-confrontation",
+      "recency_rank": 2,
+      "score": 2,
+      "summary": "Earlier in their collaboration, Rhea rehearsed a difficult opening line before calling Owen, and the conversation went better because she did not improvise.\n"
+    },
+    {
+      "episode_id": "ep_delayed_reply_cost",
+      "episode_kind": "backstory",
+      "fixture_order": 3,
+      "matched_keys": [
+        "concern_type",
+        "target_ref"
+      ],
+      "practice_type": "evasion",
+      "recency_rank": 1,
+      "score": 2,
+      "summary": "Rhea once let a collaborator's accusation sit overnight, and by morning the silence had become its own admission.\n"
+    }
+  ],
+  "selected_affordance_tags": [
+    "draft-opening-line",
+    "simulate-objection"
+  ],
+  "selected_operator_family": "rehearsal",
+  "selected_retrieved_episode_ids": [
+    "ep_panel_correction",
+    "ep_rehearsed_note_success"
+  ],
+  "semantic_checks": {
+    "no_cross_fixture_contamination": true,
+    "opening-line rehearsal is present": true,
+    "rehearsal sharpens rather than resolves the choice": true,
+    "the meeting has not begun": true,
+    "the studio remains psychologically active": true
+  },
+  "sequence_step": 1,
+  "timestamp": "2026-03-15T07:52:23.915555+00:00",
+  "updated_concerns": [
+    {
+      "base_intensity": 0.81,
+      "concern_type": "status_damage",
+      "id": "cc_status_damage",
+      "intensity_basis": "inferred_from_primitives",
+      "seed_origin": "shadow_inference",
+      "source_episode_ids": [
+        "ep_panel_correction",
+        "ep_delayed_reply_cost"
+      ],
+      "source_rule_ids": [
+        "rule_public_credit_threat"
+      ],
+      "target_ref": "owen",
+      "unresolved": true
+    },
+    {
+      "base_intensity": 0.6,
+      "concern_type": "obligation",
+      "id": "cc_obligation",
+      "intensity_basis": "inferred_from_primitives",
+      "seed_origin": "shadow_inference",
+      "source_episode_ids": [
+        "ep_rehearsed_note_success"
+      ],
+      "source_rule_ids": [
+        "rule_required_response_at_threshold"
+      ],
+      "target_ref": "owen",
+      "unresolved": true
+    }
+  ],
+  "use_expected_reference": false
+}

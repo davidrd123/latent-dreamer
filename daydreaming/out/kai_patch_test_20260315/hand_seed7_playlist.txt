@@ -1,0 +1,73 @@
+# Kai hand seed 7 playlist
+
+cycle 1: k_start_table_letter
+name: Letter on the table
+situation: sit_unopened_letter
+option_effect: inspect
+visual_description: The letter stays unopened on the table while the kitchen gives Kai smaller tasks to do instead of answering it.
+
+cycle 2: k_patch_intensifier
+name: Coffee used as cover
+situation: sit_unopened_letter
+option_effect: inspect
+visual_description: He tops off a coffee he has barely started, turns the letter so the address is harder to see, and wipes the counter long after the surface has stopped needing attention. By the time he looks toward the window, the harbor feels less like a place than a deadline he keeps disguising as housekeeping.
+
+cycle 3: k_patch_bridge
+name: Mug over the handwriting
+situation: sit_unopened_letter
+option_effect: prepare
+visual_description: He sets his mug over one corner of the envelope so the handwriting disappears, wipes the same spot twice, and remembers too clearly what silence did the last time he let it stand in for an answer. The thought does not move him yet, but it turns the kitchen from cover into a threshold.
+
+cycle 4: k_scaffold_threshold_entry
+name: Departure threshold entered
+situation: sit_threshold_departure
+option_effect: prepare
+visual_description: The decision has stopped being abstract; leaving for the harbor is now the only action that still counts as an answer.
+
+cycle 5: k_scaffold_departure_commit
+name: Departure finally chosen
+situation: sit_threshold_departure
+option_effect: commit
+visual_description: He stops translating the evening into chores, takes what he needs, and lets the answer become movement instead of delay.
+
+cycle 6: k_scaffold_return_cover
+name: Return to ritual
+situation: sit_unopened_letter
+option_effect: return
+visual_description: He leaves the letter unopened and lets the kitchen take him back into motions that feel responsible only because they can be repeated.
+
+cycle 7: k_scaffold_threshold_entry
+name: Departure threshold entered
+situation: sit_threshold_departure
+option_effect: prepare
+visual_description: The decision has stopped being abstract; leaving for the harbor is now the only action that still counts as an answer.
+
+cycle 8: k_scaffold_departure_commit
+name: Departure finally chosen
+situation: sit_threshold_departure
+option_effect: commit
+visual_description: He stops translating the evening into chores, takes what he needs, and lets the answer become movement instead of delay.
+
+cycle 9: k_scaffold_return_cover
+name: Return to ritual
+situation: sit_unopened_letter
+option_effect: return
+visual_description: He leaves the letter unopened and lets the kitchen take him back into motions that feel responsible only because they can be repeated.
+
+cycle 10: k_patch_bridge
+name: Mug over the handwriting
+situation: sit_unopened_letter
+option_effect: prepare
+visual_description: He sets his mug over one corner of the envelope so the handwriting disappears, wipes the same spot twice, and remembers too clearly what silence did the last time he let it stand in for an answer. The thought does not move him yet, but it turns the kitchen from cover into a threshold.
+
+cycle 11: k_scaffold_threshold_entry
+name: Departure threshold entered
+situation: sit_threshold_departure
+option_effect: prepare
+visual_description: The decision has stopped being abstract; leaving for the harbor is now the only action that still counts as an answer.
+
+cycle 12: k_scaffold_departure_commit
+name: Departure finally chosen
+situation: sit_threshold_departure
+option_effect: commit
+visual_description: He stops translating the evening into chores, takes what he needs, and lets the answer become movement instead of delay.

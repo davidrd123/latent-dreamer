@@ -1,0 +1,82 @@
+{
+  "appraisal_frame": {
+    "changeability": 0.34,
+    "controllability": 0.28,
+    "desirability": -0.76,
+    "expectedness": 0.76,
+    "likelihood": 0.82,
+    "praiseworthiness": -0.52,
+    "realization_status": "prospective",
+    "temporal_status": "prospective"
+  },
+  "causal_slice": {
+    "affected_goal": {
+      "goal": "preserve-working-credibility",
+      "sign": "threatens",
+      "weight": 0.83
+    },
+    "attribution": {
+      "actor": "rhea",
+      "intentional": true
+    },
+    "concern_id": "cc_status_damage",
+    "focal_situation_id": "sit_studio_b_threshold",
+    "likelihood_bucket": "high",
+    "other_options": [
+      "target-rejects-repair"
+    ],
+    "self_options": [
+      "draft-opening-line",
+      "enter-room"
+    ],
+    "target_ref": "owen",
+    "temporal_status": "prospective"
+  },
+  "commit_type": "salience",
+  "emotion_vector_topk": {
+    "disappointment": 0.17,
+    "distress": 0.45,
+    "fear": 0.62,
+    "remorse": 0.39
+  },
+  "node_id": "beat_rehearsal_studio_b_threshold_s02_c02",
+  "operator_family": "rehearsal",
+  "operator_score_breakdown": {
+    "appraisal_fit": 0.51,
+    "episodic_resonance": 0.5,
+    "practice_fit": 0.78,
+    "pressure": 0.81,
+    "repetition_penalty": 0.05,
+    "total": 0.69
+  },
+  "practice_context": {
+    "affordance_tags": [
+      "draft-opening-line",
+      "simulate-objection",
+      "offer-repair"
+    ],
+    "phase": "threshold",
+    "practice_type": "anticipated-confrontation",
+    "role": "initiator"
+  },
+  "prompt_version": "v1-middle-layer",
+  "retrieval_keys": [
+    "concern_type",
+    "target_ref",
+    "situation_id",
+    "practice_type"
+  ],
+  "retrieved_episode_refs": [
+    "gen_step_01_beat_rhea_rehearsal_studio_b",
+    "ep_panel_correction"
+  ],
+  "selected_affordance_tags": [
+    "draft-opening-line",
+    "simulate-objection"
+  ],
+  "source_concern_ids": [
+    "cc_status_damage",
+    "cc_obligation"
+  ],
+  "validator_result": "pass"
+}

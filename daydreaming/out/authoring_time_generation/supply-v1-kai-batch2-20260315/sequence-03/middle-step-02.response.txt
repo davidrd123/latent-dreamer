@@ -1,0 +1,34 @@
+{
+  "candidate_text": "Kai refills his coffee cup though it's still half full, watching the steam rise with the specific attention of someone performing normalcy for an audience of one. The letter sits at the edge of his vision, a white rectangle he keeps not looking at directly, the way you don't look at a bruise you're not ready to name. His hands move to straighten the dish rack, then the salt shaker, small corrections to a kitchen that doesn't need correcting\u2014each adjustment buying another few seconds in which the harbor is still just a place and not a verdict waiting on him.",
+  "graph_projection": {
+    "node_id": "beat_kai_ritual_distraction_kitchen",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Rhea presses her back against the cinderblock wall outside Studio B, closing her eyes to block out the hallway. \"I drafted the arrangement,\" she murmurs, testing the weight of the statement to ensure it sounds like a fact rather than a plea. She swallows hard, determined not to let him hijack the first sentence the way he did at the festival panel. Taking a slow breath, she squares her shoulders and finally reaches for the heavy acoustic door.",
+  "graph_projection": {
+    "node_id": "beat_rehearsal_threshold_1",
+    "node_type": "beat",
+    "situation_id": "sit_studio_b_threshold",
+    "delta_tension": 0.3,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "ev_public_correction_at_panel",
+      "ref_credit_dispute"
+    ],
+    "payoff_refs": [
+      "sit_inside_studio_b_conversation"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "anticipated-confrontation"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

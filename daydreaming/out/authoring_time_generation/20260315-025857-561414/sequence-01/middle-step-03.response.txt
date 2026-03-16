@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa leans against the cool plaster of the coatroom wall, the muffled applause from the donor hall still vibrating through the floorboards as she stares at Eli's unanswered text. She types out a long paragraph explaining that the board needed a streamlined narrative, carefully backspacing over the word \"sorry\" because it implies she made an error rather than a strategic choice. Rereading the draft, she finds a sudden, settling comfort in the idea that omitting his name from the toast actually shielded him from the project's toxic oversight committee.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_text_s03_c04",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

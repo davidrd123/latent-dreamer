@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Tessa leans against the cool plaster of the coatroom wall, the muffled laughter from the donor hall still ringing in her ears. She deletes the word \"sorry\" from her draft to Eli, replacing it with \"I had to keep the throughline clean.\" Staring at the glowing screen, she convinces herself that muddying the pitch with joint credit would have cost them the funding entirely, making her omission a tactical necessity rather than a betrayal.",
+  "graph_projection": {
+    "node_id": "beat_tessa_rationalizes_omission_s02_c04",
+    "node_type": "beat",
+    "situation_id": "sit_coatroom_after_toast",
+    "delta_tension": -0.2,
+    "delta_energy": -0.1,
+    "setup_refs": [
+      "ev_toast_credit_cut",
+      "ev_eli_texts_afterward"
+    ],
+    "payoff_refs": [
+      "sit_text_reply_threshold"
+    ],
+    "option_effect": "clarify",
+    "pressure_tags": [
+      "status_damage"
+    ],
+    "practice_tags": [
+      "confession"
+    ],
+    "origin_pressure_refs": [
+      "cc_status_damage"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

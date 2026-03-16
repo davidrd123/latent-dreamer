@@ -1,0 +1,32 @@
+{
+  "candidate_text": "Kai focuses on polishing the tarnished silverware, rubbing the metal until his reflection stares back at him, distorted and tense. The unopened envelope rests untouched on the table, its presence as heavy as the silence he once let ruin an important night. He scrubs harder, trying to drown out the phantom smell of salt water and the distant cry of harbor gulls that seem to leak from the paper.",
+  "graph_projection": {
+    "node_id": "beat_silverware_avoidance",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.3,
+    "delta_energy": 0.2,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "ev_harbor_meeting_tonight"
+    ],
+    "payoff_refs": [
+      "sit_unopened_letter"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

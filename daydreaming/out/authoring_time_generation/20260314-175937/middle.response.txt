@@ -1,0 +1,33 @@
+{
+  "candidate_text": "Kai stared at the thick envelope resting on the kitchen counter, his sister's unmistakable scrawl glaring up at him. His fingers hovered over the paper edge. The memory of the freezing harbor wind bit at him—her voice echoing, 'if you are going to stay silent, do it honestly.' He pulled his hand back. Instead of breaking the seal, he turned to the sink and began meticulously scrubbing the already-clean coffee pot. He told himself he just needed a minute to prepare, but the familiar weight in his chest told a different story. Just like the night he ignored her call, this deliberate delay was a message of its own. The letter remained untouched on the counter.",
+  "graph_projection": {
+    "node_id": "beat_avoid_letter_distraction",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.15,
+    "delta_energy": -0.10,
+    "setup_refs": [
+      "ep_last_rupture",
+      "ep_old_harbor_memory"
+    ],
+    "payoff_refs": [],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "avoidance"
+    ],
+    "practice_tags": [
+      "delay-contact",
+      "ritual-distraction",
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}

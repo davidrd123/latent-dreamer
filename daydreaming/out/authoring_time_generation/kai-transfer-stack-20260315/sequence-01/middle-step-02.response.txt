@@ -1,0 +1,35 @@
+{
+  "candidate_text": "Kai straightens the dish towel a fourth time, then moves to wipe down the already-clean counter in slow, overlapping arcs, the cloth picking up nothing. The letter has not moved, but he has arranged himself so that the toaster is between him and it\u2014a small, deniable geometry. His hands remember the harbor railing before his mind will let him: the cold of it, the particular way she had said his name out loud like a question she already knew the answer to, and he presses his palm flat against the counter for a moment as if checking whether the surface is level.",
+  "graph_projection": {
+    "node_id": "beat_kai_counter_ritual",
+    "node_type": "beat",
+    "situation_id": "sit_unopened_letter",
+    "delta_tension": 0.18,
+    "delta_energy": -0.12,
+    "setup_refs": [
+      "sit_unopened_letter",
+      "harbor_as_shared_place"
+    ],
+    "payoff_refs": [
+      "ev_harbor_meeting_tonight",
+      "sit_threshold_departure"
+    ],
+    "option_effect": "none",
+    "pressure_tags": [
+      "attachment_threat",
+      "obligation"
+    ],
+    "practice_tags": [
+      "evasion"
+    ],
+    "origin_pressure_refs": [
+      "cc_attachment_threat",
+      "cc_obligation"
+    ],
+    "source_lane": "L2",
+    "scope": "proposal",
+    "confidence": "high",
+    "revisability": "ephemeral_candidate",
+    "source_ref": "prototype-middle"
+  }
+}
