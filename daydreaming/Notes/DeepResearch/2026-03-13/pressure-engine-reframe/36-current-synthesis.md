@@ -507,20 +507,32 @@ Do not:
 - collapse internal progression into fixture deltas
 - mutate canon silently during generation experiments
 
-### Cheapest next architecture experiment
+### Cheapest next experiments (priority order)
+
+**1. RuntimeThoughtBeatV1 on Puppet Knows** (highest priority)
+
+- run the kernel's `bb puppet-knows-autonomous` to produce a
+  cognitive trace
+- for each cycle, call an LLM with the kernel's state (concern,
+  operator, retrieved material, context branch)
+- produce `RuntimeThoughtBeatV1` per cycle
+- render through the narration bridge / cognitive HTML
+- judge: does this read as a person thinking?
+
+This is the Level 3 test in its most honest form.
+
+**2. Provocation seam propagation** (still valuable)
 
 After the current supply closeout:
 
+- patch the generation pipeline so provoked situation state feeds
+  concern inference and operator scoring (codex1 is on this)
 - hand-author 2-3 provocation sidecars
-- overlay one into a Kai or Tessa run before `build_causal_slice()`
+- overlay one into a Kai or Tessa run
 - compare against no-delta control
 
-That tests the missing seam without expanding the runtime Director or
-reopening the whole architecture.
-
-Success condition (to match the operating model): at least one admitted
-candidate should be structurally new because of the delta, not just a
-paraphrase or phrasing shift.
+Success condition: at least one admitted candidate should be
+structurally new because of the delta, not just a paraphrase.
 
 ---
 
@@ -554,6 +566,60 @@ The newest replies sharpen what that second question likely needs:
 - explicit execution/selection state that is live, not just logged
 - probably one ghosted "strongest unrealized line" or counterfactual
   channel, kept lane-local rather than dumped into the graph
+
+### The deepest gap: runtime content, not just runtime dynamics
+
+The Clojure kernel runs Mueller's cognitive loop: operators fire,
+contexts sprout, memories retrieve, concerns compete. The Python
+L3 scheduler scores candidates against tension, energy, and
+conductor bias. Both produce dynamics. Neither produces the
+**specific thought** — the particular rationalization, the
+particular reversal image, the particular rehearsal line.
+
+Mueller's DAYDREAMER generates that content inside the cognitive
+loop. When RATIONALIZATION fires, it constructs "if I were dating
+him he'd go to Cairo, I'd lose my job" from the retrieved episode
+and the concern. Our kernel fires the operator and selects a
+pre-authored node tagged for rationalization.
+
+The gap is not narration styling. It is a missing runtime object:
+
+**`RuntimeThoughtBeatV1`**
+
+```
+RuntimeThoughtBeatV1:
+  thought_beat_text    — 2-3 sentences of inner monologue
+  mood_tags            — for Lyria / audio mapping
+  residue_candidates   — tiny distilled sidecar for memory
+  counterfactual_image — what the character is imagining (optional)
+  spoken_line_fragment — rehearsed speech fragment (optional)
+```
+
+Produced by: one bounded LLM call per kernel cycle, conditioned
+on the kernel's cognitive state (concern, operator, retrieved
+material, context branch, immediate prior residue).
+
+Consumed by: narration bridge, Lyria audio, inner-life
+visualization.
+
+Written back to kernel: **only a tiny distilled residue**, not
+the full prose. Full writeback risks self-echo, drift, and memory
+pollution (the same Q8 self-priming problem, now at runtime).
+
+The contract:
+- kernel chooses the cognitive situation
+- runtime projector LLM realizes it as inner-life prose
+- stage consumes the rendered beat
+- kernel receives at most a distilled residue object
+
+This is probably the most important thing to build next. It is
+what turns "watching infrastructure" into "watching a mind."
+
+The test: run the Puppet Knows cognitive trace with each cycle
+producing "Snake stares at the brushstrokes and thinks..." instead
+of "RATIONALIZATION activates — seam is honesty." If the output
+reads as a person thinking, the two-lane architecture works with
+a runtime projection layer.
 
 ### Where we sit on the evaluation ladder
 

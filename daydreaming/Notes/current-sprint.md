@@ -1,120 +1,91 @@
 # Current Sprint
 
-Last updated: 2026-03-15
+Last updated: 2026-03-16
 
 ---
 
 ## Objective
 
-Prove repeatable keeper yield from the generation pipeline.
-The bridge test passed — now prove the supply chain.
+Answer the Level 3 question: **does this feel like a mind at work?**
 
-## Frozen Recipe
+The supply pilot passed. The bridge tests passed. The architectural
+seams are identified. The most important unanswered question is no
+longer about material supply or traversal dynamics — it's whether
+the runtime output reads as a person thinking rather than a system
+operating.
 
-- provider: anthropic
-- model: claude-sonnet-4-6
-- prompt_style: legacy_json
-- temperature: 0.7
-- system_prompt_style: consider_alternatives
-- framing: round_robin_authored (where available)
-- no mechanism changes during the pilot
+## Primary Target
 
-## Active Pilot
+### RuntimeThoughtBeatV1 on Puppet Knows
 
-**supply_v1**: 2 Tessa batches + 2 Kai batches on the frozen recipe.
-Keeper bank captures verdicts. Edit cost measured per node.
+Run the kernel's Mueller cognitive loop (`bb puppet-knows-autonomous`).
+For each cycle, call an LLM with the kernel's state to produce a
+runtime thought beat — the specific rationalization, reversal image,
+rehearsal line, or roving drift that the character is experiencing.
 
-Protocol: [executor-verifier-protocol.md](executor-verifier-protocol.md)
+The beat is:
 
-Decision gate: can we assemble 2 distinct patch packs per fixture
-with acceptable edit minutes?
+```
+RuntimeThoughtBeatV1:
+  thought_beat_text    — 2-3 sentences of inner monologue
+  mood_tags            — for Lyria / audio mapping
+  residue_candidates   — tiny distilled sidecar for memory
+  counterfactual_image — what the character is imagining (optional)
+  spoken_line_fragment — rehearsed speech fragment (optional)
+```
 
-- Yes → generation lane ready, move to multi-situation / Graffito scaffold
-- No (close) → generation lane partial pass with hand-authored assist
-  allowed, then move on
-- No (collapsed) → one targeted structural fix (likely Q5), then retest
+**Contract:**
+- Kernel chooses the cognitive situation (concern, operator,
+  retrieved material, context branch)
+- Runtime projector LLM realizes it as inner-life prose
+- Stage consumes the rendered beat (narration, audio, visualization)
+- Kernel receives at most a tiny distilled residue, not full prose
 
-## Current Status
+**Success condition:**
+The cognitive trace, with thought beats, reads as a person thinking.
+Not as a system report with better labels.
 
-- Tessa: `7 keepers / 4 reserves` in the supply bank. Current read:
-  supply pass.
-- Kai: `7 keepers / 3 reserves` in the supply bank. Current read:
-  narrow supply pass after pack assembly, with tighter bridge coverage.
-- supply_v1 overall: practical pass, but Kai is the constraining fixture.
+## Secondary Targets (parallel, not blocking)
 
-## Artifact Pointers
+### Provocation seam propagation
+Codex1 is patching the generation pipeline so provoked situation
+state feeds concern inference and operator scoring. Rerun Kai
+control after that lands.
 
-- keeper bank:
-  `daydreaming/out/authoring_time_generation/keeper_bank_supply_v1.jsonl`
-- latest Tessa batch:
-  `daydreaming/out/authoring_time_generation/supply-v1-tessa-batch2-20260315/batch.summary.md`
-- latest Kai batch:
-  `daydreaming/out/authoring_time_generation/supply-v1-kai-batch2-20260315/batch.summary.md`
-- Kai pack assembly:
-  `daydreaming/out/kai_supply_v1_pack_assembly_20260315/summary.md`
+### Lyria parameter tuning
+The Lyria → traversal connection works but the mappings need
+interactive dialing in. BPM ranges, density curves, prompt
+derivation quality.
 
-## Next Milestones
+### Project page
+`scope-drd/notes/daydream/self_docs/project_page_v3/` has a draft
+and diagram prompts. Diagrams need revision (data-driven, not
+generic flowcharts). Page text is ready for editing.
 
-1. Verify and write the sprint closeout call from the actual artifacts.
-2. Decide whether `supply_v1` closes as pass or narrow pass.
-3. If needed, define the smallest next generation or curation follow-up.
-4. If not needed, move to the next sprint objective.
+## Previous Sprint Status
+
+**supply_v1: practical pass (closed)**
+- Tessa: clean pass (7 keepers / 4 reserves)
+- Kai: narrow pass (7 keepers / 3 reserves)
+- Artifacts: keeper bank, pack registry, closeout note
+- See `supply-v1-closeout.md`
 
 ## Autonomy Contract
 
-This sprint runs in milestone mode, not step-by-step supervision.
+Same milestone-based discipline as the previous sprint.
+Reporting at milestone boundaries only.
 
-- The execution agent runs the sprint within the frozen recipe.
-- Reporting happens only at milestone boundaries:
-  - batch complete
-  - curation pass complete
-  - patch-pack assembly attempt complete
-  - sprint conclusion
-- The execution agent should not pause for routine uncertainty or minor
-  quality judgment.
-- The sprint objective is not to understand every failure mode. It is to
-  answer the supply_v1 gate honestly.
-
-## Verification Protocol
-
-Execution-agent self-report is not sufficient evidence by itself.
-
-- Every milestone result gets one independent verification pass against the
-  actual artifacts:
-  - bundle outputs
-  - keeper bank rows
-  - patch-pack definitions
-  - traversal outputs, if used
-- Independent verification can be done by:
-  - a second agent pass
-  - direct artifact inspection
-  - or both when the claim is consequential
-- Claims about keeper yield, role coverage, pack assembly, or gate status
-  should be treated as provisional until verified against files.
-- Verification should land in:
-  - the keeper bank, where relevant
-  - the pack assembly summary, where relevant
-  - the sprint closeout note / decision
-
-## Escalation Triggers
-
-Pause and ask for direction only if one of these happens:
-
-- the frozen recipe needs to change
-- the decision gate is crossed or clearly blocked
-- a structural / architectural change is being proposed
-- the results contradict the current dashboard arc
-- a new 5 Pro reply materially changes the project framing
-- a verification pass disagrees with Codex1's summary in a way that affects
-  the sprint decision
-
-Otherwise, keep running the sprint.
+Escalation triggers:
+- the RuntimeThoughtBeatV1 shape needs to change
+- the kernel's output format is insufficient for conditioning
+- Lyria or narration bridge integration blocks unexpectedly
+- a 5 Pro reply materially changes the project framing
 
 ## What is NOT in this sprint
 
-- Q5/Q7/Q12 mechanism work (banked for multi-situation phase)
-- Conductor or Scope work (parallel track, not blocking)
-- L2 kernel refactor (deep build, not blocking)
-- New 5 Pro questions
-- Prompt architecture experiments beyond the frozen recipe
-- Evaluation refinement beyond Q10 minimal
+- Full runtime memory writeback (dangerous — self-echo risk)
+- Multi-situation generation (Q5/Q7/Q12 — later phase)
+- Scope/video rendering (GPUs scarce)
+- L2 kernel refactor beyond what's needed for thought beats
+- New supply/generation pipeline work
+- Full provocation-to-generation authoring loop
