@@ -1,133 +1,239 @@
-# The Landscape — March 2026
+# The Landscape — March 15, 2026 (evening)
 
-A map of where the project stands and what's visible from here.
+A map of where the project stands after a marathon session.
+
+---
+
+## What happened today
+
+Started the day with a working generation prototype and four
+benchmark fixtures. Ended with:
+
+- Two bridge tests passing (Tessa + Kai — generated material
+  survives L3 traversal, human read prefers generated prose)
+- A supply pilot that practically passes (keeper yield proven)
+- Temperature 0.2 discovered as a major missed lever (raised
+  to 0.7, staging diversity immediately improved)
+- A design space analysis placing the project in the
+  believable-agent region, nearest to FAtiMA and Loyall/Hap
+- The Director layer (541 lines of Clojure, partially tested)
+  surfaced as a key missing piece in the dashboard
+- A provocation seam experiment (FixtureDeltaV1) run — seam
+  works mechanically, decision surfaces not yet wired
+- The first inner-life trace viewer (watch_trace.py) —
+  experiencing a traversal as a temporal sequence for the
+  first time
+- Eight nearest-neighbor source extractions (Loyall, ABL,
+  FAtiMA, IPOCL, Sabre, MINSTREL, Generative Agents,
+  Character is Destiny)
+- Ten 5 Pro questions sent (D1-D10), four replies back
+  (D3, D5, D6, D7) — all confirm the architecture holds,
+  four middle contracts are missing
 
 ---
 
 ## The current plateau
 
-A working authoring-time generation prototype. Characters described
-in a page of text produce graph-compilable candidate moments through
-a Mueller-shaped cognitive loop. Avoidance and rehearsal validated
-on the derived path; rationalization fixture drafted, not yet proven.
-Benchmark-scale primitive-to-concern inference works (theme-rule
-concern birth, not yet the fuller abductive compiler from the later
-research notes). Multi-step accumulation produces sequences where
-each step feeds the next, but this is still prototype-fragile. The
-L3 traversal scheduler is proven enough on two substrates to stop
-broad architecture churn. The lane-level architecture is settled;
-individual mechanisms are not all final.
+**The generation pipeline works.** Four fixtures validated
+across three operators. Batch generation, admission, keeper
+banking, pack registry all operational. Bridge tests pass.
+Supply pilot passes (Tessa clean, Kai narrow). Sonnet is the
+default provider — produces better prose than Gemini, no quota
+issues. Temperature 0.7 + consider-alternatives system prompt +
+framing variation are load-bearing for keeper yield.
 
-Codex is scaling from "one good candidate" to "batches a human can
-curate." If that works, you have a material supply pipeline.
+**The traversal scheduler works.** Graffito pilot, City Routes
+three-arm comparison, conductor responsiveness, robustness sweep.
+Generated material survives traversal without breaking anything.
 
----
+**The provocation seam exists but isn't deep yet.** The overlay
+interpreter applies FixtureDeltaV1 proposals correctly. The
+downstream functions (concern inference, operator scoring) don't
+consume the provoked state deeply enough yet. Codex1 is patching
+the propagation.
 
-## Near peaks (visible, reachable soon)
-
-### The watched experience
-
-See a multi-step sequence play out — read the generated moments
-in order, watch the concern landscape shift, see the operator
-choices and understand why. Not through Scope yet. Just the
-inner-life view. The experience that tells you whether this feels
-like a mind at work or just a clever pipeline.
-
-### The curation workflow
-
-The authoring membrane from the dashboard spec (r5): candidate
-cards with freeze/dismiss/respond/cut. Right now curation is
-"read the output and decide." The peak is a designed surface where
-curation feels like steering a creative process, not reviewing a
-queue. John's Membrane pattern maps here directly.
-
-### Narration from provenance
-
-The scheduler debug JSONL already has why each node was chosen.
-The narration companion already consumes cycle packets. Wiring
-them together so the narrator says "she needed to get away from
-the noise" instead of "the scheduler selected this because tension
-was too high."
+**The first watch happened.** `watch_trace.py` formatted a
+City Routes feature-arm trace into a per-cycle inner-life view:
+tension bars, situation activation landscape, selection
+competition, traversal intents, scene text. The dynamics are
+legible — tension builds, situations wake and spread, shifts
+feel motivated. But nobody has yet judged whether it *feels like
+a mind at work* (Level 3).
 
 ---
 
-## Middle distance (visible, needs real work)
+## The project's unique position
 
-### Connecting the two lanes
+From the design space analysis (Ask A):
 
-Generate a batch of Kai moments, curate the best ones into a graph,
-run the L3 scheduler over that graph. The first time both lanes
-work end-to-end. The graph compiled from generated material,
-traversed by the scheduler, with the inner-life dashboard showing
-why.
+> "Our foundation is tuned for one narrow prize: **legible inner
+> drift under partial human steering.** If that prize is the one
+> you actually care about, the architecture makes sense."
 
-### The conductor
+The differentiator: **Mueller gives us the cognitive process
+between interactions — the daydreaming itself.** Rumination,
+avoidance, rehearsal, rationalization when no one is watching.
+FAtiMA does action selection during interaction. Generative
+Agents does memory + reflection + planning as prompted summary.
+We do the inner monologue that happens before the character
+acts. No other architecture makes that process first-class,
+inspectable, and steerable.
 
-The APC Mini mapping. The Wizard-of-Oz test. Tidal oscillators.
-A human performer shaping the traversal in real time. NIME research
-says: fewer controls, more legible mappings. The brainstorm docs
-have the conductor state vector. The physical feel of the
-instrument hasn't been tested at all.
+---
 
-### Visual rendering through Scope
+## The four-layer architecture
 
-Text-to-video pipeline exists but hasn't been connected. The peak
-where generated + curated + traversed moments actually render as
-video. Where "watched run" becomes literal.
+```
+Conductor (human)         biases the Dreamer through faders
+    ↓
+Dreamer (L2/L3)           concerns, operators, memory,
+                          pressure, traversal
+    ↕ lossy feedback
+Director (LLM)            interprets state, introduces events,
+                          wakes dormant situations
+    ↓
+Stage                     inner-life view + audio + narration
+                          + eventually video
+```
+
+Two lanes feed into this:
+
+- **Authoring lane:** Prep → L1 orchestration → L2 generation
+  → Provocation Generator → curation → graph compilation
+- **Runtime lane:** authored graph → L3 traversal → Director
+  feedback → adapter → Stage consumers
+
+They meet at the authored graph. The Provocation Generator
+(authoring-time world-event writer) and Director (runtime
+interpretive perturbation) are separate agents with separate
+contracts.
+
+---
+
+## Near peaks (reachable in the next few sessions)
+
+### Level 3: does this feel like anything?
+
+Step through a trace with `watch_trace.py --pause`. Or wire
+Lyria RT to tension/energy and listen. This is the most
+important unanswered question. Everything downstream is
+conditional on it.
+
+### Provocation propagation
+
+Codex1 is patching the pipeline so provoked situation state
+actually feeds concern inference and operator scoring. Once
+that lands, rerun the Kai control and check whether the
+provocations actually change what the character does.
+
+### Graffito creative brief
+
+Translate Mark's script + LoRA + creative direction into
+`creative_brief.yaml` + `style_extensions.yaml`. This gates
+the Director, which gates the runtime lane.
+
+---
+
+## Middle distance (needs real work)
+
+### Counterfactual memory (D6)
+
+Preserve one unrealized alternative per step as retrievable
+lane-local memory. "Not enacted" and "not remembered" are
+different. The dashboard needs a ghosted "almost happened"
+channel. Early architectural correction, before full
+watchable-runtime work.
+
+### Pursuit threads (D3)
+
+Lightweight `PursuitThreadV1` bridging L2 concerns (what
+hurts) with L3 multi-situation coherence (what the character
+is trying to do about it). Needed before full graph assembly.
+Not a planner — a continuity hook and verifier handle.
+
+### Checker layer (D5)
+
+Reachability, dead branches, setup/payoff closure, orphan-
+action audit. The propose → check → enhance shape for L1.
+Needed before claiming multi-situation coherence.
+
+### Richer viewer-facing projections (D5)
+
+CyclePacketV1 + DashboardOverlayV1 as explicit contracts.
+The dashboard should get projections, not raw state dumps.
+Live execution state (what's currently active and why) beyond
+what traces provide.
 
 ---
 
 ## Far mountains (real but distant)
 
-### The three-layer compiler
+### The conductor
 
-Weighted abduction (sparse primitives → competing interpretations),
-partial-order causal scaffolding (earnedness as structure),
-soft-constraint optimization (which candidates survive together).
-The future material-supply architecture from the 5 Pro deep
-research. Only worth building if current local scoring demonstrably
-fails at batch quality.
+APC Mini mapping, Wizard-of-Oz test, tidal oscillators.
+The performance/daydreaming mode toggle. Five traversal
+intents as directing vocabulary.
 
-### The L2 kernel refactor
+### Visual rendering through Scope
 
-The Clojure kernel with EMA appraisal, Versu social practices,
-stronger serendipity, ATMS-style assumption management. Matters
-when L2 machinery needs to run at performance time inside the
-shipping lane, not just at authoring time.
+When GPUs are available. LoRA-based video from traversal.
+The palette-cell → Director-generated prompt transition.
 
-### Music
+### L2 as live cognitive engine
 
-Parametric Lyria modulation from conductor state. Farbood tension
-model for pacing/music coupling. Completely untouched.
+The Clojure kernel running inside L3 at performance time.
+Mueller's actual control loop with recursive reminding,
+serendipity, concern competition. Research, not engineering.
+
+### The persistent daemon (doc 34)
+
+Mueller-shaped inner life as general cognitive infrastructure.
+Writing companion, research daemon, vault agent with
+preoccupations. Same mechanisms, different externalization.
 
 ---
 
-## The other continent (doc 34)
+## What we learned
 
-### The persistent creative daemon
+### Lesson 1: milestone not mechanism (doc 16)
 
-Mueller-shaped inner life as general cognitive infrastructure. A
-writing companion that ruminates between sessions. A reading
-companion that develops suspicions. A research daemon that
-accumulates live hypotheses. A vault agent with preoccupations.
+Check cheap levers (temperature, system prompt) before
+building state machines. Set exit conditions before starting
+diagnostic chains. The milestone is the success criterion.
 
-The mechanisms are the same. The difference: the conducted dream is
-a performance; the daemon is a persistent collaborator. The
-interaction pattern shifts from conductor (real-time bias) to
-Membrane (freeze/dismiss/respond/cut over time).
+### Lesson 2: the architecture holds
 
-The "play the objective under pressure" insight applies directly:
-the daemon doesn't need to feel preoccupied, it needs to act from
-preoccupation in a way that's legible.
+Eight nearest-neighbor systems analyzed. Four 5 Pro replies
+drawing on all of them. None said "replace anything." All
+said "four middle contracts are missing." The foundations are
+right; the connective tissue between layers needs to be
+explicit.
+
+### Lesson 3: the first watchable thing is not video
+
+It's the inner-life view + audio. Concern landscape shifting,
+operators firing, memory surfacing, pressure building and
+releasing. Then narration. Then Lyria RT. Video is downstream
+and contingent on GPUs.
+
+### Lesson 4: the unique thing is the daydreaming itself
+
+Not the traversal (Facade does that). Not the appraisal
+(FAtiMA does that). Not the memory (Generative Agents does
+that). The inner cognitive process when the character is alone
+with their concerns — the rumination, the rehearsal, the
+avoidance ritual, the rationalization that rewrites what
+happened. That's what no other system makes first-class.
 
 ---
 
 ## The weather
 
-The risk isn't that any peak is unreachable. The risk is trying to
-reach too many at once. The most important thing on the plateau
-right now is looking at what's already produced and forming a
-judgment. The second most important thing is the curation packet
-from batch generation.
+The risk is still trying to reach too many peaks at once.
+The most important thing right now is looking at what the
+system produces and forming a judgment. Does the City Routes
+trace feel like a mind navigating a city under pressure?
+Does the Kai avoidance feel like someone who can't open the
+letter?
 
 Everything else follows from whether those feel like something.
