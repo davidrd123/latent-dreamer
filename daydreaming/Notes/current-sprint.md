@@ -41,9 +41,20 @@ RuntimeThoughtBeatV1:
 - Stage consumes the rendered beat (narration, audio, visualization)
 - Kernel receives at most a tiny distilled residue, not full prose
 
+**Status:** RuntimeThoughtBeatV1 replay is working. Haiku at
+~3.3s/cycle (default), Sonnet at ~7.6s/cycle (escalation for
+complex cycles). Operator routing produces visible quality
+differences. The narration inhabits the cognitive events.
+
+**Next step:** The feedback loop experiment. Feed the narration
+back as a new episode. Run another cycle. Does retrieval change?
+This tests whether accumulation matters — the D9 question in
+miniature.
+
 **Success condition:**
 The cognitive trace, with thought beats, reads as a person thinking.
-Not as a system report with better labels.
+Not as a system report with better labels. AND: the feedback loop
+produces a different trace than running without feedback.
 
 ## Secondary Targets (parallel, not blocking)
 

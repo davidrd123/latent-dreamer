@@ -621,6 +621,50 @@ of "RATIONALIZATION activates — seam is honesty." If the output
 reads as a person thinking, the two-lane architecture works with
 a runtime projection layer.
 
+### Status update (2026-03-20)
+
+**RuntimeThoughtBeatV1 is working.** First runtime comparison:
+
+- Haiku: ~3.3s/cycle — default runtime projector
+- Sonnet: ~7.6s/cycle — escalation for complex cycles
+
+Quality: the operator routing produces visible differences.
+Reversal cycles have a different quality than rehearsal cycles.
+The prose inhabits the cognitive event.
+
+**But the narration is ahead of the machinery.** The LLM
+generates richer inner life than the kernel's events justify.
+This is the right tension — the feedback loop (narration → new
+episode → different retrieval) is the fix that makes the prose
+stop being decoration and start being cognitive content.
+
+### The deeper architecture: hybrid rules
+
+From Chapter 7 analysis: Clojure rules that are data (searchable
+in the rule connection graph, indexable in episodes) but whose
+consequents can call an LLM for contextual judgment when they
+fire. The graph structure is preserved. The judgments accumulate
+as episodes. This is the novel contribution — not "LLM with
+tools" and not "expert system with better rules."
+
+The LLM/symbolic split is now precise:
+- LLMs provide: domain knowledge, contextual judgment, content
+  generation, evaluation, flexible rule consequents
+- Symbolic system provides: rule connection graph, context
+  sprouting + backtracking, coincidence-mark retrieval,
+  reminding cascade, serendipity intersection search,
+  persistent accumulating state
+
+### The accumulation experiment
+
+The key honest test (D9 in miniature): feed the LLM narration
+back as a new episode. Run another cycle. See if retrieval
+changes. If the trace is different with feedback than without,
+the accretive machinery earns its keep. If not, the kernel is
+just a fancy prompt generator.
+
+See `37-plan-of-attack.md` for the full build sequence.
+
 ### Where we sit on the evaluation ladder
 
 From `experiential-design/13-project-state.md`:

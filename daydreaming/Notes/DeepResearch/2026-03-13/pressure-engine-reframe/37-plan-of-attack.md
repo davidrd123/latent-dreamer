@@ -140,6 +140,96 @@ material, traversed live, rendered through Scope.
 
 ---
 
+## Phase 1 status update (2026-03-20)
+
+**RuntimeThoughtBeatV1 is working.** Codex ran the first
+runtime comparison on Puppet Knows:
+
+- Haiku: ~3.3s/cycle — usable as default runtime projector
+- Sonnet: ~7.6s/cycle — better operator realization, use for
+  complex cycles (operator changes, context sprouts, reversals)
+- Quality: Haiku stays coherent. Sonnet performs the cognitive
+  work — "what if the fingerprint was always meant to be seen"
+  is a reversal the kernel triggered and the LLM inhabited.
+
+**The narration is ahead of the machinery.** The LLM generates
+richer inner life than the kernel's events justify. "The coin
+with no face on either side" is prose the kernel didn't compute.
+This is the right tension — the LLM adds texture, but the
+narration is partly disconnected from the actual cognitive
+computation. The feedback loop is the fix.
+
+---
+
+## The deeper architecture (from Ch. 7 analysis)
+
+### The LLM/symbolic split is now precise
+
+| LLMs provide | Symbolic system provides |
+|---|---|
+| Domain knowledge (replaces hand-coded rules) | Rule connection graph (searchable) |
+| Contextual judgment | Context sprouting + backtracking |
+| Content generation | Coincidence-mark retrieval |
+| Evaluation | Reminding cascade (recursive) |
+| Flexible rule consequents | Serendipity intersection search |
+| | Persistent accumulating state |
+
+### Hybrid rules: the novel contribution
+
+Clojure rules that are data (searchable in the graph, indexable
+in episodes, traversable for serendipity) but whose consequents
+can call an LLM for contextual judgment when they fire.
+
+The graph structure is preserved. The flexibility is added. The
+judgments accumulate as episodes. "Not 'LLM with tools' and not
+'expert system with better rules.' Rules that are data, that
+are searchable, that accumulate in episodes, AND that can invoke
+contextual judgment when they execute."
+
+Mueller hand-coded 135 rules. The LLM can propose new rules as
+typed Clojure structures. The system validates, adds to the rule
+graph, recomputes connections. Now the rule is available for
+planning, retrieval, serendipity — forever. The LLM generated
+it once. The system uses it across sessions.
+
+### Accretive, not disposable
+
+This is NOT the RLM "programs as intermediate representation"
+pattern (where generated code is disposable, solving one query).
+This is **persistent evolving structures that grow through the
+system's own operation**:
+
+- Episodes accumulate (real and imagined)
+- Rules grow (LLM-proposed, validated, added to graph)
+- The rule connection graph gets richer
+- Contextual judgments from past rule firings are stored
+  in episodes and shape future analogical retrieval
+- Clojure's immutable persistent data structures make this
+  safe (versioned, branchable, no corruption)
+
+The LLM is the wellspring. The Clojure structures are the
+riverbed that accumulates.
+
+---
+
+## The key experiment: does accumulation matter?
+
+The honest risk (D9, still unanswered): "This is a beautiful
+architecture for a system that might not need to exist." The
+value is in what's *maintained* across sessions versus what's
+*possible* in one session.
+
+**Cheapest test:** Feed the LLM narration back as a new episode
+into the kernel. Run another cycle. See if retrieval changes.
+One cycle of accumulation. If the trace is different with
+feedback than without, the accretive machinery earns its keep.
+
+This is more targeted than "wire to more things." It directly
+tests whether the kernel contributes something beyond "fancy
+prompt generator."
+
+---
+
 ## What doesn't change
 
 - The graph remains the membrane
@@ -162,18 +252,23 @@ material, traversed live, rendered through Scope.
   persistent daemon is closer than the conducted performance
   because it doesn't need video, conductor, or Scope.
 - **"Prosthetic Inner Life for Language Models" is the hook.**
-  Not "cognitive character engine" (too abstract). Not "legible
-  inner drift" (too niche). The LLM has no mind of its own.
-  We give it one.
+  The LLM has no mind of its own. We give it one.
+- **Hybrid rules are the deep technical contribution.**
+  Searchable graph structure + LLM contextual judgment in
+  the same rule. Accumulation of situated judgments as episodes.
+  Clojure code-is-data makes this natural, not a hack.
 
 ## What's immediately actionable
 
-1. Write `runtime_thought_beat.py` — the LLM call per kernel
-   cycle that produces RuntimeThoughtBeatV1
-2. Wire it to the Puppet Knows autonomous trace
+1. ~~Write `runtime_thought_beat_replay.py`~~ — DONE. Codex
+   built it. Haiku/Sonnet comparison complete.
+2. ~~Wire to Puppet Knows autonomous trace~~ — DONE.
 3. Wire the output to the existing cognitive HTML renderer
+   (codex working on this)
 4. Wire to Lyria RT
-5. Watch/listen and judge: does this feel like a mind?
+5. **Run the feedback loop test:** narration → new episode →
+   different retrieval? This is the accumulation experiment.
+6. Watch/listen and judge: does this feel like a mind?
 
-That's the Level 3 test. Everything else follows from the
-answer.
+The Level 3 test is becoming real. The feedback loop test
+(step 5) is the D9 experiment in miniature.
