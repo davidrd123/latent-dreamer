@@ -27,6 +27,7 @@ This directory now contains a **complete first pass** over the 19-mechanism inve
 - `chain-trace-b.md`
 - `cross-cut-summary.md`
 - `rule-connection-graph.md`
+- `kernel-rule-schema-and-execution-model.md`
 
 Taken together, the complete first pass stresses the spec in the places that matter most:
 
@@ -42,6 +43,7 @@ Taken together, the complete first pass stresses the spec in the places that mat
 - The mechanism files are intended to test whether the spec produces architecture-relevant reasoning rather than chapter summaries.
 - The chain traces are first-pass integrations built from the same material.
 - The chain traces now call out the judgment-heavy links explicitly, so they can be used as architecture discussion inputs rather than only as faithful execution sketches.
+- [kernel-rule-schema-and-execution-model.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/condensation/kernel-rule-schema-and-execution-model.md) is the first bridge note from condensation into a proposed kernel design.
 - The mechanism inventory is now complete, but individual cards still vary in confidence and sharpness.
 
 ## Next useful work
