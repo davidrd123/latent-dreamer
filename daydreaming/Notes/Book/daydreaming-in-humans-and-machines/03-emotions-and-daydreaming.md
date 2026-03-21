@@ -14,7 +14,7 @@ emotions. Schachter and J. E. Singer (1962) demonstrated experimentally that phy
 
 <!-- page: 70 -->
 
-Emotional Responses in Daydreaming
+## 3.1 Emotional Responses in Daydreaming
 
 Emotions relate to goal outcomes (Dyer, 1983b; Weiner, 1982; Abelson, 1981): generally speaking, a goal success results in a positive emotion while a goal failure results in a negative emotion. Is this also true of goal successes and failures that are imagined during daydreaming? That is, can one become so involved in a daydream that one experiences an emotional reaction to an event which has not even happened in the real world? Retrospective reports of daydreaming—including narrative reports (McNeil,
 
@@ -50,7 +50,9 @@ Psychological experiments are needed in order to test the above rule: One approa
 
 - assigning importance to goals
 
-- assessing the realism of a scenario The first capability is easily added to the program: Whenever a scenario takes a past situation as its starting point, it is marked as an alternative past scenario. The goal importance is determined according to the dynamic importance
+- assessing the realism of a scenario
+
+The first capability is easily added to the program: Whenever a scenario takes a past situation as its starting point, it is marked as an alternative past scenario. Goal importance is determined according to the dynamic importance
 
 of a goal; this in turn is based upon (a) its intrinsic importance set upon goal activation, and (b) modifications to the importance performed during later daydreaming. Scenario realism is assessed based upon the plausibilities (Shortliffe & Buchanan, 1975; Duda, P. E. Hart, & Nilsson, 1976) of the rules employed in generating a given scenario. DAYDREAMER maintains a running assessment of the realism of a given scenario. However, a human may defer evaluation of the realism of a daydream—or may never evaluate its realism. In certain hallucinatory daydreaming states, one may believe that the events of the daydream are actually happening. Foulkes and Fleisher (1975) report that a surprising 19 percent of the subjects interrupted while in a state of relaxed wakefulness described their thoughts as hallucinatory. If a person has a hallucinatory daydream, that is, if a person fails to make assessments about the realism of a scenario and whether the daydream is
 
@@ -63,36 +65,48 @@ an alternative past scenario, emotional responses will be calculated according t
 The representation of emotions in DAYDREAMER is based on Dyer’s (1983b) previous representation of emotions for use in narrative comprehension. We extend his previous work, addressing the problems of: (a) how daydreaming influences emotions, and (b) how emotions influence daydreaming and behavior. Emotions are represented in DAYDREAMER in terms of the following components:
 
 - Sign: positive or negative.
-
 - Strength: non-negative real number specifying the magnitude of the emotion.
+- To (optional): person toward whom the emotion is directed (as in anger).
+- From goal (optional): failed or succeeded goal from which the emotion resulted as a response.
+- To goal (optional): active goal for which the emotion serves as motivation.
+- Altern: flag specifying whether or not the emotion resulted from an imagined alternative past scenario.
 
-To (optional): person toward whom the emotion is directed (as in anger).
-
-From goal (optional):
-
-failed or succeeded goal from which the emotion
-
-resulted as a response.
-
-To goal (optional): active goal for which the emotion serves as motivation. Altern: flag specifying whether or not the emotion resulted from an imagined alternative past scenario. In the case of the to goal, the emotion may have either caused the activation of the goal (as in the case of daydreaming goals), or may have been activated
+In the case of the to goal, the emotion may have either caused the activation of the goal (as in the case of daydreaming goals), or may have been activated simultaneously with the goal.
 
 <!-- page: 74 -->
 
 Table 3.1: Positive Emotions in DAYDREAMER
 
-From goal P [no | ____— Talled goal ipiaat dshreete hailed SELF-ESTEEM | ladweer | noUSSoon |__| ioeiaailaiaipeaialal| rejection aeno heartbreak peeee ean ee TT Ec ees ee EO Te ee P| Tailed goal | __ [hailed SOCTAT. ESTEEM Toward
-
-embarrassment
-
-no
+| Word | Toward | Altern? | To goal | From goal |
+| --- | --- | --- | --- | --- |
+| pleasure |  | no |  | succeeded goal |
+| relief |  | yes |  | failed goal |
+| amusement |  | no |  | succeeded ENTERTAINMENT |
+| satiation |  | no |  | succeeded FOOD |
+| pride |  | no |  | succeeded SELF-ESTEEM |
+| poise |  | no |  | succeeded SOCIAL ESTEEM |
+| interest |  |  | active goal |  |
+| surprise |  |  | active goal |  |
+| hope |  | no | active goal | succeeded goal |
+| gratitude | person | no |  | succeeded goal |
 
 Table 3.2: Negative Emotions in DAYDREAMER
 
-simultaneously with the goal. Various terms for emotions in English may be represented using the above scheme, as shown in Table 3.1 (positive emotions) and Table 3.2 (negative emotions). (The active goal may not be a daydreaming goal in the case of interest.) Two terms are used to refer broadly to positive and negative emotions:
+| Word | Toward | Altern? | To goal | From goal |
+| --- | --- | --- | --- | --- |
+| displeasure |  | no |  | failed goal |
+| regret |  | yes |  | succeeded goal |
+| shame |  | no |  | failed SELF-ESTEEM |
+| embarrassment |  | no |  | failed SOCIAL ESTEEM |
+| rejection |  | no |  | failed pos rel goal |
+| heartbreak |  | no |  | failed existing LOVERS |
+| worry |  | no | active goal | failed goal |
+| anger | person | no |  | failed goal |
+| humiliation | person | no |  | failed SOCIAL ESTEEM |
 
-- Pleasure, also called satisfaction, joy, happiness, positive emotion.
+Various terms for emotions in English may be represented using the above scheme, as shown in Table 3.1 (positive emotions) and Table 3.2 (negative emotions). (The active goal may not be a daydreaming goal in the case of interest.) Two terms are used to refer broadly to positive and negative emotions:
 
-and so on refers to a
+- Pleasure, also called satisfaction, joy, happiness, positive emotion, and so on, refers to a positive emotion.
 
 - Displeasure, also called dissatisfaction, unhappiness, disappointment, sadness, and so on, refers to a negative emotion.
 
@@ -102,501 +116,311 @@ Two terms refer to goal resolutions in imagined alternative past scenarios:
 
 <!-- page: 75 -->
 
-Regret refers to any negative emotion resulting from an imagined past goal success.
+- Regret refers to any negative emotion resulting from an imagined past goal success.
 
-Several terms refer to the specific kind of goal which resulted in the emotion: Amusement refers to a positive emotion resulting from a succeeded EN-
+Several terms refer to the specific kind of goal which resulted in the emotion. Amusement refers to a positive emotion resulting from a succeeded ENTERTAINMENT goal. Satiation refers to a succeeded FOOD goal. Pride refers to a succeeded SELF-ESTEEM goal. Poise refers to a succeeded SOCIAL ESTEEM goal. Shame refers to a negative emotion resulting from a failed SELF-ESTEEM goal. Embarrassment refers to a failed SOCIAL ESTEEM goal. Rejection refers to a failed goal for a positive interpersonal relationship with someone. Heartbreak refers to a failure of an existing LOVERS relationship.
 
-TERTAINMENT goal.
-
-Satiation refers to a succeeded FOOD goal. Pride refers to a succeeded SELF-ESTEEM
-
-goal.
-
-Poise refers to a succeeded SOCIAL ESTEEM
-
-goal.
-
-Shame refers to a negative emotion resulting from a failed SELF-ESTEEM goal. Embarrassment refers to a failed SOCIAL ESTEEM
-
-goal.
-
-Rejection refers to a failed goal for a positive interpersonal relationship with someone. Heartbreak refers to a failure of an existing LOVERS
-
-Other emotion terms refer to emotions connected motivation for the achievement of) active goals:
-
-relationship.
-
-to (and providing the
-
-Interest refers to any positive emotion connected to an active goal (this emotion is similar to the “interest-excitement” emotion of Izard, 1977;
-
-Tomkins, 1962). Hope refers to a positive emotion which resulted from an imagined goal success and is connected to an active goal.
+Other emotion terms refer to emotions connected to (and providing the motivation for the achievement of) active goals. Interest refers to any positive emotion connected to an active goal (this emotion is similar to the “interest-excitement” emotion of Izard, 1977; Tomkins, 1962). Hope refers to a positive emotion which resulted from an imagined goal success and is connected to an active goal.
 
 Worry refers to a negative emotion which resulted from an imagined goal failure and is connected to an active goal. Surprise is generated upon fortuitous success of a subgoal or upon serendipitous discovery of a new plan for achieving an active top-level goal (see Chapter 5). This emotion is associated with the appropriate active top-level goal, and provides an additional force of motivation to perform processing activity toward that goal.
 
 Finally, a group of emotion terms are employed when the emotion is directed toward someone:
 
-Gratitude refers to a positive emotion which is directed toward a person and connected to a succeeded goal.
+- Gratitude refers to a positive emotion which is directed toward a person and connected to a succeeded goal.
 
 <!-- page: 76 -->
 
 - Anger refers to a negative emotion which is directed toward a person and connected to a failed goal.
 
-- Humiliation refers to a negative emotion which resulted from a failed SELF-ESTEEM goal and is directed toward a person (thus one might conceive of humiliation as a combination of anger and embarrassment). Emotions directed toward someone are generated when a top-level goal failure occurs as a result of some input action of another person (as in LOVERS1). In DAYDREAMER, these tables are used by the English generator in order to generate an appropriate English word given an emotion represented in the program. The generator selects a word according to:
+- Humiliation refers to a negative emotion which resulted from a failed SELF-ESTEEM goal and is directed toward a person (thus one might conceive of humiliation as a combination of anger and embarrassment).
+
+Emotions directed toward someone are generated when a top-level goal failure occurs as a result of some input action of another person (as in LOVERS1). In DAYDREAMER, these tables are used by the English generator in order to generate an appropriate English word given an emotion represented in the program. The generator selects a word according to:
 
 - whether or not the emotion is directed toward someone
 
 - whether or not the goal success or failure (if any) is an imagined alternative
 
-- the kind of active top-level goal (or concern) associated with the emotion
+- the kind of active top-level goal (or concern) associated with the emotion (if any)
 
-(if any)
+- the kind of succeeded or failed goal associated with the emotion (if any)
 
-- the kind of succeeded or failed goal associated with the emotion (if any) Each table is ordered from most broad to most specific; the most specific term is selected by the English generator for any given emotion. The words which we have chosen to describe emotions in DAYDREAMER are only intended to be suggestive—there is no absolutely correct word for a given situation.
-
-For example,
-
-“shame,”
-
-“humiliation,”
-
-and
-
-“embarrassment”
-
-are interchangeable according to most emotion theorists (Tomkins, 1962; Izard, 1977), whereas they are distinguished in the generator of DAYDREAMER. The program does not “think in natural language.” Rather, the conceptual representations generated by the program are converted into natural language for understanding by humans (and as a protocol of the program’s daydreams). The English generator of DAYDREAMER is discussed in detail in Appendix B. The words for emotions themselves, of course, have no functional role in the behavior of DAYDREAMER. That is why we are not concerned with finding a finite set of “primary” emotions (see, for example, Tomkins, 1962; Izard, 1977). However, the representation of the emotion affects the behavior of the program, since certain emotions activate certain daydreaming goals. For example, if a negative emotion is directed toward someone, then a daydream of revenge may be generated. The particular goal failure connected to this emotion will determine what type of revenge is sought. The particular values of the strengths of emotions determine the choice among multiple concerns. Emotions thus provide one way of pruning (for better or for worse) the large space of daydreaming possibilities.
+Each table is ordered from most broad to most specific; the most specific term is selected by the English generator for any given emotion. The words which we have chosen to describe emotions in DAYDREAMER are only intended to be suggestive—there is no absolutely correct word for a given situation. For example, “shame,” “humiliation,” and “embarrassment” are interchangeable according to most emotion theorists (Tomkins, 1962; Izard, 1977), whereas they are distinguished in the generator of DAYDREAMER. The program does not “think in natural language.” Rather, the conceptual representations generated by the program are converted into natural language for understanding by humans (and as a protocol of the program’s daydreams). The English generator of DAYDREAMER is discussed in detail in Appendix B. The words for emotions themselves, of course, have no functional role in the behavior of DAYDREAMER. That is why we are not concerned with finding a finite set of “primary” emotions (see, for example, Tomkins, 1962; Izard, 1977). However, the representation of the emotion affects the behavior of the program, since certain emotions activate certain daydreaming goals. For example, if a negative emotion is directed toward someone, then a daydream of revenge may be generated. The particular goal failure connected to this emotion will determine what type of revenge is sought. The particular values of the strengths of emotions determine the choice among multiple concerns. Emotions thus provide one way of pruning (for better or for worse) the large space of daydreaming possibilities.
 
 <!-- page: 77 -->
 
-3.3.
+## 3.3 Daydreaming Goals
 
-## 3.3 DAYDREAMING GOALS
+Daydreams are triggered in DAYDREAMER by a set of goals above and beyond the personal goals called daydreaming goals. Daydreaming goals are heuristics for how to exploit surplus processing time in a useful way. They initiate processing whose purpose is to improve the ability of the system to satisfy its personal goals in the present and in the future. They are thus related to Wilensky’s (1983) “metagoals.” Through analysis of a variety of daydream protocols, we have abstracted the following collection of daydreaming goals:
 
-Daydreaming
+- `RATIONALIZATION`: Modification of the interpretation of a previous personal goal failure in order to reduce the negative emotional state resulting from that failure.
+- `ROVING`: Shifting of attention from a personal goal failure to a positive episode or imagined scenario in order to reduce the negative emotional state resulting from that failure.
+- `REVENGE`: Generation of imaginary scenarios of retaliation after another person thwarts a personal goal of the daydreamer.
+- `REVERSAL`: Generation of imaginary alternative past or possible future scenarios in which a real past or imagined future personal goal failure is prevented, in order to learn from real and imagined failures.
+- `RECOVERY`: Generation of possible scenarios for achieving a personal goal in the future which failed previously.
+- `REHEARSAL`: Generation of possible future scenarios for achieving an active personal goal.
+- `REPERCUSSIONS`: Exploration of the consequences of a hypothetical future situation.
 
-57
-
-Goals
-
-Daydreams are triggered in DAYDREAMER by a set, of goals above and beyond the personal goals called daydreaming goals. Daydreaming goals are heuristics for how to exploit surplus processing time in a useful way. They initiate processing whose purpose is to improve the ability of the system to satisfy its personal goals in the present and in the future. They are thus related to Wilensky’s
-
-(1983) “metagoals.” Through analysis of a variety of daydream protocols, we have abstracted the following collection of daydreaming goals:
-
-RATIONALIZATION Modification of the interpretation of a previous personal goal failure in order to reduce the negative emotional state resulting from that failure.
-
-ROVING Shifting of attention from a personal goal failure to a positive episode or imagined scenario in order to reduce the negative emotional state resulting from that failure. REVENGE Generation of imaginary scenarios of retaliation after another person thwarts a personal goal of the daydreamer. REVERSAL Generation of imaginary alternative past or possible future scenarios in which a real past or imagined future personal goal failure is prevented, in order to learn from real and imagined failures. RECOVERY Generation of possible scenarios for achieving a personal goal in the future which failed previously. REHEARSAL Generation of possible future scenarios for achieving an active personal goal. REPERCUSSIONS situation.
-
-Exploration of the consequences of a hypothetical future
-
-Once activated, a given daydreaming goal is achieved by the planning mechanism through the generation of one or more imaginary past or future sequences of events. DAYDREAMER has a number of strategies for achieving each daydreaming goal; these strategies are represented as planning and inference rules. Daydreaming goals are activated by emotions. Moreover, the emotion which activates a given daydreaming goal becomes the motivation associated with that goal. Thus daydreaming goals which result from emotions of higher strength will be processed before goals resulting from emotions of lower strength. In general, we have the following feedback loop: Emotions are activated in response to real-world situations. These emotions then motivate daydreaming goals which influence future daydreaming. Daydreaming in turn modifies the emotional state of the program and initiates new emotions. These new
+Once activated, a given daydreaming goal is achieved by the planning mechanism through the generation of one or more imaginary past or future sequences of events. DAYDREAMER has a number of strategies for achieving each daydreaming goal; these strategies are represented as planning and inference rules. Daydreaming goals are activated by emotions. Moreover, the emotion which activates a given daydreaming goal becomes the motivation associated with that goal. Thus daydreaming goals which result from emotions of higher strength will be processed before goals resulting from emotions of lower strength. In general, we have the following feedback loop: emotions are activated in response to real-world situations. These emotions then motivate daydreaming goals which influence future daydreaming. Daydreaming in turn modifies the emotional state of the program and initiates new emotions. These new emotions influence the future course of daydreaming through the motivation of other daydreaming goals. New emotions are generated, which activate further daydreaming goals, and so on.
 
 <!-- page: 78 -->
 
-Top-level goals
-
-en Daydreaming goals_
-
-Personal goals
-
-fooNe nek eeee Emotional
-
-Leaming
-
-daydreaming
-
-daydreaming
-
-goals
-
-goals
-
-SELF-ESTEEM FOOD...
-
-Nar
-
-RATIONALIZATION... REVERSAL REHEARSAL...
-
 Figure 3.1: Goal Taxonomy
 
-emotions influence the future course of daydreaming through the motivation of other daydreaming goals. New emotions are generated, which activate further daydreaming goals, and so on. As shown in Figure 3.1, top-level goals are divided up into daydreaming goals and personal goals. Daydreaming goals are further divided into two categories: emotional daydreaming goals (RATIONALIZATION, ROVING, and REVENGE) and learning daydreaming goals (REVERSAL, RECOVERY, REHEARSAL, and REPERCUSSIONS). The function of the first category of daydreaming goals is modification of emotional state, while the function of the second category is learning. The learning daydreaming goals have an impact on emotional state as well. For example, daydreaming about REVERSAL of a prior failure may enable one to feel less upset about that failure if there is no REVERSAL which the daydreamer could reasonably have been expected to perform in the past situation; daydreaming about RECOVERY from a failure enables one to feel less upset about that failure; REHEARSAL for a future event enables one to be less (and sometimes more) worried about that event. Thus, learning daydreaming goals have emotional consequences. The emotional daydreaming goals have an impact on learning, since any scenario generated through daydreaming has the potential for future application. For example, a daydream of revenge may be carried out in reality if the daydreamer is sufficiently angry at a person or has been sufficiently wronged and believes that retaliation would prevent future harm from the person. Mod-
+The diagram organizes top-level goals as follows:
 
-ification of emotional state might itself be considered a form of learning since emotional state affects future processing. Thus, emotional daydreaming goals provide another source of daydream scenarios for potential use in the future.
+- `Top-level goals`
+- split into `Daydreaming goals` and `Personal goals`
+- `Daydreaming goals` split into `Emotional daydreaming goals` and `Learning daydreaming goals`
+- emotional examples: `RATIONALIZATION`, `ROVING`, `REVENGE`
+- learning examples: `REVERSAL`, `RECOVERY`, `REHEARSAL`, `REPERCUSSIONS`
+- personal-goal examples: `SELF-ESTEEM`, `FOOD`, and related goals
+
+The visual point is that ordinary personal goals and daydreaming-specific goals are separated at the top level, and that daydreaming goals are further divided by function into emotional and learning goals.
+
+As shown in Figure 3.1, top-level goals are divided up into daydreaming goals and personal goals. Daydreaming goals are further divided into two categories: emotional daydreaming goals (`RATIONALIZATION`, `ROVING`, and `REVENGE`) and learning daydreaming goals (`REVERSAL`, `RECOVERY`, `REHEARSAL`, and `REPERCUSSIONS`). The function of the first category of daydreaming goals is modification of emotional state, while the function of the second category is learning. The learning daydreaming goals have an impact on emotional state as well. For example, daydreaming about `REVERSAL` of a prior failure may enable one to feel less upset about that failure if there is no `REVERSAL` which the daydreamer could reasonably have been expected to perform in the past situation; daydreaming about `RECOVERY` from a failure enables one to feel less upset about that failure; `REHEARSAL` for a future event enables one to be less (and sometimes more) worried about that event. Thus, learning daydreaming goals have emotional consequences. The emotional daydreaming goals have an impact on learning, since any scenario generated through daydreaming has the potential for future application. For example, a daydream of revenge may be carried out in reality if the daydreamer is sufficiently angry at a person or has been sufficiently wronged and believes that retaliation would prevent future harm from the person. Modification of emotional state might itself be considered a form of learning since emotional state affects future processing. Thus, emotional daydreaming goals provide another source of daydream scenarios for potential use in the future.
 
 <!-- page: 79 -->
 
 Table 3.3: Daydreaming Goals
 
+| Daydreaming goal | Activated by | Primary function |
+| --- | --- | --- |
+| RATIONALIZATION | neg | emotional |
+| ROVING | neg | emotional |
+| REVENGE | neg directed | emotional |
+| REVERSAL | neg | learning |
+| RECOVERY | neg | learning |
+| REHEARSAL | pos | learning |
+| REPERCUSSIONS | heuristics | learning |
+
+Note: the `REPERCUSSIONS` activation cell is faint in the scan. `heuristics` is taken from the immediately following prose on the same page, which states that `REPERCUSSIONS` is not activated by emotions but by “a collection of heuristics.”
+
 Daydreaming goals are activated when certain emotions are of sufficient strength:
 
-The RATIONALIZATION,
+- The `RATIONALIZATION`, `ROVING`, `REVERSAL`, and `RECOVERY` daydreaming goals are activated in response to negative emotions (such as embarrassment, rejection, and anger).
+- The `REVENGE` daydreaming goal is activated in response to negative emotions directed toward another person or persons (such as anger).
+- The `REHEARSAL` daydreaming goal is activated in response to positive emotion of interest associated with an active personal goal.
+- The `REPERCUSSIONS` daydreaming goal is not activated by emotions, but by a collection of heuristics.
 
-ROVING,
-
-REVERSAL,
-
-and RECOVERY
-
-daydreaming goals are activated in response to negative emotions (such as embarrassment, rejection, and anger). The REVENGE daydreaming goal is activated in response to negative emotions directed toward another person or
-
-persons (such as anger). The REHEARSAL
-
-daydreaming goal is activated in
-
-response to positive emotion of interest associated with an active personal goal The REPERCUSSIONS daydreaming goal is not activated by emotions, but by 2 collection of heuristics. Daydreaming goals are summarized in Table 3.3. The emotional daydreaming goals are discussed in detail in Chapter 3, while the learning daydreaming goals are discussed in detail in Chapter 4. A concern is called a personal goal concern if its top-level goal is a personal goal, and a daydreaming goal concern if its top-level goal is a daydreaming goal. Are daydreaming goals to rationalize, rehearse, and so on, cognitive entities of which humans are aware? Do humans pursue daydreaming goals nondeliberately or deliberately, involuntarily or voluntarily, automatically or with effort? Are daydreaming goals conscious, learned, metacognitive (Flavell, 1979) strategies for self-regulation, or are they innate and nonconscious? Humans are sometimes aware of daydreaming goals, and sometimes not: Although each of the daydreaming goals may be pursued deliberately, there are times when each of these goals is pursued nondeliberately. On the two ends of the spec-
-
-trum, ROVING is frequently performed as a deliberate strategy (this strategy is similar to the various “guided daydreaming” and related therapy techniques, see, for example, Desoille, 1966; Leuner, 1969), while REVENGE
-
-is pursued
-
-spontaneously (Izard, 1977, p. 335; Weiner, 1980a) and sometimes against the wishes of the daydreamer. In the present work, we do not attempt to distinguish deliberate from nondeliberate applications of daydreaming goals. The problem of whether daydreaming goals are learned or innate is orthogonal to the problem of whether daydreaming goals are voluntary or involuntary: learned processes which at first require effort may become automatic through
-
-practice.
-
-There is evidence that certain strategies for daydreaming may be
+Daydreaming goals are summarized in Table 3.3. The emotional daydreaming goals are discussed in detail in Chapter 3, while the learning daydreaming goals are discussed in detail in Chapter 4. A concern is called a personal goal concern if its top-level goal is a personal goal, and a daydreaming goal concern if its top-level goal is a daydreaming goal. Are daydreaming goals to rationalize, rehearse, and so on, cognitive entities of which humans are aware? Do humans pursue daydreaming goals nondeliberately or deliberately, involuntarily or voluntarily, automatically or with effort? Are daydreaming goals conscious, learned, metacognitive (Flavell, 1979) strategies for self-regulation, or are they innate and nonconscious? Humans are sometimes aware of daydreaming goals, and sometimes not: although each of the daydreaming goals may be pursued deliberately, there are times when each of these goals is pursued nondeliberately. On the two ends of the spectrum, `ROVING` is frequently performed as a deliberate strategy (this strategy is similar to the various “guided daydreaming” and related therapy techniques; see, for example, Desoille, 1966; Leuner, 1969), while `REVENGE` is pursued spontaneously (Izard, 1977, p. 335; Weiner, 1980a) and sometimes against the wishes of the daydreamer. In the present work, we do not attempt to distinguish deliberate from nondeliberate applications of daydreaming goals. The problem of whether daydreaming goals are learned or innate is orthogonal to the problem of whether daydreaming goals are voluntary or involuntary: learned processes which at first require effort may become automatic through practice.
 
 <!-- page: 80 -->
 
-learned starting at an early age (see, for example, Mischel, 1979; G. H. Green,
-
-1923); other evidence (Darwin, 1872; Izard, 1977) points to the innate nature of
-
-certain external and internal behaviors. For simplicity, DAYDREAMER models an adult daydreamer assumed to have a fixed, hard-wired set of daydreaming goals. The program is not capable of learning this set of daydreaming goals, nor is it able to extend this set. However, DAYDREAMER does have the capacity to learn new strategies, or plans, for achieving existing daydreaming goals.
+There is evidence that certain strategies for daydreaming may be learned starting at an early age (see, for example, Mischel, 1979; G. H. Green, 1923); other evidence (Darwin, 1872; Izard, 1977) points to the innate nature of certain external and internal behaviors. For simplicity, DAYDREAMER models an adult daydreamer assumed to have a fixed, hard-wired set of daydreaming goals. The program is not capable of learning this set of daydreaming goals, nor is it able to extend this set. However, DAYDREAMER does have the capacity to learn new strategies, or plans, for achieving existing daydreaming goals.
 
 ## 3.4 Emotional Feedback System
 
-In DAYDREAMER, the emotional daydreaming goals model human daydreaming in response to a negative emotion resulting from a real goal failure. Specifically, RATIONALIZATION, ROVING, and REVENGE generate scenarios which result in positive emotions; these positive emotions offset the original negative emotions. What, then, is the purpose of reducing negative emotions? Negative emotions serve the important function of motivating the program to take appropriate actions in response to whatever real or imagined negative situation caused those emotions: Via the REVERSAL daydreaming goal, the program attempts to prevent the occurrence in the future of failures similar to a real or imagined goal failure. Negative emotions thus indicate to the program that there is a threat, and that the program should take actions to eliminate this threat. If negative emotions are useful, then why is it necessary for the emotional daydreaming goals to reduce negative emotions? The reason is that excessive negative emotions, and negative emotions lasting longer than necessary to motivate appropriate behaviors, have a negative impact. In humans, some of the effects of a long-term negative emotional state (such as depression and other
-
-negative moods) are decreased interpersonal attraction (Gouaux, 1971), lowered expectations of success (Loeb, Beck, & Diggory, 1971), increased recall of negative memories (Bower & Cohen, 1982; Clark & Isen, 1982), and low selfesteem, loss of satisfaction from activities, and loss of motivation (Beck, 1967, pp. 10-43). Negative emotional states also lead to negative behavior, which often leads to further negative feedback from the external world: If, for example, the daydreamer is angry at a person and retaliates against that person, the person may retaliate against the daydreamer, causing further anger, and so on. In DAYDREAMER, emotional states, both positive and negative, tend to strengthen themselves for the following reasons: First, since episodes are indexed in DAYDREAMER by emotions, episodes congruent with the current emotional state are retrieved. In addition, emotions associated with a retrieved episode are parteally reactivated. As a result, the current emotional state is strengthened. Second, retrieved episodes are employed analogically in the generation of day-
-
-dream scenarios (see Chapter 4). Thus, retrieved episodes congruent with the current emotional state result in analogous goal outcome scenarios, resulting in
+In DAYDREAMER, the emotional daydreaming goals model human daydreaming in response to a negative emotion resulting from a real goal failure. Specifically, `RATIONALIZATION`, `ROVING`, and `REVENGE` generate scenarios which result in positive emotions; these positive emotions offset the original negative emotions. What, then, is the purpose of reducing negative emotions? Negative emotions serve the important function of motivating the program to take appropriate actions in response to whatever real or imagined negative situation caused those emotions: via the `REVERSAL` daydreaming goal, the program attempts to prevent the occurrence in the future of failures similar to a real or imagined goal failure. Negative emotions thus indicate to the program that there is a threat, and that the program should take actions to eliminate this threat. If negative emotions are useful, then why is it necessary for the emotional daydreaming goals to reduce negative emotions? The reason is that excessive negative emotions, and negative emotions lasting longer than necessary to motivate appropriate behaviors, have a negative impact. In humans, some of the effects of a long-term negative emotional state (such as depression and other negative moods) are decreased interpersonal attraction (Gouaux, 1971), lowered expectations of success (Loeb, Beck, & Diggory, 1971), increased recall of negative memories (Bower & Cohen, 1982; Clark & Isen, 1982), and low self-esteem, loss of satisfaction from activities, and loss of motivation (Beck, 1967, pp. 10-43). Negative emotional states also lead to negative behavior, which often leads to further negative feedback from the external world: if, for example, the daydreamer is angry at a person and retaliates against that person, the person may retaliate against the daydreamer, causing further anger, and so on. In DAYDREAMER, emotional states, both positive and negative, tend to strengthen themselves for the following reasons: first, since episodes are indexed in DAYDREAMER by emotions, episodes congruent with the current emotional state are retrieved. In addition, emotions associated with a retrieved episode are partially reactivated. As a result, the current emotional state is strengthened. Second, retrieved episodes are employed analogically in the generation of daydream scenarios (see Chapter 4). Thus, retrieved episodes congruent with the current emotional state result in analogous goal outcome scenarios, resulting in congruent emotional responses.
 
 <!-- page: 81 -->
 
-congruent emotional responses. Nonetheless, the emotional state of the program does not continue to increase in a positive or negative direction: emotion decay counteracts the above strengthening effects. The decay of emotions, of course, must not be too steep, or the motivating function of emotions would be lost and the program would fail to generate any behavior. The net effect of strengthening and decay is that a positive or negative emotional state tends to perpetuate.
+Nonetheless, the emotional state of the program does not continue to increase in a positive or negative direction: emotion decay counteracts the above strengthening effects. The decay of emotions, of course, must not be too steep, or the motivating function of emotions would be lost and the program would fail to generate any behavior. The net effect of strengthening and decay is that a positive or negative emotional state tends to perpetuate.
 
-In DAYDREAMER,
+In DAYDREAMER, negative emotional states are undesirable because:
 
-negative emotional states are undesirable because:
+- negative emotional states indicate that the system is failing to achieve its personal goals
+- negative emotional states lead to the recall of negative episodes resulting in the analogical generation of negative daydreams
+- negative emotional states tend to perpetuate themselves
 
-(a)
+Thus, negative emotional states result in negative daydreams and, ultimately, behavior which hinders the achievement of personal goals. Positive emotional states, on the other hand, are desirable, because they indicate that the program is achieving its personal goals. Thus we would like the program to strive for a positive emotional state. Emotional daydreaming goals provide a way of breaking a cycle of negative emotions and bringing the program into a more positive emotional state.
 
-negative emotional states indicate that the system is failing to achieve its personal goals, (b) negative emotional states lead to the recall of negative episodes resulting in the analogical generation of negative daydreams, and (c) negative emotional states tend to perpetuate themselves. Thus, negative emotional states result in negative daydreams and, ultimately, behavior which hinders the achievement of personal goals. Positive emotional states, on the other hand, are desirable, because they indicate that the program is achieving its personal goals. Thus we would like the program to strive for a positive emotional state. Emotional daydreaming goals provide a way of breaking a cycle of negative emotions and bringing the program into a more positive emotional state.
+A diagram of the full emotional feedback system of DAYDREAMER is shown in Figure 3.2. Negative emotions activate various daydreaming goals, several of which ultimately result in the generation of positive emotions (`RATIONALIZATION`, `REVENGE`, and `ROVING`) and others which may result in positive or negative emotions (`REVERSAL` and `RECOVERY`). Positive emotions activate `REHEARSAL` daydreaming goals and motivate external behavior, both of which may result in positive or negative emotions. Other sources, the activation of a new concern, and the occurrence of a serendipity (accidental discovery of a solution to a problem) may result in positive emotions. For simplicity, the diagram does not indicate that episodes can be retrieved for reasons other than active positive or negative emotions, that negative daydreams might still be generated in response to a positive episode and vice versa, or that, if unsuccessful, `RATIONALIZATION` might actually result in a negative emotion. It also ignores the negation of the sign of emotional responses resulting from alternative past scenarios.
 
-A diagram of the full emotional feedback system of DAYDREAMER is shown in Figure 3.2. Negative emotions activate various daydreaming goals, several of which ultimately result in the generation of positive emotions (RATIONALIZATION, REVENGE, and ROVING) and others which may result in positive or negative emotions (REVERSAL and RECOVERY). Positive emotions activate REHEARSAL daydreaming goals and motivate external behavior—both of which may result in positive or negative emotions. Other sources, the activation of a new concern, and the occurrence of a serendipity (accidental discovery of a solution to a problem) may result in positive emotions. (For simplicity, this diagram does not indicate that episodes can be retrieved for reasons other than active positive or negative emotions, that negative daydreams might still be generated in response to a positive episode and vice versa, and that, if unsuccessful, RATIONALIZATION might actually result in a negative emotion.. It also ignores the negation of the sign of emotional responses resulting from
-
-alternative past scenarios.) Instead of RATIONALIZATION, why could we not simply inject the program with a dose of positive emotion whenever it is unhappy? This is, after all, what ROVING does. Why does rationalization have to be “reasonable”? In DAYDREAMER, emotions associated with an episode are modified through ratio-
-
-nalization of a goal failure associated with the episode. Bower and Cohen (1982)
-
-call this emotional “reappraisal” of an episode. The next time the episode is retrieved, the modified emotion will be activated. Thus, rationalization reduces the likelihood of negative emotional states in the long term, in addition to providing short-term reduction of negative emotions. The consistent application of rationalization can get the program out of a depressed state (if we use the term depressed to mean both a short- as well as long-term negative emotional
+Instead of `RATIONALIZATION`, why could we not simply inject the program with a dose of positive emotion whenever it is unhappy? This is, after all, what `ROVING` does. Why does rationalization have to be “reasonable”? In DAYDREAMER, emotions associated with an episode are modified through rationalization of a goal failure associated with the episode. Bower and Cohen (1982) call this emotional “reappraisal” of an episode. The next time the episode is retrieved, the modified emotion will be activated. Thus, rationalization reduces the likelihood of negative emotional states in the long term, in addition to providing short-term reduction of negative emotions. The consistent application of rationalization can get the program out of a depressed state (if we use the term depressed to mean both a short- as well as long-term negative emotional state). (See Beck, 1967, for a related discussion of a “circular feedback model” of depression.)
 
 <!-- page: 82 -->
 
-Real Success <4¢———— External
-
-Behavior
-
-Feal Failure
-
-emotional
-
-Goal activation
-
-aie
-
-response
-
-Serendipity
-
-ae
-
-Pos Emotion
-
-Za
-
-wi
-
-ae
-
-Roving frorsant
-
-Retrieve pos episode
-
-saya
-
-emotion
-
-vA reactivation
-
-Rationalization, Revenge Recovery, Reversal Retrieve neg episode
-
-analogy
-
-emotional
-
-\
-
-Imagined success <@—Rehearsal ————_
-
-analogy |magined
-
-failure
-
-Aes emotiona responses
-
-response
-
 Figure 3.2: The Emotional Feedback System
 
-state). (See Beck, 1967, for a related discussion of a “circular feedback model” of depression.) Why should we bother implementing these human “features,” the negative side effects of negative emotions? Perhaps a program would be much better off if episodic recail were not sensitive to emotions, if anger did not generate retaliation, and so on. In humans, these apparent artifacts are fundamental aspects of the emotional system and its adaptive purpose. Pervasiveness of emotional state is necessary to prevent one from becoming distracted from the problem at hand. By pervasiveness, we mean that emotions are generalized to situations other than that which caused those emotions—for example, after being insulted by one’s boss, one may later take it out on a friend, one may hug the nearest person after winning the state lottery, and so on. The motivational function of negative emotions would be lost if one could simply direct attention to another topic while avoiding any cognitive impact of the negative emotion from the original topic. It is because negative emotions interfere with normal operation of the entire person that they serve as a fundamental driving force toward adaptive behavior. Negative emotions must have a global effect if they are to retain their utility as a motivator. A similar argument could be made for computer programs such as DAYDREAMER, where evulution consists of modifications by the programmer enabling the system to function adaptively. There is another function of the emotional daydreaming goals. In humans, emotional well-being contributes to biological well-being. Various relaxation and imagery techniques, such as progressive relaxation, guided affective imagery, and biofeedback appear to induce beneficial physiological changes (see, for example, Luthe, 1969; J. L. Singer & Pope, 1978). These effects, however, are impossible
+The image-reviewed structure of the diagram is:
+
+- `Real Success -> emotional response -> Pos Emotion`
+- `Real Failure -> emotional response -> Neg emotion`
+- `External Behavior` as the real-world path connecting success and failure outcomes
+- positive side loop: `Goal activation`, `Serendipity`, `Roving`, `Retrieve pos episode`, `emotion reactivation`, `analogy`, `Imagined success`, `Rehearsal`
+- negative side loop: `Rationalization`, `Revenge`, `Recovery`, `Reversal`, `Retrieve neg episode`, `emotion reactivation`, `analogy`, `Imagined failure`
+
+The visual point is circularity: real events generate emotions, emotions activate daydreaming processes, daydreaming produces imagined outcomes, and imagined outcomes feed back into emotional state.
+
+Why should we bother implementing these human “features,” the negative side effects of negative emotions? Perhaps a program would be much better off if episodic recall were not sensitive to emotions, if anger did not generate retaliation, and so on. In humans, these apparent artifacts are fundamental aspects of the emotional system and its adaptive purpose. Pervasiveness of emotional state is necessary to prevent one from becoming distracted from the problem at hand. By pervasiveness, we mean that emotions are generalized to situations other than that which caused those emotions: for example, after being insulted by one’s boss, one may later take it out on a friend, one may hug the nearest person after winning the state lottery, and so on. The motivational function of negative emotions would be lost if one could simply direct attention to another topic while avoiding any cognitive impact of the negative emotion from the original topic. It is because negative emotions interfere with normal operation of the entire person that they serve as a fundamental driving force toward adaptive behavior. Negative emotions must have a global effect if they are to retain their utility as a motivator. A similar argument could be made for computer programs such as DAYDREAMER, where evolution consists of modifications by the programmer enabling the system to function adaptively. There is another function of the emotional daydreaming goals. In humans, emotional well-being contributes to biological well-being. Various relaxation and imagery techniques, such as progressive relaxation, guided affective imagery, and biofeedback, appear to induce beneficial physiological changes (see, for example, Luthe, 1969; J. L. Singer & Pope, 1978). These effects, however, are impossible to simulate in the nonbiological DAYDREAMER.
 
 <!-- page: 83 -->
 
-Roving Revenge
-
-Negative
-
-q__teduces
-
-emotion
-
-Positive emotion
-
-reduces
-
-Rationalization Minimization Imagined Mixed blessi ————® alternat ngive External attribution —®failure
-
-Hidden
-
-blessing ————®» Imagined success
-
 Figure 3.3: The Emotional Daydreaming Goals
 
-to simulate in the nonbiological DAYDREAMER. In the following sections, we discuss specific strategies for RATIONALIZATION, REVENGE, and ROVING. These strategies, and their impact on emotions, are summarized in Figure 3.3.
+The diagram centers on the transformation from negative to positive affect:
+
+- starting point: `Negative emotion`
+- outgoing daydreaming responses: `Roving`, `Revenge`, `Rationalization`
+- rationalization branches: `Minimization`, `Mixed blessing`, `External attribution`, `Hidden blessing`
+- imagined outcomes: `Imagined alternative failure`, `Imagined success`
+- result: `Positive emotion`
+- arrows marked `reduces` indicate that these daydreaming goals weaken negative affect and help replace it with positive affect
+
+For the image-reviewed figure reconstructions across Chapter 3, see [Image-Reviewed Chapter 3 Figures](33-image-reviewed-chapter-3-emotion-figures.md).
+
+In the following sections, we discuss specific strategies for `RATIONALIZATION`, `REVENGE`, and `ROVING`. These strategies, and their impact on emotions, are summarized in Figure 3.3.
 
 ## 3.5 Rationalization
 
-When one is unhappy, one’s daydreams often turn towards consolations or thoughts designed to alleviate the unhappiness—one tries to make oneself feel better, to rationalize a goal failure in some way. The daydreams RATIONALIZATIONI1 and RATIONALIZATION2 (see page 4) are examples. We define rationalization as any process for adjusting one’s interpretation of a situation in order to reduce the negative emotional consequences of that situations. In effect,. rationalization provides a way of reducing the cognitive dissonance (Festinger,
-
-1957) resulting from a goal failure. Rationalization is a frequent component of daydreaming: Varendonck (1921) noticed the rationalization aspect of daydreaming in his hypothesis-rejoinder pairs: “Every thought in the second list implies a soothing process, a consolation, a reparation for the unpleasant impression left on the mind by the
-
-recollections in the first list” (pp. 249-250).
-
-Izard (1977) reports that 18.2 of
-
-the subjects presented with photographs representing the emotion of shame described the thoughts resulting from that emotion as “rationalize, escape from feeling.” (p. 398) Hofstadter (1985, pp. 257-259) gives examples of creative variations on a theme called “subjunctive instant replays”; in our terminology these are alternative past scenarios which function as rationalizations (or as their opposite).
+When one is unhappy, one’s daydreams often turn towards consolations or thoughts designed to alleviate the unhappiness: one tries to make oneself feel better, to rationalize a goal failure in some way. The daydreams `RATIONALIZATION1` and `RATIONALIZATION2` (see page 4) are examples. We define rationalization as any process for adjusting one’s interpretation of a situation in order to reduce the negative emotional consequences of that situation. In effect, rationalization provides a way of reducing the cognitive dissonance (Festinger, 1957) resulting from a goal failure. Rationalization is a frequent component of daydreaming: Varendonck (1921) noticed the rationalization aspect of daydreaming in his hypothesis-rejoinder pairs: “Every thought in the second list implies a soothing process, a consolation, a reparation for the unpleasant impression left on the mind by the recollections in the first list” (pp. 249-250). Izard (1977) reports that 18.2 percent of the subjects presented with photographs representing the emotion of shame described the thoughts resulting from that emotion as “rationalize, escape from feeling.” (p. 398) Hofstadter (1985, pp. 257-259) gives examples of creative variations on a theme called “subjunctive instant replays”; in our terminology these are alternative past scenarios which function as rationalizations (or as their opposite).
 
 <!-- page: 84 -->
 
-The RATIONALIZATION tion of sufficient strength: IF THEN
+The `RATIONALIZATION` daydreaming goal is activated by a negative emotion of sufficient strength:
 
-daydreaming goal is activated by a negative emo-
+```text
+IF   NEG-EMOTION of sufficient strength resulting
+     from a FAILED-GOAL
+THEN ACTIVE-GOAL for RATIONALIZATION of failure
+```
 
-NEG-EMOTION
-
-of sufficient strength resulting from a FAILED-GOAL ACTIVE-GOAL for RATIONALIZATION of failure
-
-Humans will also sometimes rationalize an anticipated future goal failure: that is, an emotion of worry about a future failure may be reduced through rationalization of that potential failure should it occur. One may also employ rationalization to reduce a negative emotional state when a particular personal goal cannot be attempted or achieved in real life because of negative social or other consequences. These cases are ignored in the current version of DAYDREAMER for simplicity. Once RATIONALIZATION is active, how is it achieved? That is, how are rationalization daydreams produced? In this section, we describe four methods for rationalization: mixed blessing, hidden blessing, external attribution, and minimization.
+Humans will also sometimes rationalize an anticipated future goal failure: that is, an emotion of worry about a future failure may be reduced through rationalization of that potential failure should it occur. One may also employ rationalization to reduce a negative emotional state when a particular personal goal cannot be attempted or achieved in real life because of negative social or other consequences. These cases are ignored in the current version of DAYDREAMER for simplicity. Once `RATIONALIZATION` is active, how is it achieved? That is, how are rationalization daydreams produced? In this section, we describe four methods for rationalization: mixed blessing, hidden blessing, external attribution, and minimization.
 
 ### 3.5.1 Rationalization by Mixed Blessing
 
-In rationalization by mixed blessing, one explores a hypothetical situation in which the goal succeeded instead of failed, and attempts to find negative consequences of that situation. That is, rateonalization by mized blessing involves generation of a scenario in which the imagined success of the goal which failed in reality leads to an imagined goal failure. This plan for rationalization, employed
+In rationalization by mixed blessing, one explores a hypothetical situation in which the goal succeeded instead of failed, and attempts to find negative consequences of that situation. That is, rationalization by mixed blessing involves generation of a scenario in which the imagined success of the goal which failed in reality leads to an imagined goal failure. This plan for rationalization, employed in `RATIONALIZATION1`, is expressed by the following rule:
 
-in RATIONALIZATION1, is expressed by the following rule:! IF
+```text
+IF   ACTIVE-GOAL for RATIONALIZATION of failure
+THEN ACTIVE-GOAL for success to LEADTO failure
+```
 
-ACTIVE-GOAL
+```text
+IF   NEG-EMOTION associated with failure less
+     than a certain strength or POS-EMOTION associated
+     with failure
+THEN RATIONALIZATION of failure
+```
 
-for RATIONALIZATION
+The strength of the emotion associated with the goal failure is then modified via a mechanism first presented in Chapter 2: during planning, any emotion generated as a result of a side-effect personal goal outcome is associated with the current concern, and the strength of such an emotion is diverted to the primary motivating emotion of that concern.
 
-THEN
+Note: mixed blessing scenarios in DAYDREAMER are instances of Lehnert’s (1982) `MIXED BLESSING` plot unit.
 
-ACTIVE-GOAL
-
-for success to LEADTO
-
-of failure
-
-THEN
-
-NEG-EMOTION associated with failure less than a certain strength or POS-EMOTION associated with failure RATIONALIZATION of failure
-
-failure
-
-The strength of the emotion associated with the goal failure is then modified via a mechanism first presented in Chapter 2: During planning, any emotion generated as a result of a side-effect personal goal outcome is associated with the current concern, and the strength of such an emotion is diverted to the primary motivating emotion of that concern.?. This mechanism rewards concerns ‘Note that mixed blessing scenarios in DAYDREAMER
-
-are instances of Lehnert’s (1982)
-
-MIXED BLESSING plot unit. Since, in general, more than one emotion can provide the emotion for a given concern, the primary motivating emotion of a concern is the emotion which first resulted in the creation
-
-of the concern (such as a negative emotion resulting from goal failure), or which was first activated upon creation of the concern (such as a motivating positive interest emotion created upon personal goal activation).
+Note: since, in general, more than one emotion can provide the emotion for a given concern, the primary motivating emotion of a concern is the emotion which first resulted in the creation of the concern (such as a negative emotion resulting from goal failure), or which was first activated upon creation of the concern (such as a motivating positive interest emotion created upon personal goal activation).
 
 <!-- page: 85 -->
 
-generating additional positive emotions in planning to achieve a top-level goal and discourages concerns generating additional negative emotions. Now recall
-
-that:
+This mechanism rewards concerns generating additional positive emotions in planning to achieve a top-level goal and discourages concerns generating additional negative emotions. Now recall that:
 
 - a goal failure generated in an alternative past scenario results in the positive emotion of relief whose strength is proportional to the realism of the scenario and the importance of the goal which failed (while a goal success results in the negative emotion of regret)
+- the negative emotion associated with the goal failure is the same as the motivating emotion associated with the active `RATIONALIZATION` goal
 
-- the negative emotion associated with the goal failure is the same as the motivating emotion associated with the active RATIONALIZATION goal Consequently, goal successes and failures which result during planning will, respectively, increase or decrease the strength of the negative emotion. Thus if an imagined goal failure is generated, the original goal failure will be rationalized in proportion to the strength of the new positive emotion of relief resulting from the goal failure. However, if an imagined goal success is generated, the opposite of a rationalization will result: A new negative emotion of regret will be activated and the strength of the original negative emotion will be increased.
+Consequently, goal successes and failures which result during planning will, respectively, increase or decrease the strength of the negative emotion. Thus if an imagined goal failure is generated, the original goal failure will be rationalized in proportion to the strength of the new positive emotion of relief resulting from the goal failure. However, if an imagined goal success is generated, the opposite of a rationalization will result: a new negative emotion of regret will be activated and the strength of the original negative emotion will be increased.
 
 ### 3.5.2 Rationalization by Hidden Blessing
 
-When someone is unhappy because of some negative situation, event, or out-. come, we often tell that person to “look on the bright side” —to shift attention to the positive aspects of the situation in order to feel better. This is also expressed in the proverb “Every cloud has a silver lining.” Employed in RATIONALIZATION2, rationalization by hidden blessing involves generation of a scenario in which a real goal failure leads to a real or imagined goal success:? IF
+When someone is unhappy because of some negative situation, event, or outcome, we often tell that person to “look on the bright side” —to shift attention to the positive aspects of the situation in order to feel better. This is also expressed in the proverb “Every cloud has a silver lining.” Employed in `RATIONALIZATION2`, rationalization by hidden blessing involves generation of a scenario in which a real goal failure leads to a real or imagined goal success:
 
-ACTIVE-GOAL
+```text
+IF   ACTIVE-GOAL for RATIONALIZATION of failure
+THEN ACTIVE-GOAL for failure to LEADTO success
+```
 
-for RATIONALIZATION
+Since this form of rationalization involves generation of a present or future, rather than alternative past, scenario, goal failures which are generated in the course of planning result in negative emotions and goal successes result in positive emotions. Thus resulting goal successes will decrease the strength of the original negative emotion and goal failures will increase the strength of the original negative emotion. Thus when a goal success is generated, the original goal failure will be rationalized in proportion to the strength of the new positive emotion resulting from the goal success. Of course, if a goal failure is generated, DAYDREAMER is further away from a rationalization than when it started: a new negative emotion will be activated and the strength of the original negative emotion will be increased.
 
-THEN
-
-ACTIVE-GOAL
-
-for failure to LEADTO
-
-of failure
-
-success
-
-Since this form of rationalization involves generation of a present or future—. rather than alternative past—scenario, goal failures which are generated in the course of planning result in negative emotions and goal successes result in a positive emotions. Thus resulting goal successes will decrease the strength of the original negative emotion and goal failures will increase the strength of the original negative emotion. Thus when a goal success is generated, the original goal failure will be rationalized in proportion to the strength of the new positive emotion resulting from the goal success. Of course, if a goal failure is generated, DAYDREAMER is further away from a rationalization than when it started: A new negative emotion will be activated and the strength of the original negative emotion will be increased. are instances of both Lehnert’s plot unit and Dyer’s (1983a) thematic abstraction unit TAU-
-
-3Note that hidden blessing scenarios in DAYDREAMER
-
-(1982) HIDDEN BLESSING HIDDEN-BLESSING.
+Note: hidden blessing scenarios in DAYDREAMER are instances of both Lehnert’s (1982) `HIDDEN BLESSING` plot unit and Dyer’s (1983a) thematic abstraction unit `TAU-HIDDEN-BLESSING`.
 
 <!-- page: 86 -->
 
-Rationalization by External Attribution
+### 3.5.3 Rationalization by External Attribution
 
-Another method for rationalization is suggested by attribution theory (Heider, 1958; Kelley, 1967). An attribution is the cause or causes that one attributes to a past success or failure. Attributions have an impact on emotional state. In this framework, rationalization may be viewed as the process of finding an attribution with the most positive emotional consequences or with the least
+Another method for rationalization is suggested by attribution theory (Heider, 1958; Kelley, 1967). An attribution is the cause or causes that one attributes to a past success or failure. Attributions have an impact on emotional state. In this framework, rationalization may be viewed as the process of finding an attribution with the most positive emotional consequences or with the least amount of “cognitive dissonance” (Festinger, 1957). For failures, finding an external attribution—attributing the failure to another person, lack of luck, environmental factors, lack of ability, lack of effort, or fatigue—will often reduce a negative emotion resulting from blaming oneself for a failure. Thus, external attribution is another possible strategy for rationalization. External attribution is not currently implemented as a separate strategy in DAYDREAMER but rather is accomplished as follows:
 
-amount of “cognitive dissonance” (Festinger, 1957). For failures, finding an external attribution—attributing the failure to another person, lack of luck, environmental factors, lack of ability, lack of effort, or fatigue—will often reduce a negative emotion resulting from blaming oneself for a failure. Thus, external attribution is another possible strategy for rationalization. External attribution is not currently implemented as a separate strategy in DAYDREAMER but rather is accomplished as follows:
-
-- The REVERSAL goal attempts to generate an alternative past scenario which might have prevented the failure (as described in detail in Chap-
-
-ter 4).
-
+- The `REVERSAL` goal attempts to generate an alternative past scenario which might have prevented the failure (as described in detail in Chapter 4).
 - The alternative scenario leads to the same goal failure.
+- A positive emotion of relief results (because this is an alternative past scenario), reducing the strength of the negative emotion associated with the original goal failure.
 
-- A positive emotion of relief results (because this is an alternative past scenario), reducing the strength of the negative emotion associated with the original goal failure. If the above occurs for each alternative past scenario, the following external attribution may be made: “No matter what I might have done, the failure would still have resulted.” Of course, if the REVERSAL is successful, the negative emotion of regret results. This situation occurs in REVERSAL1. Another mechanism in DAYDREAMER relates to external attribution: A negative emotion resulting from a personal goal failure is directed toward another person when an input action of that person is the cause for the failure. However, this does not result in a reduction of the strength of the negative emotion, but rather a shift of the kind of emotion from displeasure to anger (which is then
+If the above occurs for each alternative past scenario, the following external attribution may be made: “No matter what I might have done, the failure would still have resulted.” Of course, if the `REVERSAL` is successful, the negative emotion of regret results. This situation occurs in `REVERSAL1`. Another mechanism in DAYDREAMER relates to external attribution: a negative emotion resulting from a personal goal failure is directed toward another person when an input action of that person is the cause for the failure. However, this does not result in a reduction of the strength of the negative emotion, but rather a shift of the kind of emotion from displeasure to anger (which is then handled by the `REVENGE` daydreaming goal).
 
-handled by the REVENGE
+### 3.5.4 Rationalization by Minimization
 
-### 3.5.4 daydreaming goal.) Rationalization by Minimization
+Suppose that, in `LOVERS1`, the movie star mentions the name of a famous director and DAYDREAMER responds that she has never heard of that director, and she is embarrassed as a result. Here are several rationalizations that might result from such an experience:
 
-Suppose that, in LOVERS1, the movie star mentions the name of a famous director and DAYDREAMER responds that she has never heard of that director, and she is embarrassed as a result. Here are several rationalizations that might result from such an experience:
-
-He knows that most people have never heard of that director anyway.
+- He knows that most people have never heard of that director anyway.
+- He might have just thought I was playing dumb to engage him in conversation.
+- He wouldn’t dismiss someone simply because she had never heard of that director.
+- I don’t think much of him anyway.
 
 <!-- page: 87 -->
 
-He might have just thought I was playing dumb to engage him in conversation. He wouldn’t dismiss someone simply because she had never heard of that director. I don’t think much of him anyway.
-
-How might rationalizations such as the above be generated? Rationalization by minimization involves reducing the likelihood of a goal failure and correspondingly the strength of the resulting negative emotion through the generation of reasons why antecedents of that goal failure are not necessarily true (and sometimes merely by asserting the negation of those antecedents). (This process is named after a similar process discussed by Plutchik, 1980.) An antecedent for embarrassment is a negative judgment by another person of the self. A negative judgment might result if a person expects everyone to have certain knowledge and believes another person does not have that knowledge. Thus the first rationalization above may be produced: The movie star in fact does not expect everyone to know about the particular director. The second rationalization results from a negation of the other half of the rule: The movie star in fact does not believe the daydreamer does not know about the director, and an alternative belief of the star regarding the reason for the behavior of the daydreamer is generated. The third rationalization above amounts to a negation of the negative judgment rule itself. The fourth rationalization negates another antecedent for embarrassment: having a positive attitude toward the person one is embarrassed in front of. In general, for each fact which led to the negative emotion, the daydreamer attempts to generate a reasoning chain which shows the negation of that fact. If the daydreamer is successful in showing the negation of the fact with a given strength or degree of likelihood s’, then the strength of the original non-negated
-
-fact s is adjusted to be s/(s + s’). In some cases, an attempt to minimize will backfire since worse consequences may result from the process. DAYDREAMER produces two minimizations in the daydream RATIONAL-
-
-> IZATIONS (see page 5). In the current version of DAYDREAMER, minimization may negate attitudes without justification. The impact of the new attitude on other attitudes of the program is then evaluated through the application of inference rules. However, there is currently no way for the program to reject an attitude which would result in cognitive dissonance (Heider, 1958; Festinger, 1957) when evaluated with respect to the program’s overall belief system, as is
-
-done in Abelson’s (1963) program.
+How might rationalizations such as the above be generated? Rationalization by minimization involves reducing the likelihood of a goal failure and correspondingly the strength of the resulting negative emotion through the generation of reasons why antecedents of that goal failure are not necessarily true (and sometimes merely by asserting the negation of those antecedents). (This process is named after a similar process discussed by Plutchik, 1980.) An antecedent for embarrassment is a negative judgment by another person of the self. A negative judgment might result if a person expects everyone to have certain knowledge and believes another person does not have that knowledge. Thus the first rationalization above may be produced: the movie star in fact does not expect everyone to know about the particular director. The second rationalization results from a negation of the other half of the rule: the movie star in fact does not believe the daydreamer does not know about the director, and an alternative belief of the star regarding the reason for the behavior of the daydreamer is generated. The third rationalization above amounts to a negation of the negative judgment rule itself. The fourth rationalization negates another antecedent for embarrassment: having a positive attitude toward the person one is embarrassed in front of. In general, for each fact which led to the negative emotion, the daydreamer attempts to generate a reasoning chain which shows the negation of that fact. If the daydreamer is successful in showing the negation of the fact with a given strength or degree of likelihood `s’`, then the strength of the original non-negated fact `s` is adjusted to be `s / (s + s’)`. In some cases, an attempt to minimize will backfire since worse consequences may result from the process. DAYDREAMER produces two minimizations in the daydream `RATIONALIZATIONS` (see page 5). In the current version of DAYDREAMER, minimization may negate attitudes without justification. The impact of the new attitude on other attitudes of the program is then evaluated through the application of inference rules. However, there is currently no way for the program to reject an attitude which would result in cognitive dissonance (Heider, 1958; Festinger, 1957) when evaluated with respect to the program’s overall belief system, as is done in Abelson’s (1963) program.
 
 ## 3.6 Revenge
 
-When one is angry at a person because that person has caused a failure for the self, one often daydreams about retaliation against the person or getting back
+When one is angry at a person because that person has caused a failure for the self, one often daydreams about retaliation against the person or getting back at that person. An example is the daydream `REVENGE1` (see page 4).
 
 <!-- page: 88 -->
 
-at that person. An example is the daydream REVENGE] (see page 4). Human daydreaming is often concerned with revenge: Items of the Imaginal Processes Inventory (J. L. Singer & Antrobus, 1972) refer to ways of “getting even,” “rubbing it in,” “attaining revenge,” and so on. Izard (1977) reports that when subjects (approximately 130 college students) were presented with photographs representing the emotion of anger, 43.9 percent of the subjects described the thoughts that follow from experiencing that emotion as “of revenge, attacking others, destruction” (p. 335). The REVENGE daydreaming goal is activated by a directed negative emotion (such as anger and humiliation) of sufficient strength: IF THEN
+Human daydreaming is often concerned with revenge: Items of the Imaginal Processes Inventory (J. L. Singer & Antrobus, 1972) refer to ways of “getting even,” “rubbing it in,” “attaining revenge,” and so on. Izard (1977) reports that when subjects (approximately 130 college students) were presented with photographs representing the emotion of anger, 43.9 percent of the subjects described the thoughts that follow from experiencing that emotion as “of revenge, attacking others, destruction” (p. 335). The `REVENGE` daydreaming goal is activated by a directed negative emotion (such as anger and humiliation) of sufficient strength:
 
-NEG-EMOTION toward person resulting from a FAILED-GOAL ACTIVE-GOAL to gain REVENGE against person
+```text
+IF   NEG-EMOTION toward person resulting from
+     a FAILED-GOAL
+THEN ACTIVE-GOAL to gain REVENGE against person
+```
 
 In this section, we investigate the purpose of revenge daydreams, and discuss some strategies for generating them.
 
 ### 3.6.1 The Purpose of Revenge Daydreams
 
-Achieving revenge in a daydream results in a positive emotion of satisfaction. Should we then conclude that the function of revenge daydreaming is to make one feel better after experiencing a goal failure caused by another? It seems that revenge daydreams sometimes have the effect of intensifying, rather than reducing, the original anger. If this is true, we must question the utility of revenge daydreaming. It has sometimes been proposed that daydreaming serves a catharsis function (Breuer & S. Freud, 1895/1937)—that through daydreaming one may partially discharge aggression in order to prevent its often damaging expression in real life. Some studies (Feshbach, 1956) have, in fact, found a reduction in aggression after engaging in fantasy activity. However, other studies have failed to support this hypothesis: In an experiment conducted by Paton (1972), subjects were insulted while performing a task. Afterwards, one group was shown pictures containing aggressive material, while another was shown nonaggressive pictures. These two groups were then given a chance to daydream and to report their daydreams to the experimenter. A third group had no opportunity to daydream. Those who had a chance to engage in fantasies exhibited less anger after being insulted than those who did not. However, those who had had aggressive fantasies exhibited less reduction of anger than those who had had more neutral fantasies. J. L. Singer (1975) proposes that reduction of anger through daydreaming is accomplished primarily through shift of the focus of attention away from the anger toward more pleasant fantasies, rather than through a catharsis effect. This would suggest that reduction of anger is accomplished more successfully through a strategy such as our ROVING daydreaming goal than through REVENGE.
+Achieving revenge in a daydream results in a positive emotion of satisfaction. Should we then conclude that the function of revenge daydreaming is to make one feel better after experiencing a goal failure caused by another? It seems that revenge daydreams sometimes have the effect of intensifying, rather than reducing, the original anger. If this is true, we must question the utility of revenge daydreaming. It has sometimes been proposed that daydreaming serves a catharsis function (Breuer & S. Freud, 1895/1937)—that through daydreaming one may partially discharge aggression in order to prevent its often damaging expression in real life. Some studies (Feshbach, 1956) have, in fact, found a reduction in aggression after engaging in fantasy activity. However, other studies have failed to support this hypothesis: In an experiment conducted by Paton (1972), subjects were insulted while performing a task. Afterwards, one group was shown pictures containing aggressive material, while another was shown nonaggressive pictures. These two groups were then given a chance to daydream and to report their daydreams to the experimenter. A third group had no opportunity to daydream. Those who had a chance to engage in fantasies exhibited less anger after being insulted than those who did not. However, those who had had aggressive fantasies exhibited less reduction of anger than those who had had more neutral fantasies. J. L. Singer (1975) proposes that reduction of anger through daydreaming is accomplished primarily through shift of the focus of attention away from the anger toward more pleasant fantasies, rather than through a catharsis effect. This would suggest that reduction of anger is accomplished more successfully through a strategy such as our `ROVING` daydreaming goal than through `REVENGE`.
 
 <!-- page: 89 -->
 
-What is the function of the emotion of anger which gives rise to revenge? Anger is a safety mechanism which ensures that we will try to resist being wronged or “stepped on” by others. It motivates us to fight back against those who harm us—to stand up for ourselves—and as such is an adaptive emotion
+What is the function of the emotion of anger which gives rise to revenge? Anger is a safety mechanism which ensures that we will try to resist being wronged or “stepped on” by others. It motivates us to fight back against those who harm us—to stand up for ourselves—and as such is an adaptive emotion (Izard, 1977).
 
-(Izard, 1977).
-
-Revenge daydreaming thus has the potential to generate realistic plans for retaliatory actions necessary in some situations. Through daydreaming, one may consider the consequences of retaliation in order to determine whether or not such actions are desirable. While a particular unrealistic scenario (such as REVENGE1) might not be worthwhile to pursue, a variation or outgrowth of such a scenario may turn out to be useful in recovery or adaptive retaliations to prevent recurrences. Thus revenge daydreaming is another way of generating scenarios which may or may not lead to productive use. We conclude tentatively that the purpose of revenge daydreaming is to generate scenarios of potential future use for both retaliation and other purposes, and to provide a short-term positive emotional benefit. However, if an organism gets carried away with revenge daydreaming the results can be destructive. If the organism devoted more and more energy to bigger and better retaliations it would lose sight of reality; it would be obsessed. This effect would occur if revenge satisfaction intensified the original anger, causing further daydreams of revenge, resulting in even greater anger, and so on.
+Revenge daydreaming thus has the potential to generate realistic plans for retaliatory actions necessary in some situations. Through daydreaming, one may consider the consequences of retaliation in order to determine whether or not such actions are desirable. While a particular unrealistic scenario (such as `REVENGE1`) might not be worthwhile to pursue, a variation or outgrowth of such a scenario may turn out to be useful in recovery or adaptive retaliations to prevent recurrences. Thus revenge daydreaming is another way of generating scenarios which may or may not lead to productive use. We conclude tentatively that the purpose of revenge daydreaming is to generate scenarios of potential future use for both retaliation and other purposes, and to provide a short-term positive emotional benefit. However, if an organism gets carried away with revenge daydreaming the results can be destructive. If the organism devoted more and more energy to bigger and better retaliations it would lose sight of reality; it would be obsessed. This effect would occur if revenge satisfaction intensified the original anger, causing further daydreams of revenge, resulting in even greater anger, and so on.
 
 ### 3.6.2 Achievement of Revenge
 
-In order to get even with a person for thwarting a personal goal of the self, one must cause a personal goal failure for that person. The importance of the personal goal should be approximately the same as the self personal goal thwarted by the person. Two specific strategies are used in DAYDREAMER to accomplish such goal failures: turning the tables and physical harm. Revenge by turning the tables involves causing the failure of a similar goal to the goal of the self thwarted by the person. A specific rule accomplishes this form _ of revenge for failed FRIENDS, LOVERS, and EMPLOYMENT relationships:
+In order to get even with a person for thwarting a personal goal of the self, one must cause a personal goal failure for that person. The importance of the personal goal should be approximately the same as the self personal goal thwarted by the person. Two specific strategies are used in DAYDREAMER to accomplish such goal failures: turning the tables and physical harm. Revenge by turning the tables involves causing the failure of a similar goal to the goal of the self thwarted by the person. A specific rule accomplishes this form of revenge for failed `FRIENDS`, `LOVERS`, and `EMPLOYMENT` relationships:
 
-THEN
+```text
+IF   ACTIVE-GOAL to gain REVENGE against person
+     for causing self a failed POS-RELATIONSHIP goal
+THEN ACTIVE-GOAL for person to have failure of
+     same POS-RELATIONSHIP
+```
 
-ACTIVE-GOAL to gain REVENGE against person for causing self a failed POS-RELATIONSHIP goal ACTIVE-GOAL for person to have failure of same POS-RELATIONSHIP
+Revenge by physical harm involves generation of a scenario in which the person who caused a self goal failure is physically damaged. Such scenarios are generated by the following rule:
 
-Revenge by physical harm involves generation of a scenario in which the person who caused a self goal failure is physically damaged. Such scenarios are generated by the following rule: IF THEN
-
-against person
-
-ACTIVE-GOAL
-
-for REVENGE
-
-ACTIVE-GOAL
-
-for person to have FAILED-GOAL
-
-of NOT
-
-being HURT
+```text
+IF   ACTIVE-GOAL for REVENGE against person
+THEN ACTIVE-GOAL for person to have FAILED-GOAL
+     of NOT being HURT
+```
 
 <!-- page: 90 -->
 
 This rule results in the following daydream:
 
-REVENGE4 | want to get even with my boss for firing me. pleased.
+> `REVENGE4`
+>
+> I want to get even with my boss for firing me. I beat her up. I feel pleased.
 
-## 3.7 | beat her up. | feel Roving
+## 3.7 Roving
 
-One method of feeling better when one is upset is to ignore the negative feelings and divert attention to a more positive topic. An example is the daydream
+One method of feeling better when one is upset is to ignore the negative feelings and divert attention to a more positive topic. An example is the daydream `ROVING1` (see page 5). This strategy, which we call roving, is often employed in daydreaming: According to J. L. Singer (1975), positive daydreaming is frequently used as a form of self-entertainment, or as a diversion or form of escape from negative emotions and thoughts. Izard (1977) reports that 15.0 percent of subjects (approximately 130 college students) shown photographs representing the emotion of disgust described the following thoughts as “of others, trying to forget, escape situation” (p. 339). The `ROVING` daydreaming goal is activated by any negative emotion of sufficient strength:
 
-ROVINGI1 (see page 5). This strategy, which we call roving, is often employed in daydreaming: According to J. L. Singer (1975), positive daydreaming is frequently used as a form of self-entertainment, or as a diversion or form of escape from negative emotions
+```text
+IF   NEG-EMOTION of sufficient strength resulting
+     from a FAILED-GOAL
+THEN ACTIVE-GOAL for ROVING
+```
 
-and thoughts. Izard (1977) reports that 15.0 percent of subjects (approximately 130 college students) shown photographs representing the emotion of disgust described the following thoughts as “of others, trying to forget, escape situation” (p. 339). The ROVING daydreaming goal is activated by any negative emotion of sufficient strength: IF
+Employed in `ROVING1`, a strategy for roving is to recall any particularly pleasant episode, real or daydreamed:
 
-NEG-EMOTION of sufficient strength resulting from a FAILED-GOAL
+```text
+IF   ACTIVE-GOAL for ROVING
+THEN recall pleasant episode
+```
 
-THEN
-
-ACTIVE-GOAL
-
-for ROVING
-
-Employed in ROVING], a strategy for roving is to recall any particularly pleasant episode—real or daydreamed: IF
-
-ACTIVE-GOAL
-
-for ROVING
-
-THEN _ recall pleasant episode
-
-Beck (1967, p. 330) reports he was able to alleviate patients’ feelings of inadequacy by instructing them to recall past successes. (However, recalling a past success can also have a negative effect if the daydreamer starts wishing that the past success could happen again.) Another plan is to generate a wish-fulfillment daydream, or a daydream in which an active top-level goal is achieved. (However, in DAYDREAMER this is accomplished via the REHEARSAL daydreaming goal.) Although ROVING in response to a negative emotion associated with a goal failure reduces or eliminates the negative emotional state of the program, it does not enable the program to deal directly with the goal failure by recovering from the failure or determining how to avoid future similar goal failures. Rather,
-
-these functions are provided by the REVERSAL and REHEARSAL daydreaming goals, respectively.
-
-Nonetheless,
-
-ROVING
-
-may be important
-
-to reduce the
+Beck (1967, p. 330) reports he was able to alleviate patients’ feelings of inadequacy by instructing them to recall past successes. (However, recalling a past success can also have a negative effect if the daydreamer starts wishing that the past success could happen again.) Another plan is to generate a wish-fulfillment daydream, or a daydream in which an active top-level goal is achieved. (However, in DAYDREAMER this is accomplished via the `REHEARSAL` daydreaming goal.) Although `ROVING` in response to a negative emotion associated with a goal failure reduces or eliminates the negative emotional state of the program, it does not enable the program to deal directly with the goal failure by recovering from the failure or determining how to avoid future similar goal failures. Rather, these functions are provided by the `REVERSAL` and `REHEARSAL` daydreaming goals, respectively.
 
 <!-- page: 91 -->
 
-## 3.8 EMOTIONS AS MOTIVATION fe
-
-negative emotional state of the program to a point where it can then perform such constructive activities. When a negative emotion of sufficient strength is activated, several daydreaming goals are activated in response and that emotion becomes the motivating emotion for each of those goals. Thus no one daydreaming goal has priority over the other. (A discussion of how daydreaming goals might be pri-
-
-oritized is presented elsewhere [E. T. Mueller, 1987b].)
+Nonetheless, `ROVING` may be important to reduce the negative emotional state of the program to a point where it can then perform such constructive activities. When a negative emotion of sufficient strength is activated, several daydreaming goals are activated in response and that emotion becomes the motivating emotion for each of those goals. Thus no one daydreaming goal has priority over the other. (A discussion of how daydreaming goals might be prioritized is presented elsewhere [E. T. Mueller, 1987b].)
 
 ## 3.8 Emotions as Motivation
 
@@ -658,23 +482,13 @@ by 63.18 percent), hypnopompic imagery (a kind of dreaming involving imagery
 
 <!-- page: 95 -->
 
-which occurs while waking up, reported by 21.42 percent), synesthesia (a stimulus in one sensory modality evoking an image in another modality, reported by
-
-## 21.42 percent), diagram forms (visual imagery of a spatial arrangement corresponding to numbers, days of the week, months of the year, and so on, reported
-
-by 7.69 percent), and color associations (associating colors with, say, days of the week, reported by 20.41 percent of 191 subjects). Do such feeling states influence behavior or are they merely epiphenomenal? Certainly, such states affect mood, which in turn affects behavior. One may also comment to a friend on having experienced such a state. But what is the unique contribution of a particular feeling state? What are these feeling states? How might they be represented in a computer program? Might we be able to build such states out of a set of “primary” feelings or emotions (see, for example, Izard, 1977; Tomkins, 1962) mixed in various combinations? ‘For example, could a certain idiosyncratic feeling state be represented as 60 percent interest-excitement, 20 percent guilt, and 20 percent shame? Although such emotional mixtures describe an infinite set of distinct emotional states, we doubt that these mixtures would be able to capture the richness, variety, and idiosyncrasy of personal feeling states (Salaman, 1970; James, 1890b, pp. 454, 468). Although the true nature and influence on behavior of such feeling states is a topic for future research, we hypothesize that these subjective states result from a sufficiently complex conceptual representation. DAYDREAMER, for instance, does not have a set of fundamental emotions, since emotions are represented as arbitrary data structures. That is, although a particular data structure may be designated as an emotion, what is really important is the relationship of ' this data structure to other data structures and how these data structures are employed in processing. English words such as embarrassment are employed merely for convenience in understanding the operation of the program: The English generator contains a set of templates interpreting certain emotional data structures connected in a certain way to other data structures as certain emotions. One such connection is the association between a personal goal outcome and the emotional data structure—for example, a negative emotion resulting from a failure of the SOCIAL ESTEEM personal goal is generated as embarrassment. But suppose some new, idiosyncratic personal goal (such as recharging by plugging into a wall outlet) is acquired by the program. How, then, should the corresponding emotion be named? Perhaps there is no equivalent emotion in a human! Although the subjective aspect of feelings is indeed a difficult philosophical paradox (Nagel, 1974; Dennett, 1978), we propose that the behavioral impact of what we call complex feeling states (including verbal descriptions of these states) results from a very complex conceptual representation—that complex feeling states are in fact identical to complex conceptual representations. L. B.
-
-Meyer (1956) takes a similar view in his analysis of emotional and intellectual responses to (nonsymbolic) music. Zajonc (1980), however, argues that affective
+which occurs while waking up, reported by 21.42 percent), synesthesia (a stimulus in one sensory modality evoking an image in another modality, reported by 21.42 percent), diagram forms (visual imagery of a spatial arrangement corresponding to numbers, days of the week, months of the year, and so on, reported by 7.69 percent), and color associations (associating colors with, say, days of the week, reported by 20.41 percent of 191 subjects). Do such feeling states influence behavior or are they merely epiphenomenal? Certainly, such states affect mood, which in turn affects behavior. One may also comment to a friend on having experienced such a state. But what is the unique contribution of a particular feeling state? What are these feeling states? How might they be represented in a computer program? Might we be able to build such states out of a set of “primary” feelings or emotions (see, for example, Izard, 1977; Tomkins, 1962) mixed in various combinations? For example, could a certain idiosyncratic feeling state be represented as 60 percent interest-excitement, 20 percent guilt, and 20 percent shame? Although such emotional mixtures describe an infinite set of distinct emotional states, we doubt that these mixtures would be able to capture the richness, variety, and idiosyncrasy of personal feeling states (Salaman, 1970; James, 1890b, pp. 454, 468). Although the true nature and influence on behavior of such feeling states is a topic for future research, we hypothesize that these subjective states result from a sufficiently complex conceptual representation. DAYDREAMER, for instance, does not have a set of fundamental emotions, since emotions are represented as arbitrary data structures. That is, although a particular data structure may be designated as an emotion, what is really important is the relationship of this data structure to other data structures and how these data structures are employed in processing. English words such as embarrassment are employed merely for convenience in understanding the operation of the program: The English generator contains a set of templates interpreting certain emotional data structures connected in a certain way to other data structures as certain emotions. One such connection is the association between a personal goal outcome and the emotional data structure; for example, a negative emotion resulting from a failure of the SOCIAL ESTEEM personal goal is generated as embarrassment. But suppose some new, idiosyncratic personal goal (such as recharging by plugging into a wall outlet) is acquired by the program. How, then, should the corresponding emotion be named? Perhaps there is no equivalent emotion in a human! Although the subjective aspect of feelings is indeed a difficult philosophical paradox (Nagel, 1974; Dennett, 1978), we propose that the behavioral impact of what we call complex feeling states (including verbal descriptions of these states) results from a very complex conceptual representation, that complex feeling states are in fact identical to complex conceptual representations. L. B. Meyer (1956) takes a similar view in his analysis of emotional and intellectual responses to (nonsymbolic) music. Zajonc (1980), however, argues that affective
 
 <!-- page: 96 -->
 
 judgments can occur to stimuli before cognitive understandings of those stimuli are formed, and thus that affect and cognition are partially independent. We would reply that although emotions may indeed occur prior to other, more “cold” conscious cognitions, some cognitive process must still have caused those emotions—perhaps a nonconscious one.
 
-## 3.10 Previous Related
-
-Work
-
-in Emotions
+## 3.10 Previous Related Work in Emotions
 
 Several researchers have previously argued the importance of emotions in theories of cognition: Neisser (1963) wrote that emotions are “conspicuously absent from existing or contemplated computer programs” (p. 195) and that “[h]uman thinking begins in an intimate association with emotions and feelings which is never entirely lost.” (p. 195) Norman (1981) included emotions in his list of 12 issues for cognitive science. Sloman and Croucher (1981) argued the necessity of emotions in robots. Since the psychological literature on emotions is quite large (see, for example, Mandler, 1975 and Izard, 1977 for overviews), in this section we review only the work in psychology and artificial intelligence most relevant to our current research, specifically, the (to our knowledge) unimplemented emotion models of Simon, Abelson, Weiner, and Bower and Cohen, and the implemented models of Colby, Dyer, and Pfeifer.
 
@@ -688,29 +502,15 @@ Colby (1973, 1975, 1981) constructed a computer simulation, called PARRY, of a p
 
 <!-- page: 97 -->
 
-## 3.10 PREVIOUS RELATED
-
-### 3.10.3 WORK IN EMOTIONS KG
-
-Abelson’s Affect Taxonomy
+### 3.10.3 Abelson’s Affect Taxonomy
 
 Abelson (1981) proposes a model of affect in which affective responses occur when two construals of a situation, derived from real events as well as imaginings, are incompatible. A variety of emotion terms from “relief” to “mortification” can be captured by this scheme.
 
-### 3.10.4 Weiner’s Causal
-
-Attribution
-
-Model
-
-of Emotions
+### 3.10.4 Weiner’s Causal Attribution Model of Emotions
 
 Weiner (1982) proposes a model of emotions based on the attributed causes of a positive or negative outcome. He distinguishes three causal dimensions: “locus of causality,” which refers to whether the outcome is perceived as caused by self factors (such as intelligence, attractiveness, personality, and other self attributes) or by environmental factors (such as help from others, the objective difficulty of a task, and so on); “stability,” which refers to whether the causing factor is perceived to be enduring (e.g., blindness is considered an enduring factor whereas luck may not be); and “controllability,” which refers to whether the outcome is perceived to have been controllable by the person deemed the locus of causality. This scheme also captures a variety of emotion terms.
 
-### 3.10.5 The Emotion Model
-
-of Bower
-
-and Cohen
+### 3.10.5 The Emotion Model of Bower and Cohen
 
 Bower and Cohen (1982) propose a model of emotional responses based on “cognitive interpretation” (C-I) rules and “emotional interpretation” (E-I) rules. The emotional state of the system is represented as a (fixed-length) vector of emotion activation levels; each element corresponds to a type of emotion such as “fear,” “anger,” “happiness,” “sadness,” “disgust,” and so on. The right-hand
 
@@ -724,47 +524,25 @@ glish generator)—this allows for the possibility that new types of emotions ma
 
 <!-- page: 98 -->
 
-Dyer’s BORIS
-
-Affect Model
+### 3.10.6 Dyer’s BORIS Affect Model
 
 The representation of emotions in DAYDREAMER derives from the AFFECT representations employed in the BORIS narrative comprehension program (Dyer, 1983a). Using this scheme, a variety of words used to describe the emotions of story characters may be represented. The BORIS affect model is concerned with the reader’s abstract understanding of the emotional states of story characters rather than the modeling of emotions themselves and the influence on processing of being in certain emotional states. However, in constructing DAYDREAMER, we have demonstrated that the BORIS affect model is in fact applicable to such a problem.
 
 ### 3.10.7 Pfeifer’s FEELER
 
-Pfeifer (1982) implemented a model of emotional behavior called FEELER. FEELER performs simple goal-based processing; the implementation of FEELER consists of 27 production rules and a declarative representation of the planning knowledge for taking a plane trip. Emotions are generated in FEELER by interrupts and completion of a plan or subplan. FEELER models the influence of emotions on behavior in the following ways: First, emotions prime memories emotionally congruent with those emotions and thus increase the probability of the retrieval of those memories through spreading activation (similar mechanisms have been proposed by Bower & Cohen, 1982, and Clark & Isen, 1982). Second, certain production rules are sensitive to emotional state. For example, one rule states that if one is angry (at anyone) and someone makes a request to the self, anger is generated toward that person. Another rule states that if one is angry at a person, the goal to harm that person is activated (this rule is similar to the rule in DAYDREAMER which activates the REVENGE daydreaming goal in response to anger). Although emotions decay in FEELER, other factors lead to the sustenance of both positive and negative emotions: First, when a memory emotionally congruent with the current, emotional state is retrieved, the emotions associated with
-
-that episode are reactivated, and thus the existing emotional state is reinforced. Second, certain rules (such as generating anger toward a person when already angry at someone else) perpetuate emotional states. Pfeifer suggests that positive states may be maintained in the long run by having more rules for positive emotions than for negative emotions. Unlike DAYDREAMER, FEELER has no strategies (such as RATIONALIZATION and ROVING) for reducing negative emotional states and maintaining positive emotional states. However, Pfeifer does describe one unimplemented defense mechanism (A. Freud, 1937/1946) which shifts anger into self-pity. The control mechanism for selecting among multiple goals, planner, and planning knowledge of FEELER is quite limited. In addition, FEELER does not address the issues of daydreaming, creativity, and learning addressed in the
+Pfeifer (1982) implemented a model of emotional behavior called FEELER. FEELER performs simple goal-based processing; the implementation of FEELER consists of 27 production rules and a declarative representation of the planning knowledge for taking a plane trip. Emotions are generated in FEELER by interrupts and completion of a plan or subplan. FEELER models the influence of emotions on behavior in the following ways: First, emotions prime memories emotionally congruent with those emotions and thus increase the probability of the retrieval of those memories through spreading activation (similar mechanisms have been proposed by Bower & Cohen, 1982, and Clark & Isen, 1982). Second, certain production rules are sensitive to emotional state. For example, one rule states that if one is angry (at anyone) and someone makes a request to the self, anger is generated toward that person. Another rule states that if one is angry at a person, the goal to harm that person is activated (this rule is similar to the rule in DAYDREAMER which activates the REVENGE daydreaming goal in response to anger). Although emotions decay in FEELER, other factors lead to the sustenance of both positive and negative emotions: first, when a memory emotionally congruent with the current emotional state is retrieved, the emotions associated with that episode are reactivated, and thus the existing emotional state is reinforced. Second, certain rules (such as generating anger toward a person when already angry at someone else) perpetuate emotional states. Pfeifer suggests that positive states may be maintained in the long run by having more rules for positive emotions than for negative emotions. Unlike DAYDREAMER, FEELER has no strategies (such as `RATIONALIZATION` and `ROVING`) for reducing negative emotional states and maintaining positive emotional states. However, Pfeifer does describe one unimplemented defense mechanism (A. Freud, 1937/1946) which shifts anger into self-pity. The control mechanism for selecting among multiple goals, planner, and planning knowledge of FEELER is quite limited. In addition, FEELER does not address the issues of daydreaming, creativity, and learning addressed in the
 
 <!-- page: 99 -->
 
-## 3.11 WORK RELATED TO DAYDREAMING
-
-GOALS
-
-79
-
 present work. Nonetheless, FEELER is quite close in spirit to the emotion component of DAYDREAMER and the construction of DAYDREAMER has benefited from this previous work.
 
-## 3.11 Work Related to Daydreaming
-
-Goals
+## 3.11 Work Related to Daydreaming Goals
 
 This section reviews previous work related to daydreaming goals and their activation by emotions.
 
-### 3.11.1 Defense “Defense mechanisms”
+### 3.11.1 Defense Mechanisms
 
-Mechanisms (A. Freud, 1937/1946) are the unconscious processes
-
-employed by the “ego” as a protection against dangerous “id” impulses. Defense mechanisms either distort impulses before they enter consciousness or prevent them from reaching consciousness altogether. It is hypothesized (A. Freud,
-
-1937/1946; S. Freud, 1926/1936) that defense mechanisms are set in motion by anxiety and serve to avoid or transform that anxiety. Plutchik (1980) proposes a mapping from specific emotions to specific defense mechanisms. For example, anger results in displacement which shifts the object of the anger from a dangerous one to a less dangerous one, disgust with the self results in projection which shifts blame to someone else, and sadness results in sublimation or compensation for a loss. The defense mechanism of rationalization was first introduced by Jones
-
-(1908). This mechanism is not discussed by A. Freud (1937/1946) and is rarely mentioned by S. Freud. Defense mechanisms are similar to daydreaming goals in that both result from emotions and in turn eliminate or modify those emotions. For example: ROVING reduces a negative emotion by displacing negative thoughts from consciousness and substituting more positive ones; this daydreaming goal thus resembles repression and denial in that it prevents or defers dealing with these negative thoughts. RATIONALIZATION reduces a negative emotion associated
-
-- with a past failure through the generation of a rationalization daydream. REVERSAL reduces a negative emotion associated with an imagined future failure
-
-through the generation of a realistic scenario in which that failure is avoided. However, daydreaming goals are generally adaptive whereas defense mechanisms are generally maladaptive.
+“Defense mechanisms” (A. Freud, 1937/1946) are the unconscious processes employed by the “ego” as a protection against dangerous “id” impulses. Defense mechanisms either distort impulses before they enter consciousness or prevent them from reaching consciousness altogether. It is hypothesized (A. Freud, 1937/1946; S. Freud, 1926/1936) that defense mechanisms are set in motion by anxiety and serve to avoid or transform that anxiety. Plutchik (1980) proposes a mapping from specific emotions to specific defense mechanisms. For example, anger results in displacement which shifts the object of the anger from a dangerous one to a less dangerous one, disgust with the self results in projection which shifts blame to someone else, and sadness results in sublimation or compensation for a loss. The defense mechanism of rationalization was first introduced by Jones (1908). This mechanism is not discussed by A. Freud (1937/1946) and is rarely mentioned by S. Freud. Defense mechanisms are similar to daydreaming goals in that both result from emotions and in turn eliminate or modify those emotions. For example: `ROVING` reduces a negative emotion by displacing negative thoughts from consciousness and substituting more positive ones; this daydreaming goal thus resembles repression and denial in that it prevents or defers dealing with these negative thoughts. `RATIONALIZATION` reduces a negative emotion associated with a past failure through the generation of a rationalization daydream. `REVERSAL` reduces a negative emotion associated with an imagined future failure through the generation of a realistic scenario in which that failure is avoided. However, daydreaming goals are generally adaptive whereas defense mechanisms are generally maladaptive.
 
 ### 3.11.2 McDougall’s Emotions and Instincts
 
@@ -776,9 +554,7 @@ instinct of combat, disgust to the instinct of repulsion, lust to the instinct o
 
 ### 3.11.3 Festinger’s Reduction of Cognitive Dissonance
 
-Festinger (1957) presents 12 methods for reducing cognitive dissonance which we may view as rationalization strategies. Among them are: increasing the desirability of a chosen alternative (similar to our hidden blessing strategy if the “chosen” alternative is taken to be the goal outcome), decreasing the desirability of the unchosen alternative (similar to our mixed blessing strategy), perceiving certain characteristics of the chosen and unchosen alternatives as equivalent, decreasing the importance of aspects of the decision (similar to our minimization), and rejecting those who disagree (which arises as a special case of minimization). Although Festinger speaks of dissonance as being “psycho-
-
-logically uncomfortable” (p. 3), cognitive dissonance reduction is considered to be cognitively driven rather than emotion driven (unlike rationalization in DAYDREAMER).
+Festinger (1957) presents 12 methods for reducing cognitive dissonance which we may view as rationalization strategies. Among them are: increasing the desirability of a chosen alternative (similar to our hidden blessing strategy if the “chosen” alternative is taken to be the goal outcome), decreasing the desirability of the unchosen alternative (similar to our mixed blessing strategy), perceiving certain characteristics of the chosen and unchosen alternatives as equivalent, decreasing the importance of aspects of the decision (similar to our minimization), and rejecting those who disagree (which arises as a special case of minimization). Although Festinger speaks of dissonance as being “psychologically uncomfortable” (p. 3), cognitive dissonance reduction is considered to be cognitively driven rather than emotion driven (unlike rationalization in DAYDREAMER).
 
 ### 3.11.4 Abelson’s Simulation of Hot Cognition
 
@@ -786,17 +562,11 @@ Abelson (1963) implemented a program to produce rationalizations. The program si
 
 <!-- page: 101 -->
 
-## 3.11 WORK RELATED TO DAYDREAMING
-
-GOALS
-
-81
-
 “inference,” which must already be instantiated in the database. The “Accidental by-product” and “Find the prime mover” strategies explain the imbalanced proposition as an “accident” by retrieving a proposition from the database whose antecedent’s evaluation had the same sign as that of the consequent of the input proposition, and whose consequent is the same as the consequent of the input proposition or the antecedent of the input proposition, respectively for each strategy. These two strategies are similar to our rationalization by external attribution. Again these processes are limited to a single “inference.”
 
 ### 3.11.5 Colby’s Neurosis Model
 
-Colby (1963) implemented a computer model of neurosis which includes rationalization and 10 other defense mechanisms. The program contains a collection of beliefs, expressed as subject-verb-object propositions. Each belief has associated with it a “charge” representing the degree of importance of that belief. When a belief is “expressed” (produced as output), it loses most of its charge. The system’s objective is to express its more charged beliefs, in order to reduce the charge on those beliefs. However, a belief may be expressed directly only if it is not in conflict with other “imperative” or “superego” beliefs about what is or is not acceptable. For example, J ikke Debra might conflict with the imperative belief I must not like movie stars. Unacceptable beliefs are only expressible once they have been rendered acceptable by one of eight “transforms.” For example, using the transform of “deflection,” I like Debra might be transformed into I like Sarah. Rationalization in the neurosis simulation refers to the justification of a newly-created belief, while in DAYDREAMER it is defined as any process whereby a situation may be rendered more emotionally acceptable. In both systems, several strategies are used to produce rationalizations. There are a number of similarities and differences between aspects of Colby’s neurosis simulation and the process of rationalization in DAYDREAMER. In both cases, defensive strategies render an undesirable belief more acceptable. In the neurosis simulation the undesirable belief is one which violates a moral ‘or personal imperative, while in DAYDREAMER it is the belief that an important personal goal failure has occurred. Successful application of the defense mechanism involves distortion of the unacceptable belief into an acceptable one in the neurosis simulation, and reduction of the importance of the goal failure in DAYDREAMER. Emotional state is regulated upon successful defense in both cases: In the neurosis simulation the danger level is brought under control while in DAYDREAMER the strength of a negative emotion is brought below a threshold. In the neurosis simulation (Colby, 1963), unacceptable beliefs are taken to be unavailable to conscious thought, while in DAYDREAMER, goal failures are considered to enter into consciousness after which a conscious rationalization process occurs. Thus different phenomena are being modeled: Colby seeks to
+Colby (1963) implemented a computer model of neurosis which includes rationalization and 10 other defense mechanisms. The program contains a collection of beliefs, expressed as subject-verb-object propositions. Each belief has associated with it a “charge” representing the degree of importance of that belief. When a belief is “expressed” (produced as output), it loses most of its charge. The system’s objective is to express its more charged beliefs, in order to reduce the charge on those beliefs. However, a belief may be expressed directly only if it is not in conflict with other “imperative” or “superego” beliefs about what is or is not acceptable. For example, `I like Debra` might conflict with the imperative belief `I must not like movie stars`. Unacceptable beliefs are only expressible once they have been rendered acceptable by one of eight “transforms.” For example, using the transform of “deflection,” `I like Debra` might be transformed into `I like Sarah`. Rationalization in the neurosis simulation refers to the justification of a newly-created belief, while in DAYDREAMER it is defined as any process whereby a situation may be rendered more emotionally acceptable. In both systems, several strategies are used to produce rationalizations. There are a number of similarities and differences between aspects of Colby’s neurosis simulation and the process of rationalization in DAYDREAMER. In both cases, defensive strategies render an undesirable belief more acceptable. In the neurosis simulation the undesirable belief is one which violates a moral or personal imperative, while in DAYDREAMER it is the belief that an important personal goal failure has occurred. Successful application of the defense mechanism involves distortion of the unacceptable belief into an acceptable one in the neurosis simulation, and reduction of the importance of the goal failure in DAYDREAMER. Emotional state is regulated upon successful defense in both cases: in the neurosis simulation the danger level is brought under control while in DAYDREAMER the strength of a negative emotion is brought below a threshold. In the neurosis simulation (Colby, 1963), unacceptable beliefs are taken to be unavailable to conscious thought, while in DAYDREAMER, goal failures are considered to enter into consciousness after which a conscious rationalization process occurs. Thus different phenomena are being modeled: Colby seeks to
 
 <!-- page: 102 -->
 
@@ -804,366 +574,22 @@ explain the neurotic patient’s distorted beliefs and the anxieties which are o
 
 ### 3.11.6 Janis and Mann’s Bolstering Strategies
 
-Janis and Mann (1977) discuss six bolstering strategies which are related to our plans for rationalization: exaggerating favorable consequences (related to our rationalization by hidden blessing and mixed blessing), minimizing unfavorable consequences (related to our minimization, hidden blessing, and mixed blessing), denying aversive feelings (related to our ROVING daydreaming goal), exaggerating remoteness of action commitment, minimizing social surveillance (similar to our minimization where the goal is social esteem), and minimizing personal responsibility (similar to our rationalization by external attribution).
+Janis and Mann (1977) discuss six bolstering strategies which are related to our plans for rationalization: exaggerating favorable consequences (related to our rationalization by hidden blessing and mixed blessing), minimizing unfavorable consequences (related to our minimization, hidden blessing, and mixed blessing), denying aversive feelings (related to our `ROVING` daydreaming goal), exaggerating remoteness of action commitment, minimizing social surveillance (similar to our minimization where the goal is social esteem), and minimizing personal responsibility (similar to our rationalization by external attribution).
 
 ### 3.11.7 Summary and Comparison of Strategies
 
-The “emotion regulation” strategies of Festinger (1957), Abelson (1963), and Janis and Mann (1977) are summarized and compared to strategies employed in DAYDREAMER in Table 3.4. The correspondences, however, are only ap-
-
-proximate. To our knowledge, only the strategies of Abelson (1963) have previously been implemented in a computer program. In this case, they are achieved through the application of a single, literal inference rule; parameter substitution is not performed, much less the generation of a daydream scenario. The remaining strategy of Janis and Mann, exaggerating remoteness of action commitment, could be implemented in DAYDREAMER through the genera-
+The “emotion regulation” strategies of Festinger (1957), Abelson (1963), and Janis and Mann (1977) are summarized and compared to strategies employed in DAYDREAMER in Table 3.4. The correspondences, however, are only approximate. To our knowledge, only the strategies of Abelson (1963) have previously been implemented in a computer program. In this case, they are achieved through the application of a single, literal inference rule; parameter substitution is not performed, much less the generation of a daydream scenario. The remaining strategy of Janis and Mann, exaggerating remoteness of action commitment, could be implemented in DAYDREAMER through the generation of future daydreams involving various alternative actions.
 
 <!-- page: 103 -->
 
-## 3.11 WORK RELATED TO DAYDREAMING
-
-GOALS
-
-83
-
-teste Hidden
-
-Festinger || Increase
-
-(1957)
-
-desirability
-
-importance,
-
-of chosen alternative Reinterpret
-
-of unchosen
-
-Reject those
-
-final goal
-
-Janis & Mann
-
-(1977)
-
-Decrease
-
-desirability
-
-Exaggerate favorable consequences
-
-alternative
-
-who disagree Accidental by-product, Find prime mover Minimize Minimize Minimize unfavorable personal social | consequences | responsibility | surveillance
-
-Deny aversive feelings
-
 Table 3.4: Comparison of Emotion Regulation Strategies
 
-tion of future daydreams involving various alternative actions. Some of the other strategies of Festinger could be added, although they are really all just instances of his more general principle of cognitive dissonance reduction. Also, some of the remaining strategies involve external behavior rather than daydreams. Freudian defense mechanisms such as those employed by Colby (not shown in the table) could be added to a more pathological version of DAYDREAMER.
+| Source | Hidden blessing | Mixed blessing | External attribution | Minimization | Roving |
+| --- | --- | --- | --- | --- | --- |
+| Festinger (1957) | Increase desirability of chosen alternative | Decrease desirability of unchosen alternative |  | Decrease importance; reject those who disagree |  |
+| Abelson (1963) | Reinterpret final goal |  | Accidental by-product; find prime mover |  |  |
+| Janis & Mann (1977) | Exaggerate favorable consequences | Minimize unfavorable consequences | Minimize personal responsibility | Minimize social surveillance | Deny aversive feelings |
+
+Some of the other strategies of Festinger could be added, although they are really all just instances of his more general principle of cognitive dissonance reduction. Also, some of the remaining strategies involve external behavior rather than daydreams. Freudian defense mechanisms such as those employed by Colby (not shown in the table) could be added to a more pathological version of DAYDREAMER.
 
 <!-- page: 104 -->
-
-af nn
-
-eral oA
-
-aT
-
-Pin ur
-
--_
-
-‘Ob de
-
-|
-
-Civ
-
-_
-
->
-
-]
-
-:
-
-*(Jaltens L
-
-Aa
-
-ay
-
-<1
-
-deed}
-
-{
-
-4
-
-a
-
-of
-
-its weit
-
-ae a os 3)
-
-aeeniice
-
-a
-
-pepne
-
-’
-
-Uaioe 5°= endlene
-
-in
-
-a Ba ae bats)
-
-at
-
-"46
-
-é
-
-asad
-
-Fra
-
-twle,
-
-atte
-
-eT
-
-¢
-
-wwii
-
-etl
-
-eat eee sso whineoN Weeee
-
-.
-
-ae
-
-Saath
-
-iaarany Tint Oe ee
-
-Vue ji
-
-whl
-
-«coed
-
-ee ore ayul-— a > |ON Vries
-
->_>)bd NP
-
-Ge
-
-Mit OR
-
-Shite aii neuvti inet ut fiat Seththf arrtarsCl
-
-os Seay) toerey *“i ee eat, LBopt oh -“ pes Pah 514Oe Uisi an rare n WT @ farabel’ iv Gree A ‘side ek
-
-;
-
-oe ares pootety hy OY, we ti one Re abtlgelitt 8
-
-- ich” ai id aT
-
-7
-
-Tew
-
-en Sat
-
-rt ay
-
-§ ey
-
-' ne Ye
-
-ate hal rie:
-
-! hij ig 5
-
-Ke arte
-
-'a
-
-oe oS ikea
-
-cana1a, ie roy
-
-P
-
-aa
-
-s
-
-_
-
-+s
-
-Sis-amic.
-
-Sia
-
-pus
-
-Te we
-
-Shee
-
-~
-
-Year
-
-—_
-
-6
-
-f
-
-ee
-
-——
-
-=
-
-nw
-
-—
-
-7
-
-j
-
-(
-
-a>
-
-«
-
-7 ci
-
-1
-
-AYRE
-
-j
-
-‘wets
-
-=n al
-
-¢
-
-4
-
-}
-
-bry
-
-a,
-
--
-
-‘
-
-7S
-
-é
-
-‘ A
-
-i
-
-——
-
-7
-
-(nih a
-
-j
-
-th
-
-'
-
--
-
-wey
-
-v= ») oor Gees -
-
-i
-
-=
-
--_—=
-
-t
-
-a
-
-TEN
-
-vit
-
-—
-
-ery
-
-| omise |
-
-bic
-
--
-
--
-
--
-
-_
-
-Piaeea
-
-nap }
-
-=
-
-ae
-
-—
-
-eWbih
-
-es
-
-SS
-
-yi
-
-1
-
-¢
-
-Me peeege
-
-m=
-
-+
-
-hee yt se
-
-keen hn pet ig dopant C Sait th —
-
-000
-
-=

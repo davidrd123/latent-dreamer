@@ -1,0 +1,138 @@
+# Serendipity Recognition
+
+## 1. Mechanism name
+
+Serendipity recognition
+
+## 2. Source anchors
+
+- Chapter 7, `7.7.1 Serendipity Recognition` at [07-implementation-of-daydreamer.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/07-implementation-of-daydreamer.md):886
+- Chapter 2 compressed description at [02-architecture-of-daydreamer.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/02-architecture-of-daydreamer.md):375
+- Chapter 5 mechanism discussion at [05-everyday-creativity-in-daydreaming.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/05-everyday-creativity-in-daydreaming.md):95, [05-everyday-creativity-in-daydreaming.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/05-everyday-creativity-in-daydreaming.md):129, and [05-everyday-creativity-in-daydreaming.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/05-everyday-creativity-in-daydreaming.md):133
+- Figure 7.5 dependencies in [36-image-reviewed-chapter-7-procedure-figures.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/36-image-reviewed-chapter-7-procedure-figures.md):70
+- Appendix A examples: `RECOVERY3`, `COMPUTER-SERENDIPITY`, `LAMPSHADE-SERENDIPITY`
+- Corresponding code: no recovered general kernel implementation yet; only indirect modern bias hooks in [director.clj](/Users/daviddickinson/Projects/Lora/latent-dreamer/kernel/src/daydreamer/director.clj)
+
+## 3. Cognitive phenomenon (one line)
+
+The shower insight: something currently salient is suddenly recognized as a path to a different active concern.
+
+## 4. Kernel status (one line)
+
+Not yet recovered as a general structural mechanism in the kernel; the closest current material is incidental biasing in [director.clj](/Users/daviddickinson/Projects/Lora/latent-dreamer/kernel/src/daydreamer/director.clj), not Mueller's rule-graph search and verification loop.
+
+## 5. Loop shape
+
+Input: a concern plus either a concept or an episode.
+
+Procedure:
+
+1. find a top rule whose antecedent unifies with an appropriate goal of the concern
+2. find a bottom rule linked to the salient concept or contained in the given episode
+3. perform an intersection search from the top rule to the bottom rule in the rule connection graph
+4. if a path is found, verify it by progressively unifying down the path while constructing a concrete episode/planning tree
+5. if verification succeeds:
+   - sprout an appropriate context
+   - add the constructed episode as a new analogical plan for the goal
+   - generate a surprise emotion and associate it with the concern
+
+Invocation sites:
+
+- input-state-driven
+- object-driven
+- concern-activation-driven
+- episode-driven
+- mutation-driven
+
+State read:
+
+- current concern and its appropriate goal
+- salient concept or recent episode
+- rule connection graph
+- recent episodes if episodic rules are involved
+- current or activation context
+
+State written:
+
+- a newly constructed episode if the path verifies
+- a new analogical plan attached to the concern
+- a surprise emotion
+- sometimes a newly sprouted context
+
+## 6. Judgment points
+
+Mueller's implementation uses rigid structural search plus rigid path verification. The strongest hybrid candidates are:
+
+1. **Path usefulness**: many found paths may be formally connected but pragmatically poor.
+2. **Path verification beyond literal unification**: progressive unification may be too brittle for semantically apt but not literally matching paths.
+3. **Constructed-plan evaluation**: after a verified path yields a candidate episode, the system still needs to know whether the candidate is interesting enough to promote.
+
+## 7. Accumulation story
+
+Serendipity turns accidental salience into durable future capability. Once a path verifies, the constructed episode becomes a new analogical plan and can later be stored and retrieved directly. It also adds surprise emotion, which changes control pressure in future cycles. This is one of Mueller's clearest examples of accumulation beating prompt-only generation: an accidental discovery becomes reusable structure.
+
+## 8. Property to preserve
+
+The system must preserve explicit traversable structure between current concerns and salient rules or episodes.
+
+The point of serendipity is not just "find something relevant." It is "discover that this salient thing connects to the concern through a specific rule path that can be verified and reused."
+
+## 9. Upstream triggers / downstream triggers
+
+Upstream:
+
+- reminding cascade
+- concern activation
+- object input
+- state/action input
+- mutation
+
+Downstream:
+
+- concern initiation when a new concern is created from the result
+- surprise emotion generation
+- analogical planning through the newly constructed episode
+
+## 10. Mueller-faithful description vs. candidate hybrid cut
+
+**Mueller-faithful**: serendipity recognition searches the rule connection graph from a rule associated with the current concern to a rule associated with something salient, then verifies any found path through progressive unification while constructing an episode. If the path verifies, the resulting plan is added to the concern and a surprise emotion raises the concern's motivational pressure.
+
+**Candidate hybrid cut**: keep explicit rule-graph traversal and explicit path verification structure. The best hybrid cuts are evaluative: rank candidate paths, soften brittle verification where literal unification is too narrow, and score whether the verified plan is actually worth promoting. The architectural move to watch for here is not replacing the graph with embeddings, but keeping the rule path structural while making the usefulness judgment contextual.
+
+## Interface shape (required)
+
+**tentative schema**
+
+Integration patterns:
+
+- **LLM-as-evaluator** for path usefulness
+- **Co-routine judgment** for soft verification help
+
+Input:
+
+```clojure
+{:concern {:id keyword
+           :goal any
+           :goal-type keyword
+           :strength number}
+ :salient-source {:type #{:concept :episode}
+                  :value any
+                  :summary string}
+ :candidate-paths [{:rule-ids [keyword]
+                    :length int
+                    :cycles? boolean}]
+ :verification-state {:bindings map
+                      :partial-plan any}}
+```
+
+Output:
+
+```clojure
+{:path-rankings [{:rule-ids [keyword]
+                  :useful? boolean
+                  :score number
+                  :reason string}]
+ :verification-aid {:suggested-bindings map
+                    :accept? boolean
+                    :reason string}}
+```

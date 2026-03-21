@@ -28,7 +28,7 @@ Creativity is generally defined as the production of something—a scientific th
 
 <!-- page: 143 -->
 
-Aspects of Creativity in Daydreaming
+## 5.2 Aspects of Creativity in Daydreaming
 
 In the past, several investigators have related daydreaming and creativity:
 
@@ -92,11 +92,11 @@ We propose two mechanisms in DAYDREAMER to (a) break away from possibilities gen
 
 ## 5.3 Serendipity in Daydreaming
 
-A serendipity typically involves a scenario such as the following: One is having trouble solving a problem. Every possibility that one tries does not seem to work. So, one sets the problem aside for a while. Then at some later time— perhaps while reading a book, watching a movie, or daydreaming—one suddenly realizes that something just experienced or thought of is applicable to the problem. By accident one has stumbled upon a potential solution. One can then go back, verify the solution, and flesh it out. The solution may be discarded if it does not work. In the performance mode experience RECOVERY3 (see page 13), DAYDREAMER receives an alumni directory from the college she attended which happens to contain the number of Carol Burnett. DAYDREAMER had previously been daydreaming about contacting Harrison Ford in order to ask him out again. Serendipitously, DAYDREAMER realizes that the alumni directory is applicable to the problem of finding out the unlisted telephone number of Harrison Ford. DAYDREAMER could possibly find out Harrison’s telephone number by obtaining a copy of the alumni directory from the college Harrison Ford attended, if any. Serendipity may occur when one notices that something currently under focus suggests a solution for a recent (but not necessarily under current focus) problem. Serendipity may also occur when a new problem is initiated, and one notices that something recently (or currently) under focus suggests a solution _ for the new problem. It does not matter whether the plan is introduced prior to the goal or the goal is introduced prior to the plan. This is analogous to the commutativity property in the “scientific community metaphor” of Kornfeld
+A serendipity typically involves a scenario such as the following: One is having trouble solving a problem. Every possibility that one tries does not seem to work. So, one sets the problem aside for a while. Then at some later time— perhaps while reading a book, watching a movie, or daydreaming—one suddenly realizes that something just experienced or thought of is applicable to the problem. By accident one has stumbled upon a potential solution. One can then go back, verify the solution, and flesh it out. The solution may be discarded if it does not work. In the performance mode experience RECOVERY3 (see page 13), DAYDREAMER receives an alumni directory from the college she attended which happens to contain the number of Carol Burnett. DAYDREAMER had previously been daydreaming about contacting Harrison Ford in order to ask him out again. Serendipitously, DAYDREAMER realizes that the alumni directory is applicable to the problem of finding out the unlisted telephone number of Harrison Ford. DAYDREAMER could possibly find out Harrison’s telephone number by obtaining a copy of the alumni directory from the college Harrison Ford attended, if any. Serendipity may occur when one notices that something currently under focus suggests a solution for a recent (but not necessarily under current focus) problem. Serendipity may also occur when a new problem is initiated, and one notices that something recently (or currently) under focus suggests a solution for the new problem. It does not matter whether the plan is introduced prior to the goal or the goal is introduced prior to the plan. This is analogous to the commutativity property in the “scientific community metaphor” of Kornfeld
 
 and Hewitt (1981). We distinguish several cases of serendipity in DAYDREAMER:
 
-- Episode-driven serendipity. retrieval of an episode or storage of a new episode suggests a previously unknown solution for an active, suspended, or halted concern.
+- Episode-driven serendipity: retrieval of an episode or storage of a new episode suggests a previously unknown solution for an active, suspended, or halted concern.
 
 - Object-driven serendipity: a special case of the above in which episode retrieval results in response to physical objects provided as input to DAYDREAMER.
 
@@ -110,109 +110,62 @@ and Hewitt (1981). We distinguish several cases of serendipity in DAYDREAMER:
 
 - Mutation-driven serendipity: arbitrary mutation of an action suggests a potentially new solution for a particular concern.
 
-In DAYDREAMER, serendipity enables discovery of a new solution through the use of normally unavailable planning paths or rules. Specifically, in concernactivation-driven serendipity and episode-driven serendipity, a solution to a problem is generated which could not have been generated previously because the solution employs a rule which was inaccessible to regular and analogical planning. An inaccessible rule is an episodic rule? which is contained only in inaccessible episodes (e.g., episodes requiring physical objects as retrieval indices). As solution generated by mutation-driven serendipity may not have previously been generated because of “mental blocks” (or failures to consider certain planning paths, to be discussed) inherent in regular planning. A previously blocked solution can be generated by input-state-driven serendipity as a result of particular situations in the external world that had never arisen before.
+In DAYDREAMER, serendipity enables discovery of a new solution through the use of normally unavailable planning paths or rules. Specifically, in concernactivation-driven serendipity and episode-driven serendipity, a solution to a problem is generated which could not have been generated previously because the solution employs a rule which was inaccessible to regular and analogical planning. An inaccessible rule is an episodic rule which is contained only in inaccessible episodes (e.g., episodes requiring physical objects as retrieval indices). A solution generated by mutation-driven serendipity may not have previously been generated because of “mental blocks” (or failures to consider certain planning paths, to be discussed) inherent in regular planning. A previously blocked solution can be generated by input-state-driven serendipity as a result of particular situations in the external world that had never arisen before.
 
 ### 5.3.1 Serendipity-Based Learning
 
-Serendipity in planning leads naturally to learning: Once a plan is found through serendipity, it is not necessary for another serendipity to occur in order to employ a similar plan in a future similar situation. Instead, the plan is incorporated into episodic memory, indexed under the goal it achieves, so that in the future this plan can be applied directly to a similar goal through analogical planning. Serendipity enables learning since the result of a serendipity is stored as an episode for possible use in future similar situations. For example, suppose DAYDREAMER is again concerned with how to meet Harrison Ford when it happens to have a car accident. As DAYDREAMER is exchanging telephone numbers and other information with the person, it notices that one way of meeting Harrison Ford is to force an accident with him. The next time the program has the goal of meeting someone, the plan of forcing an accident with that person will immediately be retrieved. This solution is one which would have been difficult to generate out of thin air. Thus the program has learned through its previous serendipity experience.?Episodic rules, contained initially in hand-coded episodes (and also induced in RECOVERY3), are discussed in greater detail in Chapter 4.
+Serendipity in planning leads naturally to learning: Once a plan is found through serendipity, it is not necessary for another serendipity to occur in order to employ a similar plan in a future similar situation. Instead, the plan is incorporated into episodic memory, indexed under the goal it achieves, so that in the future this plan can be applied directly to a similar goal through analogical planning. Serendipity enables learning since the result of a serendipity is stored as an episode for possible use in future similar situations. For example, suppose DAYDREAMER is again concerned with how to meet Harrison Ford when it happens to have a car accident. As DAYDREAMER is exchanging telephone numbers and other information with the person, it notices that one way of meeting Harrison Ford is to force an accident with him. The next time the program has the goal of meeting someone, the plan of forcing an accident with that person will immediately be retrieved. This solution is one which would have been difficult to generate out of thin air. Thus the program has learned through its previous serendipity experience. Episodic rules, contained initially in hand-coded episodes (and also induced in RECOVERY3), are discussed in greater detail in Chapter 4.
 
 <!-- page: 147 -->
 
-## 5.3 SERENDIPITY IN DAYDREAMING Episode
-
-retrieved
-
-Concern activated
-
-Serendipity recognition
-
-127
-
-Input received
-
-. be
-
-Mutation generated
-
-Intersection search + path verification
-
-(if found)
-
-Full planning
-
 Figure 5.1: Serendipity
+
+- `Episode retrieved`, `Concern activated`, `Input received`, and `Mutation generated` all feed `Serendipity recognition`.
+- `Serendipity recognition` invokes `Intersection search + path verification`.
+- If a usable connection is found, processing proceeds to `Full planning`.
 
 ### 5.3.2 Serendipity Recognition
 
-As shown in Figure 5.1, DAYDREAMER attempts to find a serendipity whenever:
-
-(a) an episode is retrieved, (b) a concern is activated, (c) an input state or action is received, or (d) a mutated possibility is generated. In this section, we address how DAYDREAMER recognizes and exploits a serendipity in these situations. In RECOVERYS3, the program has an active RECOVERY concern to generate a scenario in which she asks Harrison Ford out on a date in the future. Given the input that Carol Burnett’s telephone number is in the UCLA Alumni Directory, the program recognizes the following connection between these input states and its active RECOVERY concern: a subgoal of asking Harrison out is having a communication path to Harrison; a subgoal of having a communication path to Harrison is calling Harrison on the telephone; a subgoal of calling Harrison on the telephone is knowing his telephone number; a subgoal of knowing his telephone number is reading his telephone number in an Alumni directory; a subgoal of reading his telephone number in an Alumni directory is the Alumni directory containing his telephone number; a subgoal of the Alumni directory containing his telephone number is the Alumni directory being that of the college he attended. In general, how does the program determine whether a given planning rule (an inaccessible rule contained in a retrieved episode, an induced rule, or one corresponding to an input state) is applicable to a given goal? A rule would be applicable to a goal if that rule could be used to achieve that goal, or if that rule could be used to achieve some subgoal of that goal, and so on. A rule is thus applicable to a goal if that rule may be used to achieve an arbitrary subgoal of that goal. There may be several ways of breaking down each subgoal into further subgoals. Humans seem to be able to detect such a relationship with a minimum of effort. What algorithms are available to accomplish this task? The arbitrary applicability of a planning rule to a goal may be detected by performing an intersection search (Quillian, 1968; Pohl, 1971; Klahr, 1978) in
+As shown in Figure 5.1, DAYDREAMER attempts to find a serendipity whenever: (a) an episode is retrieved, (b) a concern is activated, (c) an input state or action is received, or (d) a mutated possibility is generated. In this section, we address how DAYDREAMER recognizes and exploits a serendipity in these situations. In RECOVERY3, the program has an active RECOVERY concern to generate a scenario in which she asks Harrison Ford out on a date in the future. Given the input that Carol Burnett’s telephone number is in the UCLA Alumni Directory, the program recognizes the following connection between these input states and its active RECOVERY concern: a subgoal of asking Harrison out is having a communication path to Harrison; a subgoal of having a communication path to Harrison is calling Harrison on the telephone; a subgoal of calling Harrison on the telephone is knowing his telephone number; a subgoal of knowing his telephone number is reading his telephone number in an Alumni directory; a subgoal of reading his telephone number in an Alumni directory is the Alumni directory containing his telephone number; a subgoal of the Alumni directory containing his telephone number is the Alumni directory being that of the college he attended. In general, how does the program determine whether a given planning rule (an inaccessible rule contained in a retrieved episode, an induced rule, or one corresponding to an input state) is applicable to a given goal? A rule would be applicable to a goal if that rule could be used to achieve that goal, or if that rule could be used to achieve some subgoal of that goal, and so on. A rule is thus applicable to a goal if that rule may be used to achieve an arbitrary subgoal of that goal. There may be several ways of breaking down each subgoal into further subgoals. Humans seem to be able to detect such a relationship with a minimum of effort. What algorithms are available to accomplish this task? The arbitrary applicability of a planning rule to a goal may be detected by performing an intersection search (Quillian, 1968; Pohl, 1971; Klahr, 1978) in
 
 <!-- page: 148 -->
 
-the rule connection graph (Kowalski, 1975) between the given rule and a rule for achieving the given goal: The rule connection graph is composed of forward connections and backward connections between rules. One rule has a forward connection to another rule for each consequent subgoal of the latter rule which unifies (Charniak, Riesbeck, & McDermott, 1980; Robinson, 1965) with the antecedent goal of the former rule. One rule has a backward connection for each consequent subgoal of each other rule having an antecedent goal which unifies with the consequent subgoal of the former rule. Connections refer to the appropriate consequent subgoal. A rule is compiled into the rule connection graph when it is created. Anderson (1983) has demonstrated experimentally that humans conduct a form of intersection search known as “spreading activation.” Since rule intersection graphs are restricted versions of the general graphs constructed and searched in a spreading activation architecture, it is reasonable to hypothesize that humans construct and search rule intersection graphs as well. This hypothesis is a topic for future psychological experimentation. Rule intersection attempts to find paths in the rule connection graph from a given top rule to a given bottom rule. Quillian (1968) used a breadth-first marking algorithm; Pohl (1971) describes bidirectional search algorithms in more detail. We employ a recursive bidirectional depth-first algorithm: starting from the top rule and bottom rule, the procedure works its way down and up at the same time up to a certain depth limit. The maximum depth cannot be too great, because even with moderate fanout, the search space grows very quickly (i.e., exponentially). So far, this has not proved to be a problem in the current version of DAYDREAMER. Whenever an intersection occurs (with odd or even path length), the complete path is constructed out of the two half-paths and added to a list of found paths. Since there may be cycles in the rule connection graph, the resulting paths may contain cycles. (However, paths are limited to at most two occurrences of a given rule.) Rule intersection search may only use generic planning rules or episodic rules contained in a recent episode. Figure 5.2 shows the path found through rule intersection search in the case of RECOVERY3S. Finding one or more paths through rule intersection search, however, does not mean that a serendipity has occurred. The series of rule applications given by the path might not unify together; that is, a rule might not be applicable to the result produced by the previous rule. A candidate path must be therefore be verified for applicability to the specific goal corresponding to the given top rule. As verification is performed, an episode (planning tree) suitable for use in analogical planning is created. Figure 5.3 shows the verification episode which is created in the case of RECOVERY3. The path verification algorithm constructs concrete subgoals starting from the top rule of the path and moving downwards until the bottom rule of the path is reached. The subgoal at each level must unify with the antecedent goal of the rule at that level. Unbound variables are suitably propagated down the tree (i.e., as in regression [Nilsson,
+the rule connection graph (Kowalski, 1975) between the given rule and a rule for achieving the given goal: The rule connection graph is composed of forward connections and backward connections between rules. One rule has a forward connection to another rule for each consequent subgoal of the latter rule which unifies (Charniak, Riesbeck, & McDermott, 1980; Robinson, 1965) with the antecedent goal of the former rule. One rule has a backward connection for each consequent subgoal of each other rule having an antecedent goal which unifies with the consequent subgoal of the former rule. Connections refer to the appropriate consequent subgoal. A rule is compiled into the rule connection graph when it is created. Anderson (1983) has demonstrated experimentally that humans conduct a form of intersection search known as “spreading activation.” Since rule intersection graphs are restricted versions of the general graphs constructed and searched in a spreading activation architecture, it is reasonable to hypothesize that humans construct and search rule intersection graphs as well. This hypothesis is a topic for future psychological experimentation. Rule intersection attempts to find paths in the rule connection graph from a given top rule to a given bottom rule. Quillian (1968) used a breadth-first marking algorithm; Pohl (1971) describes bidirectional search algorithms in more detail. We employ a recursive bidirectional depth-first algorithm: starting from the top rule and bottom rule, the procedure works its way down and up at the same time up to a certain depth limit. The maximum depth cannot be too great, because even with moderate fanout, the search space grows very quickly (i.e., exponentially). So far, this has not proved to be a problem in the current version of DAYDREAMER. Whenever an intersection occurs (with odd or even path length), the complete path is constructed out of the two half-paths and added to a list of found paths. Since there may be cycles in the rule connection graph, the resulting paths may contain cycles. (However, paths are limited to at most two occurrences of a given rule.) Rule intersection search may only use generic planning rules or episodic rules contained in a recent episode. Figure 5.2 shows the path found through rule intersection search in the case of RECOVERY3. Finding one or more paths through rule intersection search, however, does not mean that a serendipity has occurred. The series of rule applications given by the path might not unify together; that is, a rule might not be applicable to the result produced by the previous rule. A candidate path must be therefore be verified for applicability to the specific goal corresponding to the given top rule. As verification is performed, an episode (planning tree) suitable for use in analogical planning is created. Figure 5.3 shows the verification episode which is created in the case of RECOVERY3. The path verification algorithm constructs concrete subgoals starting from the top rule of the path and moving downwards until the bottom rule of the path is reached. The subgoal at each level must unify with the antecedent goal of the rule at that level. Unbound variables are suitably propagated down the tree (i.e., as in regression [Nilsson,
 
 <!-- page: 149 -->
 
-Mtrans-Plan2
-
-Vprox-Reflexive-Plan
-
-Vprox-Plan1
-
-Vprox-Plan2
-
-At-Plan
-
-M-Phone-Plan
-
-Know-Plan2:
-
-Mtrans-Plan4 nes
-
-Know-Plan3
-
-oe
-
-¥ found path forward/backward
-
-ee
-
-BOTTOM RULE
-
-connection
-
 Figure 5.2: Rule Intersection for RECOVERY3
+
+- The search starts from `TOP RULE` and explores alternative links through `Mtrans-Plan2`, `Vprox-Plan1`, `Vprox-Plan2`, `Vprox-Reflexive-Plan`, `At-Plan`, `M-Phone-Plan`, `Know-Plan2`, `Mtrans-Plan1`, `Know-Plan3`, and `Induced-Rule.9`.
+- The discovered path runs downward through `Mtrans-Plan2 -> Vprox-Plan2 -> M-Phone-Plan -> Know-Plan2 -> Mtrans-Plan1 -> Induced-Rule.9 -> BOTTOM RULE`.
+- The right-side legend distinguishes the `found path` from the more general `forward/backward connection` links.
 
 1980]). Episodes associated with rules are also used to supply values for unbound variables. If verification is unsuccessful (because a subgoal fails to unify with a rule), the path and episode are discarded. Otherwise, a serendipity has occurred. In summary, recognizing a serendipity consists of (a) finding a path through the rule interconnection graph from a rule related to one concern to a rule related to another concern, and then (b) verifying that path.
 
 ### 5.3.3 Episode-Driven Serendipity
 
-Episodes provide a useful source of knowledge for the generation of creative possibilities. Given an episode and a problem, one may always force a solution to that problem using that episode. The less an episode is related to a problem, the more bizarre the solution derived from that episode (but the higher the potential for production of a truly new and useful solution). For example, if one is reminded that the encyclopedia is a source of information, one may generate the idea to look up the movie star’s telephone number in the encyclopedia. Although one is not likely to find it there, one may later refine this plan into the more useful one of finding a listing for the movie star in some book that 1s likely to contain his (or his agent’s) number, such as a Screen Actor’s Guild directory. Seeing a television show about a high-school reunion may give one the idea of calling the movie star’s parents and pretending to be an old high-school friend. An episode which is somehow applicable to a given concern might not be indexed in such a way as to be accessible by that concern. That episode might happen to be accessible only while performing some other concern. Therefore, serendipity recognition is invoked whenever an episode is retrieved (or derived
+Episodes provide a useful source of knowledge for the generation of creative possibilities. Given an episode and a problem, one may always force a solution to that problem using that episode. The less an episode is related to a problem, the more bizarre the solution derived from that episode (but the higher the potential for production of a truly new and useful solution). For example, if one is reminded that the encyclopedia is a source of information, one may generate the idea to look up the movie star’s telephone number in the encyclopedia. Although one is not likely to find it there, one may later refine this plan into the more useful one of finding a listing for the movie star in some book that is likely to contain his (or his agent’s) number, such as a Screen Actor’s Guild directory. Seeing a television show about a high-school reunion may give one the idea of calling the movie star’s parents and pretending to be an old high-school friend. An episode which is somehow applicable to a given concern might not be indexed in such a way as to be accessible by that concern. That episode might happen to be accessible only while performing some other concern. Therefore, serendipity recognition is invoked whenever an episode is retrieved (or derived
 
-from input as in RECOVERYS3)
+from input as in RECOVERY3)
 
 in order to find inaccessible rules contained
 
 <!-- page: 150 -->
 
-MTRANS(Me, Harrison) Mtrans-Plan2 VPROX(Harrison,Me) Vprox-Plan2
-
-M-PHONE(Me, Harrison) M-Phone-Plan KNOW(Me, TELNO(Harrison)) Know-Plan2 MTRANS(Me,ALUMNI-DIR(?Organization1), TELNO(Harrison)) Mtrans-Plan1
-
-TELNO (Harrison) KNOW(ALUMNI-DIR(?Organization1), Induced-Rule.9 COLLEGE (Harrison,?Organization1}
-
 Figure 5.3: Verification Episode for RECOVERY3
 
-in that episode which might be useful in achieving an active concern. Norman (1982, pp. 24-27) reports experiencing such a serendipitous reminding while daydreaming in the shower: A string of associations starting from a recent event led to a forgotten episode coutaining a plan for purchasing a special kind of photographic slide tray which he was having trouble locating.
+- The verification episode descends through `MTRANS(Me,Harrison)`, `VPROX(Harrison,Me)`, `M-PHONE(Me,Harrison)`, `KNOW(Me,TELNO(Harrison))`, `MTRANS(Me,ALUMNI-DIR(?Organization1),TELNO(Harrison))`, `KNOW(ALUMNI-DIR(?Organization1),TELNO(Harrison))`, and `COLLEGE(Harrison,?Organization1)`.
+- Each step is paired with the rule that licenses it: `Mtrans-Plan2`, `Vprox-Plan2`, `M-Phone-Plan`, `Know-Plan2`, `Mtrans-Plan1`, and `Induced-Rule.9`.
+
+in that episode which might be useful in achieving an active concern. Norman (1982, pp. 24-27) reports experiencing such a serendipitous reminding while daydreaming in the shower: A string of associations starting from a recent event led to a forgotten episode containing a plan for purchasing a special kind of photographic slide tray which he was having trouble locating.
 
 ### 5.3.4 Object-Driven Serendipity
 
-The stream of thought does not proceed independently of outside stimuli. As Klinger (1978) has noted (in contrast to earlier conceptualizations of daydreaming as task-irrelevant thought, daydreaming includes thoughts ranging from the most stimulus-dependent to the most stimulus-independent. Physical objects in the environment are especially common triggers and modifiers of stream of consciousness thought (Pope, 1978)—while daydreaming, one will happen to gaze at some object in the room, become reminded of some person, episode, or future plan, and shift to a daydream related to that reminding. You can demonstrate this effect to yourself by spending a minute or so looking around the room at various objects and seeing what thoughts come to you. You will probably experience at least. one reminding (followed by a daydream provided you do not cut it short) for each object you look at. Remindings resulting from objects often depend on, and are useful for, suggesting a solution for an active concern. For example, consider the case in which DAYDREAMER has an active REHEARSAL concern for a LOVERS goal. The program thus faces the problems of how to initiate a new relationship, how to meet people, and so on. In an empty context, remindings in response to physical objects will most likely be recent episodes involving that object or episodes in
+The stream of thought does not proceed independently of outside stimuli. As Klinger (1978) has noted (in contrast to earlier conceptualizations of daydreaming as task-irrelevant thought, daydreaming includes thoughts ranging from the most stimulus-dependent to the most stimulus-independent. Physical objects in the environment are especially common triggers and modifiers of stream of consciousness thought (Pope, 1978)—while daydreaming, one will happen to gaze at some object in the room, become reminded of some person, episode, or future plan, and shift to a daydream related to that reminding. You can demonstrate this effect to yourself by spending a minute or so looking around the room at various objects and seeing what thoughts come to you. You will probably experience at least one reminding (followed by a daydream provided you do not cut it short) for each object you look at. Remindings resulting from objects often depend on, and are useful for, suggesting a solution for an active concern. For example, consider the case in which DAYDREAMER has an active REHEARSAL concern for a LOVERS goal. The program thus faces the problems of how to initiate a new relationship, how to meet people, and so on. In an empty context, remindings in response to physical objects will most likely be recent episodes involving that object or episodes in
 
 <!-- page: 151 -->
 
-which that object is particularly salient. However, in the context of an active concern, remindings often relate somehow to satisfaction of that concern. Remindings result from physical objects in the daydreams COMPUTERSERENDIPITY and LAMPSHADE-SERENDIPITY (see page 14). One way of generating these remindings might be to store each episode under two indices: a personal goal and a physical object. However, in general an episode might not happen to be indexed under a personal goal to which it could ultimately be applied. For example, the lampshade episode does not involve a LOVERS goal; it involves the goal for ENTERTAINMENT at a nightclub. Even so, it is indirectly applicable to the LOVERS goal through the subgoals of impressing someone and getting someone to be romantically interested. In general, given a physical object, we would like to retrieve episodes in which that object is salient which are related to an arbitrary subgoal of an active concern. Therefore, (a) episodes are indexed under physical objects salient in those episodes, (b) whenever a physical object 1s taken as input, serendipity recognition is performed for each episode indexed under that object, and (c) such an episode is only retrieved if it results in a serendipity. Physical objects are taken as input when DAYDREAMER runs out of things to daydream about; such input may also be forced by interrupting the system.
+which that object is particularly salient. However, in the context of an active concern, remindings often relate somehow to satisfaction of that concern. Remindings result from physical objects in the daydreams COMPUTERSERENDIPITY and LAMPSHADE-SERENDIPITY (see page 14). One way of generating these remindings might be to store each episode under two indices: a personal goal and a physical object. However, in general an episode might not happen to be indexed under a personal goal to which it could ultimately be applied. For example, the lampshade episode does not involve a LOVERS goal; it involves the goal for ENTERTAINMENT at a nightclub. Even so, it is indirectly applicable to the LOVERS goal through the subgoals of impressing someone and getting someone to be romantically interested. In general, given a physical object, we would like to retrieve episodes in which that object is salient which are related to an arbitrary subgoal of an active concern. Therefore, (a) episodes are indexed under physical objects salient in those episodes, (b) whenever a physical object is taken as input, serendipity recognition is performed for each episode indexed under that object, and (c) such an episode is only retrieved if it results in a serendipity. Physical objects are taken as input when DAYDREAMER runs out of things to daydream about; such input may also be forced by interrupting the system.
 
 For example, upon receipt of Computer as input, DAYDREAMER finds several episodes indexed under this physical object. It then performs an intersection search from the episodic planning rules in those episodes to the rules associated with active concerns (including LOVERS). It finds a path from an episodic planning rule in the computer dating episode (which states that a way of acceptably initiating communication with someone one does not already know is through
 
@@ -226,11 +179,11 @@ What is the purpose of having episodes be retrieved in response to input physica
 
 <!-- page: 152 -->
 
-Input-State-Driven Serendipity
+### 5.3.5 Input-State-Driven Serendipity
 
-A serendipity often occurs when the world state is recognized as applicable in some way to some active concern (F. Hayes-Roth & B. Hayes-Roth, 1979). For example, Shanon (1981) reports the following experience and resulting daydream: On the way back from the supermarket, the subject (S) passes by a public garden; S thinks how it is a shame S cannot pick some flowers for H because it is dark; S then realizes that S can go back to the supermarket to buy some flowers for H. Therefore, in DAYDREAMER, serendipity recognition 1s invoked upon receiving an input state or action. The bottom planning rule for the intersection search is one having a consequent subgoal which unifies with the input state or action.
+A serendipity often occurs when the world state is recognized as applicable in some way to some active concern (F. Hayes-Roth & B. Hayes-Roth, 1979). For example, Shanon (1981) reports the following experience and resulting daydream: On the way back from the supermarket, the subject (S) passes by a public garden; S thinks how it is a shame S cannot pick some flowers for H because it is dark; S then realizes that S can go back to the supermarket to buy some flowers for H. Therefore, in DAYDREAMER, serendipity recognition is invoked upon receiving an input state or action. The bottom planning rule for the intersection search is one having a consequent subgoal which unifies with the input state or action.
 
-In LOVERS!
+In LOVERS1
 
 (see page 3), LOVERS2
 
@@ -250,27 +203,25 @@ In designing a daydreaming machine there is a conflict between the need to reduc
 
 <!-- page: 153 -->
 
-buried within those possibilities may never be found. Therefore, a useful addition to the program is a method for exploring possibilities in a somewhat random fashion and in a quantity which will not overload the program. Thus, without search reduction, the program would be overloaded with possibilities; with search reduction, the program may miss creative solutions; somewhat random ezploration of possibilities enables possible discovery of creative solutions even of search reduction is employed. The function of action mutation is to generate and explore possibilities which might not otherwise have been considered by the analogical planning mechanism of DAYDREAMER: Planning in DAYDREAMER consists of repeatedly breaking subgoals down into further subgoals until subgoals that are already satisfied are reached. There are alternative means whereby a given subgoal may be broken down into further subgoals—these means are specified by both generic rules and episodes. Finding a solution to a problem thus consists of a search through this space of alternatives. In principle, then, any valid solution to a problem may be found though exhaustive search. However, instead of performing an exhaustive search, the normal planning mechanism of DAYDREAMER employs the following collection of strategies for reducing the potentially large search space: © Limitation on the number of attempted rules by evaluation metrics: Out of all the possible rules for achieving a subgoal, only a certain number of these rules will be attempted. Therefore, some possible plans will be missed.
+buried within those possibilities may never be found. Therefore, a useful addition to the program is a method for exploring possibilities in a somewhat random fashion and in a quantity which will not overload the program. Thus, without search reduction, the program would be overloaded with possibilities; with search reduction, the program may miss creative solutions; somewhat random exploration of possibilities enables possible discovery of creative solutions even if search reduction is employed. The function of action mutation is to generate and explore possibilities which might not otherwise have been considered by the analogical planning mechanism of DAYDREAMER: Planning in DAYDREAMER consists of repeatedly breaking subgoals down into further subgoals until subgoals that are already satisfied are reached. There are alternative means whereby a given subgoal may be broken down into further subgoals—these means are specified by both generic rules and episodes. Finding a solution to a problem thus consists of a search through this space of alternatives. In principle, then, any valid solution to a problem may be found through exhaustive search. However, instead of performing an exhaustive search, the normal planning mechanism of DAYDREAMER employs the following collection of strategies for reducing the potentially large search space:
+
+- Limitation on the number of attempted rules by evaluation metrics: Out of all the possible rules for achieving a subgoal, only a certain number of these rules will be attempted. Therefore, some possible plans will be missed.
 
 - Precedence of satisfied states: Whenever a subgoal is satisfied by one or more current states, planning rules for achieving those states are not considered.
 
-© Precedence of existing analogical plans: If an analogical plan has already been selected for a subgoal and the applicability of this analogical plan is verified, other alternatives for this subgoal will not be generated. (However, if this subgoal fails, the entire analogical planning subtree will fail, and alternative plans for achieving the subgoal at the root of the analogical planning will then be considered).
+- Precedence of existing analogical plans: If an analogical plan has already been selected for a subgoal and the applicability of this analogical plan is verified, other alternatives for this subgoal will not be generated. (However, if this subgoal fails, the entire analogical planning subtree will fail, and alternative plans for achieving the subgoal at the root of the analogical planning will then be considered).
 
 Plans generated through action mutation thus are implicit in existing generic rules and episodes. Nonetheless, such plans still might have not been found by the analogical planning mechanism. Although the above strategies have the advantage of preventing the program from performing an overly expensive search, they have the disadvantage of sometimes causing the system to miss possible solutions. However, there is considerable psychological evidence that people as well employ strategies for reducing search which prevent them from seeing many possible solutions (J. L. Adams, 1974; Wertheimer, 1945, pp. 169-192; F. C. Bartlett, 1932). The purpose, then, of such strategies as action mutation and serendipity is to counter
 
 <!-- page: 154 -->
 
-the “mental blocks” strategies.
+the “mental blocks” which sometimes result from the use of search reduction strategies.
 
-### 5.4.2 5. EVERYDAY CREATIVITY IN DAYDREAMING which sometimes
+### 5.4.2 Strategies for Action Mutation
 
-result from the use of search reduction
+The following strategies are employed to mutate actions: permute objects, generalize object, and change action type. The permute objects strategy juggles around object entities contained in the action, such as persons and physical objects. For example, Harrison Ford tells me his telephone number might be mutated into I tell Harrison Ford my telephone number. If there is only one object in an action, no mutations result from this strategy. If there are two objects, there is one mutation: The objects are switched. If there are three objects, there are five mutations. In general, there will be `n! - 1` mutations of an action containing `n` objects. The generalize object strategy substitutes one of the object entities contained in the action with an abstraction consisting of: (a) a variable whose type is that which would normally fill the slot or slots containing the original element, and (b) the requirement that the variable not be bound to the original element. For example, Harrison Ford tells me his telephone number might be mutated into Someone else tells me Harrison Ford’s telephone number or Harrison Ford tells someone else his telephone number (as in RECOVERY2). The change action type strategy modifies the type of the action and then adjusts the fillers of the slots to be of appropriate type for the new action. In the current version of DAYDREAMER, this mutation is only defined for actions of type MTRANS, ATRANS, and PTRANS. For example, Harrison Ford tells me his telephone number might be mutated into Harrison Ford gives me an object containing his telephone number or Harrison Ford moves an object containing his telephone number toward me. These mutations might lead, respectively, to daydreams in which the movie star gives his card to DAYDREAMER, or in which the movie star accidentally leaves behind his wallet. Arbitrary mutation of an action can lead to useless or nonsensical possibilities. In order to avoid spending too much time generating and exploring useless possibilities, the serendipity mechanism is employed to evaluate generated mutations. The bottom planning rule for the intersection search is one having a consequent subgoal which unifies with the mutated action. If serendipity is successful, an episode suitable for use in analogical planning is created and the mutated action is fleshed out through analogical application of that episode.
 
-Strategies for Action Mutation
-
-The following strategies are employed to mutate actions: permute objects, generalize object, and change action type. The permute objects strategy juggles around object entities contained in the action, such as persons and physical objects. For example, Harrison Ford tells me his telephone number might be mutated into | tell Harrison Ford my telephone number. If there is only one object in an action, no mutations result from this strategy. If there are two objects, there is one mutation: The objects are switched. If there are three objects, there are five mutations. In general, there will be n! — 1 mutations of an action containing n objects. The generalize object strategy substitutes one of the object entities contained in the action with an abstraction consisting of: (a) a variable whose type is that which would normally fill the slot or slots containing the original element, and (b) the requirement that the variable not be bound to the original element. For example, Harrison Ford tells me his telephone number might be mutated into Someone else tells me Harrison Ford’s telephone number or Harrison Ford tells someone else his telephone number (as in RECOVERY2). The change action type strategy modifies the type of the action and then adjusts the fillers of the slots to be of appropriate type for the new action. In the current version of DAYDREAMER, this mutation is only defined for actions of type MTRANS, ATRANS, and PTRANS. For example, Harrison Ford tells me his telephone number might be mutated into Harrison Ford gives me an object containing his telephone number or Harrison Ford moves an object containing his telephone number toward me. These mutations might lead, respectively, to daydreams in which the movie star gives his card to DAYDREAMER, or in which the movie star accidentally leaves behind his wallet. Arbitrary mutation of an action can lead to useless or nonsensical possibilities. In order to avoid spending too much time generating and exploring useless possibilities, the serendipity mechanism is employed to evaluate generated mutations. The bottom planning rule for the intersection search is one having a consequent subgoal which unifies with the mutated action. If serendipity is successful, an episode suitable for use in analogical planning is created and the mutated action is fleshed out through analogical application of that episode.
-
-## 5.5 ‘The Phenomena of Incubation and Insight
+## 5.5 The Phenomena of Incubation and Insight
 
 From the introspective reports of Poincaré, Helmholtz, and others, Wallas (1926) abstracted four stages of the creative process: One sits down to solve a problem,
 
@@ -310,7 +261,7 @@ fashion: A concern is performed for a while; then it is set aside in an intermed
 
 ## 5.6 Previous Work in Problem Solving
 
-Our view is that creative problem solving is often carried out by humans through daydreaming. (Other ways of problem solving—such as working out a list of actions on paper—are, of course, considered distinct from daydreaming.) In the field of artificial intelligence, there has been much previous work on problein solving (also called planning). In this section, we review some of this work and compare it to DAYDREAMER.
+Our view is that creative problem solving is often carried out by humans through daydreaming. (Other ways of problem solving—such as working out a list of actions on paper—are, of course, considered distinct from daydreaming.) In the field of artificial intelligence, there has been much previous work on problem solving (also called planning). In this section, we review some of this work and compare it to DAYDREAMER.
 
 ### 5.6.1 GPS and STRIPS
 
@@ -322,9 +273,7 @@ solution—partial or complete—to a problem. One set of operators is similar t
 
 <!-- page: 158 -->
 
-are provided by all the mechanisms of DAYDREAMER goal strategies to serendipity.
-
-from the daydreaming
+are provided by all the mechanisms of DAYDREAMER, from the daydreaming goal strategies to serendipity.
 
 Specifically, DAYDREAMER differs from GPS and STRIPS in several important respects. First, DAYDREAMER addresses the problems of inaccessibility, fanciful solutions, and accident: Consider a domain with a large number of operators, such as the domain of interpersonal relations and common everyday occurrences. GPS and STRIPS, which conduct a search using a set of perfectly accessible operators, fail as models of problem solving in such a domain. All operators cannot be equally accessible at any point: In a computer program, too many operators would overwhelm the system, while in a human, too many operators would exceed the capacity of working memory. Mechanisms must therefore be employed to reduce the number of operators available at a time. But as a result of such mechanisms, potential solutions may be missed. In order to find these missed solutions, additional strategies must then be employed to uncover missed solutions, as well as to recognize when a missed solution has accidentally been stumbled upon. These problems are addressed by DAY-
 
@@ -346,41 +295,18 @@ ture; (b) previous experiences are used to generate continuations of an ongoing 
 
 <!-- page: 159 -->
 
-GOAL
+Figure 5.4: ABSTRIPS vs. DAYDREAMER
 
-GOAL
+`ABSTRIPS`
 
-GOAL
+- `GOAL -> RELAXATION of operator preconditions -> successive REFINEMENT -> GOAL`
 
-RELAXATION aN
+`DAYDREAMER`
 
-of operator Preconditions
+- `GOAL1 -> generation of FANCIFUL scenarios -> successive MUTATION -> GOAL1`
+- `SERENDIPITY` can then redirect the mutated search toward `GOAL1` or `GOAL2`.
 
-successive — successive REFINEMENT >
-
-DAYDREAMER GOAL
-
-SERENDIPITY successive MUTATION
-
-GOAL1
-
-GOAL2
-
-GOAL1
-
-——_ generation of
-
-FANCIFUL
-
-as
-
-=
-
-scenarios
-
-Figure 5.4: ABSTRIPS
-
-### 5.6.2 vs. DAYDREAMER ABSTRIPS
+### 5.6.2 ABSTRIPS
 
 The ABSTRIPS program (Sacerdoti, 1974), which is based on STRIPS (Fikes & Nilsson, 1971), employs the method of “hierarchical planning” to reduce search. In this approach, a plan for achieving a goal is generated which ignores details (such as how to satisfy operator preconditions); this plan is then used to guide the generation of a plan at a finer level of detail; in turn, the resulting plan is used to guide the generation of a plan at an even finer level of detail; and so on. In contrast, the various strategies for the generation of fanciful scenarios in DAYDREAMER—such as mutation and daydreaming goal strategies—actually
 
@@ -408,41 +334,43 @@ The operation of meta-planning in Wilensky’s theory of planning is illustrated
 
 <!-- page: 162 -->
 
-there is more than one plan for achieving each subgoal. If TRY-ALTERNATIVE-PLAN is unsuccessful, a final strategy called This plan involves finding is employed: CHANGE-CIRCUMSTANCE states of the world which lead to the preservation goal and generating a plan to alter those states. For example, if there is nothing between the rain and an object, that object will get wet; a plan for avoiding getting one’s clothes wet is therefore to place some appropriate object, such as a newspaper, in between the rain and one’s clothes. The CHANGE-CIRCUMSTANCE strategy is similar to our UNDO-CAUSES strategy for REVERSAL. Wilensky notes that CHANGE-CIRCUMSTANCE is a method whereby stored plans for resolving specific goal conflicts (such as putting on a raincoat to keep from getting wet) may be derived. However, unlike DAYDREAMER, plans derived via this strategy are not stored for use in planning future similar situations—these plans must be rederived each time. Thus Wilensky does not exploit the potential for ongoing revision of plans (which we argued in Chapter 1 is important for creativity). Unlike traditional problem-solving systems, but like DAYDREAMER, Wilensky’s planner infers its own goals. However, unlike DAYDREAMER, Wilensky’s planner lacks a control mechanism for: (a) selecting which of many active goals to form and execute plans for at any given time, and (b) interleaving the formation and execution of plans. Wilensky’s planner copes with multiple goals in part through meta-planning: For example, meta-themes such as DON’T WASTE RESOURCES result in efficient plans for achieving several goals. However, although meta-planning can schedule the execution of a few goals, it cannot in general schedule the execution of all future goals. Furthermore, although time constraints on the execution of plans can in principle be handled through meta-planning, some goals may be so urgent that there simply is no time to perform such meta-planning. Consequently, a planner must have an appropriate mechanism for interleaving the formation and execution of plans for various goals and for directing attention to those current and future goals that are deemed most important at any given time. Emotion-driven control is the mechanism employed in DAYDREAMER. Wilensky’s planner creates a task network through planning whose actions are later executed. In DAYDREAMER, future plans or intentions are formed and carried out via two mechanisms: (a) the generation, storage in memory, and application, via analogical planning, of daydreamed plans, and (b) partial completion of a concern, suspension of that concern, and resumption of that concern. The stored plans and suspended concerns of DAYDREAMER are similar to Wilensky’s task networks, with the following significant difference: Wilensky’s planner must construct a plan from scratch each time a problem is encountered, even if that problem is similar to some previously solved problem, while in DAYDREAMER, once a plan is formed, that plan may be applied to any future similar problem. The rules of DAYDREAMER provide a more economical representation of
+there is more than one plan for achieving each subgoal. If TRY-ALTERNATIVE-PLAN is unsuccessful, a final strategy called CHANGE-CIRCUMSTANCE is employed. This plan involves finding states of the world which lead to the preservation goal and generating a plan to alter those states. For example, if there is nothing between the rain and an object, that object will get wet; a plan for avoiding getting one’s clothes wet is therefore to place some appropriate object, such as a newspaper, in between the rain and one’s clothes. The CHANGE-CIRCUMSTANCE strategy is similar to our UNDO-CAUSES strategy for REVERSAL. Wilensky notes that CHANGE-CIRCUMSTANCE is a method whereby stored plans for resolving specific goal conflicts (such as putting on a raincoat to keep from getting wet) may be derived. However, unlike DAYDREAMER, plans derived via this strategy are not stored for use in planning future similar situations—these plans must be rederived each time. Thus Wilensky does not exploit the potential for ongoing revision of plans (which we argued in Chapter 1 is important for creativity). Unlike traditional problem-solving systems, but like DAYDREAMER, Wilensky’s planner infers its own goals. However, unlike DAYDREAMER, Wilensky’s planner lacks a control mechanism for: (a) selecting which of many active goals to form and execute plans for at any given time, and (b) interleaving the formation and execution of plans. Wilensky’s planner copes with multiple goals in part through meta-planning: For example, meta-themes such as DON’T WASTE RESOURCES result in efficient plans for achieving several goals. However, although meta-planning can schedule the execution of a few goals, it cannot in general schedule the execution of all future goals. Furthermore, although time constraints on the execution of plans can in principle be handled through meta-planning, some goals may be so urgent that there simply is no time to perform such meta-planning. Consequently, a planner must have an appropriate mechanism for interleaving the formation and execution of plans for various goals and for directing attention to those current and future goals that are deemed most important at any given time. Emotion-driven control is the mechanism employed in DAYDREAMER. Wilensky’s planner creates a task network through planning whose actions are later executed. In DAYDREAMER, future plans or intentions are formed and carried out via two mechanisms: (a) the generation, storage in memory, and application, via analogical planning, of daydreamed plans, and (b) partial completion of a concern, suspension of that concern, and resumption of that concern. The stored plans and suspended concerns of DAYDREAMER are similar to Wilensky’s task networks, with the following significant difference: Wilensky’s planner must construct a plan from scratch each time a problem is encountered, even if that problem is similar to some previously solved problem, while in DAYDREAMER, once a plan is formed, that plan may be applied to any future similar problem. The rules of DAYDREAMER provide a more economical representation of
 
 <!-- page: 163 -->
 
-planning knowledge that those of PANDORA. While in DAYDREAMER a single rule is used to represent the fact that performing a certain action results in a certain goal state, in PANDORA two rules must be employed: one for representing the fact that that action may be employed as a plan for achieving a goal whose objective is that state, and another for representing the fact that that action results in that state. For example, the two PANDORA rules (Wilensky, 1983, p. 139):
+planning knowledge than those of PANDORA. While in DAYDREAMER a single rule is used to represent the fact that performing a certain action results in a certain goal state, in PANDORA two rules must be employed: one for representing the fact that that action may be employed as a plan for achieving a goal whose objective is that state, and another for representing the fact that that action results in that state. For example, the two PANDORA rules (Wilensky, 1983, p. 139):
 
-(PlanFor (Goal (Goal (Planner?X) (Objective (At (Actor?X) (Location?L)))) (Action (Drive-vehicle (Driver?X) (To?L) (Vehicle?V))))) (Result (Action (Drive-vehicle (Driver?X) (To?L) (From?FL) (Vehicle?V))) (State (At (Actor?X) (Location?L)))) may be expressed as the single DAYDREAMER (RULE
+```lisp
+(PlanFor
+  (Goal
+    (Goal
+      (Planner ?X)
+      (Objective (At (Actor ?X) (Location ?L))))
+    (Action
+      (Drive-vehicle
+        (Driver ?X) (To ?L) (Vehicle ?V)))))
 
-subgoal
+(Result
+  (Action
+    (Drive-vehicle
+      (Driver ?X) (To ?L) (From ?FL) (Vehicle ?V)))
+  (State
+    (At (Actor ?X) (Location ?L))))
+```
 
-(DRIVE-VEHICLE
+may be expressed as the single DAYDREAMER rule:
 
-actor
-
-?Person1
-
-from
-
-?Location1
-
-to
-
-rule:
-
-?Location2
-
-vehicle?Vehicle1) goal (AT actor
-
-?Person1
-
-obj?Location2))
+```lisp
+(RULE
+  subgoal
+    (DRIVE-VEHICLE actor ?Person1 from ?Location1 to ?Location2 vehicle ?Vehicle1)
+  goal
+    (AT actor ?Person1 obj ?Location2))
+```
 
 Furthermore, action preconditions, causal inferences, and the specification of how a complex action—such as driving a car—is broken down into more simple actions, are represented in their own unique way in PANDORA, while in DAYDREAMER each of these forms of knowledge is represented in the same way—as a rule (with the exceptions that rules whose goal is an action have slightly different semantics, and that rules may be restricted to application only as a plan or
 
-as an inference). This uniformity of representation in DAYDREAMER simplifies the operation of the analogical planning mechanism employed in learning. Both Wilensky’s planner and DAYDREAMER evaluate a scenario based on the sum of the values of the goals in that scenario as well as according to crude judgements of the plausibility of the scenario. Wilensky presents advanced meta-planning techniques for handling forms of goal competition, goal subsumption, goal concord, and goal overlap which are not dealt with in the current DAYDREAMER.. In addition to the issue of plan generation, Wilensky is concerned with the issue of plan understanding—that
+as an inference). This uniformity of representation in DAYDREAMER simplifies the operation of the analogical planning mechanism employed in learning. Both Wilensky’s planner and DAYDREAMER evaluate a scenario based on the sum of the values of the goals in that scenario as well as according to crude judgements of the plausibility of the scenario. Wilensky presents advanced meta-planning techniques for handling forms of goal competition, goal subsumption, goal concord, and goal overlap which are not dealt with in the current DAYDREAMER. In addition to the issue of plan generation, Wilensky is concerned with the issue of plan understanding—that
 
 <!-- page: 164 -->
 
@@ -450,13 +378,9 @@ is, how knowledge of planning may be used to explain the behavior of characters 
 
 ### 5.6.5 Opportunistic Planning
 
-An idea related to problem solving through serendipity is the idea of opportunistic planning (B. Hayes-Roth & F. Hayes-Roth, 1979). In opportunistic planning, the planner takes advantage of world states which happen to be true, thus (a) saving it the effort of achieving those states, or (b) enabling it to achieve a goal that could not be achieved previously because those states could not be attained at all. A similar exploitation of fortuitous states was accomplished in PLANEX (Fikes, Hart, P. E., & Nilsson, 1972). As illustrated in Figure 5.5, opportunistic planning is a special case of serendipity. Whereas in opportunistic planning the world state must be identical to the subgoal objective, in serendipity the world state may be related to
+An idea related to problem solving through serendipity is the idea of opportunistic planning (B. Hayes-Roth & F. Hayes-Roth, 1979). In opportunistic planning, the planner takes advantage of world states which happen to be true, thus (a) saving it the effort of achieving those states, or (b) enabling it to achieve a goal that could not be achieved previously because those states could not be attained at all. A similar exploitation of fortuitous states was accomplished in PLANEX (Fikes, Hart, P. E., & Nilsson, 1972). As illustrated in Figure 5.5, opportunistic planning is a special case of serendipity. Whereas in opportunistic planning the world state must be identical to the subgoal objective, in serendipity the world state may be related to the subgoal via (a) parameter substitution and (b) a chain of planning rules. Opportunistic planning is the same as what we have been calling fortuitous subgoal success.
 
-the subgoal via (a) parameter substitution and (b) a chain of planning rules. Opportunistic planning is the same subgoal success.
-
-## 5.7 Previous Work as what we have been calling fortuitous
-
-in Creativity
+## 5.7 Previous Work in Creativity
 
 This section reviews previous theories of creativity implemented as computer programs.
 
@@ -466,33 +390,10 @@ The TALE-SPIN program (Meehan, 1976) generates simple stories in English through
 
 <!-- page: 165 -->
 
-Serendipity subst —_—_——»_-
-
-subgce
-
-Opportunistic planning
-
-Tule conn
-
-: equiv ———— >
-
-SOURCE
-
-ae
-
-world
-
-UDS
-
-state
-
-Ora
-
-subgoal
-
-world
-
 Figure 5.5: Opportunistic Planning vs. Serendipity
+
+- `Serendipity` transfers structure from a `SOURCE` world state toward a `TARGET` via `subst`, `rule conn`, and `subgoal`.
+- `Opportunistic planning` shows the simpler special case: a `world state` is locally equivalent (`equiv`) to the needed `subgoal`.
 
 canary—one of which is designated as the main character, a problem of the main character—such as hunger or thirst—which becomes the motivating topic of the story, physical objects such as breadcrumbs, cheese, berries, and water, personality traits and relationships of the characters, beliefs about the traits of other characters, and the initial knowledge states of the characters. The functions of daydreaming and writing stories are quite different: Whereas daydreaming is a private activity concerned mostly with personal learning and emotion regulation, an author writes a story to entertain, inform, or otherwise communicate with the reader. A daydream is a production of the moment; it is generated on the fly; it wanders freely from topic to topic and need not be comprehensible to others. A story, on the other hand, is a deliberate, finished product intended for others; it is determined in part by the literary or artistic goals of the writer. Nonetheless, daydreams are often story-like (consider revenge daydreams, for example), just as stories are often daydream-like (consider the later works
 
@@ -528,518 +429,6 @@ BACON (Langley, Bradshaw, & Simon, 1983) is a program which discovers empirical 
 
 <!-- page: 169 -->
 
-entering the tub to take a bath when it dawned on him that the volume of the displaced water is equal to the volume of his submerged body (Langley, Bradshaw, & Simon, 1983, p. 315). This somewhat accident al discovery is similar to the object-driven serendipities modeled by DAYDREAMER. In contrast, BACON models the discovery simply by taking as input a collection of numerical data and inducing a formula which fits those data. BACON has no representations for water, objects, containers, or displacement.
+entering the tub to take a bath when it dawned on him that the volume of the displaced water is equal to the volume of his submerged body (Langley, Bradshaw, & Simon, 1983, p. 315). This somewhat accidental discovery is similar to the object-driven serendipities modeled by DAYDREAMER. In contrast, BACON models the discovery simply by taking as input a collection of numerical data and inducing a formula which fits those data. BACON has no representations for water, objects, containers, or displacement.
 
 <!-- page: 170 -->
-
-hope
-
-ch
-
-;
-
-aon RCL
-
-lsat
-
-Alascahioat ah glidatngdis seine sre
-
-ares AMODAR seiniepbert) aiid sae eaten raion egopse dhe were _ategeilepsh teArana stone teas ney
-
-bat Lie ritipart YS autoarnwe of
-
-tip: OMEN; 7
-
-Waegrrlviciie| int, srergiene finite
-
-:
-
-etki
-
-4 io yt
-
-Ranantp enn rat
-
-weomenr: iA)
-
-pee
-
-te (ue
-
-Hout Se 4
-
-ak ia dem,
-
-sippier
-
-T Sai 5 ~omm
-
-ost! eth
-
-=~ ant eh uw
-
-val «iinet aE ii ee
-
-ryt
-
-cle \iS ara =e
-
-tevi cmmrred
-
-ot
-
-' sats
-
-One
-
-aik =
-
-an ea
-
-ee
-
-i
-
-rf MeN
-
-(eficl
-
-rt nied rae (
-
-; sertcne
-
-warn
-
-Sry
-
-les
-
-Nar
-
-af win ng
-
-iz. exe aa
-
-= Dae AM td na litaees
-
-=p
-
-ain hiltitmts
-
-say
-
-ipa
-
-&
-
-Gal)
-
-Avbe i> «fee
-
-ey
-
-pat peters =pfee
-
-Gwe
-
--
-
-ae DHToulyrrs ‘ in
-
-5j
-
-ay ryé
-
-6o-iae theater)
-
-by
-
->
-
-tei
-
-;
-
-tint
-
-or
-
-Oh'
-
-Lilie
-
-bite
-
-Pra
-
-v i
-
-0
-
-D
-
-ad
-
-rT wit
-
-a
-
-a
-
-7
-
-‘thie we
-
-16 Ae
-
-pareagTarr
-
-7
-
-heyy
-
-5
-
-Watley ee
-
-Foe agent” {
-
-*
-
-wed a)
-
-j
-
--
-
-aie as
-
-—
-
-ies;
-
-aoe
-
-rrepnid
-
-ta LAjteHe ANS
-
-’ '
-
-ifWAT lis
-
--
-
-ive
-
-a
-
-(teary ne
-
-foNeat
-
-:
-
->
-
-+)
-
-———*
-
-a)
-
-:
-
-45 9
-
-mara bale
-
-—e a
-
-= 0p ae],
-
-a+
-
-i
-
-inallan an
-
-Li‘ ‘uf 1“ ti
-
-preepclwer— Bete
-
-CPi a
-
-ane
-
-f\
-
-aeale
-
-Laer
-
-oe
-
-;
-
-‘
-
-rs
-
-ui
-
-4
-
-tion
-
-us atte
-
-|t$) eDavn? (CAs
-
-men >!ati a
-
-wpralicat¢
-
-ul
-
-ha
-
-rar cite
-
-é
-
-ee
-
-t
-
-Y tiveb a)
-
--
-
-_
-
-' ——
-
-ro
-
-— ae
-
-.
-
-eee
-
-2
-
-a
-
-we
-
-«it
-
-~a
-
-a ~ », whet he wsevtee i haa:
-
-=
-
-'
-
-rt Oy ter)
-
-;
-
-E8120
-
-a min
-
-ibsensth
-
-‘
-
-:
-
-“~
-
-nMaf
-
-eae
-
-/
-
-a
-
-artes. tire as x =
-
-2
-
-iw sy tsme ey sciuts Iv
-
-(heWen
-
-yat
-
-pcoie
-
--
-
-hs is
-
-Wag
-
-fixe
-
-ee
-
-al
-
-coer t
-
-—titior Ove
-
-Neil wean
-
-cr
-
-eater)
-
-(an
-
-of evil Pr)
-
-ites
-
-rarer “uj ds — a
-
-—
-
-7
-
-i
-
-cif jis ccuvtesti vituh th sutns si siaton (hediafa
-
-_
-
->
-
-fa
-
-mags
-
-eefe torpersonal dopesin = tar leg fartnal iy div eri
-
-7 ralphiaages ——a ——>
-
-3
-
-it Gnterestvit &
-
-—— mage pateeptcy >>
-
-vies <i,
-
-_
-
-. >) in pee
-
-fir ampenye. (aG-0
-
-1°40 night. and <6 ob
-
-the
-
-due Yah
-
-Ow
-
-jour
-
-wen
-
-in
-
-..
-
-|
-
-ind
-
-rh
-
-nt
-
-von |
-
-of
-
-U
-
-side.
-
-;
-
-shine iy
-
-|
-
-.
-
-Ww
-
-IN
-
-i
-
-alfa
-
-ri
-
-whem =
-
-may;
-
-mo)
-
-Na
-
-'
-
-a&
-
-We
-
-Te
-
-el way
-
-ve et
-
-bats UtPng
-
-ARNE
-
-meg?
-
-ity
-
-all
-
-waAas pms pirate 12 ie
-
-tea ay +)
-
-coma 4
-
-date: a
-
-iy) os:
-
-ize:
-
-it
-
-: mf vt wr
-
-4
-
-sain

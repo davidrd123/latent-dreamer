@@ -30,6 +30,7 @@ def expand_ranges(*parts: tuple[int, int] | int) -> list[int]:
 
 PAGE_GROUPS: dict[str, list[int]] = {
     "front-matter-layout": expand_ranges((1, 15), (47, 48)),
+    "chapter-1-layout": expand_ranges((21, 46)),
     "figure-pages": expand_ranges(
         54,
         (56, 58),
@@ -57,6 +58,7 @@ PAGE_GROUPS: dict[str, list[int]] = {
     ),
     "table-pages": expand_ranges(74, 79, 103, 132),
     "chapter-7-layout": expand_ranges((187, 190)),
+    "chapter-9-layout": expand_ranges((231, 252)),
     "appendix-a-traces": expand_ranges((323, 370)),
     "appendix-b-layout": expand_ranges((374, 383)),
 }

@@ -7,10 +7,13 @@ Page numbers below are PDF page numbers. They match the `<!-- page: N -->` marke
 ## Status
 
 - The image-sensitive page ranges identified here have now been reviewed from rendered page images.
-- The reconstruction output lives in companion markdown notes [17-image-reviewed-tables.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/17-image-reviewed-tables.md) through [38-image-reviewed-chapter-11-stream-figure.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/38-image-reviewed-chapter-11-stream-figure.md).
+- The reconstruction output lives in companion markdown notes [17-image-reviewed-tables.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/17-image-reviewed-tables.md) through [41-image-reviewed-chapter-1-prose.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/41-image-reviewed-chapter-1-prose.md).
 - Remaining conversion work is mainly text-only cleanup and integration, not unresolved page-image review.
 
 ## Image-Reviewed Coverage
+
+- `21-46`
+  Although Chapter 1 had initially been treated as prose-only cleanup, the OCR damage in the example blocks and subsection structure warranted a page-image rebuild in [41-image-reviewed-chapter-1-prose.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/41-image-reviewed-chapter-1-prose.md).
 
 - `7-15, 47-48`
   Front matter TOC, list pages, and in-book contents pages were reconstructed in [18-image-reviewed-front-matter.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/18-image-reviewed-front-matter.md).
@@ -39,6 +42,9 @@ Page numbers below are PDF page numbers. They match the `<!-- page: N -->` marke
 - `216-218, 221, 225-227, 229`
   Chapter 8 figure pages were reconstructed in [37-image-reviewed-chapter-8-memory-scheme-figures.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/37-image-reviewed-chapter-8-memory-scheme-figures.md).
 
+- `231-252`
+  Although this range is mostly prose rather than figure/table layout, the OCR layer was noisy enough that Chapter 9 was rebuilt against page images in [39-image-reviewed-chapter-9-prose.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/39-image-reviewed-chapter-9-prose.md).
+
 - `300`
   The Chapter 11 figure page was reconstructed in [38-image-reviewed-chapter-11-stream-figure.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/38-image-reviewed-chapter-11-stream-figure.md).
 
@@ -50,7 +56,7 @@ Page numbers below are PDF page numbers. They match the `<!-- page: N -->` marke
 
 ## Text-Only Cleanup Is Usually Fine
 
-- Main prose in Chapters 1-11 outside the page ranges above.
+- Main prose outside the page ranges above.
 - References `303-322`
   These still need OCR cleanup, but they are text problems rather than image-dependent layout problems.
 - Index `385-413`

@@ -46,7 +46,7 @@ This diagram distinguishes horizontal and vertical growth:
 - a horizontal arrow across the top is labeled `personal goal concerns`
 - a vertical relation downward is labeled `daydreaming goal concerns`
 
-Named contexts like `CX71`, `CX75`, `CX78`, `CX710`, `CX73`, `CX74`, and `CX79` show how:
+Named contexts like `CTXT1`, `CTXT2`, `CTXT5`, `CTXT6`, `CTXT10`, `CTXT3`, `CTXT4`, `CTXT8`, and `CTXT9` show how:
 
 - personal-goal contexts proceed across reality contexts
 - daydreaming-goal contexts can sprout downward off present or past reality contexts
@@ -60,10 +60,10 @@ PDF page: `207`
 This extends Figure 7.1 by adding episodic memory and analogy:
 
 - `Planning rule application -> Episode retrieval`
+- `Planning rule application -> Reminding`
 - `Planning rule application -> Analogical rule application`
 - `Planning rule application -> Subgoal creation`
 - `Concern termination -> Episode storage`
-- `Episode retrieval -> Reminding`
 
 The figure shows the implementation consequence of adding analogical planning: the planner no longer depends only on local rules.
 
@@ -73,7 +73,8 @@ PDF page: `212`
 
 This is the Chapter 7 culmination. It adds the serendipity machinery:
 
-- `(Input) -> Serendipity recognition`
+- `Concern initiation -> Serendipity recognition`
+- `(Input) -> Reminding`
 - `Reminding -> Serendipity recognition`
 - `Mutation -> Serendipity recognition`
 - `Serendipity recognition -> Concern initiation`
