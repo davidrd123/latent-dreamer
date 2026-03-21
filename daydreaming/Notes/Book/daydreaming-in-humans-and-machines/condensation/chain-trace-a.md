@@ -49,17 +49,22 @@ First-pass trace. This stays at Mueller's mechanism level. It is a faithful exec
    - Typed handoff: `{:concern-id ... :resolution-context ... :success? ...}`
    - Meaning: once the top-level goal succeeds or all paths fail, the concern resolves.
 
-10. **Concern termination -> Episode storage**
-    - Link type: structural, with evaluation data attached
+10. **Concern termination -> Episode evaluation**
+    - Link type: structural in Mueller, with explicit evaluator-style judgment points
+    - Typed handoff: `{:planning-tree ... :used-rules [...] :goal-outcomes [...] :concern-type ...}`
+    - Meaning: the completed branch is scored for realism and desirability, and any branch-abandonment or goal-deactivation consequences are resolved.
+
+11. **Episode evaluation -> Episode storage**
+    - Link type: structural
     - Typed handoff: `{:planning-tree ... :rule-indices [...] :surface-indices [...] :realism ... :desirability ...}`
-    - Meaning: the completed experience is decomposed into reusable episodes and subepisodes for later planning.
+    - Meaning: the evaluated experience is decomposed into reusable episodes and subepisodes for later planning.
 
 ## What accumulates along this chain
 
 - concern motivation is consumed but persists across cycles
 - retrieval can update recent memory through reminding
 - planning grows a context tree and a planning tree
-- successful or otherwise storable runs add episodes to long-term episodic memory
+- successful or otherwise storable runs add episodes plus stored realism/desirability metadata to long-term episodic memory
 
 ## Why this chain matters
 
