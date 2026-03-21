@@ -61,6 +61,12 @@ Strictly speaking, this mechanism does not add durable memory. Marks are reset b
 
 So the accumulation story here is not "it writes memory" but "it is the gate through which accumulated memory becomes usable again."
 
+## Design note: adaptive retrieval vs. static creative substrate
+
+Episode retrieval is a candidate for usage-weighted learning (e.g., Ori-style Q-value reranking: episodes that prove useful when retrieved become easier to retrieve next time). Mueller's emotion-indexed retrieval already provides a natural analog -- high-emotional-charge episodes keep getting reactivated through mood-congruent retrieval, effectively maintaining their activation through use. Formalizing this as retrieval learning would close a gap Mueller leaves open (episode thresholds are fixed at storage time and never change).
+
+However, any such learning must apply only to episode retrieval ordering, not to the rule connection graph. The connection graph must remain structurally derived so that serendipity can find novel paths regardless of prior traversal frequency. See mechanism 13 (serendipity recognition), property to preserve.
+
 ## 8. Property to preserve
 
 Retrieval must preserve which explicit indices matched, not just that an episode was globally similar.

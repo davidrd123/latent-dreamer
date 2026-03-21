@@ -73,9 +73,11 @@ Serendipity turns accidental salience into durable future capability. Once a pat
 
 ## 8. Property to preserve
 
-The system must preserve explicit traversable structure between current concerns and salient rules or episodes.
+The rule connection graph must remain structurally derived (from antecedent/consequent pattern overlap), not usage-weighted. A path that has never been traversed must be equally findable as one traversed a hundred times. This is what makes serendipity different from retrieval: it finds novel paths, not reinforced grooves.
 
-The point of serendipity is not just "find something relevant." It is "discover that this salient thing connects to the concern through a specific rule path that can be verified and reused."
+If retrieval learning is added (e.g., Ori-style Q-value reranking or co-occurrence edge strengthening), apply it to episode retrieval ordering, not to the rule connection graph itself. The graph is the creative substrate precisely because it has no usage bias.
+
+The point of serendipity is not "find something relevant." It is "discover that this salient thing connects to the concern through a specific rule path that can be verified and reused."
 
 ## 9. Upstream triggers / downstream triggers
 
