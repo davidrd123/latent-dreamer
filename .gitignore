@@ -6,7 +6,9 @@ __pycache__/
 .venv-daydream-vision/
 .claude/
 .obsidian/
-team-repos/
+team-repos/*
+!team-repos/Symbiotic-Vault-mirror/
+reference-repos/
 
 # Reading list source material (large binary/intermediate files)
 **/reading-list/sources/raw/
