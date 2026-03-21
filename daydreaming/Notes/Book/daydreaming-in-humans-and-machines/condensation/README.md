@@ -25,6 +25,8 @@ This directory now contains a **complete first pass** over the 19-mechanism inve
 - `19` Analogical repair cases
 - `chain-trace-a.md`
 - `chain-trace-b.md`
+- `cross-cut-summary.md`
+- `rule-connection-graph.md`
 
 Taken together, the complete first pass stresses the spec in the places that matter most:
 
@@ -39,12 +41,13 @@ Taken together, the complete first pass stresses the spec in the places that mat
 
 - The mechanism files are intended to test whether the spec produces architecture-relevant reasoning rather than chapter summaries.
 - The chain traces are first-pass integrations built from the same material.
+- The chain traces now call out the judgment-heavy links explicitly, so they can be used as architecture discussion inputs rather than only as faithful execution sketches.
 - The mechanism inventory is now complete, but individual cards still vary in confidence and sharpness.
 
 ## Next useful work
 
-The highest-value continuation is no longer coverage but refinement:
+The highest-value continuation is now selective refinement and downstream use:
 
-1. tighten the weakest cards where interface shapes are still vague
-2. align the chain traces more explicitly with the now-complete mechanism set
-3. produce a small cross-cut table of `mechanism | kernel status | strongest hybrid cut | property to preserve`
+1. decide whether the emotion -> daydreaming goal -> strategy branch should get its own short trace
+2. tighten remaining tentative schemas where the LLM boundary is still broad rather than narrow
+3. use [cross-cut-summary.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/condensation/cross-cut-summary.md) and [rule-connection-graph.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/condensation/rule-connection-graph.md) to drive kernel build-order discussion

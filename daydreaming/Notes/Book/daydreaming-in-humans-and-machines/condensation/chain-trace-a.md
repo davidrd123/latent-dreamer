@@ -30,9 +30,10 @@ First-pass trace. This stays at Mueller's mechanism level. It is a faithful exec
    - Meaning: any retrieved analogical episode becomes salient enough to seed the reminding cascade.
 
 6. **Planning rule application -> Analogical rule application**
-   - Link type: structural
+   - Link type: structural handoff into a judgment-sensitive mechanism
    - Typed handoff: `{:context-id ... :subgoal ... :episode-id ... :rule-id ... :bindings ...}`
    - Meaning: a retrieved episode is used to continue or begin an analogical plan for the current subgoal.
+   - Judgment note: mechanism 09 may still have to judge analogy aptness and repair-vs-reject before subtree transfer proceeds.
 
 7. **Analogical rule application -> Subgoal creation**
    - Link type: structural
@@ -53,6 +54,7 @@ First-pass trace. This stays at Mueller's mechanism level. It is a faithful exec
     - Link type: structural in Mueller, with explicit evaluator-style judgment points
     - Typed handoff: `{:planning-tree ... :used-rules [...] :goal-outcomes [...] :concern-type ...}`
     - Meaning: the completed branch is scored for realism and desirability, and any branch-abandonment or goal-deactivation consequences are resolved.
+    - Judgment note: mechanism 18 is where realism, desirability, similarity, and goal-deactivation review become explicit stored judgments.
 
 11. **Episode evaluation -> Episode storage**
     - Link type: structural
@@ -65,6 +67,11 @@ First-pass trace. This stays at Mueller's mechanism level. It is a faithful exec
 - retrieval can update recent memory through reminding
 - planning grows a context tree and a planning tree
 - successful or otherwise storable runs add episodes plus stored realism/desirability metadata to long-term episodic memory
+
+## Judgment-heavy links in this chain
+
+- step 6: analogy aptness and repair-vs-reject live inside mechanism 09
+- step 10: realism/desirability/similarity and goal-deactivation review live inside mechanism 18
 
 ## Why this chain matters
 

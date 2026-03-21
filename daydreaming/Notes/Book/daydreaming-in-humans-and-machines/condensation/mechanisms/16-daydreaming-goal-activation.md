@@ -55,7 +55,9 @@ State written:
 
 ## 6. Judgment points
 
-Most of Mueller's activation logic is structural thresholding. The only weakly specified pressure point is:
+Six of the seven canonical activation families are structurally specified enough to stay deterministic: negative or directed-negative emotion activates `RATIONALIZATION`, `ROVING`, `REVERSAL`, `RECOVERY`, and `REVENGE`; positive interest attached to an active personal goal activates `REHEARSAL`.
+
+The only weakly specified pressure point is:
 
 1. **Repercussions heuristics**: Chapter 3 says `REPERCUSSIONS` is activated by a collection of heuristics rather than by emotions, but those heuristics are not given at the same procedural precision as the emotion-triggered families.
 
@@ -91,4 +93,6 @@ Downstream:
 
 **unclear**
 
-The main activation rules are structural. The unresolved part is `REPERCUSSIONS`, whose heuristics are underspecified in the book. If modernized, the likely interface would be a heuristic evaluator over a hypothetical situation that returns whether `:repercussions` should activate and why.
+Six of the seven family activations do not need an interface here; they are already structural threshold rules. The unresolved part is `REPERCUSSIONS` alone, whose heuristics are underspecified in the book.
+
+If modernized, the likely interface would be a narrow evaluator over a hypothetical situation that returns whether `:repercussions` should activate and why, but the source material does not yet pin down that input shape tightly enough to treat it as stable.

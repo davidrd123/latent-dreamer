@@ -20,9 +20,10 @@ First-pass trace. This stays at Mueller's mechanism level. It describes the acci
    - Meaning: the episode's other indices are added to the recent-index FIFO and used to retrieve more episodes recursively.
 
 4. **Reminding -> Serendipity recognition**
-   - Link type: structural
+   - Link type: structural handoff into a judgment-sensitive mechanism
    - Typed handoff: `{:concern-id ... :episode-id ... :recent-episodes [...] :recent-indices [...]}`
    - Meaning: the salient reminded episode is tested against active concerns for accidental applicability.
+   - Judgment note: mechanism 13 still has to decide whether the reminded material is a useful accidental path for this concern rather than merely another memory.
 
 5. **Serendipity recognition -> Rule intersection search**
    - Link type: structural
@@ -30,9 +31,10 @@ First-pass trace. This stays at Mueller's mechanism level. It describes the acci
    - Meaning: the mechanism looks for a path from a rule associated with the concern to a rule associated with the salient episode or concept.
 
 6. **Rule intersection search -> Path verification**
-   - Link type: structural in Mueller, candidate judgment site in adaptation work
+   - Link type: structural in Mueller, with explicit verification pressure points
    - Typed handoff: `{:rule-path [...] :goal ... :bindings ...}`
    - Meaning: any candidate path must unify progressively and yield a coherent concrete plan.
+   - Judgment note: mechanism 13 concentrates the main hybrid pressure here: path usefulness and verification beyond literal unification.
 
 7. **Path verification -> Concern context update**
    - Link type: structural
@@ -54,6 +56,11 @@ First-pass trace. This stays at Mueller's mechanism level. It describes the acci
 - recent indices and recent episodes change during the reminding cascade
 - surprise emotion changes later concern selection
 - a verified serendipitous plan can become a new analogical plan and later a stored episode
+
+## Judgment-heavy links in this chain
+
+- step 4: serendipity recognition judges whether accidental salience is concern-relevant
+- step 6: path verification judges whether a structural path yields a coherent and useful plan
 
 ## Why this chain matters
 
