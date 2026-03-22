@@ -12,7 +12,19 @@
   (:require [clojure.set :as set]
             [daydreamer.context :as cx]
             [daydreamer.episodic-memory :as episodic]
-            [daydreamer.goals :as goals]))
+            [daydreamer.fact-query :refer [dependency-fact?
+                                           emotion-fact?
+                                           fact-id
+                                           fact-ref-ids
+                                           fact-type?
+                                           failure-cause-fact?
+                                           goal-fact?
+                                           intends-fact?
+                                           negative-emotion-fact?
+                                           positive-emotion-fact?
+                                           rationalization-frame-fact?]]
+            [daydreamer.goals :as goals]
+            [daydreamer.rules :as rules]))
 
 (def ^:private supported-families
   #{:reversal :roving :rationalization :recovery :rehearsal})
@@ -62,81 +74,55 @@
 (def ^:private rationalization-diversion-scale
   0.35)
 
+(def ^:private roving-activation-rule
+  {:id :goal-family/roving-activation
+   :rule-kind :inference
+   :mueller-mode :inference-only
+   :antecedent-schema [{:fact/type :goal
+                        :goal-id '?failed-goal-id
+                        :top-level-goal '?failed-goal-id
+                        :status :failed
+                        :activation-context '?context-id}
+                       {:fact/type :emotion
+                        :emotion-id '?emotion-id
+                        :strength '?emotion-strength}
+                       {:fact/type :dependency
+                        :from-id '?emotion-id
+                        :to-id '?failed-goal-id}]
+   :consequent-schema [{:context-id '?context-id
+                        :failed-goal-id '?failed-goal-id
+                        :emotion-id '?emotion-id
+                        :emotion-strength '?emotion-strength
+                        :selection-policy :failed_goal_negative_emotion
+                        :selection-reasons [:failed_goal
+                                            :negative_emotion
+                                            :dependency_link]}]
+   :plausibility roving-emotion-threshold
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :activate-roving-daydream-goal
+                :failure-modes [:emotion-below-threshold
+                                :rationalization-frame-available
+                                :missing-dependency-link]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:emotion-threshold roving-emotion-threshold
+                     :requires-negative-emotion? true
+                     :requires-frame-absence? true}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-roving]
+                :kernel-status :partial
+                :notes "First extracted RuleV1 slice from goal_families activation logic."}})
+
 (declare reversal-sprout-alternative
          retract-facts)
-
-(defn- fact-type?
-  [fact expected]
-  (and (map? fact) (= (:fact/type fact) expected)))
-
-(defn- goal-fact?
-  [fact]
-  (fact-type? fact :goal))
-
-(defn- emotion-fact?
-  [fact]
-  (fact-type? fact :emotion))
-
-(defn- dependency-fact?
-  [fact]
-  (fact-type? fact :dependency))
-
-(defn- intends-fact?
-  [fact]
-  (fact-type? fact :intends))
-
-(defn- failure-cause-fact?
-  [fact]
-  (fact-type? fact :failure-cause))
-
-(defn- rationalization-frame-fact?
-  [fact]
-  (fact-type? fact :rationalization-frame))
-
-(defn- negative-emotion-fact?
-  [fact]
-  (and (emotion-fact? fact)
-       (or (= :negative (:valence fact))
-           (= :negative (:polarity fact))
-           (= true (:negative? fact)))))
-
-(defn- positive-emotion-fact?
-  [fact]
-  (and (emotion-fact? fact)
-       (or (= :positive (:valence fact))
-           (= :positive (:polarity fact))
-           (= true (:positive? fact)))))
-
-(defn- fact-id
-  [fact]
-  (cond
-    (goal-fact? fact) (:goal-id fact)
-    (emotion-fact? fact) (:emotion-id fact)
-    :else (or (:fact/id fact)
-              (:id fact)
-              (:goal-id fact)
-              (:emotion-id fact))))
 
 (defn- top-level-owner
   [fact]
   (or (:top-level-goal fact)
       (when (goal-fact? fact)
         (fact-id fact))))
-
-(defn- fact-ref-ids
-  [fact]
-  (->> [(:emotion-id fact)
-        (:goal-id fact)
-        (:from-id fact)
-        (:to-id fact)
-        (:from-goal-id fact)
-        (:to-goal-id fact)
-        (:from-emotion-id fact)
-        (:to-emotion-id fact)
-        (:source-id fact)
-        (:target-id fact)]
-       (remove nil?)
-       set))
 
 (defn- goal-status
   [fact]
@@ -564,6 +550,16 @@
   [world]
   (first (rationalization-activation-candidates world)))
 
+(defn- instantiate-roving-activation
+  [context-id failed-goal-id emotion-id emotion-strength]
+  (-> (rules/instantiate-rule roving-activation-rule
+                              {'?context-id context-id
+                               '?failed-goal-id failed-goal-id
+                               '?emotion-id emotion-id
+                               '?emotion-strength emotion-strength})
+      :consequents
+      first))
+
 (defn roving-activation-candidates
   "Find failed-goal / negative-emotion pairs that can activate ROVING."
   [world]
@@ -591,14 +587,11 @@
                                          (and (contains? ref-ids failed-goal-id)
                                               (contains? ref-ids (fact-id emotion-fact)))))
                                      dependencies)]
-                     {:context-id context-id
-                      :failed-goal-id failed-goal-id
-                      :emotion-id (fact-id emotion-fact)
-                      :emotion-strength (double (or (:strength emotion-fact) 0.0))
-                      :selection-policy :failed_goal_negative_emotion
-                      :selection-reasons [:failed_goal
-                                          :negative_emotion
-                                          :dependency_link]}))))
+                     (instantiate-roving-activation
+                      context-id
+                      failed-goal-id
+                      (fact-id emotion-fact)
+                      (double (or (:strength emotion-fact) 0.0)))))))
        (sort-by (juxt (comp - :emotion-strength)
                       (comp str :context-id)
                       (comp str :failed-goal-id)
