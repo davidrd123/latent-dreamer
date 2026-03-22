@@ -300,6 +300,53 @@
                 :kernel-status :proposed
                 :notes "Cross-family bridge from reversal's counterfactual aftershock into a roving trigger."}})
 
+(def ^:private reversal-aftershock-to-rationalization-rule
+  {:id :goal-family/reversal-aftershock-to-rationalization
+   :rule-kind :inference
+   :mueller-mode :both
+   :antecedent-schema [{:fact/type :family-affect-state
+                        :source-family :reversal
+                        :goal-id '?goal-id
+                        :context-id '?context-id
+                        :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
+                        :transition :counterfactual_reopened}
+                       {:fact/type :rationalization-frame
+                        :fact/id '?frame-id
+                        :goal-id '?failed-goal-id
+                        :priority '?frame-priority}]
+   :consequent-schema [{:fact/type :goal-family-trigger
+                        :goal-type :rationalization
+                        :trigger-context-id '?context-id
+                        :failed-goal-id '?failed-goal-id
+                        :emotion-id '?trigger-emotion-id
+                        :emotion-strength '?trigger-emotion-strength
+                        :frame-id '?frame-id
+                        :frame-priority '?frame-priority
+                        :frame-count 1
+                        :situation-id nil
+                        :selection-policy :reversal_aftershock_rationalization_frame
+                        :selection-reasons [:reversal_aftershock
+                                            :counterfactual_reopened
+                                            :rationalization_frame]}]
+   :plausibility rationalization-emotion-threshold
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :emit-rationalization-trigger-from-reversal-aftershock
+                :failure-modes [:missing-reversal-aftershock
+                                :missing-rationalization-frame]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:source-family :reversal
+                     :target-goal-type :rationalization}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-reversal
+                               :theme-rationalization]
+                :kernel-status :proposed
+                :notes "Cross-family bridge from reversal's counterfactual aftershock into a rationalization trigger when a reframing frame is available."}})
+
 (def ^:private reversal-plan-request-rule
   {:id :goal-family/reversal-plan-request
    :rule-kind :planning
@@ -673,7 +720,8 @@
   "Return the currently extracted cross-family handoff rules."
   []
   [rationalization-afterglow-to-roving-rule
-   reversal-aftershock-to-roving-rule])
+   reversal-aftershock-to-roving-rule
+   reversal-aftershock-to-rationalization-rule])
 
 (defn family-rules
   "Return the current combined family rule registry."

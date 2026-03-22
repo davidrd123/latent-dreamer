@@ -1098,6 +1098,27 @@
                          :fact-types
                          :edge-kinds])))))
 
+(deftest family-rule-graph-exposes-reversal-to-rationalization-bridge
+  (let [graph (rules/build-connection-graph (families/family-rules))
+        bridges (rules/bridge-paths graph
+                                    :goal-family/reversal-plan-dispatch
+                                    :goal-family/rationalization-activation)]
+    (is (= [[:goal-family/reversal-plan-dispatch
+             :goal-family/reversal-aftershock-to-rationalization
+             :goal-family/rationalization-activation]]
+           (mapv :rule-path bridges)))
+    (is (= {:rule-path [:goal-family/reversal-plan-dispatch
+                        :goal-family/reversal-aftershock-to-rationalization
+                        :goal-family/rationalization-activation]
+            :fact-types [:family-affect-state
+                         :goal-family-trigger]
+            :edge-kinds [:state-transition
+                         :state-transition]}
+           (select-keys (first bridges)
+                        [:rule-path
+                         :fact-types
+                         :edge-kinds])))))
+
 (deftest rationalization-plan-sprouts-and-asserts-reframe-facts
   (let [[world root-id] (world-with-root)
         [world trigger-context-id] (cx/sprout world root-id)
@@ -1567,6 +1588,153 @@
            roving-goals))
     (is (= []
            roving-events))))
+
+(deftest activate-family-goals-can-dispatch-rationalization-from-reversal-aftershock
+  (let [[world root-id] (world-with-root)
+        world (assoc world :reality-context root-id)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        dependency {:fact/type :dependency
+                    :from-id emotion-id
+                    :to-id old-top-level-goal-id}
+        frame-id :rf-reversal-reframe
+        world (-> world
+                  (cx/retract-fact old-context-id dependency)
+                  (cx/assert-fact old-context-id
+                                  (rationalization-frame-fact frame-id
+                                                              old-top-level-goal-id
+                                                              0.76
+                                                              [guide-fact])))
+        [world reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})
+        new-context-id (get-in world [:goals reversal-goal-id :next-cx])
+        [world reversal-result]
+        (families/run-family-plan world
+                                  {:goal-id reversal-goal-id
+                                   :old-context-id old-context-id
+                                   :old-top-level-goal-id old-top-level-goal-id
+                                   :failed-goal-id old-top-level-goal-id
+                                   :new-context-id new-context-id
+                                   :new-top-level-goal-id reversal-goal-id
+                                   :input-facts [counterfactual-fact]})
+        world (families/activate-family-goals world)
+        rationalization-goal (->> (vals (:goals world))
+                                  (filter #(= :rationalization (:goal-type %)))
+                                  (remove #(= reversal-goal-id (:id %)))
+                                  first)
+        activation-event (->> (:activation-events world)
+                              (filter #(= :rationalization (:goal-type %)))
+                              first)
+        expected-rule-provenance
+        {:rule-path [:goal-family/reversal-plan-request
+                     :goal-family/reversal-plan-dispatch
+                     :goal-family/reversal-aftershock-to-rationalization
+                     :goal-family/rationalization-activation]
+         :edge-path [{:from-rule :goal-family/reversal-plan-request
+                      :to-rule :goal-family/reversal-plan-dispatch
+                      :fact-type :family-plan-request
+                      :edge-kind :state-transition}
+                     {:from-rule :goal-family/reversal-plan-dispatch
+                      :to-rule :goal-family/reversal-aftershock-to-rationalization
+                      :fact-type :family-affect-state
+                      :edge-kind :state-transition}
+                     {:from-rule :goal-family/reversal-aftershock-to-rationalization
+                      :to-rule :goal-family/rationalization-activation
+                      :fact-type :goal-family-trigger
+                      :edge-kind :state-transition}]}]
+    (is (some? (:affect-state-fact reversal-result)))
+    (is (some? rationalization-goal))
+    (is (= old-context-id
+           (:trigger-context-id rationalization-goal)))
+    (is (= old-top-level-goal-id
+           (:trigger-failed-goal-id rationalization-goal)))
+    (is (= emotion-id
+           (:trigger-emotion-id rationalization-goal)))
+    (is (= 0.7
+           (:trigger-emotion-strength rationalization-goal)))
+    (is (= frame-id
+           (:trigger-frame-id rationalization-goal)))
+    (is (= :reversal_aftershock_rationalization_frame
+           (:activation-policy rationalization-goal)))
+    (is (= [:reversal_aftershock
+            :counterfactual_reopened
+            :rationalization_frame]
+           (:activation-reasons rationalization-goal)))
+    (is (= expected-rule-provenance
+           (:rule-provenance activation-event)))
+    (is (= (:id rationalization-goal)
+           (:goal-id activation-event)))))
+
+(deftest removing-reversal-to-rationalization-bridge-stops-bridged-rationalization
+  (let [[world root-id] (world-with-root)
+        world (assoc world :reality-context root-id)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        dependency {:fact/type :dependency
+                    :from-id emotion-id
+                    :to-id old-top-level-goal-id}
+        frame-id :rf-reversal-reframe
+        world (-> world
+                  (cx/retract-fact old-context-id dependency)
+                  (cx/assert-fact old-context-id
+                                  (rationalization-frame-fact frame-id
+                                                              old-top-level-goal-id
+                                                              0.76
+                                                              [guide-fact])))
+        [world reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})
+        new-context-id (get-in world [:goals reversal-goal-id :next-cx])
+        [world reversal-result]
+        (families/run-family-plan world
+                                  {:goal-id reversal-goal-id
+                                   :old-context-id old-context-id
+                                   :old-top-level-goal-id old-top-level-goal-id
+                                   :failed-goal-id old-top-level-goal-id
+                                   :new-context-id new-context-id
+                                   :new-top-level-goal-id reversal-goal-id
+                                   :input-facts [counterfactual-fact]})
+        retained-cross-family-rules (->> (families/cross-family-rules)
+                                         (remove #(= :goal-family/reversal-aftershock-to-rationalization
+                                                     (:id %)))
+                                         vec)
+        world (with-redefs [families/cross-family-rules
+                            (constantly retained-cross-family-rules)]
+                (families/activate-family-goals world))
+        rationalization-goals (->> (vals (:goals world))
+                                   (filter #(= :rationalization (:goal-type %)))
+                                   (remove #(= reversal-goal-id (:id %)))
+                                   vec)
+        rationalization-events (->> (:activation-events world)
+                                    (filter #(= :rationalization (:goal-type %)))
+                                    vec)]
+    (is (some? (:affect-state-fact reversal-result)))
+    (is (cx/fact-true? world
+                       old-context-id
+                       (:affect-state-fact reversal-result)))
+    (is (= []
+           rationalization-goals))
+    (is (= []
+           rationalization-events))))
 
 (deftest reverse-leafs-follow-intends-and-retract-weak-leaf-objectives
   (let [[world root-id] (world-with-root)
