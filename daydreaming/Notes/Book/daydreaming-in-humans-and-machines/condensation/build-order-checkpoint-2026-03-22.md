@@ -118,6 +118,13 @@ Why second: this is the architecture fix. New executor kinds (`:clojure-fn`, `:l
 Implemented first pass:
 - `roving` now builds a typed effect program and applies it through a
   kernel-owned effect applier instead of mutating world inline
+- `execute-rule` now supports call-supplied `:clojure-fn` executor
+  bindings, so pure rule data can stay in the registry while runtime
+  executor ownership lives at the family/kernel boundary
+- `:goal-family/roving-plan-dispatch` is now the first real
+  `:clojure-fn` vertical slice: the rule dispatches through
+  `execute-rule`, returns a typed effect program, and local kernel code
+  still applies those effects
 - first effect ops are:
   `:context/sprout`, `:fact/assert`, `:episode/reminding`,
   `:episode/assert-retrieval-hits`, `:episodes/note-family-uses`,
@@ -126,11 +133,11 @@ Implemented first pass:
 - `rationalization` and `reversal` still execute procedurally
 
 Next seam from review 10:
-- add `execute-rule` in `rules.clj`
 - keep `instantiate-rule` as a compatibility wrapper
-- validate RuleResultV1 shape, consequent-schema satisfaction, and
-  denotational validation before outputs are admitted
-- route `goal_families.clj` through that runtime boundary
+- keep effect application local while more vertical slices migrate
+- move `rationalization` next, `reversal` last
+- only then widen toward generic effect-schema validation and a shared
+  effect runtime
 
 ### 3. First `:llm-backed` pilot as episode evaluator
 

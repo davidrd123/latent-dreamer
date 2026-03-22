@@ -741,9 +741,11 @@
   quarantine non-core rules. Returns `[world transitions]`."
   [world graph-or-rules episode transition {:keys [branch-context-id]}]
   (let [rule-path (vec (:rule-path episode))
-        hard-failure? (seq (set/intersection #{:backfired :contradicted}
-                                             (set (:anti-residue-flags episode))))
-        promoted? (= :durable (:to-status transition))
+        hard-failure? (boolean
+                       (seq (set/intersection #{:backfired :contradicted}
+                                              (set (:anti-residue-flags episode)))))
+        promoted? (and (= :durable (:to-status transition))
+                       (not hard-failure?))
         demoted? (and (contains? #{:provisional :trace} (:to-status transition))
                       hard-failure?)]
     (reduce (fn [[current-world transitions] rule-id]
@@ -824,11 +826,14 @@
 
 (defn- invoke-clojure-executor
   [rule call]
-  (let [executor-fn (or (get-in rule [:executor :spec :fn])
-                        (get-in rule [:executor :spec :executor-fn]))]
+  (let [executor-id (get-in rule [:executor :spec :executor-id])
+        executor-fn (or (get-in rule [:executor :spec :fn])
+                        (get-in rule [:executor :spec :executor-fn])
+                        (get-in call [:executor-registry executor-id]))]
     (when-not (ifn? executor-fn)
       (throw (ex-info "Missing :clojure-fn executor"
                       {:rule-id (:id rule)
+                       :executor-id executor-id
                        :executor (get rule :executor)})))
     (executor-fn {:rule rule
                   :call call})))

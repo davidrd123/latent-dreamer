@@ -75,7 +75,7 @@
 
 (defn- instantiate-rule
   [{:keys [id rule-kind mueller-mode antecedent consequent plausibility
-           denotation executor-spec provenance]}]
+           denotation executor-kind executor-spec provenance]}]
   {:id id
    :rule-kind rule-kind
    :mueller-mode mueller-mode
@@ -84,7 +84,7 @@
    :plausibility plausibility
    :index-projections empty-index-projections
    :denotation denotation
-   :executor {:kind :instantiate
+   :executor {:kind (or executor-kind :instantiate)
               :spec executor-spec}
    :graph-cache empty-graph-cache
    :provenance provenance})
@@ -146,7 +146,9 @@
     :plausibility 1.0
     :denotation (denotation :dispatch-roving-plan-request
                             [:missing-family-plan-request])
-    :executor-spec {:request-goal-type :roving}
+    :executor-kind :clojure-fn
+    :executor-spec {:request-goal-type :roving
+                    :executor-id :goal-family/roving-plan-dispatch}
     :provenance (rule-provenance
                  [:theme-roving]
                  :partial

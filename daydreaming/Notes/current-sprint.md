@@ -87,6 +87,10 @@ and path verifier are real.
 - external family-plan evaluator seam exists
 - roving now runs through a typed effect program with
   kernel-applied effects instead of inline world mutation
+- `roving-plan-dispatch` is now the first real `:clojure-fn`
+  rule vertical slice: `execute-rule` dispatches it through a
+  runtime executor binding, while effect application still stays
+  kernel-owned and local
 
 ### Current subphase: memory ecology hardening
 
@@ -158,6 +162,16 @@ The reviews now make the next two abstractions explicit:
 - **Step 2:** the executor seam belongs in `rules.clj` as
   `execute-rule`, not as growing local effect machinery inside
   `goal_families.clj`.
+
+The first honest Step 2 slice is now in code:
+- `execute-rule` can resolve a `:clojure-fn` executor from a
+  call-supplied executor registry
+- `goal_family_rules.clj` now marks
+  `:goal-family/roving-plan-dispatch` as `:clojure-fn`
+- `goal_families.clj` now routes roving dispatch through that rule
+  executor, while leaving `apply-family-effects` local
+- `rationalization` and `reversal` remain on the validated
+  instantiate path for now
 
 ### Next after this
 

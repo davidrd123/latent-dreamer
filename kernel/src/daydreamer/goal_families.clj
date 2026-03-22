@@ -130,12 +130,22 @@
                             (seed-rule-provenance rule))))
 
 (declare reversal-sprout-alternative
+         roving-plan-dispatch-executor
          reversal-trigger-facts
          retract-facts
          instantiate-rationalization-trigger
          retrieval-hit-fact
          note-family-plan-episode-uses
          resolve-family-plan-use-outcomes)
+
+(defn- family-executor-registry
+  []
+  {:goal-family/roving-plan-dispatch roving-plan-dispatch-executor})
+
+(defn- family-rule-call-base
+  [world]
+  {:world world
+   :executor-registry (family-executor-registry)})
 
 (defn- fact-consumer-rule?
   [fact-type rule]
@@ -178,7 +188,7 @@
        (mapv #(dissoc % :goal-type))))
 
 (defn- plan-payloads-from-request-facts
-  [request-facts]
+  [world request-facts]
   (->> request-facts
        (mapcat (fn [request-fact]
                  (->> (planning-rules)
@@ -186,17 +196,33 @@
                       (mapcat (fn [rule]
                                 (->> (rules/matched-rule-applications
                                       rule
-                                      [request-fact])
+                                      [request-fact]
+                                      {}
+                                      (family-rule-call-base world))
                                      (map (fn [{:keys [result]}]
-                                            (assoc (primary-payload-consequent!
-                                                    rule
-                                                    result)
-                                                   :goal-type (:goal-type request-fact)
-                                                   :rule-provenance
-                                                   (extend-rule-provenance
-                                                    (:rule-provenance request-fact)
-                                                    rule
-                                                    :family-plan-request))))))))))
+                                            (cond-> (assoc (primary-payload-consequent!
+                                                            rule
+                                                            result)
+                                                           :goal-type (:goal-type request-fact)
+                                                           :rule-provenance
+                                                           (extend-rule-provenance
+                                                            (:rule-provenance request-fact)
+                                                            rule
+                                                            :family-plan-request))
+                                              (contains? result :effects)
+                                              (assoc :effects (:effects result))
+
+                                              (contains? result :surface-summary)
+                                              (assoc :surface-summary (:surface-summary result))
+
+                                              (contains? result :confidence)
+                                              (assoc :confidence (:confidence result))
+
+                                              (contains? result :reason)
+                                              (assoc :reason (:reason result))
+
+                                              (seq (:aux-indices result))
+                                              (assoc :aux-indices (:aux-indices result)))))))))))
        (sort-by (juxt (comp str :goal-type)
                       (comp str :goal-id)
                       (comp str :context-id)
@@ -1081,10 +1107,14 @@
            (map #(keyword "anti-residue" (name %)) anti-residue-flags))))
 
 (defn- family-plan-admission-status
-  [{:keys [keep-decision promotion-decision]}]
+  [{:keys [keep-decision promotion-decision anti-residue-flags]}]
   (cond
     (= :archive-cold keep-decision)
     :trace
+
+    (seq (set/intersection #{:backfired :contradicted}
+                           (set anti-residue-flags)))
+    :provisional
 
     (= :promote-durable promotion-decision)
     :durable
@@ -1443,79 +1473,116 @@
 (defn roving-plan-effects
   "Build the first typed effect program for roving plan execution.
 
-  This is the narrow first slice of the executor boundary: selection remains
-  procedural, but world mutation is described as typed effects instead of
-  happening inline."
+  Selection still happens through the family request path, but the dispatch
+  rule now owns effect-program construction through the generic rule runtime."
   [world {:keys [goal-id context-id]
           :as opts}]
   (let [plan-request-facts (or (seq (roving-plan-request-facts world opts))
                                (throw (ex-info "ROVING needs a pleasant episode"
                                                {:opts opts})))
-        {:keys [episode-id ordering selection-policy rule-provenance]}
-        (or (first (plan-payloads-from-request-facts plan-request-facts))
+        {:keys [episode-id ordering selection-policy rule-provenance effects surface-summary]}
+        (or (first (plan-payloads-from-request-facts world plan-request-facts))
             (throw (ex-info "ROVING needs a plan payload"
                             {:opts opts
-                             :plan-request-facts plan-request-facts})))
-        connection-graph (family-serendipity-graph world)
-        success-intends {:fact/type :intends
-                         :from-goal-id goal-id
-                         :to-goal-id :rtrue
-                         :top-level-goal goal-id
-                         :status :succeeded
-                         :rule :roving-plan1}]
+                             :plan-request-facts plan-request-facts})))]
+    (when-not (vector? effects)
+      (throw (ex-info "ROVING dispatch must return typed effects"
+                      {:opts opts
+                       :plan-request-facts plan-request-facts})))
     {:goal-id goal-id
      :source-context-id context-id
      :episode-id episode-id
      :ordering ordering
      :selection-policy selection-policy
      :rule-provenance rule-provenance
-     :effects [{:op :context/sprout
-                :source-context-id context-id
-                :ref :branch-context}
-               {:op :fact/assert
-                :context-ref :branch-context
-                :fact success-intends}
-               {:op :episode/reminding
-                :episode-id episode-id
-                :retrieval-opts {:connection-graph connection-graph
-                                 :active-rule-path (:rule-path rule-provenance)
-                                 :active-edge-path (:edge-path rule-provenance)
-                                 :active-family :roving}
-                :result-key :roving/reminding}
-               {:op :episode/assert-retrieval-hits
-                :context-ref :branch-context
-                :goal-id goal-id
-                :selection-policy selection-policy
-                :rule-provenance rule-provenance
-                :from-reminding :roving/reminding
-                :result-key :roving/retrieval-hit-facts}
-               {:op :episodes/note-family-uses
-                :context-ref :branch-context
-                :goal-id goal-id
-                :target-family :roving
-                :selection-policy selection-policy
-                :rule-provenance rule-provenance
-                :from-reminding :roving/reminding
-                :result-key :roving/episode-uses}
-               {:op :episodes/resolve-use-outcomes
-                :context-ref :branch-context
-                :goal-id goal-id
-                :target-family :roving
-                :rule-provenance rule-provenance
-                :from-uses :roving/episode-uses
-                :result-key :roving/promotions}
-               {:op :context/set-ordering
-                :context-ref :branch-context
-                :ordering ordering}
-               {:op :goal/set-next-context
-                :goal-id goal-id
-                :context-ref :branch-context}
-               {:op :mutation/log
-                :family :roving
-                :source-context-id context-id
-                :context-ref :branch-context
-                :from-reminding :roving/reminding
-                :from-promotions :roving/promotions}]}))
+     :surface-summary surface-summary
+     :effects effects}))
+
+(defn- roving-effect-program
+  [world {:keys [goal-id context-id episode-id ordering selection-policy rule-provenance]}]
+  (let [connection-graph (family-serendipity-graph world)
+        success-intends {:fact/type :intends
+                         :from-goal-id goal-id
+                         :to-goal-id :rtrue
+                         :top-level-goal goal-id
+                         :status :succeeded
+                         :rule :roving-plan1}]
+    [{:op :context/sprout
+      :source-context-id context-id
+      :ref :branch-context}
+     {:op :fact/assert
+      :context-ref :branch-context
+      :fact success-intends}
+     {:op :episode/reminding
+      :episode-id episode-id
+      :retrieval-opts {:connection-graph connection-graph
+                       :active-rule-path (:rule-path rule-provenance)
+                       :active-edge-path (:edge-path rule-provenance)
+                       :active-family :roving}
+      :result-key :roving/reminding}
+     {:op :episode/assert-retrieval-hits
+      :context-ref :branch-context
+      :goal-id goal-id
+      :selection-policy selection-policy
+      :rule-provenance rule-provenance
+      :from-reminding :roving/reminding
+      :result-key :roving/retrieval-hit-facts}
+     {:op :episodes/note-family-uses
+      :context-ref :branch-context
+      :goal-id goal-id
+      :target-family :roving
+      :selection-policy selection-policy
+      :rule-provenance rule-provenance
+      :from-reminding :roving/reminding
+      :result-key :roving/episode-uses}
+     {:op :episodes/resolve-use-outcomes
+      :context-ref :branch-context
+      :goal-id goal-id
+      :target-family :roving
+      :rule-provenance rule-provenance
+      :from-uses :roving/episode-uses
+      :result-key :roving/promotions}
+     {:op :context/set-ordering
+      :context-ref :branch-context
+      :ordering ordering}
+     {:op :goal/set-next-context
+      :goal-id goal-id
+      :context-ref :branch-context}
+     {:op :mutation/log
+      :family :roving
+      :source-context-id context-id
+      :context-ref :branch-context
+      :from-reminding :roving/reminding
+      :from-promotions :roving/promotions}]))
+
+(defn- roving-plan-dispatch-executor
+  [{:keys [rule call]}]
+  (let [world (:world call)
+        bindings (:bindings call)
+        request-fact (first (:matched-facts call))
+        payload (rules/instantiate-template
+                 (first (:consequent-schema rule))
+                 bindings)
+        rule-provenance (if request-fact
+                          (extend-rule-provenance
+                           (:rule-provenance request-fact)
+                           rule
+                           :family-plan-request)
+                          (seed-rule-provenance rule))
+        effect-program (roving-effect-program
+                        world
+                        (assoc payload
+                               :rule-provenance rule-provenance))]
+    {:consequents [payload]
+     :confidence (double (:plausibility rule))
+     :reason (str (or (get-in rule [:denotation :intended-effect])
+                      (:id rule)))
+     :aux-indices []
+     :surface-summary (str "roving:"
+                           (name (:selection-policy payload))
+                           ":"
+                           (:episode-id payload))
+     :effects effect-program}))
 
 (defn- resolve-effect-context-id
   [effect-state context-ref]
@@ -2226,7 +2293,7 @@
                                                 :frame-id frame-id})))
         {:keys [trigger-context-id failed-goal-id frame-id ordering
                 selection-policy rule-provenance]}
-        (or (first (plan-payloads-from-request-facts plan-request-facts))
+        (or (first (plan-payloads-from-request-facts world plan-request-facts))
             (throw (ex-info "RATIONALIZATION needs a plan payload"
                             {:goal-id goal-id
                              :context-id context-id
@@ -2331,7 +2398,7 @@
                                                {:reversal-target reversal-target})))
         {:keys [old-context-id old-top-level-goal-id new-context-id
                 new-top-level-goal-id rule-provenance]}
-        (or (first (plan-payloads-from-request-facts plan-request-facts))
+        (or (first (plan-payloads-from-request-facts world plan-request-facts))
             (throw (ex-info "REVERSAL needs a plan payload"
                             {:reversal-target reversal-target
                              :plan-request-facts plan-request-facts})))

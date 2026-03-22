@@ -179,6 +179,14 @@ clear: the executor boundary belongs in `rules.clj` as `execute-rule`, with:
 
 Only after that seam is real should more family plans be extracted.
 
+Status update, 2026-03-22 late:
+- `execute-rule` is now real in `rules.clj`
+- `instantiate-rule` remains as a compatibility wrapper
+- `:goal-family/roving-plan-dispatch` is now the first actual
+  `:clojure-fn` vertical slice, but effect application still stays local
+  in `goal_families.clj`
+- `rationalization` and `reversal` have not migrated yet
+
 ### Step 3: LLM-backed evaluator pilot
 
 The first safe `:llm-backed` rule is evaluator-side, not generator-side.

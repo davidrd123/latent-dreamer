@@ -201,6 +201,40 @@
     (is (= (rules/instantiate-rule sample-rule bindings)
            (rules/execute-rule sample-rule {:bindings bindings})))))
 
+(deftest execute-rule-can-resolve-clojure-executor-from-call-registry
+  (let [bindings {'?context-id :cx-2
+                  '?failed-goal-id :g-failed
+                  '?emotion-id :e-shame
+                  '?emotion-strength 0.25}
+        rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:executor-id :sample/dispatch}})
+        result (rules/execute-rule
+                rule
+                {:bindings bindings
+                 :executor-registry
+                 {:sample/dispatch
+                  (fn [{:keys [rule call]}]
+                    {:consequents [{:context-id :cx-2
+                                    :failed-goal-id :g-failed
+                                    :emotion-id :e-shame
+                                    :emotion-strength 0.25
+                                    :selection-policy :failed_goal_negative_emotion}]
+                     :confidence (double (:plausibility rule))
+                     :reason (str (:rule-id call))
+                     :aux-indices [{:fact/type :goal
+                                    :goal-id :g-failed}]
+                     :surface-summary "registry-dispatch"
+                     :effects [{:op :test/noop}]})}})]
+    (is (= [{:context-id :cx-2
+             :failed-goal-id :g-failed
+             :emotion-id :e-shame
+             :emotion-strength 0.25
+             :selection-policy :failed_goal_negative_emotion}]
+           (:consequents result)))
+    (is (= "registry-dispatch" (:surface-summary result)))
+    (is (= [{:op :test/noop}] (:effects result)))))
+
 (deftest execute-rule-rejects-consequent-count-mismatch
   (let [rule (assoc sample-rule
                     :executor {:kind :clojure-fn
@@ -627,6 +661,26 @@
              :episode-id :ep-frontier
              :branch-context-id :cx-17}]
            transitions))))
+
+(deftest durable-transition-with-hard-failure-does-not-open-frontier-rules
+  (let [graph (rules/build-connection-graph
+               [(with-deployment-role bridge-source-rule :authored-core)
+                (with-deployment-role bridge-target-rule :authored-frontier)])
+        world (rules/sync-rule-access-registry {:cycle 6} graph)
+        episode {:id :ep-contradicted
+                 :rule-path [:test/source :test/target]
+                 :anti-residue-flags [:contradicted]}
+        [world transitions]
+        (rules/reconcile-episode-rule-access world
+                                             graph
+                                             episode
+                                             {:to-status :durable}
+                                             {:branch-context-id :cx-23})]
+    (is (= :frontier
+           (get-in world [:rule-access :test/target :status])))
+    (is (= :accessible
+           (get-in world [:rule-access :test/source :status])))
+    (is (= [] transitions))))
 
 (deftest hard-failure-demotion-can-quarantine-noncore-rules
   (let [graph (rules/build-connection-graph
