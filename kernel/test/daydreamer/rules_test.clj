@@ -527,6 +527,56 @@
             :history []}
            (get-in world [:rule-access :test/terminal])))))
 
+(deftest sync-rule-access-registry-refreshes-default-derived-entries-when-deployment-role-changes
+  (let [world (rules/sync-rule-access-registry
+               {:cycle 2}
+               [(with-deployment-role bridge-source-rule :authored-core)])
+        world (rules/sync-rule-access-registry
+               world
+               [(with-deployment-role bridge-source-rule :authored-frontier)])]
+    (is (= {:status :frontier
+            :source :authored-frontier
+            :opened-cycle nil
+            :opened-by nil
+            :history []}
+           (get-in world [:rule-access :test/source])))))
+
+(deftest sync-rule-access-registry-fails-closed-on-unknown-deployment-role
+  (let [world (rules/sync-rule-access-registry
+               {:cycle 11}
+               [(with-deployment-role bridge-target-rule :typo-frontier)])]
+    (is (= {:status :quarantined
+            :source :typo-frontier
+            :opened-cycle nil
+            :opened-by nil
+            :history []}
+           (get-in world [:rule-access :test/target])))))
+
+(deftest sync-rule-access-registry-preserves-explicit-transitions-while-refreshing-source
+  (let [frontier-rule (with-deployment-role bridge-target-rule :authored-frontier)
+        world (rules/sync-rule-access-registry {:cycle 4} [frontier-rule])
+        [world _]
+        (rules/set-rule-access-status world
+                                      [frontier-rule]
+                                      :test/target
+                                      :accessible
+                                      {:reason :durable-episode-opened-rule
+                                       :episode-id :ep-frontier})
+        world (rules/sync-rule-access-registry
+               world
+               [(with-deployment-role bridge-target-rule :authored-core)])]
+    (is (= {:status :accessible
+            :source :authored-core
+            :opened-cycle 4
+            :opened-by :ep-frontier
+            :history [{:rule-id :test/target
+                       :from-status :frontier
+                       :to-status :accessible
+                       :cycle 4
+                       :reason :durable-episode-opened-rule
+                       :episode-id :ep-frontier}]}
+           (get-in world [:rule-access :test/target])))))
+
 (deftest planning-and-serendipity-graphs-filter-by-effective-rule-access
   (let [graph (rules/build-connection-graph
                [(with-deployment-role bridge-source-rule :authored-core)

@@ -1221,6 +1221,16 @@
                                                      :zone :provenance}))
                           world
                           rule-path)
+            stored-episode (get-in world [:episodes episode-id])
+            [world rule-access-transitions]
+            (if (= :durable admission-status)
+              (rules/reconcile-episode-rule-access
+               world
+               (family-rules)
+               stored-episode
+               {:to-status admission-status}
+               {:branch-context-id context-id})
+              [world []])
             evaluation-fact (family-plan-evaluation-fact family-plan
                                                          episode-id
                                                          evaluation)
@@ -1247,6 +1257,7 @@
              (assoc :evaluation evaluation)
              (assoc :admission-status admission-status)
              (assoc :family-episode-id episode-id)
+             (assoc :rule-access-transitions rule-access-transitions)
              (assoc :episode-evaluation-fact evaluation-fact)
              (assoc :episode-flag-facts episode-flag-facts)
              (assoc-in [:selection :family_plan_episode_id] episode-id))])

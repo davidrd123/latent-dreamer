@@ -1076,6 +1076,60 @@
                                       :pleasant_episode_seed]
                     :evaluation-reasons [:mock_archive_review]}))))
 
+(deftest durable-family-plan-admission-opens-frontier-rules-at-store-time
+  (let [family-rules* (->> (families/family-rules)
+                           (mapv (fn [rule]
+                                   (if (= :goal-family/roving-plan-dispatch
+                                          (:id rule))
+                                     (assoc-in rule
+                                               [:provenance :deployment-role]
+                                               :authored-frontier)
+                                     rule))))
+        promote-evaluator (fn [_family-plan default-evaluation]
+                            (assoc default-evaluation
+                                   :promotion-decision :promote-durable
+                                   :evaluation-source :mock-llm))
+        [world root-id] (world-with-root)
+        [world pleasant-episode-id]
+        (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :calm
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :sunlight
+                                          {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])
+        [world family-plan]
+        (with-redefs [families/family-rules (constantly family-rules*)]
+          (families/run-family-plan world
+                                    {:goal-id roving-goal-id
+                                     :context-id context-id
+                                     :family-evaluator promote-evaluator}))
+        family-episode-id (:family-episode-id family-plan)]
+    (is (= :durable (:admission-status family-plan)))
+    (is (= :durable (get-in world [:episodes family-episode-id :admission-status])))
+    (is (= :accessible
+           (get-in world [:rule-access :goal-family/roving-plan-dispatch :status])))
+    (is (= :authored-frontier
+           (get-in world [:rule-access :goal-family/roving-plan-dispatch :source])))
+    (is (= [{:rule-id :goal-family/roving-plan-dispatch
+             :from-status :frontier
+             :to-status :accessible
+             :cycle 0
+             :reason :durable-episode-opened-rule
+             :episode-id family-episode-id
+             :branch-context-id (get-in family-plan
+                                        [:selection :roving_branch_context])}]
+           (:rule-access-transitions family-plan)))))
+
 (deftest stored-rationalization-family-plan-episode-feeds-later-roving
   (let [[world root-id] (world-with-root)
         [world trigger-context-id] (cx/sprout world root-id)

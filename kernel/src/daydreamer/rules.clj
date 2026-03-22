@@ -571,7 +571,7 @@
     (:authored-core :core) :accessible
     (:authored-frontier :frontier :induced) :frontier
     :quarantined :quarantined
-    :accessible))
+    :quarantined))
 
 (defn- default-rule-access-entry
   [world rule]
@@ -584,18 +584,45 @@
      :opened-by nil
      :history []}))
 
+(defn- default-derived-rule-access-entry?
+  [entry]
+  (and entry
+       (empty? (:history entry))
+       (nil? (:opened-by entry))))
+
+(defn- merged-rule-access-entry
+  [world rule explicit-entry]
+  (let [default-entry (default-rule-access-entry world rule)
+        default-source (:source default-entry)]
+    (cond
+      (nil? explicit-entry)
+      default-entry
+
+      (and (default-derived-rule-access-entry? explicit-entry)
+           (or (not= (:source explicit-entry) default-source)
+               (not= (:status explicit-entry)
+                     (default-rule-access-status rule))))
+      default-entry
+
+      :else
+      (assoc explicit-entry :source default-source))))
+
 (defn rule-access-registry
   "Return the effective rule-access registry for the given structural rule set.
 
   World state overrides defaults. Rules without explicit world entries derive
-  their status from provenance deployment metadata."
+  their status from provenance deployment metadata. Default-derived entries are
+  refreshed when the rule's deployment metadata changes; entries with explicit
+  runtime history keep their dynamic status."
   [world graph-or-rules]
   (let [explicit (or (:rule-access world) {})]
     (reduce (fn [registry rule]
-              (update registry
-                      (:id rule)
-                      #(or %
-                           (default-rule-access-entry world rule))))
+              (assoc registry
+                     (:id rule)
+                     (merged-rule-access-entry
+                      world
+                      rule
+                      (get registry (:id rule)))))
             explicit
             (rules-from-source graph-or-rules))))
 
