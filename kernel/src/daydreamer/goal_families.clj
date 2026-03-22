@@ -240,8 +240,8 @@
                 :kernel-status :partial
                 :notes "Consumes the structural rationalization trigger into an activation payload."}})
 
-(def ^:private reversal-activation-rule
-  {:id :goal-family/reversal-activation
+(def ^:private reversal-trigger-rule
+  {:id :goal-family/reversal-trigger
    :rule-kind :inference
    :mueller-mode :inference-only
    :antecedent-schema [{:fact/type :goal
@@ -252,6 +252,54 @@
                        {:fact/type :emotion
                         :emotion-id '?emotion-id
                         :strength '?emotion-strength}]
+   :consequent-schema [{:fact/type :goal-family-trigger
+                        :goal-type :reversal
+                        :old-context-id '?old-context-id
+                        :old-top-level-goal-id '?old-top-level-goal-id
+                        :failed-goal-id '?failed-goal-id
+                        :context-depth '?context-depth
+                        :emotion-pressure '?emotion-pressure
+                        :failure-count '?failure-count
+                        :selection-policy '?selection-policy
+                        :selection-reasons '?selection-reasons
+                        :emotion-id '?emotion-id
+                        :emotion-strength '?emotion-strength
+                        :situation-id '?situation-id}]
+   :plausibility reversal-emotion-threshold
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :emit-reversal-goal-family-trigger
+                :failure-modes [:emotion-below-threshold
+                                :missing-negative-emotion
+                                :missing-failed-leaf]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:emotion-threshold reversal-emotion-threshold
+                     :requires-negative-emotion? true
+                     :requires-failed-leaf? true}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-reversal]
+                :kernel-status :partial
+                :notes "Graphable reversal trigger emitted from failed-leaf selection."}})
+
+(def ^:private reversal-activation-rule
+  {:id :goal-family/reversal-activation
+   :rule-kind :inference
+   :mueller-mode :inference-only
+   :antecedent-schema [{:fact/type :goal-family-trigger
+                        :goal-type :reversal
+                        :old-context-id '?old-context-id
+                        :old-top-level-goal-id '?old-top-level-goal-id
+                        :failed-goal-id '?failed-goal-id
+                        :context-depth '?context-depth
+                        :emotion-pressure '?emotion-pressure
+                        :failure-count '?failure-count
+                        :selection-policy '?selection-policy
+                        :selection-reasons '?selection-reasons
+                        :emotion-id '?emotion-id
+                        :emotion-strength '?emotion-strength
+                        :situation-id '?situation-id}]
    :consequent-schema [{:old-context-id '?old-context-id
                         :old-top-level-goal-id '?old-top-level-goal-id
                         :failed-goal-id '?failed-goal-id
@@ -296,12 +344,49 @@
    roving-activation-rule
    rationalization-trigger-rule
    rationalization-activation-rule
+   reversal-trigger-rule
    reversal-activation-rule])
 
 (declare reversal-sprout-alternative
+         reversal-trigger-facts
          retract-facts
-         instantiate-rationalization-trigger
-         instantiate-rationalization-activation)
+         instantiate-rationalization-trigger)
+
+(defn- trigger-consumer-rule?
+  [rule]
+  (= :goal-family-trigger
+     (get-in rule [:antecedent-schema 0 :fact/type])))
+
+(defn- activation-candidates-from-trigger-facts
+  [trigger-facts]
+  (->> trigger-facts
+       (mapcat (fn [trigger-fact]
+                 (->> (activation-rules)
+                      (filter trigger-consumer-rule?)
+                      (keep (fn [rule]
+                              (when-let [match (first (rules/match-rule rule
+                                                                        [trigger-fact]))]
+                                (assoc (-> (rules/instantiate-rule rule
+                                                                   (:bindings match))
+                                           :consequents
+                                           first)
+                                       :goal-type (:goal-type trigger-fact))))))))
+       (sort-by (juxt (fn [candidate]
+                        (- (double (or (:emotion-strength candidate) 0.0))))
+                      (fn [candidate]
+                        (- (double (or (:frame-priority candidate) 0.0))))
+                      (fn [candidate]
+                        (- (double (or (:frame-count candidate) 0.0))))
+                      (comp str :goal-type)
+                      (comp str :failed-goal-id)
+                      (comp str :emotion-id)))
+       vec))
+
+(defn- activation-candidates-for-goal-type
+  [goal-type trigger-facts]
+  (->> (activation-candidates-from-trigger-facts trigger-facts)
+       (filter #(= goal-type (:goal-type %)))
+       (mapv #(dissoc % :goal-type))))
 
 (defn- top-level-owner
   [fact]
@@ -455,10 +540,15 @@
   "Find failed-goal / negative-emotion pairs strong enough to activate
   REVERSAL."
   [world]
+  (activation-candidates-for-goal-type :reversal
+                                       (reversal-trigger-facts world)))
+
+(defn- reversal-trigger-facts
+  [world]
   (->> (reversal-leaf-candidates world)
        (keep (fn [candidate]
                (let [facts (cx/visible-facts world (:old-context-id candidate))]
-                 (->> (rules/match-rule reversal-activation-rule
+                 (->> (rules/match-rule reversal-trigger-rule
                                         facts
                                         {'?old-context-id (:old-context-id candidate)
                                          '?old-top-level-goal-id (:old-top-level-goal-id candidate)
@@ -472,7 +562,7 @@
                                            (> emotion-strength
                                               reversal-emotion-threshold))
                                   (-> (rules/instantiate-rule
-                                       reversal-activation-rule
+                                       reversal-trigger-rule
                                        {'?old-context-id (:old-context-id candidate)
                                         '?old-top-level-goal-id (:old-top-level-goal-id candidate)
                                         '?failed-goal-id (:failed-goal-id candidate)
@@ -705,9 +795,7 @@
                       (comp str :frame-id)))
        vec))
 
-(defn rationalization-activation-candidates
-  "Find failed-goal / negative-emotion pairs with an explicit rationalization
-  frame strong enough to activate RATIONALIZATION."
+(defn- rationalization-trigger-facts
   [world]
   (->> (keys (:contexts world))
        (mapcat (fn [context-id]
@@ -726,25 +814,24 @@
                                              (> emotion-strength
                                                 rationalization-emotion-threshold)
                                              (seq (:reframe-facts frame-fact)))
-                                    (-> (instantiate-rationalization-trigger
-                                         context-id
-                                         ('?failed-goal-id bindings)
-                                         ('?emotion-id bindings)
-                                         emotion-strength
-                                         ('?frame-id bindings)
-                                         (double (or (:priority frame-fact)
-                                                     0.0))
-                                         (get frame-counts
-                                              (rationalization-frame-goal-id
-                                               frame-fact)
-                                              0)
-                                         (or (:situation-id frame-fact)
-                                             (rationalization-frame-situation-id
-                                              (:reframe-facts frame-fact))
-                                             (primary-situation-id
-                                              world
-                                              context-id)))
-                                        instantiate-rationalization-activation)))))
+                                    (instantiate-rationalization-trigger
+                                     context-id
+                                     ('?failed-goal-id bindings)
+                                     ('?emotion-id bindings)
+                                     emotion-strength
+                                     ('?frame-id bindings)
+                                     (double (or (:priority frame-fact)
+                                                 0.0))
+                                     (get frame-counts
+                                          (rationalization-frame-goal-id
+                                           frame-fact)
+                                          0)
+                                     (or (:situation-id frame-fact)
+                                         (rationalization-frame-situation-id
+                                          (:reframe-facts frame-fact))
+                                         (primary-situation-id
+                                          world
+                                          context-id)))))))
                         vec))))
        (sort-by (juxt (comp - :emotion-strength)
                       (comp - :frame-priority)
@@ -752,6 +839,13 @@
                       (comp str :context-id)
                       (comp str :failed-goal-id)))
        vec))
+
+(defn rationalization-activation-candidates
+  "Find failed-goal / negative-emotion pairs with an explicit rationalization
+  frame strong enough to activate RATIONALIZATION."
+  [world]
+  (activation-candidates-for-goal-type :rationalization
+                                       (rationalization-trigger-facts world)))
 
 (defn select-rationalization-trigger
   "Choose the strongest failed-goal / negative-emotion trigger for
@@ -780,15 +874,6 @@
       :consequents
       first))
 
-(defn- instantiate-rationalization-activation
-  [trigger-fact]
-  (when-let [match (first (rules/match-rule rationalization-activation-rule
-                                            [trigger-fact]))]
-    (-> (rules/instantiate-rule rationalization-activation-rule
-                                (:bindings match))
-        :consequents
-        first)))
-
 (defn- instantiate-roving-trigger
   [context-id failed-goal-id emotion-id emotion-strength]
   (-> (rules/instantiate-rule roving-trigger-rule
@@ -799,17 +884,7 @@
       :consequents
       first))
 
-(defn- instantiate-roving-activation
-  [trigger-fact]
-  (when-let [match (first (rules/match-rule roving-activation-rule
-                                            [trigger-fact]))]
-    (-> (rules/instantiate-rule roving-activation-rule
-                                (:bindings match))
-        :consequents
-        first)))
-
-(defn roving-activation-candidates
-  "Find failed-goal / negative-emotion pairs that can activate ROVING."
+(defn- roving-trigger-facts
   [world]
   (->> (keys (:contexts world))
        (mapcat (fn [context-id]
@@ -828,18 +903,23 @@
                                              (> emotion-strength
                                                 roving-emotion-threshold)
                                              (zero? (get frame-counts failed-goal-id 0)))
-                                    (-> (instantiate-roving-trigger
-                                         context-id
-                                         failed-goal-id
-                                         ('?emotion-id bindings)
-                                         emotion-strength)
-                                        instantiate-roving-activation)))))
+                                    (instantiate-roving-trigger
+                                     context-id
+                                     failed-goal-id
+                                     ('?emotion-id bindings)
+                                     emotion-strength)))))
                         vec))))
        (sort-by (juxt (comp - :emotion-strength)
                       (comp str :context-id)
                       (comp str :failed-goal-id)
                       (comp str :emotion-id)))
        vec))
+
+(defn roving-activation-candidates
+  "Find failed-goal / negative-emotion pairs that can activate ROVING."
+  [world]
+  (activation-candidates-for-goal-type :roving
+                                       (roving-trigger-facts world)))
 
 (defn select-roving-trigger
   "Choose the strongest failed-goal / negative-emotion trigger for ROVING."
@@ -855,6 +935,25 @@
                (= failed-goal-id (:trigger-failed-goal-id goal))))
         (vals (:goals world))))
 
+(defn- goal-family-trigger-facts
+  [world]
+  (vec (concat (reversal-trigger-facts world)
+               (rationalization-trigger-facts world)
+               (roving-trigger-facts world))))
+
+(def ^:private trigger-dispatch-goal-types
+  [:reversal :rationalization :roving])
+
+(defn- trigger-dispatch-candidates
+  [world]
+  (let [candidates-by-type (group-by :goal-type
+                                     (activation-candidates-from-trigger-facts
+                                      (goal-family-trigger-facts world)))]
+    (->> trigger-dispatch-goal-types
+         (keep (fn [goal-type]
+                 (first (get candidates-by-type goal-type))))
+         vec)))
+
 (defn activate-family-goals
   "Infer family-goal activations from the current world state.
 
@@ -864,13 +963,7 @@
   [world]
   (let [activation-context-id (or (:reality-lookahead world)
                                   (:reality-context world))
-        candidates (keep identity
-                         [(when-let [candidate (first (reversal-activation-candidates world))]
-                            (assoc candidate :goal-type :reversal))
-                          (when-let [candidate (first (rationalization-activation-candidates world))]
-                            (assoc candidate :goal-type :rationalization))
-                          (when-let [candidate (first (roving-activation-candidates world))]
-                            (assoc candidate :goal-type :roving))])]
+        candidates (trigger-dispatch-candidates world)]
     (reduce
      (fn [current-world {:keys [goal-type situation-id emotion-id emotion-strength
                                 selection-policy selection-reasons

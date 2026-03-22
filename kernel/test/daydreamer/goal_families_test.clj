@@ -511,6 +511,101 @@
     (is (= (first candidates)
            (families/select-rationalization-trigger world)))))
 
+(deftest activate-family-goals-dispatches-roving-via-trigger-facts
+  (let [[world root-id] (world-with-root)
+        world (assoc world :reality-context root-id)
+        [world context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-shame
+        world (-> world
+                  (cx/assert-fact context-id {:fact/type :goal
+                                              :goal-id failed-goal-id
+                                              :top-level-goal failed-goal-id
+                                              :status :failed
+                                              :activation-context context-id})
+                  (cx/assert-fact context-id {:fact/type :emotion
+                                              :emotion-id emotion-id
+                                              :strength 0.25
+                                              :valence :negative})
+                  (cx/assert-fact context-id {:fact/type :dependency
+                                              :from-id emotion-id
+                                              :to-id failed-goal-id}))
+        world (families/activate-family-goals world)
+        roving-goal (->> (vals (:goals world))
+                         (filter #(= :roving (:goal-type %)))
+                         first)
+        activation-event (->> (:activation-events world)
+                              (filter #(= :roving (:goal-type %)))
+                              first)]
+    (is (some? roving-goal))
+    (is (= context-id (:trigger-context-id roving-goal)))
+    (is (= failed-goal-id (:trigger-failed-goal-id roving-goal)))
+    (is (= emotion-id (:trigger-emotion-id roving-goal)))
+    (is (= 0.25 (:trigger-emotion-strength roving-goal)))
+    (is (= :failed_goal_negative_emotion
+           (:activation-policy roving-goal)))
+    (is (= [:failed_goal
+            :negative_emotion
+            :dependency_link]
+           (:activation-reasons roving-goal)))
+    (is (= (:id roving-goal)
+           (:goal-id activation-event)))))
+
+(deftest activate-family-goals-dispatches-rationalization-via-trigger-facts
+  (let [[world root-id] (world-with-root)
+        world (assoc world :reality-context root-id)
+        [world context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        frame-id :rf-zone-mercy
+        frame-facts [guide-fact
+                     {:fact/type :rationalization
+                      :fact/id :zone_is_mercy}
+                     {:fact/type :rationalization
+                      :fact/id :delay_is_faith}]
+        world (-> world
+                  (cx/assert-fact context-id {:fact/type :goal
+                                              :goal-id failed-goal-id
+                                              :top-level-goal failed-goal-id
+                                              :status :failed
+                                              :activation-context context-id})
+                  (cx/assert-fact context-id {:fact/type :emotion
+                                              :emotion-id emotion-id
+                                              :strength 0.82
+                                              :valence :negative})
+                  (cx/assert-fact context-id {:fact/type :dependency
+                                              :from-id emotion-id
+                                              :to-id failed-goal-id})
+                  (cx/assert-fact context-id
+                                  (rationalization-frame-fact frame-id
+                                                              failed-goal-id
+                                                              0.91
+                                                              frame-facts)))
+        world (families/activate-family-goals world)
+        rationalization-goal (->> (vals (:goals world))
+                                  (filter #(= :rationalization
+                                              (:goal-type %)))
+                                  first)
+        activation-event (->> (:activation-events world)
+                              (filter #(= :rationalization (:goal-type %)))
+                              first)]
+    (is (some? rationalization-goal))
+    (is (= context-id (:trigger-context-id rationalization-goal)))
+    (is (= failed-goal-id
+           (:trigger-failed-goal-id rationalization-goal)))
+    (is (= emotion-id (:trigger-emotion-id rationalization-goal)))
+    (is (= 0.82 (:trigger-emotion-strength rationalization-goal)))
+    (is (= frame-id (:trigger-frame-id rationalization-goal)))
+    (is (= :failed_goal_negative_emotion_rationalization_frame
+           (:activation-policy rationalization-goal)))
+    (is (= [:failed_goal
+            :negative_emotion
+            :dependency_link
+            :rationalization_frame]
+           (:activation-reasons rationalization-goal)))
+    (is (= (:id rationalization-goal)
+           (:goal-id activation-event)))))
+
 (deftest activation-rules-register-cleanly-with-first-honest-graph-edge
   (let [graph (rules/build-connection-graph (families/activation-rules))
         rules-by-id (:rules-by-id graph)]
@@ -518,6 +613,7 @@
              :goal-family/roving-activation
              :goal-family/rationalization-trigger
              :goal-family/rationalization-activation
+             :goal-family/reversal-trigger
              :goal-family/reversal-activation}
            (set (keys rules-by-id))))
     (is (= [{:from-rule :goal-family/rationalization-trigger
@@ -561,6 +657,48 @@
                             :situation-id
                             :selection-policy
                             :selection-reasons}
+             :edge-kind :state-transition}
+            {:from-rule :goal-family/reversal-trigger
+             :to-rule :goal-family/reversal-activation
+             :from-projection {:fact/type :goal-family-trigger
+                               :goal-type :reversal
+                               :old-context-id '?old-context-id
+                               :old-top-level-goal-id '?old-top-level-goal-id
+                               :failed-goal-id '?failed-goal-id
+                               :context-depth '?context-depth
+                               :emotion-pressure '?emotion-pressure
+                               :failure-count '?failure-count
+                               :selection-policy '?selection-policy
+                               :selection-reasons '?selection-reasons
+                               :emotion-id '?emotion-id
+                               :emotion-strength '?emotion-strength
+                               :situation-id '?situation-id}
+             :to-projection {:fact/type :goal-family-trigger
+                             :goal-type :reversal
+                             :old-context-id '?old-context-id
+                             :old-top-level-goal-id '?old-top-level-goal-id
+                             :failed-goal-id '?failed-goal-id
+                             :context-depth '?context-depth
+                             :emotion-pressure '?emotion-pressure
+                             :failure-count '?failure-count
+                             :selection-policy '?selection-policy
+                             :selection-reasons '?selection-reasons
+                             :emotion-id '?emotion-id
+                             :emotion-strength '?emotion-strength
+                             :situation-id '?situation-id}
+             :bindings {}
+             :shared-keys #{:goal-type
+                            :old-context-id
+                            :old-top-level-goal-id
+                            :failed-goal-id
+                            :context-depth
+                            :emotion-pressure
+                            :failure-count
+                            :selection-policy
+                            :selection-reasons
+                            :emotion-id
+                            :emotion-strength
+                            :situation-id}
              :edge-kind :state-transition}
             {:from-rule :goal-family/roving-trigger
              :to-rule :goal-family/roving-activation
@@ -618,7 +756,16 @@
                           [:goal-family/rationalization-activation :graph-cache :out-edge-bases]))))
     (is (= 2
            (count (get-in rules-by-id
-                          [:goal-family/reversal-activation :graph-cache :in-edge-bases]))))))
+                          [:goal-family/reversal-trigger :graph-cache :in-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/reversal-trigger :graph-cache :out-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/reversal-activation :graph-cache :in-edge-bases]))))
+    (is (= 0
+           (count (get-in rules-by-id
+                          [:goal-family/reversal-activation :graph-cache :out-edge-bases]))))))
 
 (deftest rationalization-plan-sprouts-and-asserts-reframe-facts
   (let [[world root-id] (world-with-root)
