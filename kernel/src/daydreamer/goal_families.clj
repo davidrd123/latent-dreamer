@@ -1512,6 +1512,114 @@
   [world goal-id]
   (get-in world [:goals goal-id :rule-provenance]))
 
+(defn- family-plan-branch-context-id
+  [family-plan]
+  (case (:family family-plan)
+    :roving (get-in family-plan [:selection :roving_branch_context])
+    :rationalization (get-in family-plan
+                             [:selection :rationalization_branch_context])
+    :reversal (get-in family-plan [:selection :reversal_branch_context])
+    nil))
+
+(defn- family-plan-retrieval-indices
+  [family-plan]
+  (->> (case (:family family-plan)
+         :roving (get-in family-plan [:selection :roving_active_indices])
+         :rationalization (concat (get-in family-plan
+                                          [:selection
+                                           :rationalization_reframe_fact_ids]
+                                          [])
+                                  [(get-in family-plan
+                                           [:selection
+                                            :rationalization_hope_situation])])
+         :reversal (concat (get-in family-plan
+                                   [:selection
+                                    :reversal_counterfactual_fact_ids]
+                                   [])
+                           (get-in family-plan
+                                   [:selection
+                                    :reversal_leaf_retracted_facts]
+                                   []))
+         [])
+       (keep identity)
+       distinct
+       (take 3)
+       vec))
+
+(defn- family-plan-support-indices
+  [family-plan]
+  (let [selection (:selection family-plan)]
+    (->> [(keyword "family" (name (:family family-plan)))
+          (:family_goal_id selection)
+          (case (:family family-plan)
+            :roving (:roving_selection_policy selection)
+            :rationalization (:rationalization_selection_policy selection)
+            :reversal (:reversal_target_policy selection)
+            nil)]
+         (keep identity)
+         distinct
+         vec)))
+
+(defn- store-family-plan-episode
+  [world family-plan]
+  (let [selection (:selection family-plan)
+        rule-provenance (:rule-provenance family-plan)
+        rule-path (vec (:rule-path rule-provenance))
+        edge-path (vec (:edge-path rule-provenance))
+        goal-id (:family_goal_id selection)
+        context-id (family-plan-branch-context-id family-plan)
+        retrieval-indices (family-plan-retrieval-indices family-plan)
+        support-indices (->> (family-plan-support-indices family-plan)
+                             (remove (set retrieval-indices))
+                             vec)]
+    (if (and goal-id
+             context-id
+             (seq rule-path))
+      (let [episode-spec (cond-> {:rule (last rule-path)
+                                  :goal-id goal-id
+                                  :context-id context-id
+                                  :realism :imaginary
+                                  :desirability :mixed
+                                  :provenance {:source :family-plan
+                                               :family (:family family-plan)
+                                               :selection selection}
+                                  :rule-path rule-path}
+                           (seq retrieval-indices)
+                           (assoc :indices (set retrieval-indices))
+
+                           (seq edge-path)
+                           (assoc :edge-path edge-path))
+            [world episode-id] (episodic/add-episode world episode-spec)
+            world (reduce (fn [current-world index]
+                            (episodic/store-episode current-world
+                                                    episode-id
+                                                    index
+                                                    {:plan? true
+                                                     :reminding? true}))
+                          world
+                          retrieval-indices)
+            world (reduce (fn [current-world index]
+                            (episodic/store-episode current-world
+                                                    episode-id
+                                                    index
+                                                    {:plan? false
+                                                     :reminding? false}))
+                          world
+                          support-indices)
+            world (reduce (fn [current-world rule-id]
+                            (episodic/store-episode current-world
+                                                    episode-id
+                                                    rule-id
+                                                    {:plan? false
+                                                     :reminding? false}))
+                          world
+                          rule-path)]
+        [world
+         (-> family-plan
+             (assoc :family-episode-id episode-id)
+             (assoc-in [:selection :family_plan_episode_id] episode-id))])
+      [world family-plan])))
+
 (defn- ranked-roving-episode-ids
   [world goal-id candidate-episode-ids]
   (let [candidate-episode-ids (vec candidate-episode-ids)
@@ -2119,33 +2227,35 @@
                                       affect-state-fact))]
           (if-not primary-branch
             [world nil]
-            [world {:family :reversal
-                    :sprouted-context-ids sprouted-context-ids
-                    :rule-provenance (:rule-provenance primary-branch)
-                    :selection {:goal_family :reversal
-                                :family_goal_id (:new-top-level-goal-id reversal-target)
-                                :reversal_target_policy (:selection-policy reversal-target)
-                                :reversal_target_goal (:old-top-level-goal-id reversal-target)
-                                :reversal_source_context (:old-context-id primary-branch)
-                                :reversal_leaf_policy (:selection-policy primary-branch)
-                                :reversal_leaf_goal (:leaf-goal-id primary-branch)
-                                :reversal_leaf_strength (:leaf-strength primary-branch)
-                                :reversal_leaf_depth (:context-depth reversal-target)
-                                :reversal_leaf_emotion_pressure (:emotion-pressure reversal-target)
-                                :reversal_leaf_reasons (:selection-reasons primary-branch)
-                                :reversal_leaf_retracted_facts (:retracted-fact-ids primary-branch)
-                                :reversal_branch_count (count branch-results)
-                                :reversal_branch_contexts sprouted-context-ids
-                                :reversal_counterfactual_policy (:counterfactual-policy reversal-target)
-                                :reversal_counterfactual_source (:counterfactual-cause-id reversal-target)
-                                :reversal_counterfactual_goal (:counterfactual-goal-id reversal-target)
-                                :reversal_counterfactual_reasons (:counterfactual-reasons reversal-target)
-                                :reversal_counterfactual_fact_ids (:counterfactual-fact-ids reversal-target)
-                                :reversal_branch_context (:sprouted-context-id primary-branch)}
-                    :affect-state-fact affect-state-fact
-                    :reversal-target reversal-target
-                    :primary-branch primary-branch
-                    :branch-results branch-results}]))
+            (store-family-plan-episode
+             world
+             {:family :reversal
+              :sprouted-context-ids sprouted-context-ids
+              :rule-provenance (:rule-provenance primary-branch)
+              :selection {:goal_family :reversal
+                          :family_goal_id (:new-top-level-goal-id reversal-target)
+                          :reversal_target_policy (:selection-policy reversal-target)
+                          :reversal_target_goal (:old-top-level-goal-id reversal-target)
+                          :reversal_source_context (:old-context-id primary-branch)
+                          :reversal_leaf_policy (:selection-policy primary-branch)
+                          :reversal_leaf_goal (:leaf-goal-id primary-branch)
+                          :reversal_leaf_strength (:leaf-strength primary-branch)
+                          :reversal_leaf_depth (:context-depth reversal-target)
+                          :reversal_leaf_emotion_pressure (:emotion-pressure reversal-target)
+                          :reversal_leaf_reasons (:selection-reasons primary-branch)
+                          :reversal_leaf_retracted_facts (:retracted-fact-ids primary-branch)
+                          :reversal_branch_count (count branch-results)
+                          :reversal_branch_contexts sprouted-context-ids
+                          :reversal_counterfactual_policy (:counterfactual-policy reversal-target)
+                          :reversal_counterfactual_source (:counterfactual-cause-id reversal-target)
+                          :reversal_counterfactual_goal (:counterfactual-goal-id reversal-target)
+                          :reversal_counterfactual_reasons (:counterfactual-reasons reversal-target)
+                          :reversal_counterfactual_fact_ids (:counterfactual-fact-ids reversal-target)
+                          :reversal_branch_context (:sprouted-context-id primary-branch)}
+              :affect-state-fact affect-state-fact
+              :reversal-target reversal-target
+              :primary-branch primary-branch
+              :branch-results branch-results})))
         [world nil])
 
       :roving
@@ -2155,17 +2265,19 @@
                                                (assoc opts
                                                       :goal-id goal-id
                                                       :context-id context-id))]
-        [world {:family :roving
-                :sprouted-context-ids [(:sprouted-context-id roving-result)]
-                :rule-provenance (:rule-provenance roving-result)
-                :selection {:goal_family :roving
-                            :family_goal_id goal-id
-                            :roving_selection_policy (:selection-policy roving-result)
-                            :roving_seed_episode (:episode-id roving-result)
-                            :roving_reminded_episodes (:reminded-episode-ids roving-result)
-                            :roving_active_indices (:active-indices roving-result)
-                            :roving_branch_context (:sprouted-context-id roving-result)}
-                :result roving-result}])
+        (store-family-plan-episode
+         world
+         {:family :roving
+          :sprouted-context-ids [(:sprouted-context-id roving-result)]
+          :rule-provenance (:rule-provenance roving-result)
+          :selection {:goal_family :roving
+                      :family_goal_id goal-id
+                      :roving_selection_policy (:selection-policy roving-result)
+                      :roving_seed_episode (:episode-id roving-result)
+                      :roving_reminded_episodes (:reminded-episode-ids roving-result)
+                      :roving_active_indices (:active-indices roving-result)
+                      :roving_branch_context (:sprouted-context-id roving-result)}
+          :result roving-result}))
 
       :rationalization
       (let [context-id (or (:context-id opts)
@@ -2182,27 +2294,29 @@
                                         (get-in world [:goals goal-id :trigger-failed-goal-id]))
                     :frame-id (or (:frame-id opts)
                                   (get-in world [:goals goal-id :trigger-frame-id]))))]
-        [world {:family :rationalization
-                :sprouted-context-ids [(:sprouted-context-id rationalization-result)]
-                :rule-provenance (:rule-provenance rationalization-result)
-                :selection {:goal_family :rationalization
-                            :family_goal_id goal-id
-                            :rationalization_selection_policy (:selection-policy rationalization-result)
-                            :rationalization_frame_id (:frame-id rationalization-result)
-                            :rationalization_frame_goal (:frame-goal-id rationalization-result)
-                            :rationalization_frame_reasons (:selection-reasons rationalization-result)
-                            :rationalization_reframe_fact_ids (:reframe-fact-ids rationalization-result)
-                            :rationalization_branch_context (:sprouted-context-id rationalization-result)
-                            :rationalization_diversion_policy (:diversion-policy rationalization-result)
-                            :rationalization_trigger_emotion_id (:trigger-emotion-id rationalization-result)
-                            :rationalization_trigger_emotion_before (:trigger-emotion-before rationalization-result)
-                            :rationalization_trigger_emotion_after (:trigger-emotion-after rationalization-result)
-                            :rationalization_hope_emotion_id (:hope-emotion-id rationalization-result)
-                            :rationalization_hope_strength (:hope-strength rationalization-result)
-                            :rationalization_hope_situation (:hope-situation-id rationalization-result)}
-                :emotion-shifts (:emotion-shifts rationalization-result)
-                :emotional-state (:emotional-state rationalization-result)
-                :result rationalization-result}])
+        (store-family-plan-episode
+         world
+         {:family :rationalization
+          :sprouted-context-ids [(:sprouted-context-id rationalization-result)]
+          :rule-provenance (:rule-provenance rationalization-result)
+          :selection {:goal_family :rationalization
+                      :family_goal_id goal-id
+                      :rationalization_selection_policy (:selection-policy rationalization-result)
+                      :rationalization_frame_id (:frame-id rationalization-result)
+                      :rationalization_frame_goal (:frame-goal-id rationalization-result)
+                      :rationalization_frame_reasons (:selection-reasons rationalization-result)
+                      :rationalization_reframe_fact_ids (:reframe-fact-ids rationalization-result)
+                      :rationalization_branch_context (:sprouted-context-id rationalization-result)
+                      :rationalization_diversion_policy (:diversion-policy rationalization-result)
+                      :rationalization_trigger_emotion_id (:trigger-emotion-id rationalization-result)
+                      :rationalization_trigger_emotion_before (:trigger-emotion-before rationalization-result)
+                      :rationalization_trigger_emotion_after (:trigger-emotion-after rationalization-result)
+                      :rationalization_hope_emotion_id (:hope-emotion-id rationalization-result)
+                      :rationalization_hope_strength (:hope-strength rationalization-result)
+                      :rationalization_hope_situation (:hope-situation-id rationalization-result)}
+          :emotion-shifts (:emotion-shifts rationalization-result)
+          :emotional-state (:emotional-state rationalization-result)
+          :result rationalization-result}))
 
       [world nil])))
 

@@ -687,6 +687,94 @@
     (is (= :pleasant_episode_seed
            (:selection-policy roving-result)))))
 
+(deftest run-family-plan-stores-roving-episode-with-structural-provenance
+  (let [[world root-id] (world-with-root)
+        [world pleasant-episode-id]
+        (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :calm
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :sunlight
+                                          {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])
+        [world family-plan]
+        (families/run-family-plan world
+                                  {:goal-id roving-goal-id
+                                   :context-id context-id})
+        family-episode-id (:family-episode-id family-plan)
+        stored-episode (get-in world [:episodes family-episode-id])]
+    (is (= family-episode-id
+           (get-in family-plan [:selection :family_plan_episode_id])))
+    (is (= {:rule-path [:goal-family/roving-plan-request
+                        :goal-family/roving-plan-dispatch]
+            :edge-path [{:from-rule :goal-family/roving-plan-request
+                         :to-rule :goal-family/roving-plan-dispatch
+                         :fact-type :family-plan-request
+                         :edge-kind :state-transition}]}
+           (select-keys stored-episode [:rule-path :edge-path])))
+    (is (= (:roving_branch_context (:selection family-plan))
+           (:context-id stored-episode)))
+    (is (= #{:calm
+             :sunlight
+             :family/roving
+             :pleasant_episode_seed
+             roving-goal-id
+             :goal-family/roving-plan-request
+             :goal-family/roving-plan-dispatch}
+           (:indices stored-episode)))
+    (is (= 2 (:plan-threshold stored-episode)))
+    (is (= 2 (:reminding-threshold stored-episode)))
+    (is (= #{family-episode-id}
+           (get-in world [:episode-index :goal-family/roving-plan-dispatch])))))
+
+(deftest stored-roving-family-plan-episode-is-retrievable-by-structure
+  (let [[world root-id] (world-with-root)
+        [world pleasant-episode-id]
+        (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :calm
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :sunlight
+                                          {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])
+        [world family-plan]
+        (families/run-family-plan world
+                                  {:goal-id roving-goal-id
+                                   :context-id context-id})
+        family-episode-id (:family-episode-id family-plan)
+        hits (episodic/retrieve-episodes
+              world
+              [:calm]
+              {:threshold-key :reminding-threshold
+               :active-rule-path [:goal-family/roving-plan-dispatch]})]
+    (is (= [family-episode-id]
+           (mapv :episode-id hits)))
+    (is (= [{:episode-id family-episode-id
+             :marks 1
+             :threshold 2
+             :provenance-bonus 1.0
+             :effective-marks 2.0
+             :provenance-reason :shared-rule}]
+           hits))))
+
 (deftest rationalization-activation-candidates-detect-framed-failures
   (let [[world root-id] (world-with-root)
         [world context-id] (cx/sprout world root-id)
