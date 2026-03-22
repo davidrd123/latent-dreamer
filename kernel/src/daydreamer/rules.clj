@@ -1173,9 +1173,12 @@
 (defn- handle-goal-set-next-context
   [{:keys [world effect effect-state]}]
   (let [context-id (resolve-effect-context-id world effect-state (:context-ref effect))]
-    [(if (contains? (:goals world) (:goal-id effect))
-       (goals/set-next-context world (:goal-id effect) context-id)
-       world)
+    (when-not (contains? (:goals world) (:goal-id effect))
+      (throw (ex-info "Unknown goal for :goal/set-next-context"
+                      {:goal-id (:goal-id effect)
+                       :context-ref (:context-ref effect)
+                       :known-goal-ids (sort (keys (:goals world)))})))
+    [(goals/set-next-context world (:goal-id effect) context-id)
      effect-state]))
 
 (defn- builtin-effect-handlers

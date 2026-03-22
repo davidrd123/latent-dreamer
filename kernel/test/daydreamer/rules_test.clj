@@ -514,6 +514,20 @@
                              :ordering 0.75}]
                            {})))))
 
+(deftest apply-effects-rejects-missing-goal-for-goal-set-next-context
+  (let [root-id :cx-1
+        world {:id-counter 1
+               :contexts {root-id (assoc (cx/create-context) :id root-id)}
+               :goals {}}]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"Unknown goal for :goal/set-next-context"
+                          (rules/apply-effects
+                           world
+                           [{:op :goal/set-next-context
+                             :goal-id :g-missing
+                             :context-ref root-id}]
+                           {})))))
+
 (deftest apply-effects-rejects-builtin-handler-overrides
   (is (thrown-with-msg? clojure.lang.ExceptionInfo
                         #"Builtin effect handlers cannot be overridden"

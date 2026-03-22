@@ -230,10 +230,12 @@
   (let [effects (:effects result)]
     (when (vector? effects)
       (loop [idx 0
-             produced {}]
+             produced {}
+             produced-symbols {}]
         (when (< idx (count effects))
           (let [effect (nth effects idx)
-                result-key (:result-key effect)]
+                result-key (:result-key effect)
+                symbolic-ref (:ref effect)]
             (doseq [source-key (effect-source-ref-keys effect)]
               (let [source-ref (get effect source-key)]
                 (when-not (contains? produced source-ref)
@@ -245,18 +247,38 @@
                                    :source-ref source-ref
                                    :known-result-keys (sort (keys produced))})))))
             (when result-key
-              (when (contains? produced result-key)
-                (throw (ex-info "Typed family effect result-key must be unique"
+              (when-let [first-produced-by (get produced-symbols result-key)]
+                (throw (ex-info "Typed family effect symbolic producer must be unique"
                                 {:rule-id (:id rule)
                                  :effect-index idx
                                  :effect effect
-                                 :result-key result-key
-                                 :first-produced-by (get produced result-key)}))))
+                                 :symbol result-key
+                                 :symbol-kind :result-key
+                                 :first-produced-by first-produced-by}))))
+            (when symbolic-ref
+              (when-let [first-produced-by (get produced-symbols symbolic-ref)]
+                (throw (ex-info "Typed family effect symbolic producer must be unique"
+                                {:rule-id (:id rule)
+                                 :effect-index idx
+                                 :effect effect
+                                 :symbol symbolic-ref
+                                 :symbol-kind :ref
+                                 :first-produced-by first-produced-by}))))
             (recur (inc idx)
                    (cond-> produced
                      result-key
                      (assoc result-key {:effect-index idx
-                                        :op (:op effect)})))))))))
+                                        :op (:op effect)}))
+                   (cond-> produced-symbols
+                     result-key
+                     (assoc result-key {:effect-index idx
+                                        :op (:op effect)
+                                        :kind :result-key})
+
+                     symbolic-ref
+                     (assoc symbolic-ref {:effect-index idx
+                                          :op (:op effect)
+                                          :kind :ref})))))))))
 
 (def ^:private family-effect-specs
   {:context/sprout
