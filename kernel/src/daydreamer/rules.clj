@@ -1115,25 +1115,34 @@
   (when-not (vector? effects)
     (throw (ex-info "apply-effects requires a vector of effects"
                     {:effects effects})))
-  (let [merged-handlers (merge (builtin-effect-handlers)
-                               (or effect-handlers {}))]
-    (reduce (fn [[current-world effect-state] effect]
-              (let [handler (or effect-handler
-                                (get merged-handlers (:op effect)))]
-                (when-not (ifn? handler)
-                  (throw (ex-info "No effect handler registered for op"
-                                  {:effect effect
-                                   :known-ops (sort (keys merged-handlers))})))
-                (let [result (handler {:world current-world
-                                       :effect effect
-                                       :effect-state effect-state})]
-                  (when-not (and (vector? result)
-                                 (= 2 (count result)))
-                    (throw (ex-info "Effect handler must return [world effect-state]"
+  (let [builtin-handlers (builtin-effect-handlers)
+        attempted-overrides (seq (set/intersection (set (keys builtin-handlers))
+                                                   (set (keys (or effect-handlers {})))))]
+    (when attempted-overrides
+      (throw (ex-info "Builtin effect handlers cannot be overridden"
+                      {:attempted-overrides (sort attempted-overrides)
+                       :builtin-ops (sort (keys builtin-handlers))})))
+    (let [merged-handlers (merge builtin-handlers
+                                 (or effect-handlers {}))]
+      (reduce (fn [[current-world effect-state] effect]
+                (let [builtin-handler (get builtin-handlers (:op effect))
+                      handler (or builtin-handler
+                                  (get merged-handlers (:op effect))
+                                  effect-handler)]
+                  (when-not (ifn? handler)
+                    (throw (ex-info "No effect handler registered for op"
                                     {:effect effect
-                                     :result result})))
-                  result)))
-            [world (if (contains? opts :initial-effect-state)
-                     initial-effect-state
-                     {})]
-            effects)))
+                                     :known-ops (sort (keys merged-handlers))})))
+                  (let [result (handler {:world current-world
+                                         :effect effect
+                                         :effect-state effect-state})]
+                    (when-not (and (vector? result)
+                                   (= 2 (count result)))
+                      (throw (ex-info "Effect handler must return [world effect-state]"
+                                      {:effect effect
+                                       :result result})))
+                    result)))
+              [world (if (contains? opts :initial-effect-state)
+                       initial-effect-state
+                       {})]
+              effects))))

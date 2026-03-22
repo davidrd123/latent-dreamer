@@ -339,6 +339,35 @@
     (is (= branch-id
            (get-in world [:goals :g-1 :next-cx])))))
 
+(deftest apply-effects-rejects-builtin-handler-overrides
+  (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                        #"Builtin effect handlers cannot be overridden"
+                        (rules/apply-effects
+                         {:id-counter 1
+                          :contexts {:cx-1 (assoc (cx/create-context) :id :cx-1)}}
+                         [{:op :context/sprout
+                           :source-context-id :cx-1
+                           :ref :branch-context}]
+                         {:effect-handlers
+                          {:context/sprout
+                           (fn [{:keys [world effect-state]}]
+                             [world (assoc effect-state :override true)])}}))))
+
+(deftest apply-effects-does-not-route-builtin-ops-through-catch-all-handler
+  (let [[world effect-state]
+        (rules/apply-effects
+         {:id-counter 1
+          :contexts {:cx-1 (assoc (cx/create-context) :id :cx-1)}}
+         [{:op :context/sprout
+           :source-context-id :cx-1
+           :ref :branch-context}]
+         {:effect-handler
+          (fn [_]
+            (throw (ex-info "catch-all should not run for builtin op" {})))})]
+    (is (= :cx-2
+           (get-in effect-state [:context-refs :branch-context])))
+    (is (contains? (:contexts world) :cx-2))))
+
 (deftest apply-effects-rejects-malformed-handler-result
   (is (thrown-with-msg? clojure.lang.ExceptionInfo
                         #"Effect handler must return"
