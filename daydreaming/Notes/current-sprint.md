@@ -85,6 +85,8 @@ and path verifier are real.
 - provenance affects retrieval and roving seed selection
 - autonomous conductor extraction is done
 - external family-plan evaluator seam exists
+- roving now runs through a typed effect program with
+  kernel-applied effects instead of inline world mutation
 
 ### Current subphase: memory ecology hardening
 
@@ -122,7 +124,8 @@ and "deserves future influence":
 
 ### Next after this
 
-- define the declarative effect vocabulary / executor boundary
+- continue the declarative effect vocabulary / executor boundary
+  from `roving` into `rationalization` and later `reversal`
 - widen anti-residue from evaluator annotations to stronger
   downstream demotion / contradiction detection
 - strengthen consolidation policy beyond the current first-pass

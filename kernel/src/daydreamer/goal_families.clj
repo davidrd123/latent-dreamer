@@ -98,7 +98,10 @@
 (declare reversal-sprout-alternative
          reversal-trigger-facts
          retract-facts
-         instantiate-rationalization-trigger)
+         instantiate-rationalization-trigger
+         retrieval-hit-fact
+         note-family-plan-episode-reuses
+         promote-cross-family-retrieval-episodes)
 
 (defn- fact-consumer-rule?
   [fact-type rule]
@@ -1380,6 +1383,210 @@
    gf-rules/roving-plan-request-rule
    (roving-plan-ready-facts world opts)))
 
+(defn roving-plan-effects
+  "Build the first typed effect program for roving plan execution.
+
+  This is the narrow first slice of the executor boundary: selection remains
+  procedural, but world mutation is described as typed effects instead of
+  happening inline."
+  [world {:keys [goal-id context-id]
+          :as opts}]
+  (let [plan-request-facts (or (seq (roving-plan-request-facts world opts))
+                               (throw (ex-info "ROVING needs a pleasant episode"
+                                               {:opts opts})))
+        {:keys [episode-id ordering selection-policy rule-provenance]}
+        (or (first (plan-payloads-from-request-facts plan-request-facts))
+            (throw (ex-info "ROVING needs a plan payload"
+                            {:opts opts
+                             :plan-request-facts plan-request-facts})))
+        connection-graph (rules/build-connection-graph (family-rules))
+        success-intends {:fact/type :intends
+                         :from-goal-id goal-id
+                         :to-goal-id :rtrue
+                         :top-level-goal goal-id
+                         :status :succeeded
+                         :rule :roving-plan1}]
+    {:goal-id goal-id
+     :source-context-id context-id
+     :episode-id episode-id
+     :ordering ordering
+     :selection-policy selection-policy
+     :rule-provenance rule-provenance
+     :effects [{:op :context/sprout
+                :source-context-id context-id
+                :ref :branch-context}
+               {:op :fact/assert
+                :context-ref :branch-context
+                :fact success-intends}
+               {:op :episode/reminding
+                :episode-id episode-id
+                :retrieval-opts {:connection-graph connection-graph
+                                 :active-rule-path (:rule-path rule-provenance)
+                                 :active-edge-path (:edge-path rule-provenance)
+                                 :active-family :roving}
+                :result-key :roving/reminding}
+               {:op :episode/assert-retrieval-hits
+                :context-ref :branch-context
+                :goal-id goal-id
+                :selection-policy selection-policy
+                :rule-provenance rule-provenance
+                :from-reminding :roving/reminding
+                :result-key :roving/retrieval-hit-facts}
+               {:op :episodes/note-family-reuse
+                :target-family :roving
+                :rule-provenance rule-provenance
+                :from-reminding :roving/reminding}
+               {:op :episodes/promote-cross-family
+                :context-ref :branch-context
+                :target-family :roving
+                :rule-provenance rule-provenance
+                :from-reminding :roving/reminding
+                :result-key :roving/promotions}
+               {:op :context/set-ordering
+                :context-ref :branch-context
+                :ordering ordering}
+               {:op :goal/set-next-context
+                :goal-id goal-id
+                :context-ref :branch-context}
+               {:op :mutation/log
+                :family :roving
+                :source-context-id context-id
+                :context-ref :branch-context
+                :from-reminding :roving/reminding
+                :from-promotions :roving/promotions}]}))
+
+(defn- resolve-effect-context-id
+  [effect-state context-ref]
+  (get-in effect-state [:context-refs context-ref] context-ref))
+
+(defn- apply-family-effect
+  [world effect effect-state]
+  (case (:op effect)
+    :context/sprout
+    (let [[world sprouted-context-id] (cx/sprout world (:source-context-id effect))]
+      [world (assoc-in effect-state [:context-refs (:ref effect)] sprouted-context-id)])
+
+    :fact/assert
+    (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+      [(cx/assert-fact world context-id (:fact effect))
+       effect-state])
+
+    :episode/reminding
+    (let [[world reminded-episode-ids]
+          (episodic/episode-reminding world
+                                      (:episode-id effect)
+                                      (:retrieval-opts effect))
+          reminder-result {:episode-id (:episode-id effect)
+                           :reminded-episode-ids (vec reminded-episode-ids)
+                           :active-indices (vec (:recent-indices world))}]
+      [world (assoc-in effect-state [:results (:result-key effect)] reminder-result)])
+
+    :episode/assert-retrieval-hits
+    (let [{:keys [episode-id reminded-episode-ids]}
+          (get-in effect-state [:results (:from-reminding effect)])
+          context-id (resolve-effect-context-id effect-state (:context-ref effect))
+          rule-provenance (:rule-provenance effect)
+          selection-policy (:selection-policy effect)
+          goal-id (:goal-id effect)
+          retrieval-hit-facts
+          (vec
+           (concat [(retrieval-hit-fact
+                     {:episode-id episode-id
+                      :family-goal-id goal-id
+                      :branch-context-id context-id
+                      :retrieval-role :seed
+                      :retrieval-order 0
+                      :selection-policy selection-policy
+                      :rule-provenance rule-provenance})]
+                   (map-indexed
+                    (fn [idx reminded-episode-id]
+                      (retrieval-hit-fact
+                       {:episode-id reminded-episode-id
+                        :family-goal-id goal-id
+                        :branch-context-id context-id
+                        :retrieval-role :reminded
+                        :retrieval-order (inc idx)
+                        :selection-policy selection-policy
+                        :rule-provenance rule-provenance}))
+                    reminded-episode-ids)))
+          world (reduce (fn [current-world fact]
+                          (cx/assert-fact current-world context-id fact))
+                        world
+                        retrieval-hit-facts)]
+      [world
+       (assoc-in effect-state
+                 [:results (:result-key effect)]
+                 retrieval-hit-facts)])
+
+    :episodes/note-family-reuse
+    (let [{:keys [episode-id reminded-episode-ids]}
+          (get-in effect-state [:results (:from-reminding effect)])
+          episode-ids (vec (cons episode-id reminded-episode-ids))]
+      [(note-family-plan-episode-reuses world
+                                        (:target-family effect)
+                                        (:rule-provenance effect)
+                                        episode-ids)
+       effect-state])
+
+    :episodes/promote-cross-family
+    (let [{:keys [episode-id reminded-episode-ids]}
+          (get-in effect-state [:results (:from-reminding effect)])
+          context-id (resolve-effect-context-id effect-state (:context-ref effect))
+          episode-ids (vec (cons episode-id reminded-episode-ids))
+          [world promotion-facts promoted-episode-ids]
+          (promote-cross-family-retrieval-episodes
+           world
+           context-id
+           (:target-family effect)
+           (:rule-provenance effect)
+           episode-ids)]
+      [world
+       (assoc-in effect-state
+                 [:results (:result-key effect)]
+                 {:promotion-facts (vec promotion-facts)
+                  :promoted-episode-ids (vec promoted-episode-ids)})])
+
+    :context/set-ordering
+    (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+      [(assoc-in world [:contexts context-id :ordering] (:ordering effect))
+       effect-state])
+
+    :goal/set-next-context
+    (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+      [(if (contains? (:goals world) (:goal-id effect))
+         (goals/set-next-context world (:goal-id effect) context-id)
+         world)
+       effect-state])
+
+    :mutation/log
+    (let [{:keys [episode-id reminded-episode-ids active-indices]}
+          (get-in effect-state [:results (:from-reminding effect)])
+          {:keys [promoted-episode-ids]}
+          (get-in effect-state [:results (:from-promotions effect)]
+                  {:promoted-episode-ids []})
+          context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+      [(update world :mutation-events
+               (fnil conj [])
+               {:family (:family effect)
+                :source-context (:source-context-id effect)
+                :target-context context-id
+                :seed-episode-id episode-id
+                :reminded-episode-ids reminded-episode-ids
+                :promoted-episode-ids promoted-episode-ids
+                :active-indices active-indices})
+       effect-state])
+
+    (throw (ex-info "Unknown family effect op"
+                    {:effect effect}))))
+
+(defn- apply-family-effects
+  [world effects]
+  (reduce (fn [[current-world effect-state] effect]
+            (apply-family-effect current-world effect effect-state))
+          [world {:context-refs {}
+                  :results {}}]
+          effects))
+
 (defn- retrieval-hit-fact
   [{:keys [episode-id family-goal-id branch-context-id retrieval-role
            retrieval-order selection-policy rule-provenance]}]
@@ -1556,88 +1763,26 @@
   creates a fresh branch, invokes episodic memory, and records the result."
   [world {:keys [goal-id context-id]
           :as opts}]
-  (let [plan-request-facts (or (seq (roving-plan-request-facts world opts))
-                               (throw (ex-info "ROVING needs a pleasant episode"
-                                               {:opts opts})))
-        {:keys [episode-id ordering selection-policy rule-provenance]}
-        (or (first (plan-payloads-from-request-facts plan-request-facts))
-            (throw (ex-info "ROVING needs a plan payload"
-                            {:opts opts
-                             :plan-request-facts plan-request-facts})))
-        connection-graph (rules/build-connection-graph (family-rules))
-        [world sprouted-context-id] (cx/sprout world context-id)
-        success-intends {:fact/type :intends
-                         :from-goal-id goal-id
-                         :to-goal-id :rtrue
-                         :top-level-goal goal-id
-                         :status :succeeded
-                         :rule :roving-plan1}
-        world (cx/assert-fact world sprouted-context-id success-intends)
-        [world reminded-episode-ids]
-        (episodic/episode-reminding
-         world
-         episode-id
-         {:connection-graph connection-graph
-          :active-rule-path (:rule-path rule-provenance)
-          :active-edge-path (:edge-path rule-provenance)
-          :active-family :roving})
-        retrieval-hit-facts (vec (concat [(retrieval-hit-fact
-                                           {:episode-id episode-id
-                                            :family-goal-id goal-id
-                                            :branch-context-id sprouted-context-id
-                                            :retrieval-role :seed
-                                            :retrieval-order 0
-                                            :selection-policy selection-policy
-                                            :rule-provenance rule-provenance})]
-                                         (map-indexed
-                                          (fn [idx reminded-episode-id]
-                                            (retrieval-hit-fact
-                                             {:episode-id reminded-episode-id
-                                              :family-goal-id goal-id
-                                              :branch-context-id sprouted-context-id
-                                              :retrieval-role :reminded
-                                              :retrieval-order (inc idx)
-                                              :selection-policy selection-policy
-                                              :rule-provenance rule-provenance}))
-                                          reminded-episode-ids)))
-        world (reduce (fn [current-world fact]
-                        (cx/assert-fact current-world
-                                        sprouted-context-id
-                                        fact))
-                      world
-                      retrieval-hit-facts)
-        world (note-family-plan-episode-reuses
-               world
-               :roving
-               rule-provenance
-               (vec (cons episode-id reminded-episode-ids)))
-        [world promotion-facts promoted-episode-ids]
-        (promote-cross-family-retrieval-episodes
-         world
-         sprouted-context-id
-         :roving
-         rule-provenance
-         (vec (cons episode-id reminded-episode-ids)))
-        world (assoc-in world [:contexts sprouted-context-id :ordering] ordering)
-        world (if (contains? (:goals world) goal-id)
-                (goals/set-next-context world goal-id sprouted-context-id)
-                world)
-        world (update world :mutation-events
-                      (fnil conj [])
-                      {:family :roving
-                       :source-context context-id
-                       :target-context sprouted-context-id
-                       :seed-episode-id episode-id
-                       :reminded-episode-ids (vec reminded-episode-ids)
-                       :promoted-episode-ids (vec promoted-episode-ids)
-                       :active-indices (vec (:recent-indices world))})]
+  (let [{:keys [episode-id selection-policy rule-provenance effects]}
+        (roving-plan-effects world (assoc opts
+                                          :goal-id goal-id
+                                          :context-id context-id))
+        [world effect-state] (apply-family-effects world effects)
+        sprouted-context-id (resolve-effect-context-id effect-state :branch-context)
+        {:keys [reminded-episode-ids active-indices]}
+        (get-in effect-state [:results :roving/reminding])
+        retrieval-hit-facts (get-in effect-state [:results :roving/retrieval-hit-facts] [])
+        {:keys [promotion-facts promoted-episode-ids]}
+        (get-in effect-state [:results :roving/promotions]
+                {:promotion-facts []
+                 :promoted-episode-ids []})]
     [world {:sprouted-context-id sprouted-context-id
             :episode-id episode-id
             :reminded-episode-ids (vec reminded-episode-ids)
-            :retrieval-hit-facts retrieval-hit-facts
+            :retrieval-hit-facts (vec retrieval-hit-facts)
             :promotion-facts (vec promotion-facts)
             :promoted-episode-ids (vec promoted-episode-ids)
-            :active-indices (vec (:recent-indices world))
+            :active-indices (vec active-indices)
             :selection-policy selection-policy
             :rule-provenance rule-provenance}]))
 

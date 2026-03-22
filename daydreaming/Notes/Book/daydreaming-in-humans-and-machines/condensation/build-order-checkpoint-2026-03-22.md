@@ -87,6 +87,16 @@ Concrete targets:
 
 Why second: this is the architecture fix. New executor kinds (`:clojure-fn`, `:llm-backed`) should produce declarative effects from day one, not wrap hidden mutation.
 
+Implemented first pass:
+- `roving` now builds a typed effect program and applies it through a
+  kernel-owned effect applier instead of mutating world inline
+- first effect ops are:
+  `:context/sprout`, `:fact/assert`, `:episode/reminding`,
+  `:episode/assert-retrieval-hits`, `:episodes/note-family-reuse`,
+  `:episodes/promote-cross-family`, `:context/set-ordering`,
+  `:goal/set-next-context`, `:mutation/log`
+- `rationalization` and `reversal` still execute procedurally
+
 ### 3. First `:llm-backed` pilot as episode evaluator
 
 Not generator. Evaluator.
@@ -173,7 +183,7 @@ Rule fires
 | **Evaluator-gated durable promotion** | **First pass done** |
 | **Same-family-loop anti-residue flag** | **First pass done** |
 | **Other anti-residue flags** | **Not done** |
-| **Effect vocabulary** | **Not done** |
+| **Effect vocabulary** | **First pass done on roving** |
 | **:llm-backed evaluator pilot** | **First pass done (post-plan evaluator seam)** |
 | **Verified paths** | **Not done** |
 | **Generic :clojure-fn dispatch** | **Not done** |

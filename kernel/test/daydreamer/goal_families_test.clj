@@ -889,6 +889,38 @@
              :retention-age 0}]
            hits))))
 
+(deftest roving-plan-effects-builds-typed-program
+  (let [[world root-id] (world-with-root)
+        [world pleasant-episode-id] (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :calm {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :sunlight {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])
+        effect-program (families/roving-plan-effects world
+                                                     {:goal-id roving-goal-id
+                                                      :context-id context-id})]
+    (is (= pleasant-episode-id (:episode-id effect-program)))
+    (is (= :pleasant_episode_seed (:selection-policy effect-program)))
+    (is (= [:context/sprout
+            :fact/assert
+            :episode/reminding
+            :episode/assert-retrieval-hits
+            :episodes/note-family-reuse
+            :episodes/promote-cross-family
+            :context/set-ordering
+            :goal/set-next-context
+            :mutation/log]
+           (mapv :op (:effects effect-program))))))
+
 (deftest run-family-plan-can-archive-family-memory-via-external-evaluator
   (let [[world root-id] (world-with-root)
         [world pleasant-episode-id]
