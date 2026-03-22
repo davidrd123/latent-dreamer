@@ -1295,30 +1295,80 @@
   LEADTO/minimization chains, the kernel looks for stored reinterpretation
   frames that can be asserted into a rationalization branch."
   [world {:keys [trigger-context-id failed-goal-id]}]
-  (->> (cx/visible-facts world trigger-context-id)
-       (filter rationalization-frame-fact?)
-       (filter #(matching-rationalization-frame? % failed-goal-id))
-       (keep (fn [fact]
-               (let [reframe-facts (vec (:reframe-facts fact []))]
-                 (when (seq reframe-facts)
-                   {:frame-id (fact-id fact)
-                    :goal-id (or (:failed-goal-id fact)
-                                 (:goal-id fact)
-                                 (:top-level-goal fact))
-                    :priority (double (or (:priority fact) 0.0))
-                    :reframe-fact-count (count reframe-facts)
-                    :reframe-facts reframe-facts
-                    :situation-id (or (:situation-id fact)
-                                      (rationalization-frame-situation-id reframe-facts))
-                    :selection-policy rationalization-frame-policy
-                    :selection-reasons (cond-> [:stored_rationalization_frame
-                                                :matching_failed_goal]
-                                         (> (count reframe-facts) 1)
-                                         (conj :multi_fact_reframe))}))))
-       (sort-by (juxt (comp - :priority)
-                      (comp - :reframe-fact-count)
-                      (comp str :frame-id)))
-       vec))
+  (let [visible-facts (cx/visible-facts world trigger-context-id)
+        visible-indices (->> visible-facts
+                             (keep fact-id)
+                             distinct
+                             vec)
+        explicit-candidates
+        (->> visible-facts
+             (filter rationalization-frame-fact?)
+             (filter #(matching-rationalization-frame? % failed-goal-id))
+             (keep (fn [fact]
+                     (let [reframe-facts (vec (:reframe-facts fact []))]
+                       (when (seq reframe-facts)
+                         {:candidate-rank 0
+                          :frame-id (fact-id fact)
+                          :goal-id (or (:failed-goal-id fact)
+                                       (:goal-id fact)
+                                       (:top-level-goal fact))
+                          :priority (double (or (:priority fact) 0.0))
+                          :reframe-fact-count (count reframe-facts)
+                          :reframe-facts reframe-facts
+                          :situation-id (or (:situation-id fact)
+                                            (rationalization-frame-situation-id reframe-facts))
+                          :selection-policy rationalization-frame-policy
+                          :selection-reasons (cond-> [:stored_rationalization_frame
+                                                      :matching_failed_goal]
+                                               (> (count reframe-facts) 1)
+                                               (conj :multi_fact_reframe))}))))
+             vec)
+        stored-episode-candidates
+        (if (seq visible-indices)
+          (->> (episodic/retrieve-episodes
+                world
+                visible-indices
+                {:threshold-key :plan-threshold
+                 :serendipity? true
+                 :active-rule-path [:goal-family/rationalization-plan-dispatch]})
+               (keep (fn [hit]
+                       (let [episode (get-in world [:episodes (:episode-id hit)])
+                             provenance (:provenance episode)
+                             selection (:selection provenance)
+                             payload (:payload episode)
+                             reframe-facts (vec (:reframe-facts payload []))
+                             frame-goal-id (or (:frame-goal-id payload)
+                                               (:rationalization_frame_goal selection))]
+                         (when (and (= :family-plan (:source provenance))
+                                    (= :rationalization (:family provenance))
+                                    (= failed-goal-id frame-goal-id)
+                                    (seq reframe-facts))
+                           {:candidate-rank 1
+                            :frame-id (or (:frame-id payload)
+                                          (:rationalization_frame_id selection))
+                            :goal-id frame-goal-id
+                            :priority (double (or (:effective-marks hit)
+                                                  (:marks hit)
+                                                  0.0))
+                            :reframe-fact-count (count reframe-facts)
+                            :reframe-facts reframe-facts
+                            :situation-id (or (:hope-situation-id payload)
+                                              (rationalization-frame-situation-id reframe-facts))
+                            :selection-policy :stored_rationalization_episode
+                            :selection-reasons (cond-> [:stored_rationalization_episode
+                                                        :matching_failed_goal]
+                                                 (:provenance-reason hit)
+                                                 (conj (:provenance-reason hit))
+                                                 (> (count reframe-facts) 1)
+                                                 (conj :multi_fact_reframe))}))))
+               vec)
+          [])]
+    (->> (concat explicit-candidates stored-episode-candidates)
+         (sort-by (juxt :candidate-rank
+                        (comp - :priority)
+                        (comp - :reframe-fact-count)
+                        (comp str :frame-id)))
+         vec)))
 
 (defn- rationalization-trigger-facts
   [world]
@@ -2178,6 +2228,7 @@
     [world {:sprouted-context-id sprouted-context-id
             :frame-id (:frame-id frame)
             :frame-goal-id (:goal-id frame)
+            :reframe-facts (:reframe-facts frame)
             :reframe-fact-ids (mapv fact-id (:reframe-facts frame))
             :selection-policy selection-policy
             :rule-provenance rule-provenance
@@ -2347,6 +2398,10 @@
          {:family :rationalization
           :sprouted-context-ids [(:sprouted-context-id rationalization-result)]
           :rule-provenance (:rule-provenance rationalization-result)
+          :episode-payload {:reframe-facts (:reframe-facts rationalization-result)
+                            :frame-id (:frame-id rationalization-result)
+                            :frame-goal-id (:frame-goal-id rationalization-result)
+                            :hope-situation-id (:hope-situation-id rationalization-result)}
           :retrieval-indices (concat (:reframe-fact-ids rationalization-result)
                                      [(:hope-situation-id rationalization-result)])
           :support-indices [(keyword "family" "rationalization")

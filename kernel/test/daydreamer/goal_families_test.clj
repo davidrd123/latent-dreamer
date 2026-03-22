@@ -862,6 +862,100 @@
     (is (not (some #{unrelated-episode-id}
                    (:reminded-episode-ids (:result roving-result)))))))
 
+(deftest stored-rationalization-family-plan-episode-can-reopen-frame-later
+  (let [[world root-id] (world-with-root)
+        [world trigger-context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        frame-id :rf-zone-mercy
+        frame-facts [guide-fact
+                     {:fact/type :rationalization
+                      :fact/id :zone_is_mercy}
+                     {:fact/type :rationalization
+                      :fact/id :delay_is_faith}]
+        frame-fact (rationalization-frame-fact frame-id
+                                               failed-goal-id
+                                               0.91
+                                               frame-facts)
+        world (-> world
+                  (cx/assert-fact trigger-context-id guide-fact)
+                  (cx/assert-fact trigger-context-id {:fact/type :goal
+                                                      :goal-id failed-goal-id
+                                                      :top-level-goal failed-goal-id
+                                                      :status :failed
+                                                      :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :emotion
+                                                      :emotion-id emotion-id
+                                                      :strength 0.82
+                                                      :valence :negative
+                                                      :affect :dread})
+                  (cx/assert-fact trigger-context-id {:fact/type :dependency
+                                                      :from-id emotion-id
+                                                      :to-id failed-goal-id})
+                  (cx/assert-fact trigger-context-id frame-fact))
+        [world initial-rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.82
+          :main-motiv :e-dread})
+        initial-context-id (get-in world [:goals initial-rationalization-goal-id :next-cx])
+        [world _initial-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id initial-rationalization-goal-id
+                                   :context-id initial-context-id
+                                   :trigger-context-id trigger-context-id
+                                   :failed-goal-id failed-goal-id})
+        world (cx/retract-fact world trigger-context-id frame-fact)
+        candidates (families/rationalization-frame-candidates
+                    world
+                    {:trigger-context-id trigger-context-id
+                     :failed-goal-id failed-goal-id})
+        selected-frame (first candidates)
+        [world later-rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.76
+          :main-motiv :e-dread})
+        later-context-id (get-in world [:goals later-rationalization-goal-id :next-cx])
+        [world later-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id later-rationalization-goal-id
+                                   :context-id later-context-id
+                                   :trigger-context-id trigger-context-id
+                                   :failed-goal-id failed-goal-id})
+        branch-context-id (get-in later-family-plan
+                                  [:selection :rationalization_branch_context])]
+    (is (= frame-id
+           (:frame-id selected-frame)))
+    (is (= failed-goal-id
+           (:goal-id selected-frame)))
+    (is (= frame-facts
+           (:reframe-facts selected-frame)))
+    (is (= :stored_rationalization_episode
+           (:selection-policy selected-frame)))
+    (is (= :stored_rationalization_frame
+           (get-in later-family-plan
+                   [:selection :rationalization_selection_policy])))
+    (is (= [:stored_rationalization_episode
+            :matching_failed_goal
+            :shared-rule
+            :multi_fact_reframe]
+           (get-in later-family-plan
+                   [:selection :rationalization_frame_reasons])))
+    (is (= frame-id
+           (get-in later-family-plan
+                   [:selection :rationalization_frame_id])))
+    (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
+           (get-in later-family-plan [:result :reframe-fact-ids])))
+    (is (every? #(cx/fact-true? world branch-context-id %)
+                frame-facts))))
+
 (deftest stored-reversal-family-plan-episode-feeds-later-roving
   (let [[world root-id] (world-with-root)
         [world old-context-id old-top-level-goal-id emotion-id]
