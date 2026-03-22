@@ -1465,10 +1465,16 @@
            (mapv :use-role
                  (get-in later-family-plan
                          [:result :episode-use-records]))))
-    (is (= [:succeeded]
-           (mapv :outcome
+    (is (= [:pending]
+           (mapv :status
                  (get-in later-family-plan
-                         [:result :episode-outcome-facts]))))
+                         [:result :episode-use-records]))))
+    (is (= [] (get-in later-family-plan
+                      [:result :episode-outcome-facts])))
+    (is (= [] (get-in later-family-plan
+                      [:result :promotion-facts])))
+    (is (= [] (get-in later-family-plan
+                      [:result :promoted-episode-ids])))
     (is (= [{:fact/type :episode-use
              :episode-id stored-episode-id
              :use-id (:use-id latest-use-record)
@@ -1480,32 +1486,18 @@
              :source-rule :goal-family/rationalization-plan-dispatch}]
            (get-in later-family-plan
                    [:result :episode-use-facts])))
-    (is (= [{:fact/type :episode-outcome
-             :episode-id stored-episode-id
-             :use-id (:use-id latest-use-record)
-             :branch-context-id branch-context-id
-             :source-family :rationalization
-             :target-family :rationalization
-             :outcome :succeeded
-             :goal-id later-rationalization-goal-id
-             :source-rule :goal-family/rationalization-plan-dispatch}]
-           (get-in later-family-plan
-                   [:result :episode-outcome-facts])))
     (is (= {:use-id (:use-id latest-use-record)
             :episode-id stored-episode-id
             :cycle 0
             :source-family :rationalization
             :target-family :rationalization
-            :status :resolved
+            :status :pending
             :reason :family-plan-use
             :use-role :frame-source
             :goal-id later-rationalization-goal-id
             :branch-context-id branch-context-id
             :source-rule :goal-family/rationalization-plan-dispatch
-            :target-rule :goal-family/rationalization-plan-dispatch
-            :outcome :succeeded
-            :resolved-cycle 0
-            :outcome-reason :family-plan-branch-succeeded}
+            :target-rule :goal-family/rationalization-plan-dispatch}
            latest-use-record))
     (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
            (get-in later-family-plan [:result :reframe-fact-ids])))
@@ -1953,10 +1945,16 @@
            (mapv :use-role
                  (get-in later-family-plan
                          [:result :episode-use-records]))))
-    (is (= [:succeeded]
-           (mapv :outcome
+    (is (= [:pending]
+           (mapv :status
                  (get-in later-family-plan
-                         [:result :episode-outcome-facts]))))
+                         [:result :episode-use-records]))))
+    (is (= [] (get-in later-family-plan
+                      [:result :episode-outcome-facts])))
+    (is (= [] (get-in later-family-plan
+                      [:result :promotion-facts])))
+    (is (= [] (get-in later-family-plan
+                      [:result :promoted-episode-ids])))
     (is (= [{:fact/type :episode-use
              :episode-id stored-episode-id
              :use-id (:use-id latest-use-record)
@@ -1968,32 +1966,18 @@
              :source-rule :goal-family/reversal-plan-dispatch}]
            (get-in later-family-plan
                    [:result :episode-use-facts])))
-    (is (= [{:fact/type :episode-outcome
-             :episode-id stored-episode-id
-             :use-id (:use-id latest-use-record)
-             :branch-context-id branch-context-id
-             :source-family :reversal
-             :target-family :reversal
-             :outcome :succeeded
-             :goal-id later-reversal-goal-id
-             :source-rule :goal-family/reversal-plan-dispatch}]
-           (get-in later-family-plan
-                   [:result :episode-outcome-facts])))
     (is (= {:use-id (:use-id latest-use-record)
             :episode-id stored-episode-id
             :cycle 0
             :source-family :reversal
             :target-family :reversal
-            :status :resolved
+            :status :pending
             :reason :family-plan-use
             :use-role :counterfactual-source
             :goal-id later-reversal-goal-id
             :branch-context-id branch-context-id
             :source-rule :goal-family/reversal-plan-dispatch
-            :target-rule :goal-family/reversal-plan-dispatch
-            :outcome :succeeded
-            :resolved-cycle 0
-            :outcome-reason :family-plan-branch-succeeded}
+            :target-rule :goal-family/reversal-plan-dispatch}
            latest-use-record))))
 
 (deftest reused-reversal-source-episode-can-backfire-and-demote

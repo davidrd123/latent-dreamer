@@ -129,10 +129,13 @@ and "deserves future influence":
   converts reminded family-plan episodes directly into use/outcome
   evidence; retrieval stays retrieval until a later vindication path
   exists
-- `rationalization` now records attributed use/outcome when a stored
-  family-plan episode is actually selected as the frame source
-- `reversal` now records attributed use/outcome when a stored
-  family-plan episode is actually selected as the counterfactual source
+- `rationalization` now records attributed use when a stored
+  family-plan episode is actually selected as the frame source; only
+  negative branch-local evidence resolves that use immediately
+- `reversal` now records attributed use when a stored
+  family-plan episode is actually selected as the counterfactual
+  source; only negative branch-local evidence resolves that use
+  immediately
 - cross-family success can promote through attributed use evidence
   (`:cross-family-use-success`), but raw roving reminding no longer
   counts as that evidence by itself

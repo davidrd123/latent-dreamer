@@ -42,8 +42,9 @@ As the system accumulates episodes, rules, and graph connections:
   automatic use/outcome evidence; retrieval stays retrieval until a
   later vindication path exists
 - stored rationalization and reversal reopen paths now also record
-  attributed use/outcome when a stored family-plan episode actually
-  shapes the later branch
+  attributed use when a stored family-plan episode actually shapes
+  the later branch; immediate outcome resolution there is now reserved
+  for negative evidence rather than plain successful reuse
 - repeated failed same-family attributed use can now auto-flag
   `:stale` and demote a durable episode back to `:provisional`;
   stale currently blocks automatic re-promotion until some later

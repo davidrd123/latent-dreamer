@@ -65,8 +65,9 @@ Implemented in the first pass:
   itself; retrieval remains retrieval until a later vindication path
   exists
 - stored rationalization-frame reopen and stored reversal-counterfactual
-  reopen now also run through attributed use/outcome rather than the
-  old same-family reuse wrapper
+  reopen now also run through attributed use rather than the old
+  same-family reuse wrapper; immediate resolution is now reserved for
+  negative branch-local evidence, not plain successful reuse
 - cross-family success now promotes via explicit use evidence
   (`:cross-family-use-success`); raw roving reminding no longer counts
   as that evidence by itself

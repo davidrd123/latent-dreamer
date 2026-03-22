@@ -2237,7 +2237,7 @@
           [world [] [] []]
           use-records))
 
-(defn- immediate-family-plan-use-outcome
+(defn- immediate-family-plan-source-outcome
   [family-plan]
   (let [evaluation (:evaluation family-plan)
         flags (set (:anti-residue-flags evaluation))]
@@ -2256,8 +2256,7 @@
        :reason :family-evaluation-not-reused}
 
       :else
-      {:outcome :succeeded
-       :reason :family-plan-branch-succeeded})))
+      nil)))
 
 (defn- family-plan-source-episode
   [family-plan]
@@ -2304,50 +2303,58 @@
                          :goal-id goal-id
                          :rule-provenance rule-provenance})
               world (cx/assert-fact world branch-context-id use-fact)
-              outcome-spec (immediate-family-plan-use-outcome family-plan)
-              [world _outcome-info]
-              (episodic/resolve-episode-use-outcome world
-                                                    episode-id
-                                                    (:use-id use-record)
-                                                    outcome-spec)
-              outcome-fact (episode-outcome-fact
-                            {:episode-id episode-id
-                             :use-id (:use-id use-record)
-                             :branch-context-id branch-context-id
-                             :source-family source-family
-                             :target-family target-family
-                             :outcome (:outcome outcome-spec)
-                             :goal-id goal-id
-                             :rule-provenance rule-provenance})
-              world (cx/assert-fact world branch-context-id outcome-fact)
-              [world transition] (episodic/reconcile-episode-admission world
-                                                                       episode-id)
-              episode (get-in world [:episodes episode-id])
-              [world _rule-access-transitions]
-              (rules/reconcile-episode-rule-access world
-                                                   (family-rules)
-                                                   episode
-                                                   transition
-                                                   {:branch-context-id branch-context-id})
-              promotion-fact (when (= :durable (:to-status transition))
-                               (episode-promotion-fact
-                                {:episode-id episode-id
-                                 :branch-context-id branch-context-id
-                                 :source-family source-family
-                                 :target-family target-family
-                                 :promotion-reason (:reason transition)
-                                 :rule-provenance rule-provenance}))
-              world (if promotion-fact
-                      (cx/assert-fact world branch-context-id promotion-fact)
-                      world)]
+              outcome-spec (immediate-family-plan-source-outcome family-plan)
+              [world outcome-fact promotion-fact]
+              (if-not outcome-spec
+                [world nil nil]
+                (let [[world _outcome-info]
+                      (episodic/resolve-episode-use-outcome world
+                                                            episode-id
+                                                            (:use-id use-record)
+                                                            outcome-spec)
+                      outcome-fact (episode-outcome-fact
+                                    {:episode-id episode-id
+                                     :use-id (:use-id use-record)
+                                     :branch-context-id branch-context-id
+                                     :source-family source-family
+                                     :target-family target-family
+                                     :outcome (:outcome outcome-spec)
+                                     :goal-id goal-id
+                                     :rule-provenance rule-provenance})
+                      world (cx/assert-fact world branch-context-id outcome-fact)
+                      [world transition] (episodic/reconcile-episode-admission world
+                                                                               episode-id)
+                      episode (get-in world [:episodes episode-id])
+                      [world _rule-access-transitions]
+                      (rules/reconcile-episode-rule-access world
+                                                           (family-rules)
+                                                           episode
+                                                           transition
+                                                           {:branch-context-id branch-context-id})
+                      promotion-fact (when (= :durable (:to-status transition))
+                                       (episode-promotion-fact
+                                        {:episode-id episode-id
+                                         :branch-context-id branch-context-id
+                                         :source-family source-family
+                                         :target-family target-family
+                                         :promotion-reason (:reason transition)
+                                         :rule-provenance rule-provenance}))
+                      world (if promotion-fact
+                              (cx/assert-fact world branch-context-id promotion-fact)
+                              world)]
+                  [world outcome-fact promotion-fact]))
+              recorded-use-record (or (last (get-in world [:episodes episode-id :use-history]))
+                                      use-record)]
           [world
            (update family-plan
                    :result
                    (fn [result]
                      (-> (or result {})
-                         (update :episode-use-records (fnil conj []) use-record)
+                         (update :episode-use-records (fnil conj []) recorded-use-record)
                          (update :episode-use-facts (fnil conj []) use-fact)
-                         (update :episode-outcome-facts (fnil conj []) outcome-fact)
+                         (update :episode-outcome-facts (fnil into [])
+                                 (cond-> []
+                                   outcome-fact (conj outcome-fact)))
                          (update :promotion-facts (fnil into [])
                                  (cond-> []
                                    promotion-fact (conj promotion-fact)))
