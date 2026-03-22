@@ -25,8 +25,8 @@ As the system accumulates episodes, rules, and graph connections:
 - Current implementation now has the first two passes of this:
   - `:archive-cold -> :trace`
   - other family-plan episodes default to `:provisional`
-  - cross-family reuse can promote `:provisional -> :durable`
-  - `:episode-promotion` facts make those promotions graph-visible
+- cross-family reuse can promote `:provisional -> :durable`
+- `:episode-promotion` facts make those promotions graph-visible
   - promotion still obeys the recent-episode anti-echo gate
 - external evaluator output can now promote selected family-plan
   episodes to `:durable`
@@ -37,7 +37,9 @@ As the system accumulates episodes, rules, and graph connections:
   `note-episode-use`, `resolve-episode-use-outcome`, and
   `reconcile-episode-admission`
 - `roving` now emits typed `:episode-use` and `:episode-outcome`
-  facts and reconciles admission from those use records
+  retrieval facts, but it no longer treats reminded episodes as
+  automatic use/outcome evidence; retrieval stays retrieval until a
+  later vindication path exists
 - stored rationalization and reversal reopen paths now also record
   attributed use/outcome when a stored family-plan episode actually
   shapes the later branch

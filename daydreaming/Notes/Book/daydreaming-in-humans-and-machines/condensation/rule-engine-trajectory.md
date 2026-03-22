@@ -126,8 +126,9 @@ The current pass introduces:
 - cue-zone separation (content / reminding / provenance / support)
 - provenance floors before imagined material can reenter retrieval
 - same-family fallback gated on promotion
-- first durable promotion slice for cross-family reuse, with typed
-  `:episode-promotion` facts asserted into branch contexts
+- first durable-promotion substrate in place, with typed
+  `:episode-promotion` facts asserted into branch contexts; raw roving
+  reminding no longer counts as promotion evidence by itself
 
 The remaining gap inside Step 1 is not "promotion exists or not."
 It is whether promotion is evaluator-gated and whether anti-residue

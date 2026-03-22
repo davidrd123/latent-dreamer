@@ -43,7 +43,7 @@ Implemented in the first pass:
   (`1` for ordinary episodes, `2` for imaginary / counterfactual)
 - rationalization stored-frame fallback no longer gets cheap `:serendipity? true`
 - same-family fallback for rationalization and reversal is gated on durable promotion
-- cross-family reuse can now promote `:provisional -> :durable`
+- the substrate can now promote `:provisional -> :durable`
 - promotion emits a typed `:episode-promotion` fact into the branch context
 - promotion still respects the recent-episode anti-echo gate
 - repeated same-family reuse can now flag `:same-family-loop`
@@ -57,13 +57,16 @@ Implemented in the first pass:
 - first attributed use/outcome slice is now in code:
   `note-episode-use`, `resolve-episode-use-outcome`,
   `record-promotion-evidence`, and `reconcile-episode-admission`
-- `roving` now emits typed `:episode-use` and `:episode-outcome`
-  facts for the family-plan episodes it actually uses
+- `roving` now emits typed retrieval-hit facts, but it no longer
+  treats reminded family-plan episodes as use/outcome evidence by
+  itself; retrieval remains retrieval until a later vindication path
+  exists
 - stored rationalization-frame reopen and stored reversal-counterfactual
   reopen now also run through attributed use/outcome rather than the
   old same-family reuse wrapper
 - cross-family success now promotes via explicit use evidence
-  (`:cross-family-use-success`) rather than raw retrieval alone
+  (`:cross-family-use-success`); raw roving reminding no longer counts
+  as that evidence by itself
 - repeated failed same-family attributed use can now auto-flag
   `:stale` and demote a previously durable episode back to
   `:provisional`; a stale episode does not re-promote automatically

@@ -950,8 +950,6 @@
             :fact/assert
             :episode/reminding
             :episode/assert-retrieval-hits
-            :episodes/note-family-uses
-            :episodes/resolve-use-outcomes
             :context/set-ordering
             :goal/set-next-context
             :mutation/log]
@@ -1286,10 +1284,8 @@
         (families/run-family-plan world
                                   {:goal-id roving-goal-id
                                    :context-id roving-context-id})
-        promoted-rationalization-episode (get-in _world
-                                                 [:episodes rationalization-family-episode-id])
-        branch-context-id (get-in roving-result
-                                  [:result :sprouted-context-id])]
+        rationalization-episode-after-roving (get-in _world
+                                                     [:episodes rationalization-family-episode-id])]
     (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
            (:retrieval-indices rationalization-family-plan)))
     (is (= :payload-exemplar
@@ -1311,23 +1307,11 @@
            (:evaluation rationalization-family-plan)))
     (is (= [rationalization-family-episode-id]
            (:reminded-episode-ids (:result roving-result))))
-    (is (= [rationalization-family-episode-id]
-           (mapv :episode-id
-                 (:episode-use-records (:result roving-result)))))
-    (is (= [:succeeded]
-           (mapv :outcome
-                 (:episode-outcome-facts (:result roving-result)))))
-    (is (= [rationalization-family-episode-id]
-           (:promoted-episode-ids (:result roving-result))))
-    (is (= :durable (:admission-status promoted-rationalization-episode)))
-    (is (= [{:fact/type :episode-promotion
-             :episode-id rationalization-family-episode-id
-             :branch-context-id branch-context-id
-             :source-family :rationalization
-             :target-family :roving
-             :promotion-reason :cross-family-use-success
-             :source-rule :goal-family/roving-plan-dispatch}]
-           (:promotion-facts (:result roving-result))))
+    (is (= [] (:episode-use-records (:result roving-result))))
+    (is (= [] (:episode-outcome-facts (:result roving-result))))
+    (is (= [] (:promoted-episode-ids (:result roving-result))))
+    (is (= :provisional (:admission-status rationalization-episode-after-roving)))
+    (is (= [] (:promotion-facts (:result roving-result))))
     (is (not (some #{unrelated-episode-id}
                    (:reminded-episode-ids (:result roving-result)))))))
 
@@ -1689,7 +1673,7 @@
            (get-in stored-episode [:use-history 0 :outcome-reason])))
     (is (= [] post-candidates))))
 
-(deftest cross-family-promotion-does-not-bypass-recent-episode-anti-echo
+(deftest roving-reminding-does-not-promote-retrieved-family-plan-episodes
   (let [[world root-id] (world-with-root)
         [world trigger-context-id] (cx/sprout world root-id)
         failed-goal-id :g-failed
@@ -1770,11 +1754,10 @@
                            cooled-world
                            {:trigger-context-id trigger-context-id
                             :failed-goal-id failed-goal-id})]
-    (is (= :durable (get-in world [:episodes family-episode-id :admission-status])))
+    (is (= :provisional (get-in world [:episodes family-episode-id :admission-status])))
     (is (contains? (set (:recent-episodes world)) family-episode-id))
     (is (= [] immediate-candidates))
-    (is (= [family-episode-id]
-           (mapv :episode-id cooled-candidates)))))
+    (is (= [] cooled-candidates))))
 
 (deftest stored-reversal-family-plan-episode-feeds-later-roving
   (let [[world root-id] (world-with-root)
@@ -1833,30 +1816,17 @@
         (families/run-family-plan world
                                   {:goal-id roving-goal-id
                                    :context-id roving-context-id})
-        promoted-reversal-episode (get-in _world
-                                          [:episodes reversal-family-episode-id])
-        branch-context-id (get-in roving-result [:result :sprouted-context-id])]
+        reversal-episode-after-roving (get-in _world
+                                              [:episodes reversal-family-episode-id])]
     (is (= [:wall_was_open :wall_is_open]
            (:retrieval-indices reversal-family-plan)))
     (is (= [reversal-family-episode-id]
            (:reminded-episode-ids (:result roving-result))))
-    (is (= [reversal-family-episode-id]
-           (mapv :episode-id
-                 (:episode-use-records (:result roving-result)))))
-    (is (= [:succeeded]
-           (mapv :outcome
-                 (:episode-outcome-facts (:result roving-result)))))
-    (is (= [reversal-family-episode-id]
-           (:promoted-episode-ids (:result roving-result))))
-    (is (= :durable (:admission-status promoted-reversal-episode)))
-    (is (= [{:fact/type :episode-promotion
-             :episode-id reversal-family-episode-id
-             :branch-context-id branch-context-id
-             :source-family :reversal
-             :target-family :roving
-             :promotion-reason :cross-family-use-success
-             :source-rule :goal-family/roving-plan-dispatch}]
-           (:promotion-facts (:result roving-result))))
+    (is (= [] (:episode-use-records (:result roving-result))))
+    (is (= [] (:episode-outcome-facts (:result roving-result))))
+    (is (= [] (:promoted-episode-ids (:result roving-result))))
+    (is (= :provisional (:admission-status reversal-episode-after-roving)))
+    (is (= [] (:promotion-facts (:result roving-result))))
     (is (not (some #{unrelated-episode-id}
                    (:reminded-episode-ids (:result roving-result)))))))
 

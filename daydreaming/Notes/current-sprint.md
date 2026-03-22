@@ -117,21 +117,25 @@ and "deserves future influence":
   on durable promotion
 - rationalization stored-frame fallback no longer uses cheap
   `:serendipity? true` reopening
-- cross-family reuse can now promote a family-plan episode from
+- the substrate can now promote a family-plan episode from
   `:provisional -> :durable`, with a typed `:episode-promotion`
-  fact asserted into the branch context
+  fact asserted into the branch context, but `roving` no longer treats
+  reminded episodes as promotion evidence by itself
 - family-plan reuse is now starting to move onto an explicit
   use/outcome substrate:
   `note-episode-use -> resolve-episode-use-outcome ->
   reconcile-episode-admission`
-- `roving` now records typed `:episode-use` and `:episode-outcome`
-  facts for the seed/reminded family-plan episodes it actually uses
+- `roving` now records typed retrieval-hit facts, but it no longer
+  converts reminded family-plan episodes directly into use/outcome
+  evidence; retrieval stays retrieval until a later vindication path
+  exists
 - `rationalization` now records attributed use/outcome when a stored
   family-plan episode is actually selected as the frame source
 - `reversal` now records attributed use/outcome when a stored
   family-plan episode is actually selected as the counterfactual source
-- cross-family success now promotes through attributed use evidence
-  (`:cross-family-use-success`) rather than raw retrieval alone
+- cross-family success can promote through attributed use evidence
+  (`:cross-family-use-success`), but raw roving reminding no longer
+  counts as that evidence by itself
 - promotion does not bypass the recent-episode anti-echo gate;
   a promoted episode becomes reusable only after recent eviction
 - same-family reuse is now tracked, and repeated same-family reuse

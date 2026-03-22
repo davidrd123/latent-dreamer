@@ -1710,21 +1710,6 @@
       :rule-provenance rule-provenance
       :from-reminding :roving/reminding
       :result-key :roving/retrieval-hit-facts}
-     {:op :episodes/note-family-uses
-      :context-ref :branch-context
-      :goal-id goal-id
-      :target-family :roving
-      :selection-policy selection-policy
-      :rule-provenance rule-provenance
-      :from-reminding :roving/reminding
-      :result-key :roving/episode-uses}
-     {:op :episodes/resolve-use-outcomes
-      :context-ref :branch-context
-      :goal-id goal-id
-      :target-family :roving
-      :rule-provenance rule-provenance
-      :from-uses :roving/episode-uses
-      :result-key :roving/promotions}
      {:op :context/set-ordering
       :context-ref :branch-context
       :ordering ordering}
