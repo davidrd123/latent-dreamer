@@ -9,6 +9,7 @@
             [clojure.data.json :as json]
             [clojure.java.io :as io]
             [clojure.string :as str]
+            [daydreamer.conductor :as conductor]
             [daydreamer.director :as director]
             [daydreamer.runtime-thought :as runtime-thought]
             [daydreamer.benchmarks.puppet-knows :as puppet]
@@ -841,18 +842,6 @@
                                       (map name)
                                       vec)}))
 
-(defn- maybe-apply-runtime-thought-feedback
-  [world thought-fn]
-  (if-not thought-fn
-    world
-    (let [packet (runtime-thought-packet world)
-          raw-feedback (thought-fn packet)
-          [world feedback-applied] (runtime-thought/apply-feedback
-                                    world
-                                    packet
-                                    raw-feedback)]
-      (trace/merge-latest-cycle world {:runtime-thought feedback-applied}))))
-
 (defn- apply-family-plan
   [world goal-id]
   (let [goal-type (get-in world [:goals goal-id :goal-type])
@@ -955,21 +944,15 @@
             snapshot (last (:trace world))]
         [world (summary-line snapshot)]))))
 
-(defn- maybe-apply-director-feedback
-  [world director-fn]
-  (if-not director-fn
-    world
-    (let [director-input (director-cycle-input world)
-          raw-feedback (director-fn director-input)
-          selected-situation-id (or (get-in world [:trace (dec (count (:trace world)))
-                                                   :selection :adapter_selected_situation])
-                                    (get-in world [:trace (dec (count (:trace world)))
-                                                   :selected-goal :situation-id]))
-          [world feedback-applied] (director/apply-feedback
-                                    world
-                                    {:selected-situation-id selected-situation-id}
-                                    raw-feedback)]
-      (trace/merge-latest-cycle world {:feedback-applied feedback-applied}))))
+(defn- apply-director-feedback
+  [world raw-feedback]
+  (let [selected-situation-id (or (get-in world [:trace (dec (count (:trace world)))
+                                                 :selection :adapter_selected_situation])
+                                  (get-in world [:trace (dec (count (:trace world)))
+                                                 :selected-goal :situation-id]))]
+    (director/apply-feedback world
+                             {:selected-situation-id selected-situation-id}
+                             raw-feedback)))
 
 (defn benchmark-metadata
   ([fixture]
@@ -985,6 +968,30 @@
            :graph_nodes (:graph-nodes fixture)
            :graph_edges (:graph-edges fixture)}
           overrides)))
+
+(defn- benchmark-adapter
+  [fixture metadata-overrides]
+  {:init-world
+   (fn [_config]
+     (let [{:keys [world seed-state]} (puppet/build-autonomous-world)]
+       {:world (assoc world
+                      :cycle 0
+                      :situations-state (:situations fixture)
+                      :autonomous {:fixture fixture
+                                   :seed-state seed-state
+                                   :goal-ids {}
+                                   :current-node-id nil
+                                   :current-goal-key nil
+                                   :recent-nodes []
+                                   :runtime-thought-last nil})}))
+   :run-cycle run-autonomous-cycle
+   :thought-packet runtime-thought-packet
+   :director-input director-cycle-input
+   :apply-director-feedback apply-director-feedback
+   :summary (fn [_world cycle-result]
+              cycle-result)
+   :metadata (fn [_world _config]
+               (benchmark-metadata fixture metadata-overrides))})
 
 (defn run-benchmark
   "Run the fixture-driven autonomous Puppet Knows benchmark.
@@ -1021,37 +1028,18 @@
                           :routing-policy (or thought-routing-policy :fixed)
                           :escalation-model thought-escalation-model
                           :escalation-goals thought-escalation-goals}))
-         {:keys [world seed-state]} (puppet/build-autonomous-world)
-         world (assoc world
-                      :cycle 0
-                      :situations-state (:situations fixture)
-                      :autonomous {:fixture fixture
-                                   :seed-state seed-state
-                                   :goal-ids {}
-                                   :current-node-id nil
-                                   :current-goal-key nil
-                                   :recent-nodes []
-                                   :runtime-thought-last nil})]
-     (loop [world world
-            remaining cycles
-            summaries []]
-       (if (zero? remaining)
-         {:world world
-          :log (trace/reporter-log world
-                                   (benchmark-metadata fixture
-                                                       {:git_commit git-commit
-                                                        :feedback_path
-                                                        (case director-mode
-                                                          :mock "live:mock-director"
-                                                          :gemini "live:gemini-director"
-                                                          (:feedback-path fixture))}))
-          :summaries summaries}
-         (let [[world summary] (run-autonomous-cycle world)
-               world (maybe-apply-runtime-thought-feedback world thought-fn)
-               world (maybe-apply-director-feedback world director-fn)]
-           (recur world
-                  (dec remaining)
-                  (conj summaries summary))))))))
+         adapter (benchmark-adapter
+                  fixture
+                  {:git_commit git-commit
+                   :feedback_path (case director-mode
+                                    :mock "live:mock-director"
+                                    :gemini "live:gemini-director"
+                                    (:feedback-path fixture))})]
+     (conductor/run-session adapter
+                            {:cycles cycles
+                             :thought-fn thought-fn
+                             :director-fn director-fn
+                             :git-commit git-commit}))))
 
 (comment
   (run-benchmark {:cycles 4}))

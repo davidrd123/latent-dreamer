@@ -89,3 +89,67 @@
                      baseline-cycles)
                 (map #(get % "chosen_node_id")
                      director-cycles))))))
+
+(deftest run-benchmark-preserves-no-hook-baseline
+  (let [{:keys [world summaries]} (autonomous/run-benchmark {:cycles 12})]
+    (is (= ["n02_corridor_repeat"
+            "n02_corridor_repeat"
+            "n01_notice_seams"
+            "n02_corridor_repeat"
+            "n04_spotlight_choices"
+            "n01_notice_seams"
+            "n13_countdown_clock"
+            "n01_notice_seams"
+            "n07_backstage_headlights"
+            "n06_overhead_set_edge"
+            "n07_backstage_headlights"
+            "n06_overhead_set_edge"]
+           (mapv :chosen-node-id (:trace world))))
+    (is (= [:backstage
+            :darkness
+            :non_directed_light
+            :silence
+            :stage_light
+            :awareness]
+           (:recent-indices world)))
+    (is (= [:ep-3]
+           (:recent-episodes world)))
+    (is (= 12
+           (count summaries)))))
+
+(deftest run-benchmark-preserves-mock-thought-and-director-baseline
+  (let [{:keys [world summaries]}
+        (autonomous/run-benchmark {:cycles 12
+                                   :thought-mode :mock
+                                   :director-mode :mock})]
+    (is (= ["n02_corridor_repeat"
+            "n02_corridor_repeat"
+            "n01_notice_seams"
+            "n01_notice_seams"
+            "n13_countdown_clock"
+            "n01_notice_seams"
+            "n03_mission_walk"
+            "n02_corridor_repeat"
+            "n07_backstage_headlights"
+            "n15_subway_self_scrutiny"
+            "n05_peel_the_wall"
+            "n09_tear_the_set"]
+           (mapv :chosen-node-id (:trace world))))
+    (is (= [:combat
+            :honesty
+            :crowd
+            :anger
+            :performance
+            :apparatus]
+           (:recent-indices world)))
+    (is (= [:ring
+            :apparatus
+            :horizon
+            :ritual
+            :light
+            :hinge]
+           (:director-recent-concepts world)))
+    (is (= [:ep-3]
+           (:recent-episodes world)))
+    (is (= 12
+           (count summaries)))))
