@@ -238,6 +238,38 @@
     (is (= "registry-dispatch" (:surface-summary result)))
     (is (= [{:op :test/noop}] (:effects result)))))
 
+(deftest execute-rule-validates-effects-against-effect-schema
+  (let [bindings {'?context-id :cx-2
+                  '?failed-goal-id :g-failed
+                  '?emotion-id :e-shame
+                  '?emotion-strength 0.25}
+        rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:executor-id :sample/dispatch
+                                      :effect-ops [:test/noop]}}
+                    :effect-schema [{:op :test/noop
+                                     :goal-id '?failed-goal-id}])
+        result (rules/execute-rule
+                rule
+                {:bindings bindings
+                 :executor-registry
+                 {:sample/dispatch
+                  (fn [{:keys [rule]}]
+                    {:consequents [{:context-id :cx-2
+                                    :failed-goal-id :g-failed
+                                    :emotion-id :e-shame
+                                    :emotion-strength 0.25
+                                    :selection-policy :failed_goal_negative_emotion}]
+                     :confidence (double (:plausibility rule))
+                     :reason "effect-schema-pass"
+                     :aux-indices []
+                     :surface-summary nil
+                     :effects [{:op :test/noop
+                                :goal-id :g-failed}]})}})]
+    (is (= [{:op :test/noop
+             :goal-id :g-failed}]
+           (:effects result)))))
+
 (deftest execute-rule-runs-call-supplied-effect-validator
   (let [bindings {'?context-id :cx-2
                   '?failed-goal-id :g-failed
@@ -270,6 +302,67 @@
                               (when-not (contains? effect :goal-id)
                                 (throw (ex-info "custom effect validation failed"
                                                 {:effect effect}))))})))))
+
+(deftest execute-rule-rejects-effect-count-mismatch
+  (let [bindings {'?context-id :cx-2
+                  '?failed-goal-id :g-failed
+                  '?emotion-id :e-shame
+                  '?emotion-strength 0.25}
+        rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:executor-id :sample/dispatch
+                                      :effect-ops [:test/noop]}}
+                    :effect-schema [{:op :test/noop
+                                     :goal-id '?failed-goal-id}])]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"effect count mismatch"
+                          (rules/execute-rule
+                           rule
+                           {:bindings bindings
+                            :executor-registry
+                            {:sample/dispatch
+                             (fn [{:keys [rule]}]
+                               {:consequents [{:context-id :cx-2
+                                               :failed-goal-id :g-failed
+                                               :emotion-id :e-shame
+                                               :emotion-strength 0.25
+                                               :selection-policy :failed_goal_negative_emotion}]
+                                :confidence (double (:plausibility rule))
+                                :reason "effect-count-mismatch"
+                                :aux-indices []
+                                :surface-summary nil
+                                :effects []})}})))))
+
+(deftest execute-rule-rejects-effect-schema-mismatch
+  (let [bindings {'?context-id :cx-2
+                  '?failed-goal-id :g-failed
+                  '?emotion-id :e-shame
+                  '?emotion-strength 0.25}
+        rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:executor-id :sample/dispatch
+                                      :effect-ops [:test/noop]}}
+                    :effect-schema [{:op :test/noop
+                                     :goal-id '?failed-goal-id}])]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"effects do not satisfy effect-schema"
+                          (rules/execute-rule
+                           rule
+                           {:bindings bindings
+                            :executor-registry
+                            {:sample/dispatch
+                             (fn [{:keys [rule]}]
+                               {:consequents [{:context-id :cx-2
+                                               :failed-goal-id :g-failed
+                                               :emotion-id :e-shame
+                                               :emotion-strength 0.25
+                                               :selection-policy :failed_goal_negative_emotion}]
+                                :confidence (double (:plausibility rule))
+                                :reason "effect-schema-mismatch"
+                                :aux-indices []
+                                :surface-summary nil
+                                :effects [{:op :test/noop
+                                           :goal-id :g-other}]})}})))))
 
 (deftest apply-effects-threads-world-and-effect-state
   (let [[world effect-state]

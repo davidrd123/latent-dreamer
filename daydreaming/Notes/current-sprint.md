@@ -179,6 +179,10 @@ The first honest Step 2 slices are now in code:
 - `execute-rule` now also runs a call-supplied effect validator, so
   the current family runtime can reject malformed op payloads before
   any local kernel effect application happens
+- `execute-rule` now also validates a rule-declared `:effect-schema`,
+  so the family dispatch rules no longer declare only allowed op sets;
+  they declare the expected ordered effect shape as part of the rule
+  contract
 - `rules.clj` now owns the generic effect-program reduction/threading
   scaffold through `apply-effects`; `goal_families.clj` still owns the
   concrete family op handlers
@@ -216,8 +220,9 @@ The first honest Step 2 slices are now in code:
   drive stronger promotion/demotion decisions
 - continue the declarative effect vocabulary / executor boundary
   by keeping all three family dispatch rules on `execute-rule` while
-  tightening op-specific effect validation and continuing to pull the
-  generic effect runtime into `rules.clj`
+  using `:effect-schema` for declarative effect shape, keeping deeper
+  payload validation honest, and continuing to pull the generic effect
+  runtime into `rules.clj`
 - widen anti-residue from evaluator annotations to stronger
   downstream demotion / contradiction detection
 - strengthen consolidation policy beyond the current first-pass

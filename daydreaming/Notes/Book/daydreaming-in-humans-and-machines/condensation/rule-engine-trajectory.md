@@ -187,6 +187,9 @@ Status update, 2026-03-22 late:
 - `execute-rule` now also runs a call-supplied effect validator so the
   current family runtime can reject malformed payloads before local
   effect application
+- `execute-rule` now also validates rule-declared `:effect-schema`
+  vectors, so the current `:clojure-fn` family rules declare an
+  expected effect shape instead of only an allowed op list
 - `rules.clj` now also owns the generic effect-program reduction and
   state-threading scaffold via `apply-effects`; the concrete family
   op handlers still live in `goal_families.clj`
@@ -206,8 +209,8 @@ Status update, 2026-03-22 late:
   local kernel code still applies the mutation
 - the current Step 2 pressure point is no longer family extraction; it
   is continuing to move the generic effect runtime into `rules.clj`
-  now that op payload validation is live at the `execute-rule`
-  boundary
+  now that both declarative `:effect-schema` validation and op payload
+  validation are live at the `execute-rule` boundary
 
 ### Step 3: LLM-backed evaluator pilot
 

@@ -92,6 +92,14 @@
        (or (nil? (get-in rule [:executor :spec :effect-ops]))
            (and (vector? (get-in rule [:executor :spec :effect-ops]))
                 (every? keyword? (get-in rule [:executor :spec :effect-ops]))))
+       (or (not (contains? rule :effect-schema))
+           (and (vector? (:effect-schema rule))
+                (every? map? (:effect-schema rule))
+                (every? keyword? (map :op (:effect-schema rule)))
+                (if-let [declared-effect-ops (get-in rule [:executor :spec :effect-ops])]
+                  (= declared-effect-ops
+                     (mapv :op (:effect-schema rule)))
+                  true)))
        (map? (:graph-cache rule))
        (map? (:provenance rule))))
 
@@ -950,6 +958,34 @@
                              :effect effect})))
       result)))
 
+(defn- validate-effect-schema!
+  [rule call {:keys [effects] :as result}]
+  (if-not (contains? rule :effect-schema)
+    result
+    (let [effect-schema (:effect-schema rule)
+          bindings (:bindings call)]
+      (when-not (contains? result :effects)
+        (throw (ex-info "RuleResultV1 is missing :effects for declared effect-schema"
+                        {:rule-id (:id rule)
+                         :call call
+                         :result result
+                         :effect-schema effect-schema})))
+      (when (not= (count effect-schema) (count effects))
+        (throw (ex-info "RuleResultV1 effect count mismatch"
+                        {:rule-id (:id rule)
+                         :bindings bindings
+                         :expected-count (count effect-schema)
+                         :actual-count (count effects)
+                         :effect-schema effect-schema
+                         :effects effects})))
+      (when-not (seq (match-antecedent-schema effect-schema effects bindings))
+        (throw (ex-info "RuleResultV1 effects do not satisfy effect-schema"
+                        {:rule-id (:id rule)
+                         :bindings bindings
+                         :effect-schema effect-schema
+                         :effects effects})))
+      result)))
+
 (defn- validate-consequents!
   [rule call {:keys [consequents] :as result}]
   (let [schema (:consequent-schema rule)
@@ -1017,6 +1053,7 @@
       (->> result
            (validate-rule-result-shape! rule call)
            (validate-effects! rule call)
+           (validate-effect-schema! rule call)
            (validate-consequents! rule call)
            (validate-denotation! rule call)))))
 

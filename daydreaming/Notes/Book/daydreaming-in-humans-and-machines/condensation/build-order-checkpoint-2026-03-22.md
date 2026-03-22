@@ -127,6 +127,9 @@ Implemented first pass:
 - `execute-rule` now also runs a call-supplied effect validator so the
   current family runtime can reject malformed op payloads before local
   kernel application
+- `execute-rule` now also validates a rule-declared `:effect-schema`,
+  so `:clojure-fn` family dispatch rules declare their expected
+  ordered effect shape rather than only an allowed op set
 - `rules.clj` now also owns the generic effect-program
   reduction/threading scaffold via `apply-effects`; family code still
   owns op semantics, symbolic refs, and world mutation handlers
@@ -161,8 +164,9 @@ Implemented first pass:
 Next seam from review 10:
 - keep `instantiate-rule` as a compatibility wrapper
 - keep effect application local while the effect contract tightens
-- next move is not another family migration; it is stronger effect
-  validation and continuing to pull the generic effect runtime into
+- next move is not another family migration; it is using
+  `:effect-schema` plus deeper payload validation to keep the contract
+  honest while continuing to pull the generic effect runtime into
   `rules.clj`
 - only then widen toward generic effect-schema validation and a shared
   effect runtime

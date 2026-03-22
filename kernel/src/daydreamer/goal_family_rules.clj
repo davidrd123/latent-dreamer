@@ -75,19 +75,21 @@
 
 (defn- instantiate-rule
   [{:keys [id rule-kind mueller-mode antecedent consequent plausibility
-           denotation executor-kind executor-spec provenance]}]
-  {:id id
-   :rule-kind rule-kind
-   :mueller-mode mueller-mode
-   :antecedent-schema antecedent
-   :consequent-schema consequent
-   :plausibility plausibility
-   :index-projections empty-index-projections
-   :denotation denotation
-   :executor {:kind (or executor-kind :instantiate)
-              :spec executor-spec}
-   :graph-cache empty-graph-cache
-   :provenance provenance})
+           denotation executor-kind executor-spec provenance effect-schema]}]
+  (cond-> {:id id
+           :rule-kind rule-kind
+           :mueller-mode mueller-mode
+           :antecedent-schema antecedent
+           :consequent-schema consequent
+           :plausibility plausibility
+           :index-projections empty-index-projections
+           :denotation denotation
+           :executor {:kind (or executor-kind :instantiate)
+                      :spec executor-spec}
+           :graph-cache empty-graph-cache
+           :provenance provenance}
+    effect-schema
+    (assoc :effect-schema effect-schema)))
 
 (defn- planning-rule
   [spec]
@@ -147,6 +149,50 @@
     :denotation (denotation :dispatch-roving-plan-request
                             [:missing-family-plan-request])
     :executor-kind :clojure-fn
+    :effect-schema [{:op :context/sprout
+                     :source-context-id '?context-id
+                     :ref :branch-context}
+                    {:op :fact/assert
+                     :context-ref :branch-context
+                     :fact '?success-intends}
+                    {:op :episode/reminding
+                     :episode-id '?episode-id
+                     :retrieval-opts '?retrieval-opts
+                     :result-key :roving/reminding}
+                    {:op :episode/assert-retrieval-hits
+                     :context-ref :branch-context
+                     :goal-id '?goal-id
+                     :selection-policy '?selection-policy
+                     :rule-provenance '?rule-provenance
+                     :from-reminding :roving/reminding
+                     :result-key :roving/retrieval-hit-facts}
+                    {:op :episodes/note-family-uses
+                     :context-ref :branch-context
+                     :goal-id '?goal-id
+                     :target-family :roving
+                     :selection-policy '?selection-policy
+                     :rule-provenance '?rule-provenance
+                     :from-reminding :roving/reminding
+                     :result-key :roving/episode-uses}
+                    {:op :episodes/resolve-use-outcomes
+                     :context-ref :branch-context
+                     :goal-id '?goal-id
+                     :target-family :roving
+                     :rule-provenance '?rule-provenance
+                     :from-uses :roving/episode-uses
+                     :result-key :roving/promotions}
+                    {:op :context/set-ordering
+                     :context-ref :branch-context
+                     :ordering '?ordering}
+                    {:op :goal/set-next-context
+                     :goal-id '?goal-id
+                     :context-ref :branch-context}
+                    {:op :mutation/log
+                     :family :roving
+                     :source-context-id '?context-id
+                     :context-ref :branch-context
+                     :from-reminding :roving/reminding
+                     :from-promotions :roving/promotions}]
     :executor-spec {:request-goal-type :roving
                     :executor-id :goal-family/roving-plan-dispatch
                     :effect-ops [:context/sprout
@@ -235,6 +281,42 @@
     :denotation (denotation :dispatch-rationalization-plan-request
                             [:missing-family-plan-request])
     :executor-kind :clojure-fn
+    :effect-schema [{:op :context/sprout
+                     :source-context-id '?context-id
+                     :ref :branch-context}
+                    {:op :facts/assert-many
+                     :context-ref :branch-context
+                     :facts '?branch-facts}
+                    {:op :context/set-ordering
+                     :context-ref :branch-context
+                     :ordering '?ordering}
+                    {:op :rationalization/divert-emotion
+                     :context-ref :branch-context
+                     :goal-id '?goal-id
+                     :trigger-context-id '?trigger-context-id
+                     :failed-goal-id '?failed-goal-id
+                     :frame '?frame
+                     :result-key :rationalization/diversion}
+                    {:op :rationalization/assert-afterglow
+                     :context-id '?context-id
+                     :context-ref :branch-context
+                     :goal-id '?goal-id
+                     :failed-goal-id '?failed-goal-id
+                     :frame-id '?frame-id
+                     :rule-provenance '?rule-provenance
+                     :from-diversion :rationalization/diversion
+                     :result-key :rationalization/afterglow}
+                    {:op :goal/set-next-context
+                     :goal-id '?goal-id
+                     :context-ref :branch-context}
+                    {:op :mutation/log-rationalization
+                     :source-context-id '?context-id
+                     :trigger-context-id '?trigger-context-id
+                     :context-ref :branch-context
+                     :failed-goal-id '?failed-goal-id
+                     :frame-id '?frame-id
+                     :reframe-facts '?reframe-facts
+                     :from-diversion :rationalization/diversion}]
     :executor-spec {:request-goal-type :rationalization
                     :executor-id :goal-family/rationalization-plan-dispatch
                     :effect-ops [:context/sprout
@@ -424,6 +506,15 @@
     :denotation (denotation :dispatch-reversal-plan-request
                             [:missing-family-plan-request])
     :executor-kind :clojure-fn
+    :effect-schema [{:op :reversal/execute-branches
+                     :old-context-id '?old-context-id
+                     :old-top-level-goal-id '?old-top-level-goal-id
+                     :new-context-id '?new-context-id
+                     :new-top-level-goal-id '?new-top-level-goal-id
+                     :selection-policy '?selection-policy
+                     :rule-provenance '?rule-provenance
+                     :branches '?branches
+                     :result-key :reversal/branches}]
     :executor-spec {:request-goal-type :reversal
                     :executor-id :goal-family/reversal-plan-dispatch
                     :effect-ops [:reversal/execute-branches]}
