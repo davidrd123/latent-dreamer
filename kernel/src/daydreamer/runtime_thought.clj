@@ -538,7 +538,8 @@
                                                 episode-id
                                                 rule-id
                                                 {:plan? false
-                                                 :reminding? false}))
+                                                 :reminding? false
+                                                 :zone :provenance}))
                       world
                       rule-path)
         ;; Step 6: Update the recent-index FIFO — changes next cycle's retrieval

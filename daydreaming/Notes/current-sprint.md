@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-03-21
+Last updated: 2026-03-22
 
 ---
 
@@ -70,42 +70,53 @@ but connection works.
 
 ## Current Objective
 
-**To be determined.** Three candidates, not yet committed:
+**Option A is active:** rule connection graph + memory ecology
+discipline.
 
-### Option A: Rule connection graph (structural depth)
+The graph itself is no longer the only frontier. The immediate
+risk is that family-plan output enters reusable memory too early
+and too uniformly, creating grooves before the executor boundary
+and path verifier are real.
 
-The creative engine. The rule connection graph is the substrate
-that enables serendipity recognition, analogical planning, and
-mutation — the three mechanisms that make daydreaming productive
-rather than just ruminative. Currently ~40% of full Mueller.
-Building this is the project's deepest novel contribution.
+### What is already true
 
-Would make RuntimeThoughtBeatV1 richer because the kernel would
-produce cognitive events from structural discovery, not just
-concern cycling.
+- graphable trigger / activation / planning pairs exist
+- cross-family bridges exist and execute at runtime
+- provenance affects retrieval and roving seed selection
+- autonomous conductor extraction is done
+- external family-plan evaluator seam exists
 
-### Option B: Graffito creative brief (content)
+### Current subphase: memory ecology hardening
 
-The authoring work that enables the first real-content run.
-Translate Mark's script into `creative_brief.yaml` +
-`style_extensions.yaml`. Gates the Director, which gates the
-inner-life watchable experience on real Graffito material
-rather than the Puppet Knows benchmark.
+This pass is implementing the first membrane between "generated"
+and "deserves future influence":
 
-### Option C: Live instrument prototype (experience)
+- family-plan episodes now carry `:trace` / `:provisional`
+  admission status (`:archive-cold` maps to `:trace`)
+- cue roles are separated in the episode substrate:
+  content / reminding / provenance / support
+- support and rule-path indices no longer enter the normal
+  retrieval index
+- reminding only reactivates reminding cues
+- provenance bonus now requires content marks before it applies
+  (stricter for imaginary / counterfactual material)
+- same-family fallback for rationalization and reversal is gated
+  on durable promotion
+- rationalization stored-frame fallback no longer uses cheap
+  `:serendipity? true` reopening
 
-Wire kernel + thought beats + Lyria + conductor into a real-time
-loop. The APC Mini provides input. Lyria provides audio.
-The cognitive viz provides visual. The thought beats provide
-narration. First time someone plays the instrument.
+### Next after this
 
-### Decision criteria
+- define the declarative effect vocabulary / executor boundary
+- use evaluator output to promote `:provisional -> :durable`
+- add anti-residue flags and stronger consolidation policy
+- only then build verified paths and generic `:clojure-fn`
+  dispatch
 
-- Option A is the deepest build and the strongest research claim
-- Option B is the gating artifact for real content
-- Option C is the fastest path to "does this feel like anything?"
+### Deferred parallel fronts
 
-Not yet committed. Waiting for David's direction.
+- Option B (Graffito creative brief) remains valid but not active
+- Option C (live instrument prototype) remains valid but not active
 
 ---
 

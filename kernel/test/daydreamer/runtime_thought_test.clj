@@ -77,7 +77,16 @@
     (testing "rule-path indices are stored without inflating residue thresholds"
       (is (= #{episode-id} (get-in world [:episode-index :honesty])))
       (is (= #{episode-id} (get-in world [:episode-index :performance])))
-      (is (= #{episode-id} (get-in world [:episode-index :goal-family/roving-trigger])))
-      (is (= #{episode-id} (get-in world [:episode-index :goal-family/roving-plan-dispatch])))
+      (is (= #{episode-id}
+             (get-in world [:provenance-episode-index :goal-family/roving-trigger])))
+      (is (= #{episode-id}
+             (get-in world [:provenance-episode-index
+                            :goal-family/roving-plan-dispatch])))
+      (is (= #{:honesty :performance} (:content-indices episode)))
+      (is (= #{:goal-family/roving-trigger
+               :goal-family/roving-activation
+               :goal-family/roving-plan-request
+               :goal-family/roving-plan-dispatch}
+             (:provenance-indices episode)))
       (is (= 2 (:plan-threshold episode)))
       (is (= 2 (:reminding-threshold episode))))))

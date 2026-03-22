@@ -17,6 +17,7 @@
 (def ^:private shared-edge-bonus-scale 5.0)
 (def ^:private shared-rule-bonus-scale 4.0)
 (def ^:private payload-exemplar-cluster-cap 2)
+(def ^:private same-family-provenance-max 0.75)
 
 (defn- graph-bridge-bonus-scale
   [depth]
@@ -29,48 +30,70 @@
 (defn create-episode
   "Create an episode map. This is a pure constructor for fixtures and tests."
   [{:keys [id rule goal-id context-id realism desirability indices
+           content-indices reminding-indices provenance-indices support-indices
            plan-threshold reminding-threshold children descendants
            provenance rule-path edge-path payload evaluation
-           retention-class keep-decision cycle-created]
+           retention-class keep-decision cycle-created admission-status
+           anti-residue-flags]
     :or {id :ep-1
          indices #{}
          plan-threshold 0
+         admission-status :durable
          reminding-threshold 0
          children []}}]
-  (cond-> {:id id
-           :rule rule
-           :goal-id goal-id
-           :context-id context-id
-           :realism realism
-           :desirability desirability
-           :indices (set indices)
-           :plan-threshold plan-threshold
-           :reminding-threshold reminding-threshold
-           :children (vec children)
-           :descendants (vec (or descendants (cons id children)))}
-    provenance
-    (assoc :provenance provenance)
+  (let [content-indices (set (or content-indices indices))
+        reminding-indices (set (or reminding-indices content-indices))
+        provenance-indices (set provenance-indices)
+        support-indices (set support-indices)
+        all-indices (set/union content-indices
+                               provenance-indices
+                               support-indices)]
+    (cond-> {:id id
+             :rule rule
+             :goal-id goal-id
+             :context-id context-id
+             :realism realism
+             :desirability desirability
+             :indices all-indices
+             :content-indices content-indices
+             :reminding-indices reminding-indices
+             :provenance-indices provenance-indices
+             :support-indices support-indices
+             :cue-indices {:content content-indices
+                           :reminding reminding-indices
+                           :provenance provenance-indices
+                           :support support-indices}
+             :admission-status admission-status
+             :plan-threshold plan-threshold
+             :reminding-threshold reminding-threshold
+             :children (vec children)
+             :descendants (vec (or descendants (cons id children)))}
+      provenance
+      (assoc :provenance provenance)
 
-    (seq rule-path)
-    (assoc :rule-path (vec rule-path))
+      (seq rule-path)
+      (assoc :rule-path (vec rule-path))
 
-    (seq edge-path)
-    (assoc :edge-path (vec edge-path))
+      (seq edge-path)
+      (assoc :edge-path (vec edge-path))
 
-    payload
-    (assoc :payload payload)
+      payload
+      (assoc :payload payload)
 
-    evaluation
-    (assoc :evaluation evaluation)
+      evaluation
+      (assoc :evaluation evaluation)
 
-    retention-class
-    (assoc :retention-class retention-class)
+      retention-class
+      (assoc :retention-class retention-class)
 
-    keep-decision
-    (assoc :keep-decision keep-decision)
+      keep-decision
+      (assoc :keep-decision keep-decision)
 
-    (some? cycle-created)
-    (assoc :cycle-created cycle-created)))
+      (seq anti-residue-flags)
+      (assoc :anti-residue-flags (vec anti-residue-flags))
+
+      (some? cycle-created)
+      (assoc :cycle-created cycle-created))))
 
 (defn- payload-cluster
   [episode]
@@ -170,23 +193,51 @@
 
 (defn store-episode
   "Store an episode under an index, incrementing the requested thresholds."
-  [world episode-id index {:keys [plan? reminding?] :or {plan? false
-                                                         reminding? false}}]
-  (-> world
-      (update-in [:episode-index index] (fnil conj #{}) episode-id)
-      (update-in [:episodes episode-id :indices] (fnil conj #{}) index)
-      (update-in [:episodes episode-id :plan-threshold]
-                 (fnil (fn [threshold]
-                         (if plan?
-                           (inc threshold)
-                           threshold))
-                       0))
-      (update-in [:episodes episode-id :reminding-threshold]
-                 (fnil (fn [threshold]
-                         (if reminding?
-                           (inc threshold)
-                           threshold))
-                       0))))
+  [world episode-id index {:keys [plan? reminding? zone]
+                           :or {plan? false
+                                reminding? false}}]
+  (let [zone (or zone
+                 (if (or plan? reminding?)
+                   :content
+                   :support))
+        [index-path episode-field]
+        (case zone
+          :content [[:episode-index index] :content-indices]
+          :provenance [[:provenance-episode-index index] :provenance-indices]
+          :support [[:support-episode-index index] :support-indices]
+          (throw (ex-info "Unknown episode index zone"
+                          {:zone zone
+                           :episode-id episode-id
+                           :index index})))]
+    (cond-> (-> world
+                (update-in index-path (fnil conj #{}) episode-id)
+                (update-in [:episodes episode-id episode-field] (fnil conj #{}) index)
+                (update-in [:episodes episode-id :indices] (fnil conj #{}) index)
+                (update-in [:episodes episode-id :cue-indices episode-field]
+                           (fnil conj #{})
+                           index))
+      (and (= :content zone)
+           reminding?)
+      (-> (update-in [:episodes episode-id :reminding-indices]
+                     (fnil conj #{})
+                     index)
+          (update-in [:episodes episode-id :cue-indices :reminding]
+                     (fnil conj #{})
+                     index))
+
+      (= :content zone)
+      (-> (update-in [:episodes episode-id :plan-threshold]
+                     (fnil (fn [threshold]
+                             (if plan?
+                               (inc threshold)
+                               threshold))
+                           0))
+          (update-in [:episodes episode-id :reminding-threshold]
+                     (fnil (fn [threshold]
+                             (if reminding?
+                               (inc threshold)
+                               threshold))
+                           0))))))
 
 (defn recent-episode?
   "Return true if an episode is already recent or is a descendant of a recent
@@ -227,6 +278,37 @@
   [edge]
   (select-keys edge [:from-rule :to-rule :fact-type :edge-kind]))
 
+(defn- episode-family
+  [episode]
+  (or (get-in episode [:provenance :family])
+      (some-> (:rule episode) namespace keyword)))
+
+(defn- provenance-min-content-marks
+  [episode]
+  (if (#{:imaginary :counterfactual} (:realism episode))
+    2
+    1))
+
+(defn- same-family-provenance-cap
+  [bonus-info retrieval-opts episode]
+  (let [active-family (:active-family retrieval-opts)
+        same-family? (and active-family
+                          (= active-family (episode-family episode)))
+        raw-bonus (double (or (:provenance-bonus bonus-info) 0.0))
+        capped-bonus (if same-family?
+                       (min raw-bonus same-family-provenance-max)
+                       raw-bonus)]
+    (cond-> bonus-info
+      (and (pos? raw-bonus)
+           same-family?)
+      (assoc :same-family-provenance? true
+             :provenance-bonus-raw raw-bonus
+             :provenance-bonus capped-bonus)
+
+      (and same-family?
+           (< capped-bonus raw-bonus))
+      (assoc :provenance-capped? true))))
+
 (defn- bridge-candidates
   [connection-graph active-rule-path episode-rule-path provenance-max-depth]
   (letfn [(candidate-paths [direction start-rules target-rules]
@@ -264,7 +346,8 @@
                    provenance-bonus
                    provenance-max-depth]
             :or {provenance-bonus 1.0
-                 provenance-max-depth 4}}]
+                 provenance-max-depth 4}
+            :as retrieval-opts}]
   (let [episode-rule-path (vec (:rule-path episode))
         episode-edge-path (->> (:edge-path episode)
                                (map comparable-edge)
@@ -285,29 +368,42 @@
                                                provenance-max-depth))
         best-bridge (when (seq bridge-candidates)
                       (best-bridge-candidate bridge-candidates))]
-    (cond
-      shared-edge?
-      {:provenance-bonus (* provenance-bonus
-                            shared-edge-bonus-scale)
-       :provenance-reason :shared-edge}
+    (some-> (cond
+              shared-edge?
+              {:provenance-bonus (* provenance-bonus
+                                    shared-edge-bonus-scale)
+               :provenance-reason :shared-edge}
 
-      shared-rule?
-      {:provenance-bonus (* provenance-bonus
-                            shared-rule-bonus-scale)
-       :provenance-reason :shared-rule}
+              shared-rule?
+              {:provenance-bonus (* provenance-bonus
+                                    shared-rule-bonus-scale)
+               :provenance-reason :shared-rule}
 
-      best-bridge
-      {:provenance-bonus (* provenance-bonus
-                            (graph-bridge-bonus-scale
-                             (long (:depth best-bridge))))
-       :provenance-reason :graph-bridge
-       :provenance-bridge-depth (:depth best-bridge)
-       :provenance-bridge-path (:rule-path best-bridge)
-       :provenance-bridge-direction (:direction best-bridge)
-       :provenance-bridge-count (count bridge-candidates)}
+              best-bridge
+              {:provenance-bonus (* provenance-bonus
+                                    (graph-bridge-bonus-scale
+                                     (long (:depth best-bridge))))
+               :provenance-reason :graph-bridge
+               :provenance-bridge-depth (:depth best-bridge)
+               :provenance-bridge-path (:rule-path best-bridge)
+               :provenance-bridge-direction (:direction best-bridge)
+               :provenance-bridge-count (count bridge-candidates)}
 
-      :else
-      nil)))
+              :else
+              nil)
+            (same-family-provenance-cap retrieval-opts episode))))
+
+(defn- episode-reminding-indices
+  [episode]
+  (cond
+    (contains? episode :reminding-indices)
+    (:reminding-indices episode)
+
+    (contains? episode :content-indices)
+    (:content-indices episode)
+
+    :else
+    (:indices episode)))
 
 (defn episode-provenance-info
   "Return structural provenance overlap info for one stored episode."
@@ -329,7 +425,12 @@
     (->> marks
          (keep (fn [[episode-id mark-count]]
                  (let [episode (episode-or-throw world episode-id)
-                       bonus-info (provenance-bonus-info episode retrieval-opts)
+                       admission-status (:admission-status episode :durable)
+                       provenance-eligible? (>= mark-count
+                                                (provenance-min-content-marks
+                                                 episode))
+                       bonus-info (when provenance-eligible?
+                                    (provenance-bonus-info episode retrieval-opts))
                        retention-info (retention-accessibility-info world episode)
                        retention-accessible? (not= false
                                                    (:retention-accessible?
@@ -347,12 +448,14 @@
                                       (if serendipity?
                                         (dec (or (threshold-key episode) 0))
                                         (or (threshold-key episode) 0)))]
-                   (when (and retention-accessible?
+                   (when (and (not= :trace admission-status)
+                              retention-accessible?
                               (not (recent-episode? world episode-id))
                               (>= effective-marks threshold))
                      (cond-> {:episode-id episode-id
                               :marks mark-count
-                              :threshold threshold}
+                              :threshold threshold
+                              :admission-status admission-status}
                        (pos? provenance-bonus)
                        (merge {:provenance-bonus provenance-bonus
                                :effective-marks effective-marks
@@ -361,7 +464,10 @@
                                            [:provenance-bridge-depth
                                             :provenance-bridge-path
                                             :provenance-bridge-direction
-                                            :provenance-bridge-count]))
+                                            :provenance-bridge-count
+                                            :provenance-bonus-raw
+                                            :same-family-provenance?
+                                            :provenance-capped?]))
 
                        (or (not (zero? retention-adjustment))
                            (:retention-reason retention-info))
@@ -402,7 +508,8 @@
      [world []]
      (loop [world (reduce add-recent-index
                           (add-recent-episode world episode-id)
-                          (:indices (episode-or-throw world episode-id)))
+                          (episode-reminding-indices
+                           (episode-or-throw world episode-id)))
             pending (mapv :episode-id (remindings world [] retrieval-opts))
             seen #{episode-id}
             reminded []]
@@ -412,7 +519,8 @@
            (recur world (subvec pending 1) seen reminded)
            (let [world (reduce add-recent-index
                                (add-recent-episode world next-episode-id)
-                               (:indices (episode-or-throw world next-episode-id)))
+                               (episode-reminding-indices
+                                (episode-or-throw world next-episode-id)))
                  new-pending (into (subvec pending 1)
                                    (map :episode-id
                                         (remindings world [] retrieval-opts)))]

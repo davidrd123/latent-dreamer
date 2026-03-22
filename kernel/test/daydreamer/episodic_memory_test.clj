@@ -47,6 +47,15 @@
           :realism 0.7
           :desirability 0.5
           :indices #{:anger :s1}
+          :content-indices #{:anger :s1}
+          :reminding-indices #{:anger :s1}
+          :provenance-indices #{}
+          :support-indices #{}
+          :cue-indices {:content #{:anger :s1}
+                        :reminding #{:anger :s1}
+                        :provenance #{}
+                        :support #{}}
+          :admission-status :durable
           :plan-threshold 2
           :reminding-threshold 1
           :children []
@@ -68,6 +77,15 @@
           :realism :imaginary
           :desirability :mixed
           :indices #{:honesty}
+          :content-indices #{:honesty}
+          :reminding-indices #{:honesty}
+          :provenance-indices #{}
+          :support-indices #{}
+          :cue-indices {:content #{:honesty}
+                        :reminding #{:honesty}
+                        :provenance #{}
+                        :support #{}}
+          :admission-status :durable
           :plan-threshold 0
           :reminding-threshold 0
           :children []
@@ -110,6 +128,8 @@
                                        {:plan? true}))]
     (is (= #{episode-id} (get-in world [:episode-index :s1])))
     (is (= #{:s1 :anger} (get-in world [:episodes episode-id :indices])))
+    (is (= #{:s1 :anger} (get-in world [:episodes episode-id :content-indices])))
+    (is (= #{:s1} (get-in world [:episodes episode-id :reminding-indices])))
     (is (= 2 (get-in world [:episodes episode-id :plan-threshold])))
     (is (= 1 (get-in world [:episodes episode-id :reminding-threshold])))))
 
@@ -127,7 +147,8 @@
     (testing "two cues meet the threshold"
       (is (= [{:episode-id episode-id
                :marks 2
-               :threshold 2}]
+               :threshold 2
+               :admission-status :durable}]
              (epmem/retrieve-episodes world [:s1 :anger] {}))))))
 
 (deftest serendipity-lowers-threshold
@@ -141,7 +162,8 @@
                   (epmem/store-episode episode-id :anger {:reminding? true}))]
     (is (= [{:episode-id episode-id
              :marks 1
-             :threshold 1}]
+             :threshold 1
+             :admission-status :durable}]
            (epmem/retrieve-episodes world
                                     [:s1]
                                     {:serendipity? true
@@ -181,6 +203,7 @@
       (is (= [{:episode-id connected-episode-id
                :marks 1
                :threshold 2
+               :admission-status :durable
                :provenance-bonus 2.5
                :effective-marks 3.5
                :provenance-reason :graph-bridge
@@ -249,6 +272,7 @@
       (is (= [{:episode-id episode-id
                :marks 1
                :threshold 1
+               :admission-status :durable
                :retention-adjustment 0.0
                :retention-reason :hot-cue-fresh
                :retention-age 0}]

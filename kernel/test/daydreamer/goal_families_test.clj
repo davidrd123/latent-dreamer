@@ -762,6 +762,7 @@
             :evaluation-reasons [:pleasant_seed
                                  :attentional_surface]}
            (:evaluation family-plan)))
+    (is (= :provisional (:admission-status family-plan)))
     (is (= {:rule-path [:goal-family/roving-plan-request
                         :goal-family/roving-plan-dispatch]
             :edge-path [{:from-rule :goal-family/roving-plan-request
@@ -771,6 +772,7 @@
            (select-keys stored-episode [:rule-path :edge-path])))
     (is (= (:roving_branch_context (:selection family-plan))
            (:context-id stored-episode)))
+    (is (= :provisional (:admission-status stored-episode)))
     (is (= :hot-cues (:retention-class stored-episode)))
     (is (= :keep-hot (:keep-decision stored-episode)))
     (is (= #{:calm
@@ -788,6 +790,24 @@
              :goal-family/roving-plan-request
              :goal-family/roving-plan-dispatch}
            (:indices stored-episode)))
+    (is (= #{:calm :sunlight}
+           (:content-indices stored-episode)))
+    (is (= #{:calm :sunlight}
+           (:reminding-indices stored-episode)))
+    (is (= #{:goal-family/roving-plan-request
+             :goal-family/roving-plan-dispatch}
+           (:provenance-indices stored-episode)))
+    (is (= #{:family/roving
+             roving-goal-id
+             :pleasant_episode_seed
+             :realism/imaginary
+             :desirability/positive
+             :retention/hot-cues
+             :keep/keep-hot
+             :evaluation-source/heuristic
+             [:payload-cluster
+              [:family/roving roving-goal-id :pleasant_episode_seed]]}
+           (:support-indices stored-episode)))
     (is (= 2 (:plan-threshold stored-episode)))
     (is (= 2 (:reminding-threshold stored-episode)))
     (is (contains? (cx/visible-facts world branch-context-id)
@@ -801,6 +821,7 @@
                     :desirability :positive
                     :retention-class :hot-cues
                     :keep-decision :keep-hot
+                    :admission-status :provisional
                     :evaluation-source :heuristic
                     :payload-cluster [:family/roving
                                       roving-goal-id
@@ -808,7 +829,9 @@
                     :evaluation-reasons [:pleasant_seed
                                          :attentional_surface]}))
     (is (= #{family-episode-id}
-           (get-in world [:episode-index :goal-family/roving-plan-dispatch])))))
+           (get-in world
+                   [:provenance-episode-index
+                    :goal-family/roving-plan-dispatch])))))
 
 (deftest stored-roving-family-plan-episode-is-retrievable-by-structure
   (let [[world root-id] (world-with-root)
@@ -836,16 +859,21 @@
         family-episode-id (:family-episode-id family-plan)
         hits (episodic/retrieve-episodes
               world
-              [:calm]
+              [:calm :sunlight]
               {:threshold-key :reminding-threshold
-               :active-rule-path [:goal-family/roving-plan-dispatch]})]
+               :active-rule-path [:goal-family/roving-plan-dispatch]
+               :active-family :roving})]
     (is (= [family-episode-id]
            (mapv :episode-id hits)))
     (is (= [{:episode-id family-episode-id
-             :marks 1
+             :marks 2
              :threshold 2
-             :provenance-bonus 4.0
-             :effective-marks 5.0
+             :admission-status :provisional
+             :provenance-bonus 0.75
+             :provenance-bonus-raw 4.0
+             :same-family-provenance? true
+             :provenance-capped? true
+             :effective-marks 2.75
              :provenance-reason :shared-rule
              :retention-adjustment 0.0
              :retention-reason :hot-cue-fresh
@@ -897,8 +925,10 @@
             :evaluation-reasons [:mock_archive_review]}
            (:evaluation family-plan)))
     (is (= [] (:retrieval-indices family-plan)))
+    (is (= :trace (:admission-status family-plan)))
     (is (= :cold-provenance (:retention-class stored-episode)))
     (is (= :archive-cold (:keep-decision stored-episode)))
+    (is (= :trace (:admission-status stored-episode)))
     (is (= :mock-llm (get-in stored-episode [:evaluation :evaluation-source])))
     (is (not (contains? (get-in world [:episode-index :calm] #{})
                         family-episode-id)))
@@ -915,6 +945,7 @@
                     :desirability :negative
                     :retention-class :cold-provenance
                     :keep-decision :archive-cold
+                    :admission-status :trace
                     :evaluation-source :mock-llm
                     :payload-cluster [:family/roving
                                       roving-goal-id
@@ -1064,7 +1095,23 @@
                                    :context-id initial-context-id
                                    :trigger-context-id trigger-context-id
                                    :failed-goal-id failed-goal-id})
-        world (cx/retract-fact world trigger-context-id frame-fact)
+        stored-episode-id (:family-episode-id _initial-family-plan)
+        world (-> world
+                  (cx/retract-fact trigger-context-id frame-fact)
+                  (cx/assert-fact trigger-context-id guide-fact)
+                  (cx/assert-fact trigger-context-id
+                                  {:fact/type :rationalization
+                                   :fact/id :zone_is_mercy})
+                  (cx/assert-fact trigger-context-id
+                                  {:fact/type :rationalization
+                                   :fact/id :delay_is_faith}))
+        gated-candidates (families/rationalization-frame-candidates
+                          world
+                          {:trigger-context-id trigger-context-id
+                           :failed-goal-id failed-goal-id})
+        world (assoc-in world
+                        [:episodes stored-episode-id :admission-status]
+                        :durable)
         candidates (families/rationalization-frame-candidates
                     world
                     {:trigger-context-id trigger-context-id
@@ -1079,6 +1126,7 @@
           :strength 0.76
           :main-motiv :e-dread})
         later-context-id (get-in world [:goals later-rationalization-goal-id :next-cx])
+        _ (is (= [] gated-candidates))
         [world later-family-plan]
         (families/run-family-plan world
                                   {:goal-id later-rationalization-goal-id
@@ -1138,7 +1186,7 @@
         (families/run-family-plan world
                                   {:goal-id reversal-goal-id})
         reversal-family-episode-id (:family-episode-id reversal-family-plan)
-        shared-cue (first (:retrieval-indices reversal-family-plan))
+        [shared-cue shared-cue-2] (:retrieval-indices reversal-family-plan)
         [world unrelated-episode-id]
         (episodic/add-episode world
                               {:rule :unrelated-memory
@@ -1150,6 +1198,8 @@
                   (episodic/store-episode unrelated-episode-id shared-cue
                                           {:reminding? true})
                   (episodic/store-episode pleasant-episode-id shared-cue
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id shared-cue-2
                                           {:reminding? true})
                   (episodic/store-episode pleasant-episode-id :calm
                                           {:reminding? true})
@@ -1199,10 +1249,18 @@
         (families/run-family-plan world
                                   {:goal-id initial-reversal-goal-id})
         stored-episode-id (:family-episode-id initial-family-plan)
-        world (cx/retract-fact world old-context-id explicit-cause)
+        world (-> world
+                  (cx/retract-fact old-context-id explicit-cause)
+                  (cx/assert-fact old-context-id counterfactual-fact)
+                  (cx/assert-fact old-context-id leaf-objective-a))
         reversal-leaf {:old-context-id old-context-id
                        :old-top-level-goal-id old-top-level-goal-id
                        :failed-goal-id old-top-level-goal-id}
+        gated-candidates (families/reverse-undo-cause-candidates world reversal-leaf)
+        gated-cause (families/reverse-undo-causes world reversal-leaf)
+        world (assoc-in world
+                        [:episodes stored-episode-id :admission-status]
+                        :durable)
         candidates (families/reverse-undo-cause-candidates world reversal-leaf)
         selected-cause (families/reverse-undo-causes world reversal-leaf)
         [world later-reversal-goal-id]
@@ -1217,6 +1275,8 @@
           :trigger-failed-goal-id old-top-level-goal-id
           :trigger-emotion-id emotion-id
           :trigger-emotion-strength 0.68})
+        _ (is (= [] gated-candidates))
+        _ (is (nil? gated-cause))
         [_world later-family-plan]
         (families/run-family-plan world
                                   {:goal-id later-reversal-goal-id})]

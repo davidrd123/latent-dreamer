@@ -2,6 +2,13 @@
 
 This document explains the full arc of the kernel rule engine — where it started, what exists now, what the next steps are, and where it's headed. It connects the condensation work (the "what Mueller built" layer) to the implementation (the "what the kernel does" layer) to the project goals (the "why this matters" layer).
 
+Status note, 2026-03-22: the original step sequence in this document is now
+historical. The live ordering is maintained in
+`build-order-checkpoint-2026-03-22.md`. The important update is that memory
+ecology now comes before verified paths and before generic executor dispatch.
+This file remains useful for the long arc; use the checkpoint for current
+ordering.
+
 ## Where we started
 
 Before this work, the kernel had:
@@ -100,67 +107,66 @@ Two lifecycle phases: activation and planning. The concern is created by rules a
 
 ## The build sequence going forward
 
-### Step 1: Generic family-plan dispatcher
+The current order is:
 
-**What**: Replace the hand-written `case` dispatch in `goal_families.clj` with a generic dispatcher that consumes `:family-plan-request` facts and selects the matching plan-dispatch rule.
+1. Memory ecology
+2. Executor boundary with declarative effects
+3. LLM-backed evaluator pilot
+4. Verified paths
+5. Generic executor dispatch
 
-**Why**: After this, the kernel doesn't know family names at the dispatch level. It knows rules and trigger facts. This is the transition from "substrate with examples" to "engine that owns behavior."
+### Step 1: Memory ecology
 
-**What it proves**: The rule engine can select among competing rules based on structural matching, not hard-coded branching.
+This is now the first active step, not a later cleanup. The kernel already has
+real structural reuse, so the immediate risk is groove formation:
+generated family-plan material becoming durable planner input too cheaply.
 
-### Step 2: Rule/edge provenance in traces and episodes
+The current pass introduces:
+- admission tiers (`:trace`, `:provisional`, later `:durable`)
+- cue-zone separation (content / reminding / provenance / support)
+- provenance floors before imagined material can reenter retrieval
+- same-family fallback gated on promotion
 
-**What**: When a rule fires, record which rule it was, which bindings matched, and which graph edge was traversed. Store that provenance in the trace (for debugging) and in the episode (for later retrieval).
+This is what prevents the graph from becoming a self-soothing loop machine.
 
-**Why**: This is the bridge to "episodes indexed by rule/path use." Without it, episodes are stored but the memory system doesn't know which rules produced them. With it:
+### Step 2: Executor boundary with declarative effects
 
-- Retrieval can find episodes because a specific rule was involved
-- The evaluation ladder's Level 2 (intervention sensitivity) becomes directly testable: delete a rule, check whether episodes that depended on it stop being retrievable
-- The accumulation story starts compounding: rule fires → episode stored under that rule → later retrieval finds episode via rule's indices → analogical planning reuses the episode's structure
+Only after the memory membrane exists does it make sense to make executors more
+powerful. The next architectural step is an effect vocabulary:
+- graph-visible consequents
+- typed kernel effects
+- summary / episode material returned from the executor
+- kernel-owned application and persistence
 
-**What it proves**: The system remembers not just what happened but why — which rules produced which outcomes.
+This is the point where `:clojure-fn` stops being "opaque world mutation with a
+pretty wrapper" and becomes a real contract.
 
-### Step 3: Graph query layer
+### Step 3: LLM-backed evaluator pilot
 
-**What**: Expose simple graph operations:
+The first safe `:llm-backed` rule is evaluator-side, not generator-side.
+Post-plan evaluation is the promotion gate from `:provisional` toward
+`:durable`, not a way to let the LLM mutate kernel state directly.
 
-- `outgoing-neighbors` — what rules can fire after this one?
-- `reachable-paths` — what paths exist up to depth N from this rule?
-- `path-explanation` — why does this path exist (which projections matched)?
+### Step 4: Verified paths
 
-**Why**: First direct use of the connection graph as search space rather than metadata. Not serendipity yet — just the ability to ask "what connects to what and why." Makes the graph inspectable and testable before creative search depends on it.
+`bridge-paths` stays candidate-only. Verification becomes a sibling layer after
+the memory and executor contracts are more honest. The target sequence is:
+- projection-verified
+- episode-constructed
+- grounded / sound-under-executors
 
-**What it proves**: The graph is meaningful — paths through it correspond to real structural chains, not just superficial type overlap.
+This is the point where candidate adjacency becomes a context-sensitive witness.
 
-### Step 4: Runtime integration
+### Step 5: Generic executor dispatch
 
-**What**: Fold rule/edge provenance into the watchable artifacts (cognitive viz, trace exports, thought beat packets). Make the "why" visible in the stage-facing output.
+Once the effect vocabulary is real, family plans can migrate to generic
+dispatch. Order still matters:
+- roving first
+- rationalization second
+- reversal last
 
-**Why**: Keeps the deep-build work tied to perception. A beautiful substrate that nobody can see is an engineering indulgence. The audience (and the conductor) need to see which rules fired, which paths were traversed, and how past episodes influenced the current thought.
-
-### Step 5: More families through the rule engine
-
-**What**: Rationalization plan-request/dispatch. Reversal plan-request/dispatch. Eventually recovery, rehearsal, repercussions.
-
-**Why**: Each family that moves into the rule engine adds edges to the connection graph. More edges across different lifecycle phases means richer serendipity search space. A rationalization trigger connecting through a planning rule to a recovery dispatch creates exactly the kind of cross-family path Mueller's serendipity was designed to find.
-
-### Step 6: Episode evaluation through rules
-
-**What**: Express realism/desirability scoring as rules. A completed plan gets evaluated by rules whose antecedents match the plan structure and whose consequents produce scored metadata.
-
-**Why**: This is where LLM-as-evaluator becomes natural. The rule fires structurally (the plan completed), but realism assessment is a judgment call. The `:llm-backed` executor provides contextual scoring while the rule remains graphable and the scores get stored as explicit episode metadata.
-
-**What it proves**: The three-layer split (schema / denotation / executor) works in practice for LLM-backed rules. The first real test of the hybrid architecture.
-
-### Step 7: Serendipity path search
-
-**What**: Given a current concern and a salient concept/episode, search the connection graph for paths of length 2-4 between a concern-linked rule and a salient-source-linked rule. Verify candidate paths by progressive unification.
-
-**Why**: This is the payoff. This is the mechanism that makes the system genuinely creative rather than merely organized. A path that has never been traversed connects an active concern to something accidentally salient. The path is verified, turned into a new plan, stored as an episode, and the system's creative capacity has grown.
-
-**What it proves**: The strong claim — persistent typed structure changes later reachable thought paths, not just later phrasing.
-
-**Why it can't come earlier**: Serendipity over a graph with 3 edges is trivial and proves nothing. The graph needs enough density across different lifecycle phases (activation, planning, evaluation, emotional routing) that paths through it are genuinely non-obvious. Steps 1-6 build that density.
+That is when the rule engine stops being a structurally rich substrate and
+starts owning behavior end to end.
 
 ## The critical threshold
 

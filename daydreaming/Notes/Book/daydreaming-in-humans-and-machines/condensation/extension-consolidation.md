@@ -14,23 +14,38 @@ As the system accumulates episodes, rules, and graph connections:
 - Branching factor blowup: candidate paths grow roughly as b^l where b is effective branching and l is path length
 - Without pruning, the system rots into noise rather than sharpening into capability
 
-## What needs to happen (design space, not settled)
+## What is now settled
 
-**Episode consolidation:**
-- Down-weight or archive episodes that are never retrieved
-- Ori-style Q-value learning: episodes that prove useful when retrieved earn higher accessibility
-- Merge or compress episodes that cover the same planning structure with minor variations
-- Decay profiles by zone: identity-level material near-zero decay, knowledge-level moderate, operational-level fast (cf. Ori's three-zone architecture)
+**Episode consolidation / admission:**
+- Family-plan episodes do not jump straight to "durable precedent."
+- The active membrane is:
+  - `:trace` — auditable only
+  - `:provisional` — retrievable under stricter conditions
+  - `:durable` — promoted only after downstream evidence
+- Current implementation has the first pass of this:
+  - `:archive-cold -> :trace`
+  - other family-plan episodes default to `:provisional`
+- The missing piece is promotion logic from `:provisional -> :durable`.
 
-**Graph hygiene:**
-- Monitor effective branching factor per rule node
-- Flag rules whose schemas are too generic (connect to everything, useful for nothing)
-- Potentially prune or quarantine LLM-generated rules that never participate in successful planning
-- The connection graph must stay structurally derived — but the rule BASE can be curated
+**Cue zone separation:**
+- Content cues drive retrieval and reminding.
+- Reminding cues are a subset of content cues; only these enter the FIFO.
+- Provenance indices are queryable but do not count as cue overlap.
+- Support tags are metadata only and do not enter the normal retrieval index.
+- This is now implemented in the episode substrate.
 
-**Evaluation pressure:**
-- Mechanism 18 (episode evaluation) stores realism and desirability. Those scores should influence later retrieval ordering (not just episode selection during planning)
-- Rules created by REVERSAL should carry provenance metadata and be re-evaluated if the analogical plans they support consistently fail
+**Reentry discipline:**
+- Provenance only helps after content marks exist.
+- Imaginary / counterfactual material has a stricter floor than ordinary remembered material.
+- Same-family fallback for rationalization and reversal is gated on durable promotion.
+- Cheap rationalization resurrection via `:serendipity? true` is now disabled.
+
+**What remains open:**
+- Anti-residue flags (`:backfired`, `:stale`, `:contradicted`, `:same-family-loop`)
+- Promotion criteria to `:durable`
+- Stronger source-type decay and cluster caps
+- Graph hygiene for larger, less toy rule sets
+- Re-evaluation of stored material after later contradiction or success
 
 ## Property to preserve
 

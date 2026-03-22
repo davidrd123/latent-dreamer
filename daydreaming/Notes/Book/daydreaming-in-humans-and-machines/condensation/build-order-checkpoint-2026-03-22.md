@@ -1,6 +1,10 @@
 # Build Order Checkpoint — 2026-03-22
 
-Supersedes the step sequence in `rule-engine-trajectory.md` based on five code reviews (03-08) from 5 Pro and 5 Thinking.
+Supersedes the step sequence in `rule-engine-trajectory.md` based on the
+2026-03-22 review stack from 5 Pro and 5 Thinking (`03` through `09`).
+
+Status note: the first memory-ecology pass is now in code. This document
+tracks the settled order and the remaining gaps, not just desiderata.
 
 ## What changed
 
@@ -10,10 +14,12 @@ The reviews found:
 - The memory ecology has active groove risks (reviews 03, 06)
 - The executor boundary needs a declarative effect contract before new executor kinds (reviews 04, 07)
 - Verified paths should come after the memory and executor contracts are solid (reviews 05, 08)
+- Review 09 turned the memory problem into a minimum patch set: cue roles,
+  admission gating, provenance floors, and no cheap rationalization resurrection
 
 ## Settled build order
 
-### 1. Memory ecology (NEXT — active risk)
+### 1. Memory ecology (ACTIVE — in progress)
 
 Fix the core flaw: "generated because it fit the moment" ≈ "earned the right to bias future cognition."
 
@@ -27,6 +33,22 @@ Concrete targets:
 - **Gate rationalization resurrection**: remove or gate `:serendipity? true` for stored-frame fallback. Pure family-internal resonance should not be enough to reopen a frame.
 
 Why first: every cycle that stores a family-plan episode is building potentially self-reinforcing retrievability. The groove risks are active now.
+
+Implemented in the first pass:
+- `:trace` / `:provisional` admission status on family-plan episodes
+- content / reminding / provenance / support cue roles persisted on episodes
+- support and rule-path indices removed from the normal retrieval index
+- reminding only activates reminding cues
+- provenance requires content marks before it applies
+  (`1` for ordinary episodes, `2` for imaginary / counterfactual)
+- rationalization stored-frame fallback no longer gets cheap `:serendipity? true`
+- same-family fallback for rationalization and reversal is gated on durable promotion
+
+Still missing inside step 1:
+- durable promotion path (`:provisional -> :durable`)
+- anti-residue flags
+- source-type decay / stronger zone-specific consolidation
+- explicit loop-risk metadata shaping retrieval
 
 ### 2. Executor boundary with declarative effects
 
@@ -125,16 +147,20 @@ Rule fires
 | Graphable trigger/activation/planning rule pairs | Done |
 | Provenance-weighted retrieval (bonus flipped to shorter=stronger) | Done |
 | Cross-family bridges | Done |
-| Self-reuse (reversal reuses reversals, rationalization reuses rationalizations) | Done |
+| Cross-family reuse into roving | Done |
+| Same-family reuse gated on durable promotion | Done |
 | Conductor extraction | Done |
-| Evaluation metadata fields on episodes | Partially done |
-| **Admission tiers (trace/provisional/durable)** | **Not done** |
-| **Cue zone separation (content/provenance/support)** | **Not done** |
-| **Double-counting elimination** | **Not done** |
-| **Same-family provenance cap** | **Not done** |
+| Evaluation metadata fields on episodes | Done |
+| **Admission tiers (trace/provisional/durable)** | **First pass done** |
+| **Cue zone separation (content/provenance/support)** | **First pass done** |
+| **Double-counting elimination** | **First pass done** |
+| **Same-family provenance cap** | **First pass done** |
+| **Content-mark floor before provenance applies** | **Done** |
+| **Rationalization no-cheap-resurrection gate** | **Done** |
+| **Promotion to durable** | **Not done** |
 | **Anti-residue flags** | **Not done** |
 | **Effect vocabulary** | **Not done** |
-| **:llm-backed evaluator pilot** | **Not done** |
+| **:llm-backed evaluator pilot** | **First pass done (post-plan evaluator seam)** |
 | **Verified paths** | **Not done** |
 | **Generic :clojure-fn dispatch** | **Not done** |
 
@@ -146,3 +172,4 @@ Rule fires
 - `replies/06-family-graph-rev-5pro.md` — double-counting, FIFO crowding, index zone separation
 - `replies/07-executor-seam-5pro.md` — symbolic refs, consequent-schema vs effect-schema
 - `replies/08-verified-paths-5pro.md` — progressive binding first, episode skeleton, code delta
+- `replies/09-episode-loop-risks-5pro.md` — minimum patch set for the memory membrane

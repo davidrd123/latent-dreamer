@@ -498,7 +498,8 @@
                 world
                 visible-indices
                 {:threshold-key :plan-threshold
-                 :active-rule-path [:goal-family/reversal-plan-dispatch]})
+                 :active-rule-path [:goal-family/reversal-plan-dispatch]
+                 :active-family :reversal})
                (keep (fn [hit]
                        (let [episode (get-in world [:episodes (:episode-id hit)])
                              provenance (:provenance episode)
@@ -510,6 +511,7 @@
                                                                      (set visible-indices)))]
                          (when (and (= :family-plan (:source provenance))
                                     (= :reversal (:family provenance))
+                                    (= :durable (:admission-status episode))
                                     (failure-cause-matches-leaf?
                                      {:goal-id (or (:reversal_counterfactual_goal selection)
                                                    (:goal-id episode))}
@@ -633,8 +635,8 @@
                 world
                 visible-indices
                 {:threshold-key :plan-threshold
-                 :serendipity? true
-                 :active-rule-path [:goal-family/rationalization-plan-dispatch]})
+                 :active-rule-path [:goal-family/rationalization-plan-dispatch]
+                 :active-family :rationalization})
                (keep (fn [hit]
                        (let [episode (get-in world [:episodes (:episode-id hit)])
                              provenance (:provenance episode)
@@ -645,6 +647,7 @@
                                                (:rationalization_frame_goal selection))]
                          (when (and (= :family-plan (:source provenance))
                                     (= :rationalization (:family provenance))
+                                    (= :durable (:admission-status episode))
                                     (= failed-goal-id frame-goal-id)
                                     (seq reframe-facts))
                            {:candidate-rank 1
@@ -1025,6 +1028,12 @@
     payload-cluster
     (conj [:payload-cluster payload-cluster])))
 
+(defn- family-plan-admission-status
+  [{:keys [keep-decision]}]
+  (if (= :archive-cold keep-decision)
+    :trace
+    :provisional))
+
 (defn- family-plan-evaluation-fact
   [family-plan episode-id evaluation]
   {:fact/type :episode-evaluation
@@ -1037,6 +1046,7 @@
    :desirability (:desirability evaluation)
    :retention-class (:retention-class evaluation)
    :keep-decision (:keep-decision evaluation)
+   :admission-status (family-plan-admission-status evaluation)
    :evaluation-source (:evaluation-source evaluation)
    :payload-cluster (:payload-cluster evaluation)
    :evaluation-reasons (:evaluation-reasons evaluation)})
@@ -1065,6 +1075,7 @@
         context-id (family-plan-branch-context-id family-plan)
         evaluation (or (:evaluation family-plan)
                        (family-plan-evaluation family-plan))
+        admission-status (family-plan-admission-status evaluation)
         requested-retrieval-indices (family-plan-retrieval-indices family-plan)
         retrieval-indices (if (= :archive-cold (:keep-decision evaluation))
                             []
@@ -1083,16 +1094,17 @@
                                   :context-id context-id
                                   :realism (:realism evaluation)
                                   :desirability (:desirability evaluation)
+                                  :admission-status admission-status
                                   :retention-class (:retention-class evaluation)
                                   :keep-decision (:keep-decision evaluation)
                                   :evaluation evaluation
+                                  :content-indices (set retrieval-indices)
+                                  :provenance-indices (set rule-path)
+                                  :support-indices (set support-indices)
                                   :provenance {:source :family-plan
                                                :family (:family family-plan)
                                                :selection selection}
                                   :rule-path rule-path}
-                           (seq retrieval-indices)
-                           (assoc :indices (set retrieval-indices))
-
                            (seq edge-path)
                            (assoc :edge-path edge-path)
 
@@ -1104,7 +1116,8 @@
                                                     episode-id
                                                     index
                                                     {:plan? true
-                                                     :reminding? true}))
+                                                     :reminding? true
+                                                     :zone :content}))
                           world
                           retrieval-indices)
             world (reduce (fn [current-world index]
@@ -1112,7 +1125,8 @@
                                                     episode-id
                                                     index
                                                     {:plan? false
-                                                     :reminding? false}))
+                                                     :reminding? false
+                                                     :zone :support}))
                           world
                           support-indices)
             world (reduce (fn [current-world rule-id]
@@ -1120,7 +1134,8 @@
                                                     episode-id
                                                     rule-id
                                                     {:plan? false
-                                                     :reminding? false}))
+                                                     :reminding? false
+                                                     :zone :provenance}))
                           world
                           rule-path)
             evaluation-fact (family-plan-evaluation-fact family-plan
@@ -1132,6 +1147,7 @@
              (assoc :retrieval-indices retrieval-indices)
              (assoc :support-indices support-indices)
              (assoc :evaluation evaluation)
+             (assoc :admission-status admission-status)
              (assoc :family-episode-id episode-id)
              (assoc :episode-evaluation-fact evaluation-fact)
              (assoc-in [:selection :family_plan_episode_id] episode-id))])
@@ -1139,7 +1155,8 @@
        (-> family-plan
            (assoc :retrieval-indices retrieval-indices)
            (assoc :support-indices support-indices)
-           (assoc :evaluation evaluation))])))
+           (assoc :evaluation evaluation)
+           (assoc :admission-status admission-status))])))
 
 (defn- ranked-roving-episode-ids
   [world goal-id candidate-episode-ids]
@@ -1159,7 +1176,8 @@
                                   episode-id
                                   {:connection-graph connection-graph
                                    :active-rule-path active-rule-path
-                                   :active-edge-path active-edge-path})
+                                   :active-edge-path active-edge-path
+                                   :active-family :roving})
                       provenance-bonus (double
                                         (or (:provenance-bonus bonus-info)
                                             0.0))]
@@ -1422,7 +1440,8 @@
          episode-id
          {:connection-graph connection-graph
           :active-rule-path (:rule-path rule-provenance)
-          :active-edge-path (:edge-path rule-provenance)})
+          :active-edge-path (:edge-path rule-provenance)
+          :active-family :roving})
         retrieval-hit-facts (vec (concat [(retrieval-hit-fact
                                            {:episode-id episode-id
                                             :family-goal-id goal-id
