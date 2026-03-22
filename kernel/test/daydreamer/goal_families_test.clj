@@ -1441,6 +1441,119 @@
                     :source-rule :goal-family/rationalization-plan-dispatch}))
     (is (= [] candidates))))
 
+(deftest reused-rationalization-source-episode-can-be-contradicted-and-demoted
+  (let [[world root-id] (world-with-root)
+        [world trigger-context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        frame-id :rf-zone-mercy
+        frame-facts [guide-fact
+                     {:fact/type :rationalization
+                      :fact/id :zone_is_mercy}
+                     {:fact/type :rationalization
+                      :fact/id :delay_is_faith}]
+        frame-fact (rationalization-frame-fact frame-id
+                                               failed-goal-id
+                                               0.91
+                                               frame-facts)
+        contradiction-evaluator
+        (fn [_family-plan _default-evaluation]
+          {:realism :plausible
+           :desirability :negative
+           :retention-class :payload-exemplar
+           :keep-decision :keep-exemplar
+           :promotion-decision :stay-provisional
+           :anti-residue-flags [:contradicted]
+           :evaluation-reasons [:mock_contradicted_source]
+           :evaluation-source :mock-llm})
+        world (-> world
+                  (cx/assert-fact trigger-context-id guide-fact)
+                  (cx/assert-fact trigger-context-id {:fact/type :goal
+                                                      :goal-id failed-goal-id
+                                                      :top-level-goal failed-goal-id
+                                                      :status :failed
+                                                      :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :emotion
+                                                      :emotion-id emotion-id
+                                                      :strength 0.82
+                                                      :valence :negative
+                                                      :affect :dread})
+                  (cx/assert-fact trigger-context-id {:fact/type :dependency
+                                                      :from-id emotion-id
+                                                      :to-id failed-goal-id})
+                  (cx/assert-fact trigger-context-id frame-fact))
+        [world initial-rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.82
+          :main-motiv :e-dread})
+        initial-context-id (get-in world [:goals initial-rationalization-goal-id :next-cx])
+        [world initial-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id initial-rationalization-goal-id
+                                   :context-id initial-context-id
+                                   :trigger-context-id trigger-context-id
+                                   :failed-goal-id failed-goal-id
+                                   :family-evaluator family-evaluator/mock-family-evaluator})
+        stored-episode-id (:family-episode-id initial-family-plan)
+        world (-> world
+                  (cx/retract-fact trigger-context-id frame-fact)
+                  (cx/assert-fact trigger-context-id guide-fact)
+                  (cx/assert-fact trigger-context-id
+                                  {:fact/type :rationalization
+                                   :fact/id :zone_is_mercy})
+                  (cx/assert-fact trigger-context-id
+                                  {:fact/type :rationalization
+                                   :fact/id :delay_is_faith}))
+        [world later-rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.76
+          :main-motiv :e-dread})
+        later-context-id (get-in world [:goals later-rationalization-goal-id :next-cx])
+        [world later-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id later-rationalization-goal-id
+                                   :context-id later-context-id
+                                   :trigger-context-id trigger-context-id
+                                   :failed-goal-id failed-goal-id
+                                   :family-evaluator contradiction-evaluator})
+        stored-episode (get-in world [:episodes stored-episode-id])
+        post-candidates (families/rationalization-frame-candidates
+                         world
+                         {:trigger-context-id trigger-context-id
+                          :failed-goal-id failed-goal-id})]
+    (is (= :stored_rationalization_frame
+           (get-in later-family-plan
+                   [:selection :rationalization_selection_policy])))
+    (is (= [stored-episode-id]
+           (mapv :episode-id
+                 (get-in later-family-plan
+                         [:result :episode-use-records]))))
+    (is (= [:contradicted]
+           (mapv :outcome
+                 (get-in later-family-plan
+                         [:result :episode-outcome-facts]))))
+    (is (= :provisional (:admission-status stored-episode)))
+    (is (= [:contradicted] (:anti-residue-flags stored-episode)))
+    (is (= 1 (get-in stored-episode [:outcome-stats :contradiction-count])))
+    (is (= [{:from-status :durable
+             :to-status :provisional
+             :cycle 0
+             :reason :outcome-driven-demotion}]
+           (:demotion-history stored-episode)))
+    (is (= :contradicted
+           (get-in stored-episode [:use-history 0 :outcome])))
+    (is (= :family-evaluation-contradicted
+           (get-in stored-episode [:use-history 0 :outcome-reason])))
+    (is (= [] post-candidates))))
+
 (deftest cross-family-promotion-does-not-bypass-recent-episode-anti-echo
   (let [[world root-id] (world-with-root)
         [world trigger-context-id] (cx/sprout world root-id)
@@ -1732,6 +1845,90 @@
              :resolved-cycle 0
              :outcome-reason :family-plan-branch-succeeded}]
            (:use-history stored-episode)))))
+
+(deftest reused-reversal-source-episode-can-backfire-and-demote
+  (let [[world root-id] (world-with-root)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        explicit-cause (failure-cause-fact :fc-wall-open
+                                           old-top-level-goal-id
+                                           0.9
+                                           [counterfactual-fact])
+        backfire-evaluator
+        (fn [_family-plan _default-evaluation]
+          {:realism :counterfactual
+           :desirability :negative
+           :retention-class :payload-exemplar
+           :keep-decision :keep-exemplar
+           :promotion-decision :stay-provisional
+           :anti-residue-flags [:backfired]
+           :evaluation-reasons [:mock_backfired_source]
+           :evaluation-source :mock-llm})
+        world (cx/assert-fact world old-context-id explicit-cause)
+        [world initial-reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})
+        [world initial-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id initial-reversal-goal-id
+                                   :family-evaluator family-evaluator/mock-family-evaluator})
+        stored-episode-id (:family-episode-id initial-family-plan)
+        world (-> world
+                  (cx/retract-fact old-context-id explicit-cause)
+                  (cx/assert-fact old-context-id counterfactual-fact)
+                  (cx/assert-fact old-context-id leaf-objective-a))
+        [world later-reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.72
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.68})
+        [world later-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id later-reversal-goal-id
+                                   :family-evaluator backfire-evaluator})
+        stored-episode (get-in world [:episodes stored-episode-id])
+        post-candidates (families/reverse-undo-cause-candidates
+                         world
+                         {:old-context-id old-context-id
+                          :old-top-level-goal-id old-top-level-goal-id
+                          :failed-goal-id old-top-level-goal-id})]
+    (is (= :stored_reversal_episode
+           (get-in later-family-plan [:selection :reversal_counterfactual_policy])))
+    (is (= stored-episode-id
+           (get-in later-family-plan [:selection :reversal_counterfactual_source])))
+    (is (= [:backfired]
+           (mapv :outcome
+                 (get-in later-family-plan
+                         [:result :episode-outcome-facts]))))
+    (is (= :provisional (:admission-status stored-episode)))
+    (is (= [:backfired] (:anti-residue-flags stored-episode)))
+    (is (= 1 (get-in stored-episode [:outcome-stats :backfire-count])))
+    (is (= [{:from-status :durable
+             :to-status :provisional
+             :cycle 0
+             :reason :outcome-driven-demotion}]
+           (:demotion-history stored-episode)))
+    (is (= :backfired
+           (get-in stored-episode [:use-history 0 :outcome])))
+    (is (= :family-evaluation-backfired
+           (get-in stored-episode [:use-history 0 :outcome-reason])))
+    (is (= [] post-candidates))))
 
 (deftest rationalization-activation-candidates-detect-framed-failures
   (let [[world root-id] (world-with-root)
