@@ -1222,6 +1222,74 @@
     (is (= (:id roving-goal)
            (:goal-id activation-event)))))
 
+(deftest removing-cross-family-bridge-stops-roving-after-rationalization
+  (let [[world root-id] (world-with-root)
+        world (assoc world :reality-context root-id)
+        [world trigger-context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        frame-id :rf-zone-mercy
+        frame-facts [guide-fact
+                     {:fact/type :rationalization
+                      :fact/id :zone_is_mercy}
+                     {:fact/type :rationalization
+                      :fact/id :delay_is_faith}]
+        world (-> world
+                  (cx/assert-fact trigger-context-id {:fact/type :goal
+                                                      :goal-id failed-goal-id
+                                                      :top-level-goal failed-goal-id
+                                                      :status :failed
+                                                      :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :emotion
+                                                      :emotion-id emotion-id
+                                                      :strength 0.82
+                                                      :valence :negative
+                                                      :affect :dread})
+                  (cx/assert-fact trigger-context-id {:fact/type :dependency
+                                                      :from-id emotion-id
+                                                      :to-id failed-goal-id})
+                  (cx/assert-fact trigger-context-id
+                                  (rationalization-frame-fact frame-id
+                                                              failed-goal-id
+                                                              0.91
+                                                              frame-facts)))
+        [world rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.82
+          :main-motiv emotion-id
+          :trigger-context-id trigger-context-id
+          :trigger-failed-goal-id failed-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.82
+          :trigger-frame-id frame-id})
+        context-id (get-in world [:goals rationalization-goal-id :next-cx])
+        [world rationalization-result]
+        (families/rationalization-plan world
+                                       {:goal-id rationalization-goal-id
+                                        :context-id context-id
+                                        :trigger-context-id trigger-context-id
+                                        :failed-goal-id failed-goal-id})
+        world (with-redefs [families/cross-family-rules (constantly [])]
+                (families/activate-family-goals world))
+        roving-goals (->> (vals (:goals world))
+                          (filter #(= :roving (:goal-type %)))
+                          vec)
+        roving-events (->> (:activation-events world)
+                           (filter #(= :roving (:goal-type %)))
+                           vec)]
+    (is (some? (:affect-state-fact rationalization-result)))
+    (is (cx/fact-true? world
+                       (:sprouted-context-id rationalization-result)
+                       (:affect-state-fact rationalization-result)))
+    (is (= []
+           roving-goals))
+    (is (= []
+           roving-events))))
+
 (deftest reverse-leafs-follow-intends-and-retract-weak-leaf-objectives
   (let [[world root-id] (world-with-root)
         [world old-context-id] (cx/sprout world root-id)
