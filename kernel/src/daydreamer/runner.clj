@@ -258,7 +258,8 @@
               world (trace/merge-latest-cycle
                      world
                      (cond-> {:mutations (:mutation-events world)
-                              :selection (:selection family-plan)}
+                              :selection (:selection family-plan)
+                              :rule-provenance (:rule-provenance family-plan)}
                        (seq (:emotion-shifts family-plan))
                        (assoc :emotion-shifts (:emotion-shifts family-plan))
 

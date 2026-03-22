@@ -57,6 +57,36 @@
     :else
     (scalar->json value)))
 
+(defn- qualified-scalar->json
+  [value]
+  (cond
+    (keyword? value) (if-let [ns-part (namespace value)]
+                       (str ns-part "/" (name value))
+                       (name value))
+    (symbol? value) (str value)
+    :else value))
+
+(defn- provenance-json-value
+  [value]
+  (cond
+    (map? value)
+    (into {}
+          (map (fn [[k v]]
+                 [(scalar->json k) (provenance-json-value v)]))
+          value)
+
+    (set? value)
+    (->> value
+         (map provenance-json-value)
+         (sort-by str)
+         vec)
+
+    (sequential? value)
+    (mapv provenance-json-value value)
+
+    :else
+    (qualified-scalar->json value)))
+
 (defn- goal-or-throw
   [world goal-id]
   (or (get-in world [:goals goal-id])
@@ -103,7 +133,8 @@
    "emotion_id" (some-> (:emotion-id activation) scalar->json)
    "emotion_strength" (:emotion-strength activation)
    "activation_policy" (some-> (:activation-policy activation) scalar->json)
-   "activation_reasons" (json-value (:activation-reasons activation))})
+   "activation_reasons" (json-value (:activation-reasons activation))
+   "rule_provenance" (provenance-json-value (:rule-provenance activation))})
 
 (defn- reporter-emotion-shift
   [shift]
@@ -206,7 +237,7 @@
                  feedback-applied serendipity-bias situations context-id
                  sprouted active-plan backtrack-events activations mutations
                  terminations timestamp goal-selection emotion-shifts
-                 branch-events
+                 branch-events rule-provenance
                  emotional-state]
           :or {active-indices []
                retrievals []
@@ -254,6 +285,7 @@
      :retrievals (vec retrievals)
      :chosen-node-id chosen-node-id
      :selection selection
+     :rule-provenance rule-provenance
      :feedback-applied feedback-applied
      :serendipity-bias serendipity-bias
      :situations situations
@@ -324,6 +356,7 @@
                        (:retrievals snapshot))
      "chosen_node_id" (or (:chosen-node-id snapshot) "n/a")
      "selection" (json-value (:selection snapshot))
+     "rule_provenance" (provenance-json-value (:rule-provenance snapshot))
      "sprouted_contexts" (json-value (:sprouted snapshot))
      "activations" (mapv reporter-activation (:activations snapshot))
      "mutations" (json-value (:mutations snapshot))

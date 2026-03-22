@@ -16,23 +16,32 @@
 (defn create-episode
   "Create an episode map. This is a pure constructor for fixtures and tests."
   [{:keys [id rule goal-id context-id realism desirability indices
-           plan-threshold reminding-threshold children descendants]
+           plan-threshold reminding-threshold children descendants
+           provenance rule-path edge-path]
     :or {id :ep-1
          indices #{}
          plan-threshold 0
          reminding-threshold 0
          children []}}]
-  {:id id
-   :rule rule
-   :goal-id goal-id
-   :context-id context-id
-   :realism realism
-   :desirability desirability
-   :indices (set indices)
-   :plan-threshold plan-threshold
-   :reminding-threshold reminding-threshold
-   :children (vec children)
-   :descendants (vec (or descendants (cons id children)))})
+  (cond-> {:id id
+           :rule rule
+           :goal-id goal-id
+           :context-id context-id
+           :realism realism
+           :desirability desirability
+           :indices (set indices)
+           :plan-threshold plan-threshold
+           :reminding-threshold reminding-threshold
+           :children (vec children)
+           :descendants (vec (or descendants (cons id children)))}
+    provenance
+    (assoc :provenance provenance)
+
+    (seq rule-path)
+    (assoc :rule-path (vec rule-path))
+
+    (seq edge-path)
+    (assoc :edge-path (vec edge-path))))
 
 (defn- next-episode-id
   [world]

@@ -878,7 +878,8 @@
                    world
                    (cond-> {:sprouted (:sprouted-context-ids family-plan)
                             :mutations (:mutation-events world)
-                            :selection (:selection family-plan)}
+                            :selection (:selection family-plan)
+                            :rule-provenance (:rule-provenance family-plan)}
                      (seq (:emotion-shifts family-plan))
                      (assoc :emotion-shifts (:emotion-shifts family-plan))
 

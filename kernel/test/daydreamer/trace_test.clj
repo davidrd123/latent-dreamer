@@ -115,7 +115,19 @@
                   :chosen-node-id "n09_tear_the_set"
                   :selection {:policy :highest_strength}
                   :activations [{:goal-id :g-9
-                                 :goal-type :roving}]
+                                 :goal-type :roving
+                                 :rule-provenance {:rule-path [:goal-family/roving-trigger
+                                                               :goal-family/roving-activation]
+                                                   :edge-path [{:from-rule :goal-family/roving-trigger
+                                                                :to-rule :goal-family/roving-activation
+                                                                :fact-type :goal-family-trigger
+                                                                :edge-kind :state-transition}]}}]
+                  :rule-provenance {:rule-path [:goal-family/roving-plan-request
+                                                :goal-family/roving-plan-dispatch]
+                                    :edge-path [{:from-rule :goal-family/roving-plan-request
+                                                 :to-rule :goal-family/roving-plan-dispatch
+                                                 :fact-type :family-plan-request
+                                                 :edge-kind :state-transition}]}
                   :mutations [{:family :reversal
                                :source-context :cx-2
                                :target-context :cx-3
@@ -148,6 +160,10 @@
            (get-in exported ["top_candidates" 0 "reasons"])))
     (is (= "ep-7" (get-in exported ["retrieved" 0 "node_id"])))
     (is (= "roving" (get-in exported ["activations" 0 "goal_type"])))
+    (is (= ["goal-family/roving-trigger" "goal-family/roving-activation"]
+           (get-in exported ["activations" 0 "rule_provenance" "rule-path"])))
+    (is (= ["goal-family/roving-plan-request" "goal-family/roving-plan-dispatch"]
+           (get-in exported ["rule_provenance" "rule-path"])))
     (is (= "reversal" (get-in exported ["branch_events" 0 "family"])))
     (is (= ["performance_is_admitted" "s4_the_ring"]
            (get-in exported ["branch_events" 0 "fact_ids"])))

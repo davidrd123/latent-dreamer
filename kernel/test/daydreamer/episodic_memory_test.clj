@@ -41,6 +41,43 @@
                                 :plan-threshold 2
                                 :reminding-threshold 1}))))
 
+(deftest create-episode-preserves-optional-provenance
+  (is (= {:id :ep-9
+          :rule :runtime-thought-residue
+          :goal-id :g-7
+          :context-id :cx-4
+          :realism :imaginary
+          :desirability :mixed
+          :indices #{:honesty}
+          :plan-threshold 0
+          :reminding-threshold 0
+          :children []
+          :descendants [:ep-9]
+          :provenance {:source :runtime-thought-feedback
+                       :cycle 4}
+          :rule-path [:goal-family/roving-trigger
+                      :goal-family/roving-activation]
+          :edge-path [{:from-rule :goal-family/roving-trigger
+                       :to-rule :goal-family/roving-activation
+                       :fact-type :goal-family-trigger
+                       :edge-kind :state-transition}]}
+         (epmem/create-episode
+          {:id :ep-9
+           :rule :runtime-thought-residue
+           :goal-id :g-7
+           :context-id :cx-4
+           :realism :imaginary
+           :desirability :mixed
+           :indices #{:honesty}
+           :provenance {:source :runtime-thought-feedback
+                        :cycle 4}
+           :rule-path [:goal-family/roving-trigger
+                       :goal-family/roving-activation]
+           :edge-path [{:from-rule :goal-family/roving-trigger
+                        :to-rule :goal-family/roving-activation
+                        :fact-type :goal-family-trigger
+                        :edge-kind :state-transition}]}))))
+
 (deftest add-and-store-episode-test
   (let [[world root-id] (world-with-root)
         [world episode-id] (epmem/add-episode world

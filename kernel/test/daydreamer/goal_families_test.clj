@@ -76,6 +76,14 @@
    :priority priority
    :reframe-facts reframe-facts})
 
+(defn expected-rule-provenance
+  [from-rule to-rule fact-type]
+  {:rule-path [from-rule to-rule]
+   :edge-path [{:from-rule from-rule
+                :to-rule to-rule
+                :fact-type fact-type
+                :edge-kind :state-transition}]})
+
 (defn world-with-root
   []
   (let [root (cx/create-context)
@@ -314,7 +322,8 @@
                                               :strength 0.82
                                               :valence :negative}))
         candidates (families/reversal-activation-candidates world)
-        selected-leaf (families/select-reversal-leaf world)]
+        selected-leaf (families/select-reversal-leaf world)
+        candidate (first candidates)]
     (is (= [{:old-context-id context-id
              :old-top-level-goal-id failed-goal-id
              :failed-goal-id failed-goal-id
@@ -330,9 +339,13 @@
                                   :negative_emotion
                                   :reversal_candidate]
              :situation-id :s1_seeing_through}]
-           candidates))
+           (mapv #(dissoc % :rule-provenance) candidates)))
+    (is (= (expected-rule-provenance :goal-family/reversal-trigger
+                                     :goal-family/reversal-activation
+                                     :goal-family-trigger)
+           (:rule-provenance candidate)))
     (is (= selected-leaf
-           (select-keys (first candidates)
+           (select-keys candidate
                         [:old-context-id
                          :old-top-level-goal-id
                          :failed-goal-id
@@ -400,7 +413,8 @@
                   (cx/assert-fact context-id {:fact/type :dependency
                                               :from-id emotion-id
                                               :to-id failed-goal-id}))
-        candidates (families/roving-activation-candidates world)]
+        candidates (families/roving-activation-candidates world)
+        candidate (first candidates)]
     (is (= [{:context-id context-id
              :failed-goal-id failed-goal-id
              :emotion-id emotion-id
@@ -409,8 +423,12 @@
              :selection-reasons [:failed_goal
                                  :negative_emotion
                                  :dependency_link]}]
-           candidates))
-    (is (= (first candidates)
+           (mapv #(dissoc % :rule-provenance) candidates)))
+    (is (= (expected-rule-provenance :goal-family/roving-trigger
+                                     :goal-family/roving-activation
+                                     :goal-family-trigger)
+           (:rule-provenance candidate)))
+    (is (= candidate
            (families/select-roving-trigger world)))))
 
 (deftest roving-plan-sprouts-and-runs-reminding-cascade
@@ -435,7 +453,7 @@
           :main-motiv :e-relief})
         context-id (get-in world [:goals roving-goal-id :next-cx])
         [world {:keys [sprouted-context-id episode-id reminded-episode-ids
-                       active-indices selection-policy]}]
+                       active-indices selection-policy rule-provenance]}]
         (families/roving-plan world {:goal-id roving-goal-id
                                      :context-id context-id})]
     (testing "roving chooses the pleasant episode seed and sprouts once"
@@ -456,6 +474,10 @@
                       (= :rtrue (:to-goal-id %)))
                 (cx/visible-facts world sprouted-context-id)))
       (is (= :pleasant_episode_seed selection-policy))
+      (is (= (expected-rule-provenance :goal-family/roving-plan-request
+                                       :goal-family/roving-plan-dispatch
+                                       :family-plan-request)
+             rule-provenance))
       (is (= [{:family :roving
                :source-context context-id
                :target-context sprouted-context-id
@@ -493,7 +515,8 @@
                                                               failed-goal-id
                                                               0.91
                                                               frame-facts)))
-        candidates (families/rationalization-activation-candidates world)]
+        candidates (families/rationalization-activation-candidates world)
+        candidate (first candidates)]
     (is (= [{:context-id context-id
              :failed-goal-id failed-goal-id
              :emotion-id emotion-id
@@ -507,8 +530,12 @@
                                  :negative_emotion
                                  :dependency_link
                                  :rationalization_frame]}]
-           candidates))
-    (is (= (first candidates)
+           (mapv #(dissoc % :rule-provenance) candidates)))
+    (is (= (expected-rule-provenance :goal-family/rationalization-trigger
+                                     :goal-family/rationalization-activation
+                                     :goal-family-trigger)
+           (:rule-provenance candidate)))
+    (is (= candidate
            (families/select-rationalization-trigger world)))))
 
 (deftest activate-family-goals-dispatches-roving-via-trigger-facts
@@ -917,7 +944,7 @@
         expected-trigger-after (- 0.82 (* 0.82 0.35 0.91))
         expected-hope-strength (* 0.82 0.35 0.91)
         [world {:keys [sprouted-context-id frame-id frame-goal-id
-                       reframe-fact-ids selection-policy
+                       reframe-fact-ids selection-policy rule-provenance
                        diversion-policy trigger-emotion-id
                        trigger-emotion-before trigger-emotion-after
                        hope-emotion-id hope-strength hope-situation-id
@@ -1005,6 +1032,10 @@
                       (= :rtrue (:to-goal-id %)))
                 (cx/visible-facts world sprouted-context-id)))
       (is (= :stored_rationalization_frame selection-policy))
+      (is (= (expected-rule-provenance :goal-family/rationalization-plan-request
+                                       :goal-family/rationalization-plan-dispatch
+                                       :family-plan-request)
+             rule-provenance))
       (is (= [{:family :rationalization
                :source-context context-id
                :trigger-context trigger-context-id
@@ -1085,6 +1116,10 @@
              (mapv :ordering leaf-branches))))
     (testing "each sprouted branch retracts its own leaf objective and keeps counterfactual input"
       (is (= 2 (count branch-results)))
+      (is (= (expected-rule-provenance :goal-family/reversal-plan-request
+                                       :goal-family/reversal-plan-dispatch
+                                       :family-plan-request)
+             (:rule-provenance (first branch-results))))
       (doseq [{:keys [sprouted-context-id objective-facts retracted-fact-ids]} branch-results]
         (is (cx/fact-true? world sprouted-context-id counterfactual-fact))
         (is (= (mapv :fact/id objective-facts) retracted-fact-ids))

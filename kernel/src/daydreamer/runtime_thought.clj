@@ -80,6 +80,35 @@
           (str/replace #"[^a-z0-9_\- ]+" "")
           (str/replace #"\s+" "-")))
 
+(defn- latest-rule-provenance
+  [world goal-id]
+  (let [snapshot (last (:trace world))
+        activation-provenance (some (fn [activation]
+                                      (when (= goal-id (:goal-id activation))
+                                        (:rule-provenance activation)))
+                                    (:activations snapshot))
+        planning-provenance (:rule-provenance snapshot)
+        rule-path (->> [activation-provenance planning-provenance]
+                       (mapcat #(or (:rule-path %) []))
+                       ordered-unique
+                       vec)
+        edge-path (->> [activation-provenance planning-provenance]
+                       (mapcat #(or (:edge-path %) []))
+                       vec)
+        provenance (cond-> {:source :runtime-thought-feedback
+                            :cycle (:cycle world)}
+                     goal-id
+                     (assoc :goal-id goal-id)
+
+                     activation-provenance
+                     (assoc :activation-rule-provenance activation-provenance)
+
+                     planning-provenance
+                     (assoc :planning-rule-provenance planning-provenance))]
+    {:rule-path rule-path
+     :edge-path edge-path
+     :provenance provenance}))
+
 (defn- json-string
   [value]
   (json/write-str value))
@@ -330,12 +359,26 @@
   [world packet raw-feedback]
   (let [feedback (normalize-feedback packet raw-feedback)
         residue-indices (:residue-indices feedback)
-        episode-spec {:rule :runtime-thought-residue
-                      :goal-id (some-> packet :selected_goal :id as-keyword)
-                      :context-id (some-> packet :selected_goal :context_id as-keyword)
-                      :realism :imaginary
-                      :desirability :mixed
-                      :indices (set residue-indices)}
+        goal-id (some-> packet :selected_goal :id as-keyword)
+        context-id (some-> packet :selected_goal :context_id as-keyword)
+        {rule-path :rule-path
+         edge-path :edge-path
+         provenance :provenance}
+        (latest-rule-provenance world goal-id)
+        episode-spec (cond-> {:rule :runtime-thought-residue
+                              :goal-id goal-id
+                              :context-id context-id
+                              :realism :imaginary
+                              :desirability :mixed
+                              :indices (set residue-indices)}
+                       provenance
+                       (assoc :provenance provenance)
+
+                       (seq rule-path)
+                       (assoc :rule-path rule-path)
+
+                       (seq edge-path)
+                       (assoc :edge-path edge-path))
         [world episode-id] (episodic/add-episode world episode-spec)
         world (reduce (fn [current-world index]
                         (episodic/store-episode current-world
@@ -345,6 +388,14 @@
                                                  :reminding? true}))
                       world
                       residue-indices)
+        world (reduce (fn [current-world rule-id]
+                        (episodic/store-episode current-world
+                                                episode-id
+                                                rule-id
+                                                {:plan? false
+                                                 :reminding? false}))
+                      world
+                      rule-path)
         world (reduce episodic/add-recent-index world residue-indices)
         feedback-applied (assoc feedback :episode-id episode-id)]
     [(assoc-in world [:autonomous :runtime-thought-last] feedback-applied)

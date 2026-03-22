@@ -551,6 +551,33 @@
    reversal-plan-request-rule
    reversal-plan-dispatch-rule])
 
+(defn- seed-rule-provenance
+  [rule]
+  {:rule-path [(:id rule)]
+   :edge-path []})
+
+(defn- extend-rule-provenance
+  [producer-provenance consumer-rule fact-type]
+  (let [producer-path (vec (or (:rule-path producer-provenance) []))
+        edge-path (vec (or (:edge-path producer-provenance) []))
+        from-rule (last producer-path)]
+    (cond-> {:rule-path (->> (conj producer-path (:id consumer-rule))
+                             distinct
+                             vec)
+             :edge-path edge-path}
+      from-rule
+      (update :edge-path conj {:from-rule from-rule
+                               :to-rule (:id consumer-rule)
+                               :fact-type fact-type
+                               :edge-kind :state-transition}))))
+
+(defn- emit-rule-fact
+  [rule bindings]
+  (assoc (-> (rules/instantiate-rule rule bindings)
+             :consequents
+             first)
+         :rule-provenance (seed-rule-provenance rule)))
+
 (declare reversal-sprout-alternative
          reversal-trigger-facts
          retract-facts
@@ -574,7 +601,12 @@
                                                                    (:bindings match))
                                            :consequents
                                            first)
-                                       :goal-type (:goal-type trigger-fact))))))))
+                                       :goal-type (:goal-type trigger-fact)
+                                       :rule-provenance
+                                       (extend-rule-provenance
+                                        (:rule-provenance trigger-fact)
+                                        rule
+                                        :goal-family-trigger))))))))
        (sort-by (juxt (fn [candidate]
                         (- (double (or (:emotion-strength candidate) 0.0))))
                       (fn [candidate]
@@ -605,7 +637,12 @@
                                                                    (:bindings match))
                                            :consequents
                                            first)
-                                       :goal-type (:goal-type request-fact))))))))
+                                       :goal-type (:goal-type request-fact)
+                                       :rule-provenance
+                                       (extend-rule-provenance
+                                        (:rule-provenance request-fact)
+                                        rule
+                                        :family-plan-request))))))))
        (sort-by (juxt (comp str :goal-type)
                       (comp str :goal-id)
                       (comp str :context-id)
@@ -785,23 +822,21 @@
                                 (when (and (negative-emotion-fact? emotion-fact)
                                            (> emotion-strength
                                               reversal-emotion-threshold))
-                                  (-> (rules/instantiate-rule
-                                       reversal-trigger-rule
-                                       {'?old-context-id (:old-context-id candidate)
-                                        '?old-top-level-goal-id (:old-top-level-goal-id candidate)
-                                        '?failed-goal-id (:failed-goal-id candidate)
-                                        '?context-depth (:context-depth candidate)
-                                        '?emotion-pressure (:emotion-pressure candidate)
-                                        '?failure-count (:failure-count candidate)
-                                        '?selection-policy (:selection-policy candidate)
-                                        '?selection-reasons (:selection-reasons candidate)
-                                        '?emotion-id ('?emotion-id bindings)
-                                        '?emotion-strength emotion-strength
-                                        '?situation-id (primary-situation-id
-                                                        world
-                                                        (:old-context-id candidate))})
-                                      :consequents
-                                      first)))))
+                                  (emit-rule-fact
+                                   reversal-trigger-rule
+                                   {'?old-context-id (:old-context-id candidate)
+                                    '?old-top-level-goal-id (:old-top-level-goal-id candidate)
+                                    '?failed-goal-id (:failed-goal-id candidate)
+                                    '?context-depth (:context-depth candidate)
+                                    '?emotion-pressure (:emotion-pressure candidate)
+                                    '?failure-count (:failure-count candidate)
+                                    '?selection-policy (:selection-policy candidate)
+                                    '?selection-reasons (:selection-reasons candidate)
+                                    '?emotion-id ('?emotion-id bindings)
+                                    '?emotion-strength emotion-strength
+                                    '?situation-id (primary-situation-id
+                                                    world
+                                                    (:old-context-id candidate))})))))
                       (sort-by (juxt (comp - :emotion-strength)
                                      (comp str :emotion-id)))
                       first))))
@@ -1086,27 +1121,23 @@
    frame-priority
    frame-count
    situation-id]
-  (-> (rules/instantiate-rule rationalization-trigger-rule
-                              {'?context-id context-id
-                               '?failed-goal-id failed-goal-id
-                               '?emotion-id emotion-id
-                               '?emotion-strength emotion-strength
-                               '?frame-id frame-id
-                               '?frame-priority frame-priority
-                               '?frame-count frame-count
-                               '?situation-id situation-id})
-      :consequents
-      first))
+  (emit-rule-fact rationalization-trigger-rule
+                  {'?context-id context-id
+                   '?failed-goal-id failed-goal-id
+                   '?emotion-id emotion-id
+                   '?emotion-strength emotion-strength
+                   '?frame-id frame-id
+                   '?frame-priority frame-priority
+                   '?frame-count frame-count
+                   '?situation-id situation-id}))
 
 (defn- instantiate-roving-trigger
   [context-id failed-goal-id emotion-id emotion-strength]
-  (-> (rules/instantiate-rule roving-trigger-rule
-                              {'?context-id context-id
-                               '?failed-goal-id failed-goal-id
-                               '?emotion-id emotion-id
-                               '?emotion-strength emotion-strength})
-      :consequents
-      first))
+  (emit-rule-fact roving-trigger-rule
+                  {'?context-id context-id
+                   '?failed-goal-id failed-goal-id
+                   '?emotion-id emotion-id
+                   '?emotion-strength emotion-strength}))
 
 (defn- roving-trigger-facts
   [world]
@@ -1193,7 +1224,7 @@
                                 selection-policy selection-reasons
                                 activation-policy activation-reasons
                                 context-id old-context-id failed-goal-id
-                                frame-id]}]
+                                frame-id rule-provenance]}]
        (let [trigger-context-id (or old-context-id context-id)]
          (if (existing-family-goal? current-world
                                     goal-type
@@ -1226,7 +1257,8 @@
                       :emotion-strength emotion-strength
                       :frame-id frame-id
                       :activation-policy (or activation-policy selection-policy)
-                      :activation-reasons (or activation-reasons selection-reasons)})))))
+                      :activation-reasons (or activation-reasons selection-reasons)
+                      :rule-provenance rule-provenance})))))
      world
      candidates)))
 
@@ -1247,13 +1279,11 @@
 
 (defn- instantiate-roving-plan-request
   [goal-id context-id episode-id ordering]
-  (-> (rules/instantiate-rule roving-plan-request-rule
-                              {'?goal-id goal-id
-                               '?context-id context-id
-                               '?episode-id episode-id
-                               '?ordering ordering})
-      :consequents
-      first))
+  (emit-rule-fact roving-plan-request-rule
+                  {'?goal-id goal-id
+                   '?context-id context-id
+                   '?episode-id episode-id
+                   '?ordering ordering}))
 
 (defn- roving-plan-request-facts
   [world {:keys [goal-id context-id ordering]
@@ -1267,15 +1297,13 @@
 
 (defn- instantiate-rationalization-plan-request
   [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
-  (-> (rules/instantiate-rule rationalization-plan-request-rule
-                              {'?goal-id goal-id
-                               '?context-id context-id
-                               '?trigger-context-id trigger-context-id
-                               '?failed-goal-id failed-goal-id
-                               '?frame-id frame-id
-                               '?ordering ordering})
-      :consequents
-      first))
+  (emit-rule-fact rationalization-plan-request-rule
+                  {'?goal-id goal-id
+                   '?context-id context-id
+                   '?trigger-context-id trigger-context-id
+                   '?failed-goal-id failed-goal-id
+                   '?frame-id frame-id
+                   '?ordering ordering}))
 
 (defn- rationalization-plan-request-facts
   [world {:keys [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
@@ -1298,13 +1326,11 @@
 
 (defn- instantiate-reversal-plan-request
   [old-context-id old-top-level-goal-id new-context-id new-top-level-goal-id]
-  (-> (rules/instantiate-rule reversal-plan-request-rule
-                              {'?old-context-id old-context-id
-                               '?old-top-level-goal-id old-top-level-goal-id
-                               '?new-context-id new-context-id
-                               '?new-top-level-goal-id new-top-level-goal-id})
-      :consequents
-      first))
+  (emit-rule-fact reversal-plan-request-rule
+                  {'?old-context-id old-context-id
+                   '?old-top-level-goal-id old-top-level-goal-id
+                   '?new-context-id new-context-id
+                   '?new-top-level-goal-id new-top-level-goal-id}))
 
 (defn- reversal-plan-request-facts
   [{:keys [old-context-id old-top-level-goal-id new-context-id new-top-level-goal-id]}]
@@ -1354,7 +1380,7 @@
   (let [plan-request-facts (or (seq (roving-plan-request-facts world opts))
                                (throw (ex-info "ROVING needs a pleasant episode"
                                                {:opts opts})))
-        {:keys [episode-id ordering selection-policy]}
+        {:keys [episode-id ordering selection-policy rule-provenance]}
         (or (first (plan-payloads-from-request-facts plan-request-facts))
             (throw (ex-info "ROVING needs a plan payload"
                             {:opts opts
@@ -1384,7 +1410,8 @@
             :episode-id episode-id
             :reminded-episode-ids (vec reminded-episode-ids)
             :active-indices (vec (:recent-indices world))
-            :selection-policy selection-policy}]))
+            :selection-policy selection-policy
+            :rule-provenance rule-provenance}]))
 
 (defn- apply-rationalization-emotional-diversion
   [world {:keys [goal-id trigger-context-id failed-goal-id sprouted-context-id]
@@ -1484,7 +1511,8 @@
                                                 :trigger-context-id trigger-context-id
                                                 :failed-goal-id failed-goal-id
                                                 :frame-id frame-id})))
-        {:keys [trigger-context-id failed-goal-id frame-id ordering selection-policy]}
+        {:keys [trigger-context-id failed-goal-id frame-id ordering
+                selection-policy rule-provenance]}
         (or (first (plan-payloads-from-request-facts plan-request-facts))
             (throw (ex-info "RATIONALIZATION needs a plan payload"
                             {:goal-id goal-id
@@ -1549,6 +1577,7 @@
             :frame-goal-id (:goal-id frame)
             :reframe-fact-ids (mapv fact-id (:reframe-facts frame))
             :selection-policy selection-policy
+            :rule-provenance rule-provenance
             :selection-reasons (:selection-reasons frame)
             :situation-id (:situation-id frame)
             :diversion-policy (:diversion-policy diversion)
@@ -1571,7 +1600,8 @@
   (let [plan-request-facts (or (seq (reversal-plan-request-facts reversal-target))
                                (throw (ex-info "REVERSAL needs a planning target"
                                                {:reversal-target reversal-target})))
-        {:keys [old-context-id old-top-level-goal-id new-context-id new-top-level-goal-id]}
+        {:keys [old-context-id old-top-level-goal-id new-context-id
+                new-top-level-goal-id rule-provenance]}
         (or (first (plan-payloads-from-request-facts plan-request-facts))
             (throw (ex-info "REVERSAL needs a plan payload"
                             {:reversal-target reversal-target
@@ -1596,6 +1626,7 @@
                  (conj branch-results
                        (assoc branch
                               :sprouted-context-id sprouted-context-id
+                              :rule-provenance rule-provenance
                               :retracted-fact-ids (mapv fact-id (:objective-facts branch))))]))
             [world []]
             (reverse-leaf-branches world reversal-target))))
@@ -1623,6 +1654,7 @@
             [world nil]
             [world {:family :reversal
                     :sprouted-context-ids sprouted-context-ids
+                    :rule-provenance (:rule-provenance primary-branch)
                     :selection {:goal_family :reversal
                                 :family_goal_id (:new-top-level-goal-id reversal-target)
                                 :reversal_target_policy (:selection-policy reversal-target)
@@ -1657,6 +1689,7 @@
                                                       :context-id context-id))]
         [world {:family :roving
                 :sprouted-context-ids [(:sprouted-context-id roving-result)]
+                :rule-provenance (:rule-provenance roving-result)
                 :selection {:goal_family :roving
                             :family_goal_id goal-id
                             :roving_selection_policy (:selection-policy roving-result)
@@ -1683,6 +1716,7 @@
                                   (get-in world [:goals goal-id :trigger-frame-id]))))]
         [world {:family :rationalization
                 :sprouted-context-ids [(:sprouted-context-id rationalization-result)]
+                :rule-provenance (:rule-provenance rationalization-result)
                 :selection {:goal_family :rationalization
                             :family_goal_id goal-id
                             :rationalization_selection_policy (:selection-policy rationalization-result)
