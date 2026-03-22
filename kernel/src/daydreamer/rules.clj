@@ -1054,7 +1054,8 @@
 
   The generic runtime owns reduction and effect-state threading; callers still
   own the concrete op semantics."
-  [world effects {:keys [effect-handler effect-handlers initial-effect-state]}]
+  [world effects {:keys [effect-handler effect-handlers initial-effect-state]
+                  :as opts}]
   (when-not (or (ifn? effect-handler)
                 (map? effect-handlers))
     (throw (ex-info "apply-effects requires :effect-handler or :effect-handlers"
@@ -1079,5 +1080,7 @@
                                   {:effect effect
                                    :result result})))
                 result)))
-          [world (or initial-effect-state {})]
+          [world (if (contains? opts :initial-effect-state)
+                   initial-effect-state
+                   {})]
           effects))

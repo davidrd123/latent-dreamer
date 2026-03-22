@@ -286,6 +286,24 @@
     (is (= {:events [1 2]} world))
     (is (= {:count 2} effect-state))))
 
+(deftest apply-effects-preserves-explicit-falsey-initial-state
+  (is (= [{:events []} nil]
+         (rules/apply-effects
+          {:events []}
+          []
+          {:effect-handler
+           (fn [{:keys [world effect-state]}]
+             [world effect-state])
+           :initial-effect-state nil})))
+  (is (= [{:events []} false]
+         (rules/apply-effects
+          {:events []}
+          []
+          {:effect-handler
+           (fn [{:keys [world effect-state]}]
+             [world effect-state])
+           :initial-effect-state false}))))
+
 (deftest apply-effects-rejects-malformed-handler-result
   (is (thrown-with-msg? clojure.lang.ExceptionInfo
                         #"Effect handler must return"
