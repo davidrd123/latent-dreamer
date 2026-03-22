@@ -1371,7 +1371,7 @@
            (map #(keyword "anti-residue" (name %)) anti-residue-flags))))
 
 (defn- family-plan-admission-status
-  [{:keys [keep-decision promotion-decision anti-residue-flags]}]
+  [{:keys [keep-decision anti-residue-flags]}]
   (cond
     (= :archive-cold keep-decision)
     :trace
@@ -1379,9 +1379,6 @@
     (seq (set/intersection #{:backfired :contradicted}
                            (set anti-residue-flags)))
     :provisional
-
-    (= :promote-durable promotion-decision)
-    :durable
 
     :else
     :provisional))

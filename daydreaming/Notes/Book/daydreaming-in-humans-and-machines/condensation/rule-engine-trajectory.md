@@ -131,8 +131,10 @@ The current pass introduces:
   reminding no longer counts as promotion evidence by itself
 
 The remaining gap inside Step 1 is not "promotion exists or not."
-It is whether promotion is evaluator-gated and whether anti-residue
-signals can demote or suppress loops.
+The direct evaluator-only store-time promotion path is now gone.
+The remaining issue is whether evaluator output stays gate/veto
+rather than policy authority, and whether anti-residue signals can
+demote or suppress loops cleanly.
 
 The newer review stack sharpens this again: the missing substrate is
 **episode use with attributed outcomes**. Promotion, anti-residue, and

@@ -48,9 +48,12 @@ Implemented in the first pass:
 - promotion still respects the recent-episode anti-echo gate
 - repeated same-family reuse can now flag `:same-family-loop`
   and suppress same-family reentry
-- external evaluator output can now widen promotion beyond the
-  cross-family reuse path through an explicit promotion decision;
-  heuristic evaluation still defaults to `:stay-provisional`
+- external evaluator output can now annotate promotion eligibility
+  through an explicit promotion decision; heuristic evaluation still
+  defaults to `:stay-provisional`
+- direct evaluator-only store-time durable admission has been removed;
+  durable status and frontier opening now depend on later
+  use/outcome reconciliation
 - evaluator output can now attach `:backfired`, `:stale`, and
   `:contradicted` flags to stored episodes, and those flags are
   asserted as typed `:episode-flag` facts into branch contexts
@@ -274,7 +277,7 @@ Rule fires
 | **Content-mark floor before provenance applies** | **Done** |
 | **Rationalization no-cheap-resurrection gate** | **Done** |
 | **Cross-family promotion to durable** | **Done** |
-| **Evaluator-gated durable promotion** | **First pass done** |
+| **Evaluator gate/veto seam for promotion** | **First pass done** |
 | **Same-family-loop anti-residue flag** | **First pass done** |
 | **Other anti-residue flags** | **First pass done via evaluator seam** |
 | **Effect vocabulary** | **First pass done on roving** |

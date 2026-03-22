@@ -86,6 +86,32 @@
                 :fact-type fact-type
                 :edge-kind :state-transition}]})
 
+(defn promote-family-episode-via-cross-family-evidence
+  [world episode-id target-family]
+  (let [source-family (get-in world [:episodes episode-id :provenance :family])
+        [world use-info]
+        (episodic/note-episode-use
+         world
+         episode-id
+         {:source-family source-family
+          :target-family target-family
+          :reason :test-cross-family-use
+          :use-role :test-cross-family-use
+          :goal-id :g-test
+          :branch-context-id :cx-test
+          :source-rule (get-in world [:episodes episode-id :rule])
+          :target-rule :test/target-rule})
+        [world _]
+        (episodic/resolve-episode-use-outcome
+         world
+         episode-id
+         (:use-id use-info)
+         {:outcome :succeeded
+          :reason :test-cross-family-use-succeeded})
+        [world _]
+        (episodic/reconcile-episode-admission world episode-id)]
+    world))
+
 (defn world-with-root
   []
   (let [root (cx/create-context)
@@ -1120,7 +1146,7 @@
                                       :pleasant_episode_seed]
                     :evaluation-reasons [:mock_archive_review]}))))
 
-(deftest durable-family-plan-admission-opens-frontier-rules-at-store-time
+(deftest evaluator-promotion-decision-does-not-open-frontier-rules-at-store-time
   (let [family-rules* (->> (families/family-rules)
                            (mapv (fn [rule]
                                    (if (= :goal-family/roving-plan-dispatch
@@ -1158,21 +1184,14 @@
                                      :context-id context-id
                                      :family-evaluator promote-evaluator}))
         family-episode-id (:family-episode-id family-plan)]
-    (is (= :durable (:admission-status family-plan)))
-    (is (= :durable (get-in world [:episodes family-episode-id :admission-status])))
-    (is (= :accessible
+    (is (= :promote-durable (get-in family-plan [:evaluation :promotion-decision])))
+    (is (= :provisional (:admission-status family-plan)))
+    (is (= :provisional (get-in world [:episodes family-episode-id :admission-status])))
+    (is (= :frontier
            (get-in world [:rule-access :goal-family/roving-plan-dispatch :status])))
     (is (= :authored-frontier
            (get-in world [:rule-access :goal-family/roving-plan-dispatch :source])))
-    (is (= [{:rule-id :goal-family/roving-plan-dispatch
-             :from-status :frontier
-             :to-status :accessible
-             :cycle 0
-             :reason :durable-episode-opened-rule
-             :episode-id family-episode-id
-             :branch-context-id (get-in family-plan
-                                        [:selection :roving_branch_context])}]
-           (:rule-access-transitions family-plan)))))
+    (is (= [] (:rule-access-transitions family-plan)))))
 
 (deftest hard-failure-family-plan-admission-does-not-open-frontier-rules-at-store-time
   (let [family-rules* (->> (families/family-rules)
@@ -1379,6 +1398,9 @@
                                    :family-evaluator family-evaluator/mock-family-evaluator})
         stored-episode-id (:family-episode-id _initial-family-plan)
         world (-> world
+                  (promote-family-episode-via-cross-family-evidence
+                   stored-episode-id
+                   :roving)
                   (cx/retract-fact trigger-context-id frame-fact)
                   (cx/assert-fact trigger-context-id guide-fact)
                   (cx/assert-fact trigger-context-id
@@ -1411,7 +1433,8 @@
                                    :failed-goal-id failed-goal-id})
         branch-context-id (get-in later-family-plan
                                   [:selection :rationalization_branch_context])
-        stored-episode (get-in world [:episodes stored-episode-id])]
+        stored-episode (get-in world [:episodes stored-episode-id])
+        latest-use-record (last (:use-history stored-episode))]
     (is (= frame-id
            (:frame-id selected-frame)))
     (is (= failed-goal-id
@@ -1448,7 +1471,7 @@
                          [:result :episode-outcome-facts]))))
     (is (= [{:fact/type :episode-use
              :episode-id stored-episode-id
-             :use-id (get-in stored-episode [:use-history 0 :use-id])
+             :use-id (:use-id latest-use-record)
              :branch-context-id branch-context-id
              :source-family :rationalization
              :target-family :rationalization
@@ -1459,7 +1482,7 @@
                    [:result :episode-use-facts])))
     (is (= [{:fact/type :episode-outcome
              :episode-id stored-episode-id
-             :use-id (get-in stored-episode [:use-history 0 :use-id])
+             :use-id (:use-id latest-use-record)
              :branch-context-id branch-context-id
              :source-family :rationalization
              :target-family :rationalization
@@ -1468,22 +1491,22 @@
              :source-rule :goal-family/rationalization-plan-dispatch}]
            (get-in later-family-plan
                    [:result :episode-outcome-facts])))
-    (is (= [{:use-id (get-in stored-episode [:use-history 0 :use-id])
-             :episode-id stored-episode-id
-             :cycle 0
-             :source-family :rationalization
-             :target-family :rationalization
-             :status :resolved
-             :reason :family-plan-use
-             :use-role :frame-source
-             :goal-id later-rationalization-goal-id
-             :branch-context-id branch-context-id
-             :source-rule :goal-family/rationalization-plan-dispatch
-             :target-rule :goal-family/rationalization-plan-dispatch
-             :outcome :succeeded
-             :resolved-cycle 0
-             :outcome-reason :family-plan-branch-succeeded}]
-           (:use-history stored-episode)))
+    (is (= {:use-id (:use-id latest-use-record)
+            :episode-id stored-episode-id
+            :cycle 0
+            :source-family :rationalization
+            :target-family :rationalization
+            :status :resolved
+            :reason :family-plan-use
+            :use-role :frame-source
+            :goal-id later-rationalization-goal-id
+            :branch-context-id branch-context-id
+            :source-rule :goal-family/rationalization-plan-dispatch
+            :target-rule :goal-family/rationalization-plan-dispatch
+            :outcome :succeeded
+            :resolved-cycle 0
+            :outcome-reason :family-plan-branch-succeeded}
+           latest-use-record))
     (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
            (get-in later-family-plan [:result :reframe-fact-ids])))
     (is (every? #(cx/fact-true? world branch-context-id %)
@@ -1634,6 +1657,9 @@
                                    :family-evaluator family-evaluator/mock-family-evaluator})
         stored-episode-id (:family-episode-id initial-family-plan)
         world (-> world
+                  (promote-family-episode-via-cross-family-evidence
+                   stored-episode-id
+                   :roving)
                   (cx/retract-fact trigger-context-id frame-fact)
                   (cx/assert-fact trigger-context-id guide-fact)
                   (cx/assert-fact trigger-context-id
@@ -1659,6 +1685,7 @@
                                    :failed-goal-id failed-goal-id
                                    :family-evaluator contradiction-evaluator})
         stored-episode (get-in world [:episodes stored-episode-id])
+        latest-use-record (last (:use-history stored-episode))
         post-candidates (families/rationalization-frame-candidates
                          world
                          {:trigger-context-id trigger-context-id
@@ -1682,10 +1709,9 @@
              :cycle 0
              :reason :outcome-driven-demotion}]
            (:demotion-history stored-episode)))
-    (is (= :contradicted
-           (get-in stored-episode [:use-history 0 :outcome])))
+    (is (= :contradicted (:outcome latest-use-record)))
     (is (= :family-evaluation-contradicted
-           (get-in stored-episode [:use-history 0 :outcome-reason])))
+           (:outcome-reason latest-use-record)))
     (is (= [] post-candidates))))
 
 (deftest roving-reminding-does-not-promote-retrieved-family-plan-episodes
@@ -1872,6 +1898,9 @@
                                    :family-evaluator family-evaluator/mock-family-evaluator})
         stored-episode-id (:family-episode-id initial-family-plan)
         world (-> world
+                  (promote-family-episode-via-cross-family-evidence
+                   stored-episode-id
+                   :roving)
                   (cx/retract-fact old-context-id explicit-cause)
                   (cx/assert-fact old-context-id counterfactual-fact)
                   (cx/assert-fact old-context-id leaf-objective-a))
@@ -1899,6 +1928,7 @@
         (families/run-family-plan world
                                   {:goal-id later-reversal-goal-id})
         stored-episode (get-in _world [:episodes stored-episode-id])
+        latest-use-record (last (:use-history stored-episode))
         branch-context-id (get-in later-family-plan
                                   [:selection :reversal_branch_context])]
     (is (= [stored-episode-id]
@@ -1929,7 +1959,7 @@
                          [:result :episode-outcome-facts]))))
     (is (= [{:fact/type :episode-use
              :episode-id stored-episode-id
-             :use-id (get-in stored-episode [:use-history 0 :use-id])
+             :use-id (:use-id latest-use-record)
              :branch-context-id branch-context-id
              :source-family :reversal
              :target-family :reversal
@@ -1940,7 +1970,7 @@
                    [:result :episode-use-facts])))
     (is (= [{:fact/type :episode-outcome
              :episode-id stored-episode-id
-             :use-id (get-in stored-episode [:use-history 0 :use-id])
+             :use-id (:use-id latest-use-record)
              :branch-context-id branch-context-id
              :source-family :reversal
              :target-family :reversal
@@ -1949,22 +1979,22 @@
              :source-rule :goal-family/reversal-plan-dispatch}]
            (get-in later-family-plan
                    [:result :episode-outcome-facts])))
-    (is (= [{:use-id (get-in stored-episode [:use-history 0 :use-id])
-             :episode-id stored-episode-id
-             :cycle 0
-             :source-family :reversal
-             :target-family :reversal
-             :status :resolved
-             :reason :family-plan-use
-             :use-role :counterfactual-source
-             :goal-id later-reversal-goal-id
-             :branch-context-id branch-context-id
-             :source-rule :goal-family/reversal-plan-dispatch
-             :target-rule :goal-family/reversal-plan-dispatch
-             :outcome :succeeded
-             :resolved-cycle 0
-             :outcome-reason :family-plan-branch-succeeded}]
-           (:use-history stored-episode)))))
+    (is (= {:use-id (:use-id latest-use-record)
+            :episode-id stored-episode-id
+            :cycle 0
+            :source-family :reversal
+            :target-family :reversal
+            :status :resolved
+            :reason :family-plan-use
+            :use-role :counterfactual-source
+            :goal-id later-reversal-goal-id
+            :branch-context-id branch-context-id
+            :source-rule :goal-family/reversal-plan-dispatch
+            :target-rule :goal-family/reversal-plan-dispatch
+            :outcome :succeeded
+            :resolved-cycle 0
+            :outcome-reason :family-plan-branch-succeeded}
+           latest-use-record))))
 
 (deftest reused-reversal-source-episode-can-backfire-and-demote
   (let [[world root-id] (world-with-root)
@@ -2003,6 +2033,9 @@
                                    :family-evaluator family-evaluator/mock-family-evaluator})
         stored-episode-id (:family-episode-id initial-family-plan)
         world (-> world
+                  (promote-family-episode-via-cross-family-evidence
+                   stored-episode-id
+                   :roving)
                   (cx/retract-fact old-context-id explicit-cause)
                   (cx/assert-fact old-context-id counterfactual-fact)
                   (cx/assert-fact old-context-id leaf-objective-a))
@@ -2023,6 +2056,7 @@
                                   {:goal-id later-reversal-goal-id
                                    :family-evaluator backfire-evaluator})
         stored-episode (get-in world [:episodes stored-episode-id])
+        latest-use-record (last (:use-history stored-episode))
         post-candidates (families/reverse-undo-cause-candidates
                          world
                          {:old-context-id old-context-id
@@ -2044,10 +2078,9 @@
              :cycle 0
              :reason :outcome-driven-demotion}]
            (:demotion-history stored-episode)))
-    (is (= :backfired
-           (get-in stored-episode [:use-history 0 :outcome])))
+    (is (= :backfired (:outcome latest-use-record)))
     (is (= :family-evaluation-backfired
-           (get-in stored-episode [:use-history 0 :outcome-reason])))
+           (:outcome-reason latest-use-record)))
     (is (= [] post-candidates))))
 
 (deftest rationalization-activation-candidates-detect-framed-failures

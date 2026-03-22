@@ -158,9 +158,12 @@ and "deserves future influence":
   and hard-failure demotion can quarantine non-core rules touched by
   an episode's rule path
 - external family evaluators can now return an explicit
-  promotion decision; heuristic mode stays conservative, but
-  evaluator-backed rationalization/reversal plans can enter as
-  `:durable` without the old manual test hack
+  promotion decision; heuristic mode stays conservative, and that
+  evaluator output is now advisory/gating input rather than direct
+  store-time admission authority
+- family-plan episodes no longer enter as `:durable` from evaluator
+  opinion alone; durable admission and frontier opening now require
+  later use/outcome reconciliation
 - evaluator-backed anti-residue flags now persist on episodes,
   assert typed `:episode-flag` facts into branch contexts, and
   can already suppress later retrieval (`:contradicted`,

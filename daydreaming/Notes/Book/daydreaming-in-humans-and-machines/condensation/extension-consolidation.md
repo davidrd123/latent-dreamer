@@ -28,8 +28,9 @@ As the system accumulates episodes, rules, and graph connections:
 - cross-family reuse can promote `:provisional -> :durable`
 - `:episode-promotion` facts make those promotions graph-visible
   - promotion still obeys the recent-episode anti-echo gate
-- external evaluator output can now promote selected family-plan
-  episodes to `:durable`
+- external evaluator output can now annotate promotion eligibility,
+  but it no longer promotes selected family-plan episodes to
+  `:durable` at store time by itself
 - external evaluator output can now also attach anti-residue flags
   (`:backfired`, `:stale`, `:contradicted`) to stored episodes, and
   those flags are asserted as typed `:episode-flag` facts
