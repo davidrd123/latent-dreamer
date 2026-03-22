@@ -521,6 +521,13 @@
                      (= (:source-family %) (:target-family %))))
        vec))
 
+(defn- use-order-index
+  [episode]
+  (->> (:use-history episode)
+       (map-indexed (fn [idx use-record]
+                      [(:use-id use-record) idx]))
+       (into {})))
+
 (defn- same-family-failed-use-count
   [use-history]
   (->> use-history
@@ -715,26 +722,41 @@
        (>= (qualifying-promotion-evidence-count episode)
            stale-rehabilitation-success-threshold)))
 
+(defn- later-qualifying-promotion-evidence
+  [episode use-id]
+  (let [order-index (use-order-index episode)
+        use-idx (get order-index use-id)]
+    (when (some? use-idx)
+      (->> (:promotion-evidence episode)
+           (filter #(= :cross-family-use-success (:type %)))
+           (filter (fn [evidence]
+                     (let [evidence-idx (get order-index (:use-id evidence))]
+                       (and (some? evidence-idx)
+                            (> evidence-idx use-idx)))))
+           last))))
+
 (defn- vindicate-pending-same-family-uses
   [world episode-id]
   (let [episode (episode-or-throw world episode-id)
         anti-residue-flags (set (:anti-residue-flags episode))]
     (if (or (empty? (pending-same-family-use-records episode))
-            (nil? (qualifying-promotion-evidence episode))
             (seq (set/intersection #{:backfired :contradicted}
                                    anti-residue-flags)))
       [world []]
       (reduce (fn [[current-world resolved-use-ids] use-record]
-                (let [[next-world outcome-info]
-                      (resolve-episode-use-outcome current-world
-                                                   episode-id
-                                                   (:use-id use-record)
-                                                   {:outcome :succeeded
-                                                    :reason :later-cross-family-vindication})]
-                  [next-world
-                   (cond-> resolved-use-ids
-                     (not (:already-resolved? outcome-info))
-                     (conj (:use-id use-record)))]))
+                (if-not (later-qualifying-promotion-evidence episode
+                                                             (:use-id use-record))
+                  [current-world resolved-use-ids]
+                  (let [[next-world outcome-info]
+                        (resolve-episode-use-outcome current-world
+                                                     episode-id
+                                                     (:use-id use-record)
+                                                     {:outcome :succeeded
+                                                      :reason :later-cross-family-vindication})]
+                    [next-world
+                     (cond-> resolved-use-ids
+                       (not (:already-resolved? outcome-info))
+                       (conj (:use-id use-record)))])))
               [world []]
               (pending-same-family-use-records episode)))))
 

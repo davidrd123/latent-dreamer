@@ -384,6 +384,68 @@
     (is (= :durable (:admission-status episode)))
     (is (nil? (:promotion-history episode)))))
 
+(deftest reconcile-episode-admission-does-not-vindicate-same-family-use-from-earlier-cross-family-evidence
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id
+                                               :retention-class :payload-exemplar
+                                               :keep-decision :keep-exemplar
+                                               :admission-status :durable
+                                               :provenance {:source :family-plan
+                                                            :family :rationalization}})
+        [world cross-family-use]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :reminded
+                                 :goal-id :g-1
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :roving
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/roving-plan-dispatch})
+        [world _]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id cross-family-use)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        [world same-family-use]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :frame-source
+                                 :goal-id :g-2
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/rationalization-plan-dispatch})
+        [world transition]
+        (epmem/reconcile-episode-admission world episode-id)
+        episode (get-in world [:episodes episode-id])
+        same-family-record (second (:use-history episode))]
+    (is (nil? transition))
+    (is (= :pending (:status same-family-record)))
+    (is (nil? (:outcome same-family-record)))
+    (is (nil? (:outcome-reason same-family-record)))
+    (is (= 1 (get-in episode [:outcome-stats :successful-use-count])))
+    (is (= [{:cycle 0
+             :type :cross-family-use-success
+             :use-id (:use-id cross-family-use)
+             :source-family :rationalization
+             :target-family :roving
+             :source-rule :goal-family/rationalization-plan-dispatch
+             :target-rule :goal-family/roving-plan-dispatch
+             :branch-context-id root-id
+             :goal-id :g-1}]
+           (:promotion-evidence episode)))
+    (is (= :durable (:admission-status episode)))
+    (is (nil? (:promotion-history episode)))
+    (is (= (:use-id same-family-use)
+           (:use-id same-family-record)))))
+
 (deftest repeated-failed-same-family-use-flags-stale-and-demotes-durable-episode
   (let [[world root-id] (world-with-root)
         [world episode-id] (epmem/add-episode world
