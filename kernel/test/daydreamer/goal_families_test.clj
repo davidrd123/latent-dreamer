@@ -867,7 +867,7 @@
     (is (= 1
            (count (get-in rules-by-id
                           [:goal-family/roving-trigger :graph-cache :out-edge-bases]))))
-    (is (= 0
+    (is (= 1
            (count (get-in rules-by-id
                           [:goal-family/roving-activation :graph-cache :out-edge-bases]))))
     (is (= 4
@@ -879,7 +879,7 @@
     (is (= 1
            (count (get-in rules-by-id
                           [:goal-family/rationalization-activation :graph-cache :in-edge-bases]))))
-    (is (= 0
+    (is (= 1
            (count (get-in rules-by-id
                           [:goal-family/rationalization-activation :graph-cache :out-edge-bases]))))
     (is (= 2
@@ -891,7 +891,7 @@
     (is (= 1
            (count (get-in rules-by-id
                           [:goal-family/reversal-activation :graph-cache :in-edge-bases]))))
-    (is (= 0
+    (is (= 1
            (count (get-in rules-by-id
                           [:goal-family/reversal-activation :graph-cache :out-edge-bases]))))))
 
@@ -1113,6 +1113,37 @@
             :fact-types [:family-affect-state
                          :goal-family-trigger]
             :edge-kinds [:state-transition
+                         :state-transition]}
+           (select-keys (first bridges)
+                        [:rule-path
+                         :fact-types
+                         :edge-kinds])))))
+
+(deftest family-rule-graph-exposes-reversal-to-rationalization-plan-bridge
+  (let [graph (rules/build-connection-graph (families/family-rules))
+        bridges (rules/bridge-paths graph
+                                    :goal-family/reversal-plan-dispatch
+                                    :goal-family/rationalization-plan-dispatch
+                                    {:min-depth 4
+                                     :max-depth 5})]
+    (is (= [[:goal-family/reversal-plan-dispatch
+             :goal-family/reversal-aftershock-to-rationalization
+             :goal-family/rationalization-activation
+             :goal-family/rationalization-plan-request
+             :goal-family/rationalization-plan-dispatch]]
+           (mapv :rule-path bridges)))
+    (is (= {:rule-path [:goal-family/reversal-plan-dispatch
+                        :goal-family/reversal-aftershock-to-rationalization
+                        :goal-family/rationalization-activation
+                        :goal-family/rationalization-plan-request
+                        :goal-family/rationalization-plan-dispatch]
+            :fact-types [:family-affect-state
+                         :goal-family-trigger
+                         :family-plan-ready
+                         :family-plan-request]
+            :edge-kinds [:state-transition
+                         :state-transition
+                         :state-transition
                          :state-transition]}
            (select-keys (first bridges)
                         [:rule-path
@@ -1671,9 +1702,87 @@
             :rationalization_frame]
            (:activation-reasons rationalization-goal)))
     (is (= expected-rule-provenance
+           (:rule-provenance rationalization-goal)))
+    (is (= expected-rule-provenance
            (:rule-provenance activation-event)))
     (is (= (:id rationalization-goal)
            (:goal-id activation-event)))))
+
+(deftest rationalization-plan-extends-bridged-activation-provenance
+  (let [[world root-id] (world-with-root)
+        world (assoc world :reality-context root-id)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        dependency {:fact/type :dependency
+                    :from-id emotion-id
+                    :to-id old-top-level-goal-id}
+        frame-id :rf-reversal-reframe
+        world (-> world
+                  (cx/retract-fact old-context-id dependency)
+                  (cx/assert-fact old-context-id
+                                  (rationalization-frame-fact frame-id
+                                                              old-top-level-goal-id
+                                                              0.76
+                                                              [guide-fact])))
+        [world reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})
+        new-context-id (get-in world [:goals reversal-goal-id :next-cx])
+        [world _reversal-result]
+        (families/run-family-plan world
+                                  {:goal-id reversal-goal-id
+                                   :old-context-id old-context-id
+                                   :old-top-level-goal-id old-top-level-goal-id
+                                   :failed-goal-id old-top-level-goal-id
+                                   :new-context-id new-context-id
+                                   :new-top-level-goal-id reversal-goal-id
+                                   :input-facts [counterfactual-fact]})
+        world (families/activate-family-goals world)
+        rationalization-goal-id (->> (vals (:goals world))
+                                     (filter #(= :rationalization (:goal-type %)))
+                                     (remove #(= reversal-goal-id (:id %)))
+                                     (map :id)
+                                     first)
+        [_world rationalization-result]
+        (families/run-family-plan world {:goal-id rationalization-goal-id})
+        expected-rule-provenance
+        {:rule-path [:goal-family/reversal-plan-request
+                     :goal-family/reversal-plan-dispatch
+                     :goal-family/reversal-aftershock-to-rationalization
+                     :goal-family/rationalization-activation
+                     :goal-family/rationalization-plan-request
+                     :goal-family/rationalization-plan-dispatch]
+         :edge-path [{:from-rule :goal-family/reversal-plan-request
+                      :to-rule :goal-family/reversal-plan-dispatch
+                      :fact-type :family-plan-request
+                      :edge-kind :state-transition}
+                     {:from-rule :goal-family/reversal-plan-dispatch
+                      :to-rule :goal-family/reversal-aftershock-to-rationalization
+                      :fact-type :family-affect-state
+                      :edge-kind :state-transition}
+                     {:from-rule :goal-family/reversal-aftershock-to-rationalization
+                      :to-rule :goal-family/rationalization-activation
+                      :fact-type :goal-family-trigger
+                      :edge-kind :state-transition}
+                     {:from-rule :goal-family/rationalization-activation
+                      :to-rule :goal-family/rationalization-plan-request
+                      :fact-type :family-plan-ready
+                      :edge-kind :state-transition}
+                     {:from-rule :goal-family/rationalization-plan-request
+                      :to-rule :goal-family/rationalization-plan-dispatch
+                      :fact-type :family-plan-request
+                      :edge-kind :state-transition}]}]
+    (is (= expected-rule-provenance
+           (:rule-provenance rationalization-result)))))
 
 (deftest removing-reversal-to-rationalization-bridge-stops-bridged-rationalization
   (let [[world root-id] (world-with-root)
