@@ -19,7 +19,7 @@
   "Create an episode map. This is a pure constructor for fixtures and tests."
   [{:keys [id rule goal-id context-id realism desirability indices
            plan-threshold reminding-threshold children descendants
-           provenance rule-path edge-path]
+           provenance rule-path edge-path payload]
     :or {id :ep-1
          indices #{}
          plan-threshold 0
@@ -43,7 +43,10 @@
     (assoc :rule-path (vec rule-path))
 
     (seq edge-path)
-    (assoc :edge-path (vec edge-path))))
+    (assoc :edge-path (vec edge-path))
+
+    payload
+    (assoc :payload payload)))
 
 (defn- next-episode-id
   [world]

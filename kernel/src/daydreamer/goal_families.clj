@@ -1162,28 +1162,81 @@
   leaf and ranks them by stored priority, then by how many counterfactual facts
   they provide."
   [world {:keys [old-context-id] :as reversal-leaf}]
-  (->> (cx/visible-facts world old-context-id)
-       (filter failure-cause-fact?)
-       (filter #(failure-cause-matches-leaf? % reversal-leaf))
-       (keep (fn [fact]
-               (let [counterfactual-facts (vec (:counterfactual-facts fact []))]
-                 (when (seq counterfactual-facts)
-                   {:cause-id (fact-id fact)
-                    :goal-id (or (:failed-goal-id fact)
-                                 (:goal-id fact)
-                                 (:top-level-goal fact))
-                    :priority (double (or (:priority fact) 0.0))
-                    :counterfactual-count (count counterfactual-facts)
-                    :counterfactual-facts counterfactual-facts
-                    :selection-policy reversal-cause-policy
-                    :selection-reasons (cond-> [:stored_failure_cause
-                                                :matching_failed_goal]
-                                         (> (count counterfactual-facts) 1)
-                                         (conj :multi_fact_counterfactual))}))))
-       (sort-by (juxt (comp - :priority)
-                      (comp - :counterfactual-count)
-                      (comp str :cause-id)))
-       vec))
+  (let [visible-facts (cx/visible-facts world old-context-id)
+        visible-indices (->> visible-facts
+                             (keep fact-id)
+                             distinct
+                             vec)
+        explicit-candidates
+        (->> visible-facts
+             (filter failure-cause-fact?)
+             (filter #(failure-cause-matches-leaf? % reversal-leaf))
+             (keep (fn [fact]
+                     (let [counterfactual-facts (vec (:counterfactual-facts fact []))]
+                       (when (seq counterfactual-facts)
+                         {:candidate-rank 0
+                          :cause-id (fact-id fact)
+                          :goal-id (or (:failed-goal-id fact)
+                                       (:goal-id fact)
+                                       (:top-level-goal fact))
+                          :priority (double (or (:priority fact) 0.0))
+                          :counterfactual-count (count counterfactual-facts)
+                          :counterfactual-facts counterfactual-facts
+                          :selection-policy reversal-cause-policy
+                          :selection-reasons (cond-> [:stored_failure_cause
+                                                      :matching_failed_goal]
+                                               (> (count counterfactual-facts) 1)
+                                               (conj :multi_fact_counterfactual))}))))
+             vec)
+        stored-episode-candidates
+        (if (seq visible-indices)
+          (->> (episodic/retrieve-episodes
+                world
+                visible-indices
+                {:threshold-key :plan-threshold
+                 :active-rule-path [:goal-family/reversal-plan-dispatch]})
+               (keep (fn [hit]
+                       (let [episode (get-in world [:episodes (:episode-id hit)])
+                             provenance (:provenance episode)
+                             selection (:selection provenance)
+                             payload (:payload episode)
+                             counterfactual-facts (vec (:input-facts payload []))
+                             retracted-fact-ids (set (:reversal_leaf_retracted_facts selection))
+                             retracted-match? (seq (set/intersection retracted-fact-ids
+                                                                     (set visible-indices)))]
+                         (when (and (= :family-plan (:source provenance))
+                                    (= :reversal (:family provenance))
+                                    (failure-cause-matches-leaf?
+                                     {:goal-id (or (:reversal_counterfactual_goal selection)
+                                                   (:goal-id episode))}
+                                     reversal-leaf)
+                                    retracted-match?
+                                    (seq counterfactual-facts))
+                           {:candidate-rank 1
+                            :cause-id (:episode-id hit)
+                            :goal-id (or (:reversal_counterfactual_goal selection)
+                                         (:goal-id episode))
+                            :priority (double (or (:effective-marks hit)
+                                                  (:marks hit)
+                                                  0.0))
+                            :counterfactual-count (count counterfactual-facts)
+                            :counterfactual-facts counterfactual-facts
+                            :selection-policy :stored_reversal_episode
+                            :selection-reasons (cond-> [:stored_reversal_episode
+                                                        :matching_failed_goal
+                                                        :matching_retracted_fact]
+                                                 (:provenance-reason hit)
+                                                 (conj (:provenance-reason hit))
+                                                 (> (count counterfactual-facts) 1)
+                                                 (conj :multi_fact_counterfactual))}))))
+               vec)
+          [])]
+    (->> (concat explicit-candidates stored-episode-candidates)
+         (sort-by (juxt :candidate-rank
+                        (comp - :priority)
+                        (comp - :counterfactual-count)
+                        (comp str :cause-id)))
+         vec)))
 
 (defn reverse-undo-causes
   "Choose stored counterfactual input facts for a selected failed leaf.
@@ -1547,7 +1600,8 @@
         retrieval-indices (family-plan-retrieval-indices family-plan)
         support-indices (->> (family-plan-support-indices family-plan)
                              (remove (set retrieval-indices))
-                             vec)]
+                             vec)
+        episode-payload (:episode-payload family-plan)]
     (if (and goal-id
              context-id
              (seq rule-path))
@@ -1564,7 +1618,10 @@
                            (assoc :indices (set retrieval-indices))
 
                            (seq edge-path)
-                           (assoc :edge-path edge-path))
+                           (assoc :edge-path edge-path)
+
+                           episode-payload
+                           (assoc :payload episode-payload))
             [world episode-id] (episodic/add-episode world episode-spec)
             world (reduce (fn [current-world index]
                             (episodic/store-episode current-world
@@ -2213,6 +2270,7 @@
              {:family :reversal
               :sprouted-context-ids sprouted-context-ids
               :rule-provenance (:rule-provenance primary-branch)
+              :episode-payload {:input-facts (:input-facts reversal-target)}
               :retrieval-indices (concat (:counterfactual-fact-ids reversal-target)
                                          (:retracted-fact-ids primary-branch))
               :support-indices [(keyword "family" "reversal")

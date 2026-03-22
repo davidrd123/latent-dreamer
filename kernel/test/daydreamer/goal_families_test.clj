@@ -924,6 +924,65 @@
     (is (not (some #{unrelated-episode-id}
                    (:reminded-episode-ids (:result roving-result)))))))
 
+(deftest stored-reversal-family-plan-episode-can-reopen-counterfactual-later
+  (let [[world root-id] (world-with-root)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        explicit-cause (failure-cause-fact :fc-wall-open
+                                           old-top-level-goal-id
+                                           0.9
+                                           [counterfactual-fact])
+        world (cx/assert-fact world old-context-id explicit-cause)
+        [world initial-reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})
+        [world initial-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id initial-reversal-goal-id})
+        stored-episode-id (:family-episode-id initial-family-plan)
+        world (cx/retract-fact world old-context-id explicit-cause)
+        reversal-leaf {:old-context-id old-context-id
+                       :old-top-level-goal-id old-top-level-goal-id
+                       :failed-goal-id old-top-level-goal-id}
+        candidates (families/reverse-undo-cause-candidates world reversal-leaf)
+        selected-cause (families/reverse-undo-causes world reversal-leaf)
+        [world later-reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.72
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.68})
+        [_world later-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id later-reversal-goal-id})]
+    (is (= [stored-episode-id]
+           (mapv :cause-id candidates)))
+    (is (= :stored_reversal_episode
+           (:selection-policy (first candidates))))
+    (is (= [counterfactual-fact]
+           (:input-facts selected-cause)))
+    (is (= stored-episode-id
+           (:counterfactual-cause-id selected-cause)))
+    (is (= :stored_reversal_episode
+           (get-in later-family-plan [:selection :reversal_counterfactual_policy])))
+    (is (= stored-episode-id
+           (get-in later-family-plan [:selection :reversal_counterfactual_source])))))
+
 (deftest rationalization-activation-candidates-detect-framed-failures
   (let [[world root-id] (world-with-root)
         [world context-id] (cx/sprout world root-id)
