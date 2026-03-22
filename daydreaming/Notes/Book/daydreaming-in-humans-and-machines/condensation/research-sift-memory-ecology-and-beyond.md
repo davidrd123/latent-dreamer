@@ -1,0 +1,265 @@
+# Research Sift: Memory Ecology, Executor Boundary, and Beyond-Mueller Directions
+
+Batch: 2026-03-22 review stack (reviews 03-13)
+
+---
+
+## Scope
+
+Prompts and replies covered:
+
+| ID | Topic | Source |
+|----|-------|--------|
+| 03 | Episode loop risks | `replies/03-episode-loop-risks-5thinking.md` |
+| 04 | Executor seam | `replies/04-executor-seam-5thinking.md` |
+| 05 | Verified paths | `replies/05-verified-paths-5thinking.md` |
+| 06 | Family graph rev | `replies/06-family-graph-rev-5pro.md` |
+| 07 | Executor seam | `replies/07-executor-seam-5pro.md` |
+| 08 | Verified paths | `replies/08-verified-paths-5pro.md` |
+| 09 | Episode loop risks | `replies/09-episode-loop-risks-5pro.md` (if exists) |
+| 10 | Executor boundary | `replies/10-executor-boundary-5pro.md` |
+| 11a | Promotion (loose) | `replies/11a-promo-loose-5pro.md` |
+| 11b | Promotion (prompted) | `replies/11b-promo-prompt-5pro.md` |
+| 13 | Beyond Mueller Q1-3 | `replies/13-beyond-1_3.md` |
+
+Also incorporates: Mueller source verification (`dd_epis.cl`, `dd_ri.cl`, `dd_rule2.cl`).
+
+---
+
+## Settled Findings
+
+### Memory ecology
+
+**Three-tier admission** — settled
+- `:trace` / `:provisional` / `:durable`
+- Default for rationalization and reversal is `:provisional`
+- Roving hot-cues almost never promote to `:durable`
+- First pass implemented in code
+
+**Cue zone separation** — settled
+- Content cues drive retrieval + reminding + FIFO
+- Provenance is queryable, weak tie-break, not threshold-counted
+- Support tags are metadata only
+- First pass implemented in code
+
+**Provenance requires content marks** — settled
+- Provenance bonus only applies after content marks exist
+- Imaginary/counterfactual material has stricter floor (2 marks vs 1)
+- Implemented
+
+**Bridge bonus direction** — settled
+- Shorter = stronger for retrieval relevance
+- Implemented (flipped from earlier deeper=stronger)
+
+**Cheap rationalization resurrection gated** — settled
+- `:serendipity? true` removed for stored-frame fallback
+- Implemented
+
+**Same-family provenance cap** — settled
+- Same-family fallback gated on durable promotion
+- Implemented
+
+**Double-counting eliminated** — settled
+- Cue overlap and provenance bonus no longer both count same evidence
+- Implemented
+
+### Executor boundary
+
+**`execute-rule` in `rules.clj`** — settled
+- Three-stage validation: shape → consequent schema → denotation
+- `dispatch-executor` with `case` on `:kind`
+- `instantiate-rule` becomes compatibility wrapper
+- Five-step migration (A-E) keeps tests green
+- Reviews 04, 07, 10 converge
+
+**Three-channel RuleResultV1** — settled
+- `:consequents` (schema-validated, graphable)
+- `:effects` (typed kernel ops)
+- `:summary` / `:episode-material` (trace + persistence)
+- Executor does not mutate world
+
+**Denotation validation** — settled
+- `:validation-fn` returns vector of failure keywords
+- Every keyword must be declared in `:failure-modes`
+- Structural failures in `rules.clj`, semantic failures in denotation
+
+### Verified paths
+
+**Status lattice** — settled
+- `:candidate` → `:projection-verified` → `:episode-constructed` → `:grounded` → `:sound-under-executors`
+- First pass is progressive binding propagation
+- Mueller-faithful version builds episode skeleton while walking
+- `bridge-paths` stays candidate-only; `verify-path` is a sibling layer
+
+**Partial verification is structured, not scalar** — settled
+- Per-hop status, bindings delta, open obligations, verified prefix length
+- Lexicographic ranking preserves diagnosis
+
+### Mueller regression
+
+**Six gates Mueller had that we collapsed** — settled
+- `hidden?` → threshold=100 (our `:trace`)
+- `needed-for-plan?` / `needed-for-reminding?` per index (our cue zones)
+- Misc indices as `nil nil` (our support zone)
+- Two separate thresholds (plan vs reminding)
+- `accessible?` toggle on rules
+- Realism/desirability as ordering criteria
+
+### Build order
+
+**Five-step sequence** — settled
+1. Memory ecology (active)
+2. Executor boundary
+3. `:llm-backed` evaluator pilot
+4. Verified paths
+5. Generic `:clojure-fn` dispatch
+
+---
+
+## Provisional Findings
+
+### Promotion criteria (from 11a, 11b)
+
+**Promotion requires structural usefulness + outcome evidence** — provisional
+- Cross-family reuse, downstream success, or world confirmation
+- Evaluator is a gate/veto, not sole authority
+- Rationalization strictest, reversal slightly looser, roving almost never
+- `eligible-for-promotion?` function shape proposed but not implemented
+
+**Episode-use attribution as the unifying abstraction** — provisional
+- `note-episode-use` + `resolve-episode-use-outcome` + `reconcile-episode-admission`
+- "The missing abstraction is episode use with attributed outcomes"
+- Proposed but not implemented
+
+**Promotion is reversible** — provisional
+- `:durable` → `:provisional` on contradiction
+- `:provisional` → `:trace` on persistent failure
+- Non-monotone lattice
+
+### Anti-residue detection (from 11a, 11b)
+
+**`:same-family-loop`** — provisional
+- Detect: same-family-use-cycles ≥ threshold (2 for rationalization, 3 for reversal), cross-family success = 0
+- Mechanical, based on use records
+
+**`:backfired`** — provisional
+- Detect: same concern retriggered same family within 2 cycles with no emotion improvement, or supported goal terminated `:failed`
+- One backfire sufficient for rationalization, two for reversal
+
+**`:stale`** — provisional
+- Detect: used 3+ times, successful-use = 0, grounding = 0, no success in 8+ cycles
+- Batch consolidation, not retrieval-time
+
+**`:contradicted`** — provisional
+- Detect: structural comparison against newly canonicalized facts
+- Needs fact-type-specific comparator (`defmulti fact-contradicts?`)
+- One explicit contradiction sufficient
+
+### Rule accessibility frontier (from 11a, 11b, Mueller verification)
+
+**Three-state lattice** — provisional
+- `:accessible` / `:frontier` / `:quarantined`
+- Tracked in world state (`:rule-access` registry), NOT in `RuleV1`
+- `build-connection-graph` stays structural; accessibility is caller-level filter
+- `planning-graph` / `serendipity-graph` helpers filter the structural graph
+
+**Provisional episodes do NOT open rules** — provisional
+- Only `:durable` episodes promote rules from `:frontier` to `:accessible`
+- Authored core rules start `:accessible`
+- Induced/experimental rules start `:frontier`
+
+### Heterogeneous graph serendipity (from 13)
+
+**Ephemeral descriptor-slippage workspace** — provisional
+- Copycat import: temporary descriptor rewrites queryable during path search
+- Not admitted into permanent graph unless validated
+- Resolves Copycat/descriptor-rigidity tension
+
+**Cross-phase rule classes needed** — provisional
+- Retrieval cue/result, episode evaluation, episode use/outcome, anti-residue, concern aftermath
+- These add semantic phases that make serendipity non-trivial
+
+**Density guardrail** — provisional
+- Too sparse: 0-1 candidates per cross-phase query
+- Promising: 3-20 candidates, 10%+ verification yield
+- Soup: 50+ candidates, <5% yield
+
+### Evaluator insertion (from 13)
+
+**Pointwise by default, pairwise after structural narrowing** — provisional
+- Don't use global per-cycle judges
+- Evaluate bounded objects
+- Funnel: structural narrowing → cheap pointwise → ambiguous escalate
+
+**Evaluator rollout order** — provisional
+1. Post-plan episode evaluator
+2. Path-usefulness evaluator
+3. Analogy aptness evaluator
+4. Rationalization backfire evaluator
+5. Mutation triage evaluator
+
+### Induced rule admission (from 13)
+
+**Eight-step admission ladder** — provisional
+1. Schema validity
+2. Denotation validity
+3. Sandbox executability
+4. Behavioral tests
+5. Multi-trace support
+6. Novelty/subsumption/compression (MDL)
+7. Frontier admission only
+8. Promotion by downstream evidence
+
+**Start with narrow bridge rules** — provisional
+- Induce from repeated cross-family transitions, not broad planning rules
+- Lower blast radius
+
+---
+
+## Deferred / Speculative
+
+### Directed daydreaming (Q4)
+- "Constrain the question, not the surprise"
+- One-end anchored search
+- Awaiting Q4-6 reply
+
+### DSPy optimization of write/read (Q5)
+- GradMem insight: optimize HOW you write
+- The write interface is already a DSPy signature
+- Awaiting Q4-6 reply
+
+### Developmental trajectory (Q6)
+- Measurable divergence between instances
+- Distribution over goal families, motif neighborhoods, edge kinds
+- Awaiting Q4-6 reply
+
+### Accessibility frontier as growth (Q7)
+- Serendipity discovers frontier rules → verification promotes → planner's repertoire grows
+- Awaiting Q7-8 reply
+
+### Multi-model routing as metacognition (Q8)
+- Kernel controls routing based on structural difficulty
+- Monitoring/control framework from metacognition literature
+- Awaiting Q7-8 reply
+
+---
+
+## Doc Updates
+
+Which durable docs should absorb which findings:
+
+| Finding | Target doc | Status |
+|---------|-----------|--------|
+| Three-tier admission | `extension-consolidation.md` | Done |
+| Cue zone separation | `extension-consolidation.md` | Done |
+| Build order | `build-order-checkpoint-2026-03-22.md` | Done |
+| Mueller regression gates | `mueller-to-kernel-mapping.md` | Done |
+| `execute-rule` spec | `kernel-rule-schema-and-execution-model.md` | Pending (review 10 gives exact spec) |
+| Verified path lattice | New doc or append to `rule-connection-graph.md` | Pending |
+| Promotion criteria | `extension-consolidation.md` | Pending |
+| Anti-residue detection | `extension-consolidation.md` | Pending |
+| Rule accessibility frontier | New doc or append to `rule-connection-graph.md` | Pending |
+| Descriptor-slippage workspace | Mechanism 13 open question or new doc | Parked |
+| Evaluator rollout order | `build-order-checkpoint` | Pending |
+| Induced rule ladder | `build-order-checkpoint` or `rule-engine-trajectory.md` | Parked |
+| Density guardrail | `rule-connection-graph.md` | Parked |
