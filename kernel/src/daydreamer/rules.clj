@@ -40,11 +40,34 @@
     :graph-cache         ; derived edges — rebuilt from schemas, not source of truth
     :provenance})        ; where this rule came from (book anchors, kernel status)
 
+(def ^:private required-denotation-keys
+  #{:intended-effect
+    :failure-modes
+    :validation-fn})
+
+(def ^:private required-rule-result-keys
+  #{:consequents
+    :confidence
+    :reason
+    :aux-indices
+    :surface-summary})
+
 (defn logic-var?
   "Is this a logic variable? Convention: symbols starting with ? like '?target"
   [value]
   (and (symbol? value)
        (str/starts-with? (name value) "?")))
+
+(defn- valid-denotation?
+  [denotation]
+  (and (map? denotation)
+       (set/subset? required-denotation-keys
+                    (set (keys denotation)))
+       (keyword? (:intended-effect denotation))
+       (vector? (:failure-modes denotation))
+       (every? keyword? (:failure-modes denotation))
+       (or (nil? (:validation-fn denotation))
+           (ifn? (:validation-fn denotation)))))
 
 (defn valid-rule?
   "Check that a rule has all required fields with valid types.
@@ -58,7 +81,7 @@
        (vector? (:consequent-schema rule))
        (number? (:plausibility rule))
        (map? (:index-projections rule))
-       (map? (:denotation rule))
+       (valid-denotation? (:denotation rule))
        (map? (:executor rule))
        (contains? executor-kinds (get-in rule [:executor :kind]))
        (map? (:graph-cache rule))
@@ -73,6 +96,34 @@
                     {:rule-id (:id rule)
                      :rule rule})))
   rule)
+
+(defn- normalize-rule-call
+  [rule call]
+  (let [call (cond
+               (nil? call)
+               {}
+
+               (and (map? call)
+                    (or (contains? call :bindings)
+                        (contains? call :matched-facts)
+                        (contains? call :rule-id)))
+               call
+
+               (map? call)
+               {:bindings call}
+
+               :else
+               (throw (ex-info "Invalid RuleCallV1"
+                               {:rule-id (:id rule)
+                                :call call})))]
+    (when-not (map? (or (:bindings call) {}))
+      (throw (ex-info "RuleCallV1 bindings must be a map"
+                      {:rule-id (:id rule)
+                       :call call})))
+    (-> call
+        (update :bindings #(or % {}))
+        (update :matched-facts #(vec (or % [])))
+        (assoc :rule-id (:id rule)))))
 
 (defn instantiate-template
   "Walk a template (map, vector, nested structure) and replace every
@@ -527,16 +578,8 @@
                                                 (:rule-path %)))
                             vec)})))
 
-(defn instantiate-rule
-  "Execute an :instantiate rule: fill in consequent templates from bindings.
-  Returns a RuleResultV1 with :consequents, :confidence, :reason, :aux-indices.
-  Only works for :instantiate executors — throws for :clojure-fn or :llm-backed."
-  [rule bindings]
-  (validate-rule! rule)
-  (when-not (= :instantiate (get-in rule [:executor :kind]))
-    (throw (ex-info "instantiate-rule only supports :instantiate executors"
-                    {:rule-id (:id rule)
-                     :executor-kind (get-in rule [:executor :kind])})))
+(defn- instantiate-executor-result
+  [rule {:keys [bindings]}]
   {:consequents (mapv #(instantiate-template % bindings)
                       (:consequent-schema rule))
    :confidence (double (:plausibility rule))
@@ -545,3 +588,166 @@
    :aux-indices (mapv #(instantiate-template % bindings)
                       (get-in rule [:index-projections :emit] []))
    :surface-summary nil})
+
+(defn- invoke-clojure-executor
+  [rule call]
+  (let [executor-fn (or (get-in rule [:executor :spec :fn])
+                        (get-in rule [:executor :spec :executor-fn]))]
+    (when-not (ifn? executor-fn)
+      (throw (ex-info "Missing :clojure-fn executor"
+                      {:rule-id (:id rule)
+                       :executor (get rule :executor)})))
+    (executor-fn {:rule rule
+                  :call call})))
+
+(defn- invoke-llm-executor
+  [rule _call]
+  (throw (ex-info "LLM-backed rule execution is not implemented yet"
+                  {:rule-id (:id rule)
+                   :executor (get rule :executor)})))
+
+(defn- dispatch-executor
+  [rule call]
+  (case (get-in rule [:executor :kind])
+    :instantiate (instantiate-executor-result rule call)
+    :clojure-fn (invoke-clojure-executor rule call)
+    :llm-backed (invoke-llm-executor rule call)))
+
+(defn- validate-rule-result-shape!
+  [rule call result]
+  (when-not (map? result)
+    (throw (ex-info "RuleResultV1 must be a map"
+                    {:rule-id (:id rule)
+                     :call call
+                     :result result})))
+  (when-not (set/subset? required-rule-result-keys
+                         (set (keys result)))
+    (throw (ex-info "RuleResultV1 is missing required keys"
+                    {:rule-id (:id rule)
+                     :call call
+                     :result result
+                     :required-keys required-rule-result-keys})))
+  (when-not (vector? (:consequents result))
+    (throw (ex-info "RuleResultV1 :consequents must be a vector"
+                    {:rule-id (:id rule)
+                     :call call
+                     :result result})))
+  (when-not (and (number? (:confidence result))
+                 (<= 0.0 (double (:confidence result)) 1.0))
+    (throw (ex-info "RuleResultV1 :confidence must be in [0.0, 1.0]"
+                    {:rule-id (:id rule)
+                     :call call
+                     :result result})))
+  (when-not (string? (:reason result))
+    (throw (ex-info "RuleResultV1 :reason must be a string"
+                    {:rule-id (:id rule)
+                     :call call
+                     :result result})))
+  (when-not (vector? (:aux-indices result))
+    (throw (ex-info "RuleResultV1 :aux-indices must be a vector"
+                    {:rule-id (:id rule)
+                     :call call
+                     :result result})))
+  (when-not (or (nil? (:surface-summary result))
+                (string? (:surface-summary result)))
+    (throw (ex-info "RuleResultV1 :surface-summary must be nil or a string"
+                    {:rule-id (:id rule)
+                     :call call
+                     :result result})))
+  result)
+
+(defn- validate-consequents!
+  [rule call {:keys [consequents] :as result}]
+  (let [schema (:consequent-schema rule)
+        bindings (:bindings call)]
+    (when (not= (count schema) (count consequents))
+      (throw (ex-info "RuleResultV1 consequent count mismatch"
+                      {:rule-id (:id rule)
+                       :bindings bindings
+                       :expected-count (count schema)
+                       :actual-count (count consequents)
+                       :schema schema
+                       :consequents consequents})))
+    (when-not (seq (match-antecedent-schema schema consequents bindings))
+      (throw (ex-info "RuleResultV1 consequents do not satisfy consequent-schema"
+                      {:rule-id (:id rule)
+                       :bindings bindings
+                       :schema schema
+                       :consequents consequents})))
+    result))
+
+(defn- validation-failures
+  [rule call result]
+  (let [validation-fn (get-in rule [:denotation :validation-fn])]
+    (if validation-fn
+      (let [failures (validation-fn {:rule rule
+                                     :call call
+                                     :result result})]
+        (cond
+          (nil? failures) []
+          (vector? failures) failures
+          (sequential? failures) (vec failures)
+          :else
+          (throw (ex-info "validation-fn must return a vector of failure keywords"
+                          {:rule-id (:id rule)
+                           :returned failures}))))
+      [])))
+
+(defn- validate-denotation!
+  [rule call result]
+  (let [failures (validation-failures rule call result)
+        allowed (set (get-in rule [:denotation :failure-modes]))]
+    (when-not (every? allowed failures)
+      (throw (ex-info "validation-fn returned undeclared failure mode(s)"
+                      {:rule-id (:id rule)
+                       :returned failures
+                       :allowed allowed
+                       :call call
+                       :result result})))
+    (when (seq failures)
+      (throw (ex-info "RuleResultV1 failed denotational validation"
+                      {:rule-id (:id rule)
+                       :failures failures
+                       :call call
+                       :result result})))
+    result))
+
+(defn execute-rule
+  "Execute a RuleV1 through its declared executor and validate the resulting
+  RuleResultV1 before callers admit any outputs."
+  [rule call]
+  (let [rule (validate-rule! rule)
+        call (normalize-rule-call rule call)
+        result (dispatch-executor rule call)]
+    (->> result
+         (validate-rule-result-shape! rule call)
+         (validate-consequents! rule call)
+         (validate-denotation! rule call))))
+
+(defn matched-rule-applications
+  "Match a rule against facts, then execute it for every successful match.
+  Returns binding/match pairs together with the normalized call and result."
+  ([rule facts]
+   (matched-rule-applications rule facts {} {}))
+  ([rule facts initial-bindings call-base]
+   (mapv (fn [{:keys [bindings matched-facts]}]
+           (let [call (merge call-base
+                             {:rule-id (:id rule)
+                              :bindings bindings
+                              :matched-facts matched-facts})]
+             {:bindings bindings
+              :matched-facts matched-facts
+              :call call
+              :result (execute-rule rule call)}))
+         (match-rule rule facts initial-bindings))))
+
+(defn instantiate-rule
+  "Compatibility wrapper for callers that still expect the instantiate-only
+  execution path."
+  [rule bindings]
+  (validate-rule! rule)
+  (when-not (= :instantiate (get-in rule [:executor :kind]))
+    (throw (ex-info "instantiate-rule only supports :instantiate executors"
+                    {:rule-id (:id rule)
+                     :executor-kind (get-in rule [:executor :kind])})))
+  (execute-rule rule {:bindings bindings}))

@@ -482,6 +482,38 @@
     (is (= candidate
            (families/select-roving-trigger world)))))
 
+(deftest roving-activation-candidates-do-not-call-public-instantiate-wrapper
+  (let [[world root-id] (world-with-root)
+        [world context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-shame
+        world (-> world
+                  (cx/assert-fact context-id {:fact/type :goal
+                                              :goal-id failed-goal-id
+                                              :top-level-goal failed-goal-id
+                                              :status :failed
+                                              :activation-context context-id})
+                  (cx/assert-fact context-id {:fact/type :emotion
+                                              :emotion-id emotion-id
+                                              :strength 0.25
+                                              :valence :negative})
+                  (cx/assert-fact context-id {:fact/type :dependency
+                                              :from-id emotion-id
+                                              :to-id failed-goal-id}))]
+    (with-redefs [rules/instantiate-rule
+                  (fn [& _]
+                    (throw (ex-info "should not be called" {})))]
+      (is (= [{:context-id context-id
+               :failed-goal-id failed-goal-id
+               :emotion-id emotion-id
+               :emotion-strength 0.25
+               :selection-policy :failed_goal_negative_emotion
+               :selection-reasons [:failed_goal
+                                   :negative_emotion
+                                   :dependency_link]}]
+             (mapv #(dissoc % :rule-provenance)
+                   (families/roving-activation-candidates world)))))))
+
 (deftest roving-plan-sprouts-and-runs-reminding-cascade
   (let [[world root-id] (world-with-root)
         [world pleasant-episode-id]
@@ -914,8 +946,8 @@
             :fact/assert
             :episode/reminding
             :episode/assert-retrieval-hits
-            :episodes/note-family-reuse
-            :episodes/promote-cross-family
+            :episodes/note-family-uses
+            :episodes/resolve-use-outcomes
             :context/set-ordering
             :goal/set-next-context
             :mutation/log]
@@ -1145,6 +1177,12 @@
     (is (= [rationalization-family-episode-id]
            (:reminded-episode-ids (:result roving-result))))
     (is (= [rationalization-family-episode-id]
+           (mapv :episode-id
+                 (:episode-use-records (:result roving-result)))))
+    (is (= [:succeeded]
+           (mapv :outcome
+                 (:episode-outcome-facts (:result roving-result)))))
+    (is (= [rationalization-family-episode-id]
            (:promoted-episode-ids (:result roving-result))))
     (is (= :durable (:admission-status promoted-rationalization-episode)))
     (is (= [{:fact/type :episode-promotion
@@ -1152,7 +1190,7 @@
              :branch-context-id branch-context-id
              :source-family :rationalization
              :target-family :roving
-             :promotion-reason :cross-family-reuse
+             :promotion-reason :cross-family-use-success
              :source-rule :goal-family/roving-plan-dispatch}]
            (:promotion-facts (:result roving-result))))
     (is (not (some #{unrelated-episode-id}
@@ -1504,6 +1542,12 @@
     (is (= [reversal-family-episode-id]
            (:reminded-episode-ids (:result roving-result))))
     (is (= [reversal-family-episode-id]
+           (mapv :episode-id
+                 (:episode-use-records (:result roving-result)))))
+    (is (= [:succeeded]
+           (mapv :outcome
+                 (:episode-outcome-facts (:result roving-result)))))
+    (is (= [reversal-family-episode-id]
            (:promoted-episode-ids (:result roving-result))))
     (is (= :durable (:admission-status promoted-reversal-episode)))
     (is (= [{:fact/type :episode-promotion
@@ -1511,7 +1555,7 @@
              :branch-context-id branch-context-id
              :source-family :reversal
              :target-family :roving
-             :promotion-reason :cross-family-reuse
+             :promotion-reason :cross-family-use-success
              :source-rule :goal-family/roving-plan-dispatch}]
            (:promotion-facts (:result roving-result))))
     (is (not (some #{unrelated-episode-id}

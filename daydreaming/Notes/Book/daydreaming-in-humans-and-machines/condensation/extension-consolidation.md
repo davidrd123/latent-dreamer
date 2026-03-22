@@ -28,11 +28,16 @@ As the system accumulates episodes, rules, and graph connections:
   - cross-family reuse can promote `:provisional -> :durable`
   - `:episode-promotion` facts make those promotions graph-visible
   - promotion still obeys the recent-episode anti-echo gate
-  - external evaluator output can now promote selected family-plan
-    episodes to `:durable`
-  - external evaluator output can now also attach anti-residue flags
-    (`:backfired`, `:stale`, `:contradicted`) to stored episodes, and
-    those flags are asserted as typed `:episode-flag` facts
+- external evaluator output can now promote selected family-plan
+  episodes to `:durable`
+- external evaluator output can now also attach anti-residue flags
+  (`:backfired`, `:stale`, `:contradicted`) to stored episodes, and
+  those flags are asserted as typed `:episode-flag` facts
+- first attributed-use slice is now in code:
+  `note-episode-use`, `resolve-episode-use-outcome`, and
+  `reconcile-episode-admission`
+- `roving` now emits typed `:episode-use` and `:episode-outcome`
+  facts and reconciles admission from those use records
 - The missing piece is broader evaluator discipline, later demotion,
   and downstream evidence that can set or clear these flags.
   The newest review pair sharpens this further:
@@ -76,6 +81,11 @@ nor accessibility. It is **episode use with attributed outcomes**:
 Once that evidence exists cleanly, promotion to `:durable`,
 anti-residue flags, and future rule accessibility become ordinary
 state transitions rather than ad hoc retrieval heuristics.
+
+The kernel now has the first real version of that substrate, but only
+on the roving cross-family path. The next move is to extend it beyond
+that slice and let richer outcomes than simple success/failure drive
+promotion, demotion, and accessibility.
 
 ## Property to preserve
 

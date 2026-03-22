@@ -77,18 +77,36 @@
                                :fact-type fact-type
                                :edge-kind :state-transition}))))
 
+(defn- single-consequent!
+  [rule result]
+  (let [consequents (:consequents result)]
+    (when-not (= 1 (count consequents))
+      (throw (ex-info "Expected exactly one consequent"
+                      {:rule-id (:id rule)
+                       :consequents consequents})))
+    (first consequents)))
+
+(defn- primary-payload-consequent!
+  [rule result]
+  (let [payloads (->> (:consequents result)
+                      (remove #(contains? % :fact/type))
+                      vec)]
+    (when-not (= 1 (count payloads))
+      (throw (ex-info "Expected exactly one primary payload consequent"
+                      {:rule-id (:id rule)
+                       :consequents (:consequents result)})))
+    (first payloads)))
+
 (defn- emit-rule-fact
   [rule bindings]
-  (assoc (-> (rules/instantiate-rule rule bindings)
-             :consequents
-             first)
+  (assoc (single-consequent! rule
+                             (rules/execute-rule rule {:bindings bindings}))
          :rule-provenance (seed-rule-provenance rule)))
 
 (defn- instantiate-derived-fact
   [producer-provenance rule fact-type bindings]
-  (assoc (-> (rules/instantiate-rule rule bindings)
-             :consequents
-             first)
+  (assoc (single-consequent! rule
+                             (rules/execute-rule rule {:bindings bindings}))
          :rule-provenance (if producer-provenance
                             (extend-rule-provenance producer-provenance
                                                     rule
@@ -100,8 +118,8 @@
          retract-facts
          instantiate-rationalization-trigger
          retrieval-hit-fact
-         note-family-plan-episode-reuses
-         promote-cross-family-retrieval-episodes)
+         note-family-plan-episode-uses
+         resolve-family-plan-use-outcomes)
 
 (defn- fact-consumer-rule?
   [fact-type rule]
@@ -114,19 +132,18 @@
        (mapcat (fn [trigger-fact]
                  (->> (activation-rules)
                       (filter (partial fact-consumer-rule? :goal-family-trigger))
-                      (keep (fn [rule]
-                              (when-let [match (first (rules/match-rule rule
-                                                                        [trigger-fact]))]
-                                (assoc (-> (rules/instantiate-rule rule
-                                                                   (:bindings match))
-                                           :consequents
-                                           first)
-                                       :goal-type (:goal-type trigger-fact)
-                                       :rule-provenance
-                                       (extend-rule-provenance
-                                        (:rule-provenance trigger-fact)
-                                        rule
-                                        :goal-family-trigger))))))))
+                      (mapcat (fn [rule]
+                                (->> (rules/matched-rule-applications
+                                      rule
+                                      [trigger-fact])
+                                     (map (fn [{:keys [result]}]
+                                            (assoc (primary-payload-consequent! rule result)
+                                                   :goal-type (:goal-type trigger-fact)
+                                                   :rule-provenance
+                                                   (extend-rule-provenance
+                                                    (:rule-provenance trigger-fact)
+                                                    rule
+                                                    :goal-family-trigger))))))))))
        (sort-by (juxt (fn [candidate]
                         (- (double (or (:emotion-strength candidate) 0.0))))
                       (fn [candidate]
@@ -150,19 +167,20 @@
        (mapcat (fn [request-fact]
                  (->> (planning-rules)
                       (filter (partial fact-consumer-rule? :family-plan-request))
-                      (keep (fn [rule]
-                              (when-let [match (first (rules/match-rule rule
-                                                                        [request-fact]))]
-                                (assoc (-> (rules/instantiate-rule rule
-                                                                   (:bindings match))
-                                           :consequents
-                                           first)
-                                       :goal-type (:goal-type request-fact)
-                                       :rule-provenance
-                                       (extend-rule-provenance
-                                        (:rule-provenance request-fact)
-                                        rule
-                                        :family-plan-request))))))))
+                      (mapcat (fn [rule]
+                                (->> (rules/matched-rule-applications
+                                      rule
+                                      [request-fact])
+                                     (map (fn [{:keys [result]}]
+                                            (assoc (primary-payload-consequent!
+                                                    rule
+                                                    result)
+                                                   :goal-type (:goal-type request-fact)
+                                                   :rule-provenance
+                                                   (extend-rule-provenance
+                                                    (:rule-provenance request-fact)
+                                                    rule
+                                                    :family-plan-request))))))))))
        (sort-by (juxt (comp str :goal-type)
                       (comp str :goal-id)
                       (comp str :context-id)
@@ -1443,15 +1461,20 @@
                 :rule-provenance rule-provenance
                 :from-reminding :roving/reminding
                 :result-key :roving/retrieval-hit-facts}
-               {:op :episodes/note-family-reuse
-                :target-family :roving
-                :rule-provenance rule-provenance
-                :from-reminding :roving/reminding}
-               {:op :episodes/promote-cross-family
+               {:op :episodes/note-family-uses
                 :context-ref :branch-context
+                :goal-id goal-id
                 :target-family :roving
+                :selection-policy selection-policy
                 :rule-provenance rule-provenance
                 :from-reminding :roving/reminding
+                :result-key :roving/episode-uses}
+               {:op :episodes/resolve-use-outcomes
+                :context-ref :branch-context
+                :goal-id goal-id
+                :target-family :roving
+                :rule-provenance rule-provenance
+                :from-uses :roving/episode-uses
                 :result-key :roving/promotions}
                {:op :context/set-ordering
                 :context-ref :branch-context
@@ -1529,32 +1552,41 @@
                  [:results (:result-key effect)]
                  retrieval-hit-facts)])
 
-    :episodes/note-family-reuse
-    (let [{:keys [episode-id reminded-episode-ids]}
-          (get-in effect-state [:results (:from-reminding effect)])
-          episode-ids (vec (cons episode-id reminded-episode-ids))]
-      [(note-family-plan-episode-reuses world
-                                        (:target-family effect)
-                                        (:rule-provenance effect)
-                                        episode-ids)
-       effect-state])
-
-    :episodes/promote-cross-family
+    :episodes/note-family-uses
     (let [{:keys [episode-id reminded-episode-ids]}
           (get-in effect-state [:results (:from-reminding effect)])
           context-id (resolve-effect-context-id effect-state (:context-ref effect))
-          episode-ids (vec (cons episode-id reminded-episode-ids))
-          [world promotion-facts promoted-episode-ids]
-          (promote-cross-family-retrieval-episodes
-           world
-           context-id
-           (:target-family effect)
-           (:rule-provenance effect)
-           episode-ids)]
+          [world use-records use-facts]
+          (note-family-plan-episode-uses world
+                                         context-id
+                                         (:target-family effect)
+                                         (:goal-id effect)
+                                         (:rule-provenance effect)
+                                         episode-id
+                                         reminded-episode-ids)]
       [world
        (assoc-in effect-state
                  [:results (:result-key effect)]
-                 {:promotion-facts (vec promotion-facts)
+                 {:use-records (vec use-records)
+                  :use-facts (vec use-facts)})])
+
+    :episodes/resolve-use-outcomes
+    (let [{:keys [use-records]}
+          (get-in effect-state [:results (:from-uses effect)])
+          context-id (resolve-effect-context-id effect-state (:context-ref effect))
+          [world outcome-facts promotion-facts promoted-episode-ids]
+          (resolve-family-plan-use-outcomes
+           world
+           context-id
+           (:target-family effect)
+           (:goal-id effect)
+           (:rule-provenance effect)
+           use-records)]
+      [world
+       (assoc-in effect-state
+                 [:results (:result-key effect)]
+                 {:outcome-facts (vec outcome-facts)
+                  :promotion-facts (vec promotion-facts)
                   :promoted-episode-ids (vec promoted-episode-ids)})])
 
     :context/set-ordering
@@ -1622,6 +1654,32 @@
    :promotion-reason promotion-reason
    :source-rule (last (:rule-path rule-provenance))})
 
+(defn- episode-use-fact
+  [{:keys [episode-id use-id branch-context-id source-family target-family
+           use-role goal-id rule-provenance]}]
+  {:fact/type :episode-use
+   :episode-id episode-id
+   :use-id use-id
+   :branch-context-id branch-context-id
+   :source-family source-family
+   :target-family target-family
+   :use-role use-role
+   :goal-id goal-id
+   :source-rule (last (:rule-path rule-provenance))})
+
+(defn- episode-outcome-fact
+  [{:keys [episode-id use-id branch-context-id source-family target-family
+           outcome goal-id rule-provenance]}]
+  {:fact/type :episode-outcome
+   :episode-id episode-id
+   :use-id use-id
+   :branch-context-id branch-context-id
+   :source-family source-family
+   :target-family target-family
+   :outcome outcome
+   :goal-id goal-id
+   :source-rule (last (:rule-path rule-provenance))})
+
 (defn- note-family-plan-episode-reuse
   [world episode-id target-family rule-provenance]
   (let [episode (get-in world [:episodes episode-id])
@@ -1639,55 +1697,122 @@
                :target-rule (last (:rule-path rule-provenance))}))
       world)))
 
-(defn- note-family-plan-episode-reuses
-  [world target-family rule-provenance episode-ids]
-  (reduce (fn [current-world episode-id]
-            (note-family-plan-episode-reuse current-world
-                                            episode-id
-                                            target-family
-                                            rule-provenance))
-          world
-          episode-ids))
+(defn- note-family-plan-episode-use
+  [world episode-id target-family rule-provenance use-role goal-id branch-context-id]
+  (let [episode (get-in world [:episodes episode-id])
+        source-family (get-in episode [:provenance :family])]
+    (if (and episode
+             (= :family-plan (get-in episode [:provenance :source]))
+             source-family)
+      (episodic/note-episode-use
+       world
+       episode-id
+       {:reason :family-plan-use
+        :use-role use-role
+        :goal-id goal-id
+        :branch-context-id branch-context-id
+        :source-family source-family
+        :target-family target-family
+        :source-rule (last (:rule-path episode))
+        :target-rule (last (:rule-path rule-provenance))})
+      [world nil])))
 
-(defn- promote-cross-family-retrieval-episodes
-  [world branch-context-id target-family rule-provenance episode-ids]
-  (reduce (fn [[current-world promotion-facts promoted-episode-ids] episode-id]
+(defn- note-family-plan-episode-uses
+  [world branch-context-id target-family goal-id rule-provenance episode-id reminded-episode-ids]
+  (reduce (fn [[current-world use-records use-facts] [use-role retrieval-order episode-id]]
             (let [episode (get-in current-world [:episodes episode-id])
                   source-family (get-in episode [:provenance :family])]
               (if (and episode
                        (= :family-plan (get-in episode [:provenance :source]))
-                       (= :provisional (:admission-status episode))
                        source-family
-                       (not= source-family target-family))
-                (let [[next-world promoted?]
-                      (episodic/promote-episode current-world
-                                                episode-id
-                                                {:reason :cross-family-reuse
-                                                 :source-family source-family
-                                                 :target-family target-family
-                                                 :source-rule (last (:rule-path episode))
-                                                 :target-rule (last (:rule-path
-                                                                     rule-provenance))})
-                      promotion-fact (episode-promotion-fact
-                                      {:episode-id episode-id
-                                       :branch-context-id branch-context-id
-                                       :source-family source-family
-                                       :target-family target-family
-                                       :promotion-reason :cross-family-reuse
-                                       :rule-provenance rule-provenance})
-                      next-world (if promoted?
+                       (not= :trace (:admission-status episode :durable)))
+                (let [[next-world use-record]
+                      (note-family-plan-episode-use current-world
+                                                    episode-id
+                                                    target-family
+                                                    rule-provenance
+                                                    use-role
+                                                    goal-id
+                                                    branch-context-id)
+                      use-fact (when use-record
+                                 (episode-use-fact
+                                  {:episode-id episode-id
+                                   :use-id (:use-id use-record)
+                                   :branch-context-id branch-context-id
+                                   :source-family source-family
+                                   :target-family target-family
+                                   :use-role use-role
+                                   :goal-id goal-id
+                                   :rule-provenance rule-provenance}))
+                      next-world (if use-fact
                                    (cx/assert-fact next-world
                                                    branch-context-id
-                                                   promotion-fact)
+                                                   use-fact)
                                    next-world)]
                   [next-world
-                   (cond-> promotion-facts promoted?
-                           (conj promotion-fact))
-                   (cond-> promoted-episode-ids promoted?
-                           (conj episode-id))])
-                [current-world promotion-facts promoted-episode-ids])))
+                   (cond-> use-records use-record
+                           (conj (assoc use-record :retrieval-order retrieval-order)))
+                   (cond-> use-facts use-fact
+                           (conj use-fact))])
+                [current-world use-records use-facts])))
           [world [] []]
-          episode-ids))
+          (concat [[:seed 0 episode-id]]
+                  (map-indexed (fn [idx reminded-episode-id]
+                                 [:reminded (inc idx) reminded-episode-id])
+                               reminded-episode-ids))))
+
+(defn- resolve-family-plan-use-outcomes
+  [world branch-context-id target-family goal-id rule-provenance use-records]
+  (reduce (fn [[current-world outcome-facts promotion-facts promoted-episode-ids] use-record]
+            (let [source-family (:source-family use-record)
+                  outcome (if (not= source-family target-family)
+                            :succeeded
+                            :failed)
+                  [next-world _outcome-info]
+                  (episodic/resolve-episode-use-outcome
+                   current-world
+                   (:episode-id use-record)
+                   (:use-id use-record)
+                   {:outcome outcome
+                    :reason (if (= :succeeded outcome)
+                              :cross-family-family-plan-success
+                              :same-family-family-plan-reentry)})
+                  outcome-fact (episode-outcome-fact
+                                {:episode-id (:episode-id use-record)
+                                 :use-id (:use-id use-record)
+                                 :branch-context-id branch-context-id
+                                 :source-family source-family
+                                 :target-family target-family
+                                 :outcome outcome
+                                 :goal-id goal-id
+                                 :rule-provenance rule-provenance})
+                  next-world (cx/assert-fact next-world
+                                             branch-context-id
+                                             outcome-fact)
+                  [next-world transition]
+                  (episodic/reconcile-episode-admission next-world
+                                                        (:episode-id use-record))
+                  promotion-fact (when (= :durable (:to-status transition))
+                                   (episode-promotion-fact
+                                    {:episode-id (:episode-id use-record)
+                                     :branch-context-id branch-context-id
+                                     :source-family source-family
+                                     :target-family target-family
+                                     :promotion-reason (:reason transition)
+                                     :rule-provenance rule-provenance}))
+                  next-world (if promotion-fact
+                               (cx/assert-fact next-world
+                                               branch-context-id
+                                               promotion-fact)
+                               next-world)]
+              [next-world
+               (conj outcome-facts outcome-fact)
+               (cond-> promotion-facts promotion-fact
+                       (conj promotion-fact))
+               (cond-> promoted-episode-ids promotion-fact
+                       (conj (:episode-id use-record)))]))
+          [world [] [] []]
+          use-records))
 
 (defn- rationalization-plan-request-facts
   [world {:keys [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
@@ -1783,16 +1908,25 @@
         {:keys [reminded-episode-ids active-indices]}
         (get-in effect-state [:results :roving/reminding])
         retrieval-hit-facts (get-in effect-state [:results :roving/retrieval-hit-facts] [])
-        {:keys [promotion-facts promoted-episode-ids]}
+        {:keys [use-records use-facts]}
+        (get-in effect-state [:results :roving/episode-uses]
+                {:use-records []
+                 :use-facts []})
+        {:keys [outcome-facts promotion-facts promoted-episode-ids]}
         (get-in effect-state [:results :roving/promotions]
-                {:promotion-facts []
-                 :promoted-episode-ids []})]
+                {:outcome-facts []
+                 :promotion-facts []
+                 :promoted-episode-ids []})
+        promoted-episode-ids (vec promoted-episode-ids)]
     [world {:sprouted-context-id sprouted-context-id
             :episode-id episode-id
             :reminded-episode-ids (vec reminded-episode-ids)
             :retrieval-hit-facts (vec retrieval-hit-facts)
+            :episode-use-records (vec use-records)
+            :episode-use-facts (vec use-facts)
+            :episode-outcome-facts (vec outcome-facts)
             :promotion-facts (vec promotion-facts)
-            :promoted-episode-ids (vec promoted-episode-ids)
+            :promoted-episode-ids promoted-episode-ids
             :active-indices (vec active-indices)
             :selection-policy selection-policy
             :rule-provenance rule-provenance}]))

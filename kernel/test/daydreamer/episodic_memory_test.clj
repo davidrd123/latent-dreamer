@@ -160,6 +160,56 @@
              :target-rule :goal-family/roving-plan-dispatch}]
            (:promotion-history episode)))))
 
+(deftest note-episode-use-and-resolve-outcome-promotes-cross-family-exemplar
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id
+                                               :retention-class :payload-exemplar
+                                               :keep-decision :keep-exemplar
+                                               :admission-status :provisional
+                                               :provenance {:source :family-plan
+                                                            :family :rationalization}})
+        [world use-info]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :reminded
+                                 :goal-id :g-1
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :roving
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/roving-plan-dispatch})
+        [world outcome-info]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id use-info)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        [world transition]
+        (epmem/reconcile-episode-admission world episode-id)
+        episode (get-in world [:episodes episode-id])]
+    (is (= :pending (:status use-info)))
+    (is (= :succeeded (:outcome outcome-info)))
+    (is (:evidence-recorded? outcome-info))
+    (is (= {:episode-id episode-id
+            :from-status :provisional
+            :to-status :durable
+            :reason :cross-family-use-success}
+           transition))
+    (is (= :durable (:admission-status episode)))
+    (is (= [{:type :cross-family-use-success
+             :cycle 0
+             :use-id (:use-id use-info)
+             :source-family :rationalization
+             :target-family :roving
+             :source-rule :goal-family/rationalization-plan-dispatch
+             :target-rule :goal-family/roving-plan-dispatch
+             :branch-context-id root-id
+             :goal-id :g-1}]
+           (:promotion-evidence episode)))))
+
 (deftest same-family-loop-flag-blocks-same-family-reentry
   (let [[world root-id] (world-with-root)
         [world episode-id] (epmem/add-episode world

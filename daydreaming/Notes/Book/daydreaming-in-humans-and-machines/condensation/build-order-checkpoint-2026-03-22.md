@@ -54,10 +54,17 @@ Implemented in the first pass:
 - evaluator output can now attach `:backfired`, `:stale`, and
   `:contradicted` flags to stored episodes, and those flags are
   asserted as typed `:episode-flag` facts into branch contexts
+- first attributed use/outcome slice is now in code:
+  `note-episode-use`, `resolve-episode-use-outcome`,
+  `record-promotion-evidence`, and `reconcile-episode-admission`
+- `roving` now emits typed `:episode-use` and `:episode-outcome`
+  facts for the family-plan episodes it actually uses
+- cross-family success now promotes via explicit use evidence
+  (`:cross-family-use-success`) rather than raw retrieval alone
 
 Still missing inside step 1:
-- episode-use logs with attributed outcomes (`used by which family,
-  for which goal, with what later result`)
+- broader family coverage for episode-use logs with attributed outcomes
+  (`used by which family, for which goal, with what later result`)
 - promotion driven by structural evidence PLUS outcome evidence,
   with the evaluator acting as gate/veto rather than sole authority
 - rule accessibility state derived from durable evidence, not from
@@ -98,8 +105,8 @@ Implemented first pass:
   kernel-owned effect applier instead of mutating world inline
 - first effect ops are:
   `:context/sprout`, `:fact/assert`, `:episode/reminding`,
-  `:episode/assert-retrieval-hits`, `:episodes/note-family-reuse`,
-  `:episodes/promote-cross-family`, `:context/set-ordering`,
+  `:episode/assert-retrieval-hits`, `:episodes/note-family-uses`,
+  `:episodes/resolve-use-outcomes`, `:context/set-ordering`,
   `:goal/set-next-context`, `:mutation/log`
 - `rationalization` and `reversal` still execute procedurally
 

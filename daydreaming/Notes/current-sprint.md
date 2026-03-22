@@ -109,6 +109,14 @@ and "deserves future influence":
 - cross-family reuse can now promote a family-plan episode from
   `:provisional -> :durable`, with a typed `:episode-promotion`
   fact asserted into the branch context
+- family-plan reuse is now starting to move onto an explicit
+  use/outcome substrate:
+  `note-episode-use -> resolve-episode-use-outcome ->
+  reconcile-episode-admission`
+- `roving` now records typed `:episode-use` and `:episode-outcome`
+  facts for the seed/reminded family-plan episodes it actually uses
+- cross-family success now promotes through attributed use evidence
+  (`:cross-family-use-success`) rather than raw retrieval alone
 - promotion does not bypass the recent-episode anti-echo gate;
   a promoted episode becomes reusable only after recent eviction
 - same-family reuse is now tracked, and repeated same-family reuse
@@ -125,16 +133,22 @@ and "deserves future influence":
 The reviews now make the next two abstractions explicit:
 - **Step 1:** promotion / anti-residue / accessibility should be
   driven by **episode use with attributed outcomes**, not by retrieval
-  alone. The evaluator is a gate or veto, not the sole authority.
+  alone. The first roving cross-family slice is now in code, but
+  broader family coverage, outcome resolution beyond simple
+  success/failure, and accessibility are still missing. The evaluator
+  is a gate or veto, not the sole authority.
 - **Step 2:** the executor seam belongs in `rules.clj` as
   `execute-rule`, not as growing local effect machinery inside
   `goal_families.clj`.
 
 ### Next after this
 
-- add `note-episode-use` / `resolve-episode-use-outcome` style
-  evidence logging so promotion, anti-residue, and rule
-  accessibility are driven by attributed use records
+- extend the new use/outcome substrate beyond roving's current
+  cross-family slice so promotion, anti-residue, and rule
+  accessibility are driven by attributed use records broadly
+- widen outcome resolution beyond the current simple
+  `:succeeded` / `:failed` split and let those outcomes
+  drive stronger promotion/demotion decisions
 - continue the declarative effect vocabulary / executor boundary
   by adding `execute-rule` in `rules.clj`, then route
   `goal_families.clj` through it before extracting more families

@@ -202,6 +202,12 @@
         episode-id (keyword (str "ep-" next-id))]
     [(assoc world :id-counter next-id) episode-id]))
 
+(defn- next-episode-use-id
+  [world]
+  (let [next-id (inc (or (:episode-use-counter world) 0))
+        use-id (keyword (str "epuse-" next-id))]
+    [(assoc world :episode-use-counter next-id) use-id]))
+
 (defn- episode-or-throw
   [world episode-id]
   (or (get-in world [:episodes episode-id])
@@ -260,6 +266,47 @@
                         promotion-record))
          true]))))
 
+(defn demote-episode
+  "Demote an episode to a lower admission tier with a structured reason.
+
+  Returns `[world demoted?]`. Demotion only applies when the target status is
+  lower than the current status."
+  [world episode-id demotion]
+  (let [episode (episode-or-throw world episode-id)
+        current-status (:admission-status episode :durable)
+        target-status (:to-status demotion)
+        rank {:trace 0
+              :provisional 1
+              :durable 2}]
+    (if (or (nil? target-status)
+            (>= (get rank target-status -1)
+                (get rank current-status -1)))
+      [world false]
+      (let [demotion-record (cond-> {:from-status current-status
+                                     :to-status target-status
+                                     :cycle (:cycle world)}
+                              (:reason demotion)
+                              (assoc :reason (:reason demotion))
+
+                              (:source-family demotion)
+                              (assoc :source-family (:source-family demotion))
+
+                              (:target-family demotion)
+                              (assoc :target-family (:target-family demotion))
+
+                              (:source-rule demotion)
+                              (assoc :source-rule (:source-rule demotion))
+
+                              (:target-rule demotion)
+                              (assoc :target-rule (:target-rule demotion)))]
+        [(-> world
+             (assoc-in [:episodes episode-id :admission-status] target-status)
+             (assoc-in [:episodes episode-id :demoted-cycle] (:cycle world))
+             (update-in [:episodes episode-id :demotion-history]
+                        (fnil conj [])
+                        demotion-record))
+         true]))))
+
 (defn flag-episode
   "Attach an anti-residue flag to an episode with structured reason metadata.
 
@@ -294,52 +341,69 @@
                         (assoc :episode-id (:episode-id flag-record)))))
        true])))
 
-(defn note-episode-reuse
-  "Record reuse of an episode by a later family plan.
+(defn note-episode-use
+  "Record attributed use of an episode by a later family plan.
 
-  Returns `[world reuse-info]`. Repeated same-family reuse without any
-  cross-family reuse is flagged as `:same-family-loop`."
-  [world episode-id reuse]
+  Returns `[world use-info]`. Repeated same-family use without any
+  cross-family use is flagged as `:same-family-loop`."
+  [world episode-id use]
   (let [episode (episode-or-throw world episode-id)
-        source-family (or (:source-family reuse)
+        [world use-id] (next-episode-use-id world)
+        source-family (or (:source-family use)
                           (get-in episode [:provenance :family]))
-        target-family (:target-family reuse)
+        target-family (:target-family use)
         same-family? (and source-family
                           target-family
                           (= source-family target-family))
-        reuse-record (cond-> {:cycle (:cycle world)
-                              :source-family source-family
-                              :target-family target-family}
-                       (:reason reuse)
-                       (assoc :reason (:reason reuse))
+        use-record (cond-> {:use-id use-id
+                            :episode-id episode-id
+                            :cycle (:cycle world)
+                            :source-family source-family
+                            :target-family target-family
+                            :status :pending}
+                     (:reason use)
+                     (assoc :reason (:reason use))
 
-                       (:source-rule reuse)
-                       (assoc :source-rule (:source-rule reuse))
+                     (:use-role use)
+                     (assoc :use-role (:use-role use))
 
-                       (:target-rule reuse)
-                       (assoc :target-rule (:target-rule reuse)))
+                     (:goal-id use)
+                     (assoc :goal-id (:goal-id use))
+
+                     (:branch-context-id use)
+                     (assoc :branch-context-id (:branch-context-id use))
+
+                     (:source-rule use)
+                     (assoc :source-rule (:source-rule use))
+
+                     (:target-rule use)
+                     (assoc :target-rule (:target-rule use)))
         world (-> world
-                  (update-in [:episodes episode-id :reuse-history]
+                  (update-in [:episodes episode-id :use-history]
                              (fnil conj [])
-                             reuse-record)
-                  (update-in [:episodes episode-id :reuse-stats]
-                             (fnil merge {:same-family-reuse-count 0
-                                          :cross-family-reuse-count 0}))
-                  (update-in [:episodes episode-id :reuse-stats :same-family-reuse-count]
+                             use-record)
+                  (update-in [:episodes episode-id :use-stats]
+                             (fnil merge {:same-family-use-count 0
+                                          :cross-family-use-count 0
+                                          :successful-use-count 0
+                                          :failed-use-count 0
+                                          :backfire-count 0
+                                          :contradiction-count 0}))
+                  (update-in [:episodes episode-id :use-stats :same-family-use-count]
                              (fnil + 0)
                              (if same-family? 1 0))
-                  (update-in [:episodes episode-id :reuse-stats :cross-family-reuse-count]
+                  (update-in [:episodes episode-id :use-stats :cross-family-use-count]
                              (fnil + 0)
                              (if same-family? 0 1))
-                  (assoc-in [:episodes episode-id :reuse-stats :last-reuse-cycle]
+                  (assoc-in [:episodes episode-id :use-stats :last-use-cycle]
                             (:cycle world))
-                  (assoc-in [:episodes episode-id :reuse-stats :last-source-family]
+                  (assoc-in [:episodes episode-id :use-stats :last-source-family]
                             source-family)
-                  (assoc-in [:episodes episode-id :reuse-stats :last-target-family]
+                  (assoc-in [:episodes episode-id :use-stats :last-target-family]
                             target-family))
-        reuse-stats (get-in world [:episodes episode-id :reuse-stats])
-        same-family-count (:same-family-reuse-count reuse-stats 0)
-        cross-family-count (:cross-family-reuse-count reuse-stats 0)
+        use-stats (get-in world [:episodes episode-id :use-stats])
+        same-family-count (:same-family-use-count use-stats 0)
+        cross-family-count (:cross-family-use-count use-stats 0)
         loop-risk? (and same-family?
                         (>= same-family-count same-family-loop-threshold)
                         (zero? cross-family-count))
@@ -352,11 +416,229 @@
                                           :target-family target-family
                                           :episode-id episode-id})
                            [world false])]
-    [world {:same-family? same-family?
-            :same-family-reuse-count same-family-count
-            :cross-family-reuse-count cross-family-count
-            :loop-risk? loop-risk?
-            :flagged? flagged?}]))
+    [world (assoc use-record
+                  :same-family? same-family?
+                  :same-family-use-count same-family-count
+                  :cross-family-use-count cross-family-count
+                  :loop-risk? loop-risk?
+                  :flagged? flagged?)]))
+
+(defn note-episode-reuse
+  "Compatibility wrapper over `note-episode-use`.
+
+  Returns the historical reuse-shaped keys while storing canonical use data."
+  [world episode-id reuse]
+  (let [[world use-info] (note-episode-use world episode-id reuse)]
+    [world {:same-family? (:same-family? use-info)
+            :same-family-reuse-count (:same-family-use-count use-info)
+            :cross-family-reuse-count (:cross-family-use-count use-info)
+            :loop-risk? (:loop-risk? use-info)
+            :flagged? (:flagged? use-info)}]))
+
+(defn record-promotion-evidence
+  "Attach structured promotion evidence to an episode."
+  [world episode-id evidence]
+  (let [evidence-record (cond-> {:cycle (:cycle world)
+                                 :type (:type evidence)}
+                          (:use-id evidence)
+                          (assoc :use-id (:use-id evidence))
+
+                          (:source-family evidence)
+                          (assoc :source-family (:source-family evidence))
+
+                          (:target-family evidence)
+                          (assoc :target-family (:target-family evidence))
+
+                          (:source-rule evidence)
+                          (assoc :source-rule (:source-rule evidence))
+
+                          (:target-rule evidence)
+                          (assoc :target-rule (:target-rule evidence))
+
+                          (:branch-context-id evidence)
+                          (assoc :branch-context-id (:branch-context-id evidence))
+
+                          (:goal-id evidence)
+                          (assoc :goal-id (:goal-id evidence)))]
+    [(update-in world [:episodes episode-id :promotion-evidence]
+                (fnil conj [])
+                evidence-record)
+     evidence-record]))
+
+(defn resolve-episode-use-outcome
+  "Resolve a previously recorded episode use with an attributed outcome.
+
+  Returns `[world outcome-info]`. Backfire/contradiction outcomes flag the
+  episode immediately. Cross-family success records promotion evidence."
+  [world episode-id use-id outcome]
+  (let [episode (episode-or-throw world episode-id)
+        use-history (vec (:use-history episode))
+        use-record (some #(when (= use-id (:use-id %)) %) use-history)]
+    (when-not use-record
+      (throw (ex-info "Unknown episode use"
+                      {:episode-id episode-id
+                       :use-id use-id})))
+    (let [outcome-type (:outcome outcome)
+          resolved-record (cond-> use-record
+                            outcome-type
+                            (assoc :outcome outcome-type)
+
+                            true
+                            (assoc :resolved-cycle (:cycle world)
+                                   :status :resolved)
+
+                            (:reason outcome)
+                            (assoc :outcome-reason (:reason outcome)))
+          world (assoc-in world
+                          [:episodes episode-id :use-history]
+                          (mapv (fn [record]
+                                  (if (= use-id (:use-id record))
+                                    resolved-record
+                                    record))
+                                use-history))
+          world (update-in world
+                           [:episodes episode-id :outcome-stats]
+                           (fnil merge {:successful-use-count 0
+                                        :failed-use-count 0
+                                        :backfire-count 0
+                                        :contradiction-count 0}))
+          world (case outcome-type
+                  :succeeded
+                  (-> world
+                      (update-in [:episodes episode-id :outcome-stats :successful-use-count]
+                                 (fnil + 0) 1)
+                      (assoc-in [:episodes episode-id :outcome-stats :last-success-cycle]
+                                (:cycle world)))
+
+                  :failed
+                  (-> world
+                      (update-in [:episodes episode-id :outcome-stats :failed-use-count]
+                                 (fnil + 0) 1)
+                      (assoc-in [:episodes episode-id :outcome-stats :last-failed-cycle]
+                                (:cycle world)))
+
+                  :backfired
+                  (-> world
+                      (update-in [:episodes episode-id :outcome-stats :backfire-count]
+                                 (fnil + 0) 1)
+                      (assoc-in [:episodes episode-id :outcome-stats :last-backfire-cycle]
+                                (:cycle world)))
+
+                  :contradicted
+                  (-> world
+                      (update-in [:episodes episode-id :outcome-stats :contradiction-count]
+                                 (fnil + 0) 1)
+                      (assoc-in [:episodes episode-id :outcome-stats :last-contradiction-cycle]
+                                (:cycle world)))
+
+                  world)
+          [world evidence-record]
+          (if (and (= :succeeded outcome-type)
+                   (not= (:source-family use-record)
+                         (:target-family use-record)))
+            (record-promotion-evidence world
+                                       episode-id
+                                       {:type :cross-family-use-success
+                                        :use-id use-id
+                                        :source-family (:source-family use-record)
+                                        :target-family (:target-family use-record)
+                                        :source-rule (:source-rule use-record)
+                                        :target-rule (:target-rule use-record)
+                                        :branch-context-id (:branch-context-id use-record)
+                                        :goal-id (:goal-id use-record)})
+            [world nil])
+          [world flagged?]
+          (case outcome-type
+            :backfired
+            (flag-episode world
+                          episode-id
+                          :backfired
+                          {:reason (:reason outcome)
+                           :source-family (:source-family use-record)
+                           :target-family (:target-family use-record)
+                           :episode-id episode-id})
+
+            :contradicted
+            (flag-episode world
+                          episode-id
+                          :contradicted
+                          {:reason (:reason outcome)
+                           :source-family (:source-family use-record)
+                           :target-family (:target-family use-record)
+                           :episode-id episode-id})
+
+            [world false])]
+      [world {:use-id use-id
+              :episode-id episode-id
+              :source-family (:source-family use-record)
+              :target-family (:target-family use-record)
+              :outcome outcome-type
+              :evidence-recorded? (boolean evidence-record)
+              :evidence evidence-record
+              :flagged? flagged?}])))
+
+(defn- durable-candidate?
+  [episode]
+  (and (= :provisional (:admission-status episode))
+       (= :payload-exemplar (:retention-class episode))
+       (= :keep-exemplar (:keep-decision episode))
+       (empty? (set/intersection #{:backfired :contradicted}
+                                 (set (:anti-residue-flags episode))))))
+
+(defn eligible-for-promotion?
+  "Return true when an episode has enough current evidence to become durable.
+
+  This first pass is intentionally conservative and only considers
+  cross-family use success evidence, not later demotion/frontier policy."
+  [episode]
+  (let [evidence-types (set (map :type (:promotion-evidence episode)))]
+    (and (durable-candidate? episode)
+         (contains? evidence-types :cross-family-use-success))))
+
+(defn reconcile-episode-admission
+  "Promote or demote an episode according to the current evidence and flags.
+
+  Returns `[world transition]` where `transition` is nil or a map describing
+  the applied status change."
+  [world episode-id]
+  (let [episode (episode-or-throw world episode-id)
+        current-status (:admission-status episode :durable)
+        latest-evidence (last (:promotion-evidence episode))
+        hard-failure? (seq (set/intersection #{:backfired :contradicted}
+                                             (set (:anti-residue-flags episode))))]
+    (cond
+      (and (= :durable current-status)
+           hard-failure?)
+      (let [[world demoted?]
+            (demote-episode world
+                            episode-id
+                            {:to-status :provisional
+                             :reason :outcome-driven-demotion})]
+        [world (when demoted?
+                 {:episode-id episode-id
+                  :from-status :durable
+                  :to-status :provisional
+                  :reason :outcome-driven-demotion})])
+
+      (eligible-for-promotion? episode)
+      (let [[world promoted?]
+            (promote-episode world
+                             episode-id
+                             {:reason (or (:type latest-evidence)
+                                          :evidence-driven-promotion)
+                              :source-family (:source-family latest-evidence)
+                              :target-family (:target-family latest-evidence)
+                              :source-rule (:source-rule latest-evidence)
+                              :target-rule (:target-rule latest-evidence)})]
+        [world (when promoted?
+                 {:episode-id episode-id
+                  :from-status current-status
+                  :to-status :durable
+                  :reason (or (:type latest-evidence)
+                              :evidence-driven-promotion)})])
+
+      :else
+      [world nil])))
 
 (defn store-episode
   "Store an episode under an index, incrementing the requested thresholds."

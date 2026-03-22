@@ -2,6 +2,14 @@
   (:require [clojure.test :refer [deftest is testing]]
             [daydreamer.rules :as rules]))
 
+(defmacro thrown-with-msg?
+  [expected-type expected-msg expr]
+  `(try
+     ~expr
+     false
+     (catch ~expected-type e#
+       (boolean (re-find ~expected-msg (.getMessage e#))))))
+
 (def sample-rule
   {:id :test/activate-roving
    :rule-kind :inference
@@ -180,6 +188,106 @@
                                     '?failed-goal-id :g-failed
                                     '?emotion-id :e-shame
                                     '?emotion-strength 0.25})))))
+
+(deftest execute-rule-preserves-instantiate-behavior
+  (let [bindings {'?context-id :cx-2
+                  '?failed-goal-id :g-failed
+                  '?emotion-id :e-shame
+                  '?emotion-strength 0.25}]
+    (is (= (rules/instantiate-rule sample-rule bindings)
+           (rules/execute-rule sample-rule {:bindings bindings})))))
+
+(deftest execute-rule-rejects-consequent-count-mismatch
+  (let [rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:fn (fn [_]
+                                            {:consequents []
+                                             :confidence 0.04
+                                             :reason "count mismatch"
+                                             :aux-indices []
+                                             :surface-summary nil})}})]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"consequent count mismatch"
+                          (rules/execute-rule rule
+                                              {:bindings {'?context-id :cx-2
+                                                          '?failed-goal-id :g-failed
+                                                          '?emotion-id :e-shame
+                                                          '?emotion-strength 0.25}})))))
+
+(deftest execute-rule-rejects-binding-drift
+  (let [rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:fn (fn [_]
+                                            {:consequents [{:context-id :cx-2
+                                                            :failed-goal-id :g-other
+                                                            :emotion-id :e-shame
+                                                            :emotion-strength 0.25
+                                                            :selection-policy :failed_goal_negative_emotion}]
+                                             :confidence 0.04
+                                             :reason "binding drift"
+                                             :aux-indices [{:fact/type :goal
+                                                            :goal-id :g-other}]
+                                             :surface-summary nil})}})]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"do not satisfy consequent-schema"
+                          (rules/execute-rule rule
+                                              {:bindings {'?context-id :cx-2
+                                                          '?failed-goal-id :g-failed
+                                                          '?emotion-id :e-shame
+                                                          '?emotion-strength 0.25}})))))
+
+(deftest execute-rule-runs-denotation-validation-fn
+  (let [rule (-> sample-rule
+                 (assoc-in [:denotation :failure-modes] [:missing-surface-summary])
+                 (assoc-in [:denotation :validation-fn]
+                           (fn [{:keys [result]}]
+                             (when (nil? (:surface-summary result))
+                               [:missing-surface-summary])))
+                 (assoc :executor {:kind :clojure-fn
+                                   :spec {:fn (fn [_]
+                                                {:consequents [{:context-id :cx-2
+                                                                :failed-goal-id :g-failed
+                                                                :emotion-id :e-shame
+                                                                :emotion-strength 0.25
+                                                                :selection-policy :failed_goal_negative_emotion}]
+                                                 :confidence 0.04
+                                                 :reason "denotation check"
+                                                 :aux-indices [{:fact/type :goal
+                                                                :goal-id :g-failed}]
+                                                 :surface-summary nil})}}))]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"failed denotational validation"
+                          (rules/execute-rule rule
+                                              {:bindings {'?context-id :cx-2
+                                                          '?failed-goal-id :g-failed
+                                                          '?emotion-id :e-shame
+                                                          '?emotion-strength 0.25}})))))
+
+(deftest execute-rule-rejects-undeclared-denotation-failures
+  (let [rule (-> sample-rule
+                 (assoc-in [:denotation :failure-modes] [:missing-surface-summary])
+                 (assoc-in [:denotation :validation-fn]
+                           (fn [_]
+                             [:undeclared-failure]))
+                 (assoc :executor {:kind :clojure-fn
+                                   :spec {:fn (fn [_]
+                                                {:consequents [{:context-id :cx-2
+                                                                :failed-goal-id :g-failed
+                                                                :emotion-id :e-shame
+                                                                :emotion-strength 0.25
+                                                                :selection-policy :failed_goal_negative_emotion}]
+                                                 :confidence 0.04
+                                                 :reason "denotation check"
+                                                 :aux-indices [{:fact/type :goal
+                                                                :goal-id :g-failed}]
+                                                 :surface-summary "ok"})}}))]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"undeclared failure mode"
+                          (rules/execute-rule rule
+                                              {:bindings {'?context-id :cx-2
+                                                          '?failed-goal-id :g-failed
+                                                          '?emotion-id :e-shame
+                                                          '?emotion-strength 0.25}})))))
 
 (deftest match-rule-binds-shared-variables-across-facts
   (let [facts [{:fact/type :goal
