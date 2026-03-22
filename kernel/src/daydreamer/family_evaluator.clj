@@ -34,6 +34,9 @@
 (def ^:private allowed-promotion-decisions
   #{:stay-provisional :promote-durable})
 
+(def ^:private allowed-anti-residue-flags
+  #{:backfired :stale :contradicted})
+
 (def ^:private system-prompt
   (str
    "You evaluate a completed daydream family plan after it has already been produced.\n\n"
@@ -45,6 +48,7 @@
    "- retention_class: one of hot-cues, cold-provenance, payload-exemplar\n"
    "- keep_decision: one of keep-hot, archive-cold, keep-exemplar\n"
    "- promotion_decision: one of stay-provisional, promote-durable\n"
+   "- anti_residue_flags: array of zero or more of backfired, stale, contradicted\n"
    "- evaluation_reasons: array of 1-3 short snake_case strings\n\n"
    "Prefer payload-exemplar only when the plan contains reusable structured material."
    " Prefer archive-cold when the plan should remain recorded but not stay hot in retrieval."))
@@ -55,6 +59,7 @@
    :retention_class "payload-exemplar"
    :keep_decision "keep-exemplar"
    :promotion_decision "promote-durable"
+   :anti_residue_flags []
    :evaluation_reasons ["reusable_reframe_payload" "psychologically_coherent"]})
 
 (defn- normalize-text
@@ -121,6 +126,14 @@
        (take 3)
        vec))
 
+(defn- normalize-flags
+  [values]
+  (->> values
+       (keep as-keyword)
+       (filter allowed-anti-residue-flags)
+       distinct
+       vec))
+
 (defn- allowed-or-default
   [raw allowed default]
   (let [value (as-keyword raw)]
@@ -156,6 +169,12 @@
                                        (:promotion_decision raw))
                                    allowed-promotion-decisions
                                    (:promotion-decision default-evaluation)))
+        (assoc :anti-residue-flags
+               (let [flags (normalize-flags (or (:anti-residue-flags raw)
+                                                (:anti_residue_flags raw)))]
+                 (if (seq flags)
+                   flags
+                   (vec (:anti-residue-flags default-evaluation)))))
         (assoc :evaluation-reasons
                (let [reasons (normalize-reasons (or (:evaluation-reasons raw)
                                                     (:evaluation_reasons raw)))]
@@ -246,6 +265,7 @@
              :retention-class :hot-cues
              :keep-decision :keep-hot
              :promotion-decision :stay-provisional
+             :anti-residue-flags []
              :evaluation-reasons [:mock_attentional_surface]
              :evaluation-source :mock-llm}
     :rationalization {:realism :plausible
@@ -262,6 +282,7 @@
                                                            [:episode-payload :reframe-facts]))
                                             :promote-durable
                                             :stay-provisional)
+                      :anti-residue-flags []
                       :evaluation-reasons [:mock_psychological_coherence]
                       :evaluation-source :mock-llm}
     :reversal {:realism :counterfactual
@@ -278,9 +299,11 @@
                                                     [:episode-payload :input-facts]))
                                      :promote-durable
                                      :stay-provisional)
+               :anti-residue-flags []
                :evaluation-reasons [:mock_counterfactual_material]
                :evaluation-source :mock-llm}
     {:promotion-decision :stay-provisional
+     :anti-residue-flags []
      :evaluation-reasons [:mock_default]
      :evaluation-source :mock-llm}))
 

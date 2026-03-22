@@ -115,12 +115,18 @@ and "deserves future influence":
   promotion decision; heuristic mode stays conservative, but
   evaluator-backed rationalization/reversal plans can enter as
   `:durable` without the old manual test hack
+- evaluator-backed anti-residue flags now persist on episodes,
+  assert typed `:episode-flag` facts into branch contexts, and
+  can already suppress later retrieval (`:contradicted`,
+  `:backfired`) or down-rank it (`:stale`)
 
 ### Next after this
 
 - define the declarative effect vocabulary / executor boundary
-- add the remaining anti-residue flags (`:backfired`, `:stale`,
-  `:contradicted`) and stronger consolidation policy
+- widen anti-residue from evaluator annotations to stronger
+  downstream demotion / contradiction detection
+- strengthen consolidation policy beyond the current first-pass
+  promotion + flag membrane
 - only then build verified paths and generic `:clojure-fn`
   dispatch
 

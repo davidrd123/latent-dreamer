@@ -982,6 +982,7 @@
                :retention-class :hot-cues
                :keep-decision :keep-hot
                :promotion-decision :stay-provisional
+               :anti-residue-flags []
                :payload-cluster payload-cluster
                :evaluation-source :heuristic
                :evaluation-reasons [:pleasant_seed
@@ -995,6 +996,7 @@
                                          :keep-exemplar
                                          :keep-hot)
                         :promotion-decision :stay-provisional
+                        :anti-residue-flags []
                         :payload-cluster payload-cluster
                         :evaluation-source :heuristic
                         :evaluation-reasons (cond-> [:hope_reframe]
@@ -1009,6 +1011,7 @@
                                   :keep-exemplar
                                   :keep-hot)
                  :promotion-decision :stay-provisional
+                 :anti-residue-flags []
                  :payload-cluster payload-cluster
                  :evaluation-source :heuristic
                  :evaluation-reasons (cond-> [:counterfactual_reopened]
@@ -1019,21 +1022,25 @@
        :retention-class :hot-cues
        :keep-decision :keep-hot
        :promotion-decision :stay-provisional
+       :anti-residue-flags []
        :payload-cluster payload-cluster
        :evaluation-source :heuristic
        :evaluation-reasons [:default_family_evaluation]})))
 
 (defn- family-plan-evaluation-support-indices
   [{:keys [realism desirability retention-class keep-decision promotion-decision payload-cluster
+           anti-residue-flags
            evaluation-source]}]
-  (cond-> [(keyword "realism" (name realism))
-           (keyword "desirability" (name desirability))
-           (keyword "retention" (name retention-class))
-           (keyword "keep" (name keep-decision))
-           (keyword "promotion" (name promotion-decision))
-           (keyword "evaluation-source" (name evaluation-source))]
-    payload-cluster
-    (conj [:payload-cluster payload-cluster])))
+  (vec
+   (concat [(keyword "realism" (name realism))
+            (keyword "desirability" (name desirability))
+            (keyword "retention" (name retention-class))
+            (keyword "keep" (name keep-decision))
+            (keyword "promotion" (name promotion-decision))
+            (keyword "evaluation-source" (name evaluation-source))]
+           (when payload-cluster
+             [[:payload-cluster payload-cluster]])
+           (map #(keyword "anti-residue" (name %)) anti-residue-flags))))
 
 (defn- family-plan-admission-status
   [{:keys [keep-decision promotion-decision]}]
@@ -1060,10 +1067,23 @@
    :retention-class (:retention-class evaluation)
    :keep-decision (:keep-decision evaluation)
    :promotion-decision (:promotion-decision evaluation)
+   :anti-residue-flags (vec (:anti-residue-flags evaluation))
    :admission-status (family-plan-admission-status evaluation)
    :evaluation-source (:evaluation-source evaluation)
    :payload-cluster (:payload-cluster evaluation)
    :evaluation-reasons (:evaluation-reasons evaluation)})
+
+(defn- episode-flag-fact
+  [{:keys [episode-id branch-context-id family-goal-id family selection-policy flag
+           rule-provenance]}]
+  {:fact/type :episode-flag
+   :episode-id episode-id
+   :branch-context-id branch-context-id
+   :family family
+   :family-goal-id family-goal-id
+   :selection-policy selection-policy
+   :flag flag
+   :source-rule (last (:rule-path rule-provenance))})
 
 (defn- maybe-apply-family-evaluator
   [family-plan evaluator-fn]
@@ -1094,6 +1114,7 @@
         retrieval-indices (if (= :archive-cold (:keep-decision evaluation))
                             []
                             requested-retrieval-indices)
+        anti-residue-flags (vec (:anti-residue-flags evaluation))
         support-indices (->> (concat (family-plan-support-indices family-plan)
                                      (family-plan-evaluation-support-indices
                                       evaluation))
@@ -1125,6 +1146,16 @@
                            episode-payload
                            (assoc :payload episode-payload))
             [world episode-id] (episodic/add-episode world episode-spec)
+            world (reduce (fn [current-world flag]
+                            (first (episodic/flag-episode
+                                    current-world
+                                    episode-id
+                                    flag
+                                    {:reason :evaluator-output
+                                     :source-family (:family family-plan)
+                                     :episode-id episode-id})))
+                          world
+                          anti-residue-flags)
             world (reduce (fn [current-world index]
                             (episodic/store-episode current-world
                                                     episode-id
@@ -1155,7 +1186,22 @@
             evaluation-fact (family-plan-evaluation-fact family-plan
                                                          episode-id
                                                          evaluation)
-            world (cx/assert-fact world context-id evaluation-fact)]
+            episode-flag-facts (mapv (fn [flag]
+                                       (episode-flag-fact
+                                        {:episode-id episode-id
+                                         :branch-context-id context-id
+                                         :family (:family family-plan)
+                                         :family-goal-id goal-id
+                                         :selection-policy (family-plan-selection-policy
+                                                            family-plan)
+                                         :flag flag
+                                         :rule-provenance rule-provenance}))
+                                     anti-residue-flags)
+            world (cx/assert-fact world context-id evaluation-fact)
+            world (reduce (fn [current-world fact]
+                            (cx/assert-fact current-world context-id fact))
+                          world
+                          episode-flag-facts)]
         [world
          (-> family-plan
              (assoc :retrieval-indices retrieval-indices)
@@ -1164,6 +1210,7 @@
              (assoc :admission-status admission-status)
              (assoc :family-episode-id episode-id)
              (assoc :episode-evaluation-fact evaluation-fact)
+             (assoc :episode-flag-facts episode-flag-facts)
              (assoc-in [:selection :family_plan_episode_id] episode-id))])
       [world
        (-> family-plan

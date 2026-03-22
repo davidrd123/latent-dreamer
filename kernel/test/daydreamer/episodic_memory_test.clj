@@ -207,6 +207,53 @@
                                     [:shared-frame]
                                     {:active-family :roving})))))
 
+(deftest contradicted-and-backfired-flags-block-retrieval
+  (let [[world root-id] (world-with-root)
+        [world contradicted-id] (epmem/add-episode world
+                                                   {:rule :rationalization-plan
+                                                    :context-id root-id
+                                                    :admission-status :durable})
+        [world backfired-id] (epmem/add-episode world
+                                                {:rule :reversal-plan
+                                                 :context-id root-id
+                                                 :admission-status :durable})
+        world (-> world
+                  (epmem/store-episode contradicted-id :shared-cue {:plan? true})
+                  (epmem/store-episode backfired-id :shared-cue {:plan? true}))
+        [world contradicted-flagged?]
+        (epmem/flag-episode world
+                            contradicted-id
+                            :contradicted
+                            {:reason :test-contradiction})
+        [world backfired-flagged?]
+        (epmem/flag-episode world
+                            backfired-id
+                            :backfired
+                            {:reason :test-backfire})]
+    (is contradicted-flagged?)
+    (is backfired-flagged?)
+    (is (= [] (epmem/retrieve-episodes world [:shared-cue] {})))))
+
+(deftest stale-flag-penalizes-otherwise-retrievable-episodes
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :roving-plan
+                                               :context-id root-id
+                                               :admission-status :durable})
+        world (-> world
+                  (epmem/store-episode episode-id :cue-a {:plan? true})
+                  (epmem/store-episode episode-id :cue-b {:plan? true}))
+        [world flagged?]
+        (epmem/flag-episode world
+                            episode-id
+                            :stale
+                            {:reason :test-staleness})]
+    (is flagged?)
+    (is (= []
+           (epmem/retrieve-episodes world
+                                    [:cue-a :cue-b]
+                                    {})))))
+
 (deftest retrieve-episodes-threshold-test
   (let [[world root-id] (world-with-root)
         [world episode-id] (epmem/add-episode world

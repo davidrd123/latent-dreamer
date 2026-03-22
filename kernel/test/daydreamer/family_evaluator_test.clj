@@ -8,6 +8,7 @@
                             :retention-class :hot-cues
                             :keep-decision :keep-hot
                             :promotion-decision :stay-provisional
+                            :anti-residue-flags []
                             :payload-cluster [:family/roving :g-1 :pleasant_episode_seed]
                             :evaluation-source :heuristic
                             :evaluation-reasons [:pleasant_seed]}
@@ -17,6 +18,7 @@
                      :retention_class "cold-provenance"
                      :keep_decision "archive-cold"
                      :promotion_decision "promote-durable"
+                     :anti_residue_flags ["contradicted" "unknown_flag"]
                      :evaluation_reasons ["mock_archive_review" "still_salient"]
                      :evaluation_source "mock-llm"}
                     default-evaluation)]
@@ -25,6 +27,7 @@
             :retention-class :cold-provenance
             :keep-decision :archive-cold
             :promotion-decision :promote-durable
+            :anti-residue-flags [:contradicted]
             :payload-cluster [:family/roving :g-1 :pleasant_episode_seed]
             :evaluation-source :mock-llm
             :evaluation-reasons [:mock_archive_review :still_salient]}
@@ -37,6 +40,7 @@
                             :retention-class :hot-cues
                             :keep-decision :keep-hot
                             :promotion-decision :stay-provisional
+                            :anti-residue-flags []
                             :payload-cluster [:family/reversal :g-2 :stored_priority]
                             :evaluation-source :heuristic
                             :evaluation-reasons [:fallback]}
@@ -48,5 +52,6 @@
     (is (= :payload-exemplar (:retention-class evaluation)))
     (is (= :keep-exemplar (:keep-decision evaluation)))
     (is (= :promote-durable (:promotion-decision evaluation)))
+    (is (= [] (:anti-residue-flags evaluation)))
     (is (= :mock-llm (:evaluation-source evaluation)))
     (is (seq (:evaluation-reasons evaluation)))))

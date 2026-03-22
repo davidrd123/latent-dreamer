@@ -30,7 +30,11 @@ As the system accumulates episodes, rules, and graph connections:
   - promotion still obeys the recent-episode anti-echo gate
   - external evaluator output can now promote selected family-plan
     episodes to `:durable`
-- The missing piece is broader evaluator discipline and later demotion.
+  - external evaluator output can now also attach anti-residue flags
+    (`:backfired`, `:stale`, `:contradicted`) to stored episodes, and
+    those flags are asserted as typed `:episode-flag` facts
+- The missing piece is broader evaluator discipline, later demotion,
+  and downstream evidence that can set or clear these flags.
 
 **Cue zone separation:**
 - Content cues drive retrieval and reminding.
@@ -46,9 +50,9 @@ As the system accumulates episodes, rules, and graph connections:
 - Cheap rationalization resurrection via `:serendipity? true` is now disabled.
 
 **What remains open:**
-- Remaining anti-residue flags (`:backfired`, `:stale`, `:contradicted`)
 - Using the new `:same-family-loop` flag as a broader consolidation signal
 - Stronger evaluator-gated promotion criteria and later demotion
+- Stronger downstream contradiction / backfire detection
 - Stronger source-type decay and cluster caps
 - Graph hygiene for larger, less toy rule sets
 - Re-evaluation of stored material after later contradiction or success

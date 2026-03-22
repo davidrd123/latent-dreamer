@@ -51,11 +51,16 @@ Implemented in the first pass:
 - external evaluator output can now widen promotion beyond the
   cross-family reuse path through an explicit promotion decision;
   heuristic evaluation still defaults to `:stay-provisional`
+- evaluator output can now attach `:backfired`, `:stale`, and
+  `:contradicted` flags to stored episodes, and those flags are
+  asserted as typed `:episode-flag` facts into branch contexts
 
 Still missing inside step 1:
-- remaining anti-residue flags (`:backfired`, `:stale`, `:contradicted`)
 - source-type decay / stronger zone-specific consolidation
 - explicit loop-risk metadata shaping retrieval
+- stronger downstream flagging / demotion beyond evaluator annotation
+- contradiction/backfire detection from later evidence instead of
+  only evaluator judgment
 
 ### 2. Executor boundary with declarative effects
 
