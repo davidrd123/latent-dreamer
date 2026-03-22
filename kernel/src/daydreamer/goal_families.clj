@@ -145,6 +145,8 @@
                         :context-id '?context-id
                         :trigger-context-id '?trigger-context-id
                         :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
                         :frame-id '?frame-id
                         :ordering '?ordering}]
    :consequent-schema [{:fact/type :family-plan-request
@@ -153,6 +155,8 @@
                         :context-id '?context-id
                         :trigger-context-id '?trigger-context-id
                         :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
                         :frame-id '?frame-id
                         :ordering '?ordering
                         :selection-policy rationalization-plan-policy}]
@@ -182,6 +186,8 @@
                         :context-id '?context-id
                         :trigger-context-id '?trigger-context-id
                         :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
                         :frame-id '?frame-id
                         :ordering '?ordering
                         :selection-policy '?selection-policy}]
@@ -189,9 +195,21 @@
                         :context-id '?context-id
                         :trigger-context-id '?trigger-context-id
                         :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
                         :frame-id '?frame-id
                         :ordering '?ordering
-                        :selection-policy '?selection-policy}]
+                        :selection-policy '?selection-policy}
+                       {:fact/type :family-affect-state
+                        :source-family :rationalization
+                        :goal-id '?goal-id
+                        :context-id '?context-id
+                        :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
+                        :frame-id '?frame-id
+                        :affect :hope
+                        :transition :reappraised}]
    :plausibility 1.0
    :index-projections {:match []
                        :emit []}
@@ -205,6 +223,45 @@
    :provenance {:book-anchors [:theme-rationalization]
                 :kernel-status :partial
                 :notes "Consumes a rationalization plan request into the current bounded plan payload."}})
+
+(def ^:private rationalization-afterglow-to-roving-rule
+  {:id :goal-family/rationalization-afterglow-to-roving
+   :rule-kind :inference
+   :mueller-mode :both
+   :antecedent-schema [{:fact/type :family-affect-state
+                        :source-family :rationalization
+                        :goal-id '?goal-id
+                        :context-id '?context-id
+                        :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
+                        :frame-id '?frame-id
+                        :affect :hope
+                        :transition :reappraised}]
+   :consequent-schema [{:fact/type :goal-family-trigger
+                        :goal-type :roving
+                        :trigger-context-id '?context-id
+                        :failed-goal-id '?failed-goal-id
+                        :emotion-id '?trigger-emotion-id
+                        :emotion-strength '?trigger-emotion-strength
+                        :selection-policy :rationalization_afterglow
+                        :selection-reasons [:rationalization_afterglow
+                                            :hope_reframe]}]
+   :plausibility roving-emotion-threshold
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :emit-roving-trigger-from-rationalization-afterglow
+                :failure-modes [:missing-rationalization-afterglow]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:source-family :rationalization
+                     :target-goal-type :roving}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-rationalization
+                               :theme-roving]
+                :kernel-status :proposed
+                :notes "Cross-family bridge from rationalization's hopeful afterglow into a roving trigger."}})
 
 (def ^:private reversal-plan-request-rule
   {:id :goal-family/reversal-plan-request
@@ -550,6 +607,18 @@
    rationalization-plan-dispatch-rule
    reversal-plan-request-rule
    reversal-plan-dispatch-rule])
+
+(defn cross-family-rules
+  "Return the currently extracted cross-family handoff rules."
+  []
+  [rationalization-afterglow-to-roving-rule])
+
+(defn family-rules
+  "Return the current combined family rule registry."
+  []
+  (vec (concat (planning-rules)
+               (cross-family-rules)
+               (activation-rules))))
 
 (defn- seed-rule-provenance
   [rule]
@@ -1296,19 +1365,34 @@
                                       ordering)]))
 
 (defn- instantiate-rationalization-plan-request
-  [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
+  [goal-id
+   context-id
+   trigger-context-id
+   failed-goal-id
+   trigger-emotion-id
+   trigger-emotion-strength
+   frame-id
+   ordering]
   (emit-rule-fact rationalization-plan-request-rule
                   {'?goal-id goal-id
                    '?context-id context-id
                    '?trigger-context-id trigger-context-id
                    '?failed-goal-id failed-goal-id
+                   '?trigger-emotion-id trigger-emotion-id
+                   '?trigger-emotion-strength trigger-emotion-strength
                    '?frame-id frame-id
                    '?ordering ordering}))
 
 (defn- rationalization-plan-request-facts
   [world {:keys [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
           :or {ordering 1.0}}]
-  (let [trigger-context-id (or trigger-context-id context-id)
+  (let [goal (get-in world [:goals goal-id])
+        trigger-context-id (or trigger-context-id context-id)
+        trigger-emotion-id (or (:trigger-emotion-id goal)
+                               (:main-motiv goal))
+        trigger-emotion-strength (double (or (:trigger-emotion-strength goal)
+                                             (:strength goal)
+                                             0.0))
         frame-candidates (rationalization-frame-candidates
                           world
                           {:trigger-context-id trigger-context-id
@@ -1321,6 +1405,8 @@
                                                  context-id
                                                  trigger-context-id
                                                  failed-goal-id
+                                                 trigger-emotion-id
+                                                 trigger-emotion-strength
                                                  (:frame-id frame)
                                                  ordering)])))
 

@@ -812,6 +812,8 @@
                                :context-id '?context-id
                                :trigger-context-id '?trigger-context-id
                                :failed-goal-id '?failed-goal-id
+                               :trigger-emotion-id '?trigger-emotion-id
+                               :trigger-emotion-strength '?trigger-emotion-strength
                                :frame-id '?frame-id
                                :ordering '?ordering
                                :selection-policy :stored_rationalization_frame}
@@ -821,6 +823,8 @@
                              :context-id '?context-id
                              :trigger-context-id '?trigger-context-id
                              :failed-goal-id '?failed-goal-id
+                             :trigger-emotion-id '?trigger-emotion-id
+                             :trigger-emotion-strength '?trigger-emotion-strength
                              :frame-id '?frame-id
                              :ordering '?ordering
                              :selection-policy '?selection-policy}
@@ -830,6 +834,8 @@
                             :context-id
                             :trigger-context-id
                             :failed-goal-id
+                            :trigger-emotion-id
+                            :trigger-emotion-strength
                             :frame-id
                             :ordering
                             :selection-policy}
@@ -936,6 +942,27 @@
            (rules/bridge-paths graph
                                :goal-family/rationalization-plan-request
                                :goal-family/reversal-plan-dispatch)))))
+
+(deftest family-rule-graph-exposes-rationalization-to-roving-bridge
+  (let [graph (rules/build-connection-graph (families/family-rules))
+        bridges (rules/bridge-paths graph
+                                    :goal-family/rationalization-plan-dispatch
+                                    :goal-family/roving-activation)]
+    (is (= [[:goal-family/rationalization-plan-dispatch
+             :goal-family/rationalization-afterglow-to-roving
+             :goal-family/roving-activation]]
+           (mapv :rule-path bridges)))
+    (is (= {:rule-path [:goal-family/rationalization-plan-dispatch
+                        :goal-family/rationalization-afterglow-to-roving
+                        :goal-family/roving-activation]
+            :fact-types [:family-affect-state
+                         :goal-family-trigger]
+            :edge-kinds [:state-transition
+                         :state-transition]}
+           (select-keys (first bridges)
+                        [:rule-path
+                         :fact-types
+                         :edge-kinds])))))
 
 (deftest rationalization-plan-sprouts-and-asserts-reframe-facts
   (let [[world root-id] (world-with-root)
