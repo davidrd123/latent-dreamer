@@ -277,10 +277,11 @@
            :value 1}
           {:op :test/append
            :value 2}]
-         {:effect-handler
-          (fn [{:keys [world effect effect-state]}]
-            [(update world :events conj (:value effect))
-             (update effect-state :count (fnil inc 0))])
+         {:effect-handlers
+          {:test/append
+           (fn [{:keys [world effect effect-state]}]
+             [(update world :events conj (:value effect))
+              (update effect-state :count (fnil inc 0))])}
           :initial-effect-state {:count 0}})]
     (is (= {:events [1 2]} world))
     (is (= {:count 2} effect-state))))
@@ -295,6 +296,17 @@
                           (fn [_]
                             {:world {}
                              :effect-state {}})}))))
+
+(deftest apply-effects-rejects-missing-op-handler
+  (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                        #"No effect handler registered for op"
+                        (rules/apply-effects
+                         {}
+                         [{:op :test/noop}]
+                         {:effect-handlers
+                          {:test/other
+                           (fn [{:keys [world effect-state]}]
+                             [world effect-state])}}))))
 
 (deftest execute-rule-rejects-unsupported-effect-op
   (let [bindings {'?context-id :cx-2

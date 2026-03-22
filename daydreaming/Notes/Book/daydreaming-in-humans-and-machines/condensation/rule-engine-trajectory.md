@@ -190,6 +190,8 @@ Status update, 2026-03-22 late:
 - `rules.clj` now also owns the generic effect-program reduction and
   state-threading scaffold via `apply-effects`; the concrete family
   op handlers still live in `goal_families.clj`
+- `goal_families.clj` now exposes those handlers as an explicit
+  op-handler registry instead of a monolithic local dispatcher
 - `:goal-family/roving-plan-dispatch` is now the first actual
   `:clojure-fn` vertical slice, but effect application still stays local
   in `goal_families.clj`

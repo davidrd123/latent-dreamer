@@ -182,6 +182,9 @@ The first honest Step 2 slices are now in code:
 - `rules.clj` now owns the generic effect-program reduction/threading
   scaffold through `apply-effects`; `goal_families.clj` still owns the
   concrete family op handlers
+- `goal_families.clj` no longer applies family effects through one
+  monolithic `case`; the local runtime is now an explicit op-handler
+  registry dispatched by `rules/apply-effects`
 - `goal_family_rules.clj` now marks
   `:goal-family/roving-plan-dispatch` and
   `:goal-family/rationalization-plan-dispatch` and

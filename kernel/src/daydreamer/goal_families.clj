@@ -1771,233 +1771,257 @@
   [effect-state context-ref]
   (get-in effect-state [:context-refs context-ref] context-ref))
 
-(defn- apply-family-effect
-  [world effect effect-state]
-  (case (:op effect)
-    :context/sprout
-    (let [[world sprouted-context-id] (cx/sprout world (:source-context-id effect))]
-      [world (assoc-in effect-state [:context-refs (:ref effect)] sprouted-context-id)])
+(defn- handle-context-sprout
+  [{:keys [world effect effect-state]}]
+  (let [[world sprouted-context-id] (cx/sprout world (:source-context-id effect))]
+    [world (assoc-in effect-state [:context-refs (:ref effect)] sprouted-context-id)]))
 
-    :fact/assert
-    (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
-      [(cx/assert-fact world context-id (:fact effect))
-       effect-state])
+(defn- handle-fact-assert
+  [{:keys [world effect effect-state]}]
+  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+    [(cx/assert-fact world context-id (:fact effect))
+     effect-state]))
 
-    :facts/assert-many
-    (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
-      [(reduce (fn [current-world fact]
-                 (cx/assert-fact current-world context-id fact))
-               world
-               (:facts effect))
-       effect-state])
+(defn- handle-facts-assert-many
+  [{:keys [world effect effect-state]}]
+  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+    [(reduce (fn [current-world fact]
+               (cx/assert-fact current-world context-id fact))
+             world
+             (:facts effect))
+     effect-state]))
 
-    :episode/reminding
-    (let [[world reminded-episode-ids]
-          (episodic/episode-reminding world
-                                      (:episode-id effect)
-                                      (:retrieval-opts effect))
-          reminder-result {:episode-id (:episode-id effect)
-                           :reminded-episode-ids (vec reminded-episode-ids)
-                           :active-indices (vec (:recent-indices world))}]
-      [world (assoc-in effect-state [:results (:result-key effect)] reminder-result)])
+(defn- handle-episode-reminding
+  [{:keys [world effect effect-state]}]
+  (let [[world reminded-episode-ids]
+        (episodic/episode-reminding world
+                                    (:episode-id effect)
+                                    (:retrieval-opts effect))
+        reminder-result {:episode-id (:episode-id effect)
+                         :reminded-episode-ids (vec reminded-episode-ids)
+                         :active-indices (vec (:recent-indices world))}]
+    [world (assoc-in effect-state [:results (:result-key effect)] reminder-result)]))
 
-    :episode/assert-retrieval-hits
-    (let [{:keys [episode-id reminded-episode-ids]}
-          (get-in effect-state [:results (:from-reminding effect)])
-          context-id (resolve-effect-context-id effect-state (:context-ref effect))
-          rule-provenance (:rule-provenance effect)
-          selection-policy (:selection-policy effect)
-          goal-id (:goal-id effect)
-          retrieval-hit-facts
-          (vec
-           (concat [(retrieval-hit-fact
-                     {:episode-id episode-id
+(defn- handle-episode-assert-retrieval-hits
+  [{:keys [world effect effect-state]}]
+  (let [{:keys [episode-id reminded-episode-ids]}
+        (get-in effect-state [:results (:from-reminding effect)])
+        context-id (resolve-effect-context-id effect-state (:context-ref effect))
+        rule-provenance (:rule-provenance effect)
+        selection-policy (:selection-policy effect)
+        goal-id (:goal-id effect)
+        retrieval-hit-facts
+        (vec
+         (concat [(retrieval-hit-fact
+                   {:episode-id episode-id
+                    :family-goal-id goal-id
+                    :branch-context-id context-id
+                    :retrieval-role :seed
+                    :retrieval-order 0
+                    :selection-policy selection-policy
+                    :rule-provenance rule-provenance})]
+                 (map-indexed
+                  (fn [idx reminded-episode-id]
+                    (retrieval-hit-fact
+                     {:episode-id reminded-episode-id
                       :family-goal-id goal-id
                       :branch-context-id context-id
-                      :retrieval-role :seed
-                      :retrieval-order 0
+                      :retrieval-role :reminded
+                      :retrieval-order (inc idx)
                       :selection-policy selection-policy
-                      :rule-provenance rule-provenance})]
-                   (map-indexed
-                    (fn [idx reminded-episode-id]
-                      (retrieval-hit-fact
-                       {:episode-id reminded-episode-id
-                        :family-goal-id goal-id
-                        :branch-context-id context-id
-                        :retrieval-role :reminded
-                        :retrieval-order (inc idx)
-                        :selection-policy selection-policy
-                        :rule-provenance rule-provenance}))
-                    reminded-episode-ids)))
-          world (reduce (fn [current-world fact]
-                          (cx/assert-fact current-world context-id fact))
-                        world
-                        retrieval-hit-facts)]
-      [world
-       (assoc-in effect-state
-                 [:results (:result-key effect)]
-                 retrieval-hit-facts)])
+                      :rule-provenance rule-provenance}))
+                  reminded-episode-ids)))
+        world (reduce (fn [current-world fact]
+                        (cx/assert-fact current-world context-id fact))
+                      world
+                      retrieval-hit-facts)]
+    [world
+     (assoc-in effect-state
+               [:results (:result-key effect)]
+               retrieval-hit-facts)]))
 
-    :episodes/note-family-uses
-    (let [{:keys [episode-id reminded-episode-ids]}
-          (get-in effect-state [:results (:from-reminding effect)])
-          context-id (resolve-effect-context-id effect-state (:context-ref effect))
-          [world use-records use-facts]
-          (note-family-plan-episode-uses world
-                                         context-id
-                                         (:target-family effect)
-                                         (:goal-id effect)
-                                         (:rule-provenance effect)
-                                         episode-id
-                                         reminded-episode-ids)]
-      [world
-       (assoc-in effect-state
-                 [:results (:result-key effect)]
-                 {:use-records (vec use-records)
-                  :use-facts (vec use-facts)})])
+(defn- handle-note-family-uses
+  [{:keys [world effect effect-state]}]
+  (let [{:keys [episode-id reminded-episode-ids]}
+        (get-in effect-state [:results (:from-reminding effect)])
+        context-id (resolve-effect-context-id effect-state (:context-ref effect))
+        [world use-records use-facts]
+        (note-family-plan-episode-uses world
+                                       context-id
+                                       (:target-family effect)
+                                       (:goal-id effect)
+                                       (:rule-provenance effect)
+                                       episode-id
+                                       reminded-episode-ids)]
+    [world
+     (assoc-in effect-state
+               [:results (:result-key effect)]
+               {:use-records (vec use-records)
+                :use-facts (vec use-facts)})]))
 
-    :episodes/resolve-use-outcomes
-    (let [{:keys [use-records]}
-          (get-in effect-state [:results (:from-uses effect)])
-          context-id (resolve-effect-context-id effect-state (:context-ref effect))
-          [world outcome-facts promotion-facts promoted-episode-ids]
-          (resolve-family-plan-use-outcomes
-           world
-           context-id
-           (:target-family effect)
-           (:goal-id effect)
-           (:rule-provenance effect)
-           use-records)]
-      [world
-       (assoc-in effect-state
-                 [:results (:result-key effect)]
-                 {:outcome-facts (vec outcome-facts)
-                  :promotion-facts (vec promotion-facts)
-                  :promoted-episode-ids (vec promoted-episode-ids)})])
+(defn- handle-resolve-use-outcomes
+  [{:keys [world effect effect-state]}]
+  (let [{:keys [use-records]}
+        (get-in effect-state [:results (:from-uses effect)])
+        context-id (resolve-effect-context-id effect-state (:context-ref effect))
+        [world outcome-facts promotion-facts promoted-episode-ids]
+        (resolve-family-plan-use-outcomes
+         world
+         context-id
+         (:target-family effect)
+         (:goal-id effect)
+         (:rule-provenance effect)
+         use-records)]
+    [world
+     (assoc-in effect-state
+               [:results (:result-key effect)]
+               {:outcome-facts (vec outcome-facts)
+                :promotion-facts (vec promotion-facts)
+                :promoted-episode-ids (vec promoted-episode-ids)})]))
 
-    :context/set-ordering
-    (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
-      [(assoc-in world [:contexts context-id :ordering] (:ordering effect))
-       effect-state])
+(defn- handle-context-set-ordering
+  [{:keys [world effect effect-state]}]
+  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+    [(assoc-in world [:contexts context-id :ordering] (:ordering effect))
+     effect-state]))
 
-    :goal/set-next-context
-    (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
-      [(if (contains? (:goals world) (:goal-id effect))
-         (goals/set-next-context world (:goal-id effect) context-id)
-         world)
-       effect-state])
+(defn- handle-goal-set-next-context
+  [{:keys [world effect effect-state]}]
+  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+    [(if (contains? (:goals world) (:goal-id effect))
+       (goals/set-next-context world (:goal-id effect) context-id)
+       world)
+     effect-state]))
 
-    :rationalization/divert-emotion
-    (let [sprouted-context-id (resolve-effect-context-id effect-state (:context-ref effect))
-          [world diversion]
-          (apply-rationalization-emotional-diversion
-           world
-           {:goal-id (:goal-id effect)
-            :trigger-context-id (:trigger-context-id effect)
-            :failed-goal-id (:failed-goal-id effect)
-            :sprouted-context-id sprouted-context-id}
-           (:frame effect))]
-      [world
-       (assoc-in effect-state [:results (:result-key effect)] diversion)])
+(defn- handle-rationalization-divert-emotion
+  [{:keys [world effect effect-state]}]
+  (let [sprouted-context-id (resolve-effect-context-id effect-state (:context-ref effect))
+        [world diversion]
+        (apply-rationalization-emotional-diversion
+         world
+         {:goal-id (:goal-id effect)
+          :trigger-context-id (:trigger-context-id effect)
+          :failed-goal-id (:failed-goal-id effect)
+          :sprouted-context-id sprouted-context-id}
+         (:frame effect))]
+    [world
+     (assoc-in effect-state [:results (:result-key effect)] diversion)]))
 
-    :rationalization/assert-afterglow
-    (let [sprouted-context-id (resolve-effect-context-id effect-state (:context-ref effect))
-          diversion (get-in effect-state [:results (:from-diversion effect)])
-          affect-state-fact
-          (rationalization-afterglow-fact
-           {:goal-id (:goal-id effect)
-            :context-id (:context-id effect)
-            :sprouted-context-id sprouted-context-id
-            :failed-goal-id (:failed-goal-id effect)
-            :frame-id (:frame-id effect)
-            :trigger-emotion-id (:trigger-emotion-id diversion)
-            :trigger-emotion-strength (:trigger-emotion-after diversion)
-            :rule-provenance (:rule-provenance effect)})
-          world (cond-> world
-                  affect-state-fact
-                  (cx/assert-fact sprouted-context-id affect-state-fact))]
-      [world
-       (assoc-in effect-state
-                 [:results (:result-key effect)]
-                 {:affect-state-fact affect-state-fact})])
+(defn- handle-rationalization-assert-afterglow
+  [{:keys [world effect effect-state]}]
+  (let [sprouted-context-id (resolve-effect-context-id effect-state (:context-ref effect))
+        diversion (get-in effect-state [:results (:from-diversion effect)])
+        affect-state-fact
+        (rationalization-afterglow-fact
+         {:goal-id (:goal-id effect)
+          :context-id (:context-id effect)
+          :sprouted-context-id sprouted-context-id
+          :failed-goal-id (:failed-goal-id effect)
+          :frame-id (:frame-id effect)
+          :trigger-emotion-id (:trigger-emotion-id diversion)
+          :trigger-emotion-strength (:trigger-emotion-after diversion)
+          :rule-provenance (:rule-provenance effect)})
+        world (cond-> world
+                affect-state-fact
+                (cx/assert-fact sprouted-context-id affect-state-fact))]
+    [world
+     (assoc-in effect-state
+               [:results (:result-key effect)]
+               {:affect-state-fact affect-state-fact})]))
 
-    :mutation/log
-    (let [{:keys [episode-id reminded-episode-ids active-indices]}
-          (get-in effect-state [:results (:from-reminding effect)])
-          {:keys [promoted-episode-ids]}
-          (get-in effect-state [:results (:from-promotions effect)]
-                  {:promoted-episode-ids []})
-          context-id (resolve-effect-context-id effect-state (:context-ref effect))]
-      [(update world :mutation-events
-               (fnil conj [])
-               {:family (:family effect)
-                :source-context (:source-context-id effect)
-                :target-context context-id
-                :seed-episode-id episode-id
-                :reminded-episode-ids reminded-episode-ids
-                :promoted-episode-ids promoted-episode-ids
-                :active-indices active-indices})
-       effect-state])
+(defn- handle-mutation-log
+  [{:keys [world effect effect-state]}]
+  (let [{:keys [episode-id reminded-episode-ids active-indices]}
+        (get-in effect-state [:results (:from-reminding effect)])
+        {:keys [promoted-episode-ids]}
+        (get-in effect-state [:results (:from-promotions effect)]
+                {:promoted-episode-ids []})
+        context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+    [(update world :mutation-events
+             (fnil conj [])
+             {:family (:family effect)
+              :source-context (:source-context-id effect)
+              :target-context context-id
+              :seed-episode-id episode-id
+              :reminded-episode-ids reminded-episode-ids
+              :promoted-episode-ids promoted-episode-ids
+              :active-indices active-indices})
+     effect-state]))
 
-    :mutation/log-rationalization
-    (let [sprouted-context-id (resolve-effect-context-id effect-state (:context-ref effect))
-          diversion (get-in effect-state [:results (:from-diversion effect)] {})]
-      [(update world :mutation-events
-               (fnil conj [])
-               {:family :rationalization
-                :source-context (:source-context-id effect)
-                :trigger-context (:trigger-context-id effect)
-                :target-context sprouted-context-id
-                :failed-goal-id (:failed-goal-id effect)
-                :frame-id (:frame-id effect)
-                :reframe-facts (:reframe-facts effect)
-                :emotion-diversion (select-keys diversion
-                                                [:diversion-policy
-                                                 :trigger-emotion-id
-                                                 :trigger-emotion-before
-                                                 :trigger-emotion-after
-                                                 :hope-emotion-id
-                                                 :hope-strength
-                                                 :hope-situation-id])})
-       effect-state])
+(defn- handle-mutation-log-rationalization
+  [{:keys [world effect effect-state]}]
+  (let [sprouted-context-id (resolve-effect-context-id effect-state (:context-ref effect))
+        diversion (get-in effect-state [:results (:from-diversion effect)] {})]
+    [(update world :mutation-events
+             (fnil conj [])
+             {:family :rationalization
+              :source-context (:source-context-id effect)
+              :trigger-context (:trigger-context-id effect)
+              :target-context sprouted-context-id
+              :failed-goal-id (:failed-goal-id effect)
+              :frame-id (:frame-id effect)
+              :reframe-facts (:reframe-facts effect)
+              :emotion-diversion (select-keys diversion
+                                              [:diversion-policy
+                                               :trigger-emotion-id
+                                               :trigger-emotion-before
+                                               :trigger-emotion-after
+                                               :hope-emotion-id
+                                               :hope-strength
+                                               :hope-situation-id])})
+     effect-state]))
 
-    :reversal/execute-branches
-    (let [[world branch-results]
-          (reduce (fn [[current-world branch-results] branch]
-                    (let [[next-world sprouted-context-id]
-                          (reversal-sprout-alternative
-                           current-world
-                           {:old-context-id (:old-context-id branch)
-                            :old-top-level-goal-id (:old-top-level-goal-id effect)
-                            :new-context-id (:new-context-id effect)
-                            :new-top-level-goal-id (:new-top-level-goal-id effect)
-                            :ordering (:ordering branch)
-                            :input-facts (:input-facts effect)
-                            :retract-facts (:objective-facts branch)})]
-                      [next-world
-                       (conj branch-results
-                             (assoc branch
-                                    :sprouted-context-id sprouted-context-id
-                                    :rule-provenance (:rule-provenance effect)
-                                    :retracted-fact-ids (mapv fact-id
-                                                              (:objective-facts branch))))]))
-                  [world []]
-                  (:branches effect))]
-      [world
-       (assoc-in effect-state
-                 [:results (:result-key effect)]
-                 {:branch-results (vec branch-results)})])
+(defn- handle-reversal-execute-branches
+  [{:keys [world effect effect-state]}]
+  (let [[world branch-results]
+        (reduce (fn [[current-world branch-results] branch]
+                  (let [[next-world sprouted-context-id]
+                        (reversal-sprout-alternative
+                         current-world
+                         {:old-context-id (:old-context-id branch)
+                          :old-top-level-goal-id (:old-top-level-goal-id effect)
+                          :new-context-id (:new-context-id effect)
+                          :new-top-level-goal-id (:new-top-level-goal-id effect)
+                          :ordering (:ordering branch)
+                          :input-facts (:input-facts effect)
+                          :retract-facts (:objective-facts branch)})]
+                    [next-world
+                     (conj branch-results
+                           (assoc branch
+                                  :sprouted-context-id sprouted-context-id
+                                  :rule-provenance (:rule-provenance effect)
+                                  :retracted-fact-ids (mapv fact-id
+                                                            (:objective-facts branch))))]))
+                [world []]
+                (:branches effect))]
+    [world
+     (assoc-in effect-state
+               [:results (:result-key effect)]
+               {:branch-results (vec branch-results)})]))
 
-    (throw (ex-info "Unknown family effect op"
-                    {:effect effect}))))
+(defn- family-effect-handlers
+  []
+  {:context/sprout handle-context-sprout
+   :fact/assert handle-fact-assert
+   :facts/assert-many handle-facts-assert-many
+   :episode/reminding handle-episode-reminding
+   :episode/assert-retrieval-hits handle-episode-assert-retrieval-hits
+   :episodes/note-family-uses handle-note-family-uses
+   :episodes/resolve-use-outcomes handle-resolve-use-outcomes
+   :context/set-ordering handle-context-set-ordering
+   :goal/set-next-context handle-goal-set-next-context
+   :rationalization/divert-emotion handle-rationalization-divert-emotion
+   :rationalization/assert-afterglow handle-rationalization-assert-afterglow
+   :mutation/log handle-mutation-log
+   :mutation/log-rationalization handle-mutation-log-rationalization
+   :reversal/execute-branches handle-reversal-execute-branches})
 
 (defn- apply-family-effects
   [world effects]
   (rules/apply-effects
    world
    effects
-   {:effect-handler (fn [{:keys [world effect effect-state]}]
-                      (apply-family-effect world effect effect-state))
+   {:effect-handlers (family-effect-handlers)
     :initial-effect-state {:context-refs {}
                            :results {}}}))
 

@@ -1054,22 +1054,30 @@
 
   The generic runtime owns reduction and effect-state threading; callers still
   own the concrete op semantics."
-  [world effects {:keys [effect-handler initial-effect-state]}]
-  (when-not (ifn? effect-handler)
-    (throw (ex-info "apply-effects requires a callable :effect-handler"
-                    {:effect-handler effect-handler})))
+  [world effects {:keys [effect-handler effect-handlers initial-effect-state]}]
+  (when-not (or (ifn? effect-handler)
+                (map? effect-handlers))
+    (throw (ex-info "apply-effects requires :effect-handler or :effect-handlers"
+                    {:effect-handler effect-handler
+                     :effect-handlers effect-handlers})))
   (when-not (vector? effects)
     (throw (ex-info "apply-effects requires a vector of effects"
                     {:effects effects})))
   (reduce (fn [[current-world effect-state] effect]
-            (let [result (effect-handler {:world current-world
-                                          :effect effect
-                                          :effect-state effect-state})]
-              (when-not (and (vector? result)
-                             (= 2 (count result)))
-                (throw (ex-info "Effect handler must return [world effect-state]"
+            (let [handler (or effect-handler
+                              (get effect-handlers (:op effect)))]
+              (when-not (ifn? handler)
+                (throw (ex-info "No effect handler registered for op"
                                 {:effect effect
-                                 :result result})))
-              result))
+                                 :known-ops (sort (keys effect-handlers))})))
+              (let [result (handler {:world current-world
+                                     :effect effect
+                                     :effect-state effect-state})]
+                (when-not (and (vector? result)
+                               (= 2 (count result)))
+                  (throw (ex-info "Effect handler must return [world effect-state]"
+                                  {:effect effect
+                                   :result result})))
+                result)))
           [world (or initial-effect-state {})]
           effects))
