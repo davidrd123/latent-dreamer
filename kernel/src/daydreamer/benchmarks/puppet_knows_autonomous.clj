@@ -855,102 +855,36 @@
 
 (defn- apply-family-plan
   [world goal-id]
-  (let [goal-type (get-in world [:goals goal-id :goal-type])]
-    (case goal-type
-      :reversal
-      (if-let [reversal-leaf (families/select-reversal-leaf world)]
-        (let [reversal-target (merge reversal-leaf
-                                     (families/reverse-undo-causes world reversal-leaf)
-                                     {:new-top-level-goal-id goal-id
-                                      :new-context-id (or (goals/get-next-context world goal-id)
-                                                          (:reality-lookahead world))
-                                      :ordering 0.9})
-              [world branch-results] (families/reverse-leafs world reversal-target)
-              primary-branch (first branch-results)
-              sprouted-context-ids (mapv :sprouted-context-id branch-results)
-              world (trace/merge-latest-cycle
-                     world
-                     {:sprouted sprouted-context-ids
-                      :mutations (:mutation-events world)
-                      :selection {:goal_family :reversal
-                                  :reversal_target_policy (:selection-policy reversal-target)
-                                  :reversal_target_goal (:old-top-level-goal-id reversal-target)
-                                  :reversal_source_context (:old-context-id reversal-target)
-                                  :reversal_leaf_policy (:selection-policy primary-branch)
-                                  :reversal_leaf_goal (:leaf-goal-id primary-branch)
-                                  :reversal_leaf_strength (:leaf-strength primary-branch)
-                                  :reversal_leaf_depth (:context-depth reversal-target)
-                                  :reversal_leaf_emotion_pressure (:emotion-pressure reversal-target)
-                                  :reversal_leaf_reasons (:selection-reasons primary-branch)
-                                  :reversal_leaf_retracted_facts (:retracted-fact-ids primary-branch)
-                                  :reversal_branch_count (count branch-results)
-                                  :reversal_branch_contexts sprouted-context-ids
-                                  :reversal_counterfactual_policy (:counterfactual-policy reversal-target)
-                                  :reversal_counterfactual_source (:counterfactual-cause-id reversal-target)
-                                  :reversal_counterfactual_goal (:counterfactual-goal-id reversal-target)
-                                  :reversal_counterfactual_reasons (:counterfactual-reasons reversal-target)
-                                  :reversal_counterfactual_fact_ids (:counterfactual-fact-ids reversal-target)
-                                  :reversal_branch_context (:sprouted-context-id primary-branch)}})]
-          [world :reversal])
-        [world nil])
-
-      :roving
-      (let [context-id (or (goals/get-next-context world goal-id)
-                           (:reality-lookahead world)
-                           (:reality-context world))
-            [world roving-result] (families/roving-plan world
-                                                        {:goal-id goal-id
-                                                         :context-id context-id
-                                                         :ordering 0.75})
-            world (trace/merge-latest-cycle
+  (let [goal-type (get-in world [:goals goal-id :goal-type])
+        context-id (or (goals/get-next-context world goal-id)
+                       (:reality-lookahead world)
+                       (:reality-context world))
+        [world opts]
+        (if (= :rationalization goal-type)
+          (seed-autonomous-rationalization-bridge world goal-id context-id)
+          [world {:context-id context-id}])
+        opts (merge {:goal-id goal-id
+                     :context-id context-id}
+                    opts
+                    (case goal-type
+                      :reversal {:ordering 0.9}
+                      :roving {:ordering 0.75}
+                      :rationalization {:ordering 0.72}
+                      {}))
+        [world family-plan] (families/run-family-plan world opts)]
+    (if-not family-plan
+      [world nil]
+      (let [world (trace/merge-latest-cycle
                    world
-                   {:sprouted [(:sprouted-context-id roving-result)]
-                    :mutations (:mutation-events world)
-                    :selection {:goal_family :roving
-                                :roving_selection_policy (:selection-policy roving-result)
-                                :roving_seed_episode (:episode-id roving-result)
-                                :roving_reminded_episodes (:reminded-episode-ids roving-result)
-                                :roving_active_indices (:active-indices roving-result)
-                                :roving_branch_context (:sprouted-context-id roving-result)}})]
-        [world :roving])
+                   (cond-> {:sprouted (:sprouted-context-ids family-plan)
+                            :mutations (:mutation-events world)
+                            :selection (:selection family-plan)}
+                     (seq (:emotion-shifts family-plan))
+                     (assoc :emotion-shifts (:emotion-shifts family-plan))
 
-      :rationalization
-      (let [context-id (or (goals/get-next-context world goal-id)
-                           (:reality-lookahead world)
-                           (:reality-context world))
-            [world rationalization-spec]
-            (seed-autonomous-rationalization-bridge world goal-id context-id)
-            [world rationalization-result]
-            (families/rationalization-plan world
-                                           {:goal-id goal-id
-                                            :context-id context-id
-                                            :trigger-context-id (:trigger-context-id rationalization-spec)
-                                            :failed-goal-id (:failed-goal-id rationalization-spec)
-                                            :frame-id (:frame-id rationalization-spec)
-                                            :ordering 0.72})
-            world (trace/merge-latest-cycle
-                   world
-                   {:sprouted [(:sprouted-context-id rationalization-result)]
-                    :mutations (:mutation-events world)
-                    :emotion-shifts (:emotion-shifts rationalization-result)
-                    :emotional-state (:emotional-state rationalization-result)
-                    :selection {:goal_family :rationalization
-                                :rationalization_selection_policy (:selection-policy rationalization-result)
-                                :rationalization_frame_id (:frame-id rationalization-result)
-                                :rationalization_frame_goal (:frame-goal-id rationalization-result)
-                                :rationalization_frame_reasons (:selection-reasons rationalization-result)
-                                :rationalization_reframe_fact_ids (:reframe-fact-ids rationalization-result)
-                                :rationalization_branch_context (:sprouted-context-id rationalization-result)
-                                :rationalization_diversion_policy (:diversion-policy rationalization-result)
-                                :rationalization_trigger_emotion_id (:trigger-emotion-id rationalization-result)
-                                :rationalization_trigger_emotion_before (:trigger-emotion-before rationalization-result)
-                                :rationalization_trigger_emotion_after (:trigger-emotion-after rationalization-result)
-                                :rationalization_hope_emotion_id (:hope-emotion-id rationalization-result)
-                                :rationalization_hope_strength (:hope-strength rationalization-result)
-                                :rationalization_hope_situation (:hope-situation-id rationalization-result)}})]
-        [world :rationalization])
-
-      [world nil])))
+                     (seq (:emotional-state family-plan))
+                     (assoc :emotional-state (:emotional-state family-plan))))]
+        [world (:family family-plan)]))))
 
 (defn run-autonomous-cycle
   "Run one autonomous Puppet Knows cycle, returning `[world summary]`."

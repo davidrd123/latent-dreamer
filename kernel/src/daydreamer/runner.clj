@@ -56,10 +56,6 @@
   [world goal-id]
   (goals/get-next-context world goal-id))
 
-(defn- goal-type
-  [world goal-id]
-  (get-in world [:goals goal-id :goal-type]))
-
 (defn- create-scripted-sprouts
   [world goal-id sprout-specs]
   (reduce (fn [[current-world child-ids] {:keys [ordering timeout]
@@ -253,34 +249,22 @@
   [world selected-goal-id script]
   (if-not (:auto-family-plans? script)
     [world nil]
-    (case (goal-type world selected-goal-id)
-      :reversal
-      (apply-scripted-reversal
-       world
-       selected-goal-id
-       {:discover-leaf? true
-        :derive-counterfactuals? true
-        :selection-policy (get-in world [:goals selected-goal-id :activation-policy])
-        :selection-reasons (get-in world [:goals selected-goal-id :activation-reasons])
-        :old-context-id (get-in world [:goals selected-goal-id :trigger-context-id])
-        :old-top-level-goal-id (get-in world [:goals selected-goal-id :trigger-failed-goal-id])
-        :failed-goal-id (get-in world [:goals selected-goal-id :trigger-failed-goal-id])
-        :context-depth (count (cx/ancestors world
-                                            (get-in world [:goals selected-goal-id :trigger-context-id])))
-        :emotion-pressure (get-in world [:goals selected-goal-id :trigger-emotion-strength])})
+    (let [[world family-plan]
+          (families/run-family-plan world {:goal-id selected-goal-id})]
+      (if-not family-plan
+        [world nil]
+        (let [world (append-sprouted-contexts world
+                                              (:sprouted-context-ids family-plan))
+              world (trace/merge-latest-cycle
+                     world
+                     (cond-> {:mutations (:mutation-events world)
+                              :selection (:selection family-plan)}
+                       (seq (:emotion-shifts family-plan))
+                       (assoc :emotion-shifts (:emotion-shifts family-plan))
 
-      :roving
-      (apply-scripted-roving world selected-goal-id {})
-
-      :rationalization
-      (apply-scripted-rationalization
-       world
-       selected-goal-id
-       {:trigger-context-id (get-in world [:goals selected-goal-id :trigger-context-id])
-        :failed-goal-id (get-in world [:goals selected-goal-id :trigger-failed-goal-id])
-        :frame-id (get-in world [:goals selected-goal-id :trigger-frame-id])})
-
-      [world nil])))
+                       (seq (:emotional-state family-plan))
+                       (assoc :emotional-state (:emotional-state family-plan))))]
+          [world (last (:sprouted-context-ids family-plan))])))))
 
 (defn- enrich-latest-trace
   [world script]
