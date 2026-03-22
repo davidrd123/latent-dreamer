@@ -87,6 +87,9 @@
        (valid-denotation? (:denotation rule))
        (map? (:executor rule))
        (contains? executor-kinds (get-in rule [:executor :kind]))
+       (or (nil? (get-in rule [:executor :spec :effect-ops]))
+           (and (vector? (get-in rule [:executor :spec :effect-ops]))
+                (every? keyword? (get-in rule [:executor :spec :effect-ops]))))
        (map? (:graph-cache rule))
        (map? (:provenance rule))))
 
@@ -894,6 +897,40 @@
                      :result result})))
   result)
 
+(defn- validate-effects!
+  [rule call result]
+  (if-not (contains? result :effects)
+    result
+    (let [effects (:effects result)
+          allowed-ops (set (get-in rule [:executor :spec :effect-ops] []))]
+      (when-not (vector? effects)
+        (throw (ex-info "RuleResultV1 :effects must be a vector"
+                        {:rule-id (:id rule)
+                         :call call
+                         :result result})))
+      (doseq [effect effects]
+        (when-not (map? effect)
+          (throw (ex-info "RuleResultV1 effect entries must be maps"
+                          {:rule-id (:id rule)
+                           :call call
+                           :effect effect
+                           :result result})))
+        (when-not (keyword? (:op effect))
+          (throw (ex-info "RuleResultV1 effects must declare keyword :op"
+                          {:rule-id (:id rule)
+                           :call call
+                           :effect effect
+                           :result result})))
+        (when (and (seq allowed-ops)
+                   (not (contains? allowed-ops (:op effect))))
+          (throw (ex-info "RuleResultV1 effect op is not declared for rule"
+                          {:rule-id (:id rule)
+                           :call call
+                           :effect effect
+                           :allowed-ops allowed-ops
+                           :result result}))))
+      result)))
+
 (defn- validate-consequents!
   [rule call {:keys [consequents] :as result}]
   (let [schema (:consequent-schema rule)
@@ -959,6 +996,7 @@
         result (dispatch-executor rule call)]
     (->> result
          (validate-rule-result-shape! rule call)
+         (validate-effects! rule call)
          (validate-consequents! rule call)
          (validate-denotation! rule call))))
 

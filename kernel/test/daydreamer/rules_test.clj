@@ -208,7 +208,8 @@
                   '?emotion-strength 0.25}
         rule (assoc sample-rule
                     :executor {:kind :clojure-fn
-                               :spec {:executor-id :sample/dispatch}})
+                               :spec {:executor-id :sample/dispatch
+                                      :effect-ops [:test/noop]}})
         result (rules/execute-rule
                 rule
                 {:bindings bindings
@@ -234,6 +235,62 @@
            (:consequents result)))
     (is (= "registry-dispatch" (:surface-summary result)))
     (is (= [{:op :test/noop}] (:effects result)))))
+
+(deftest execute-rule-rejects-unsupported-effect-op
+  (let [bindings {'?context-id :cx-2
+                  '?failed-goal-id :g-failed
+                  '?emotion-id :e-shame
+                  '?emotion-strength 0.25}
+        rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:executor-id :sample/dispatch
+                                      :effect-ops [:test/noop]}})]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"effect op is not declared"
+                          (rules/execute-rule
+                           rule
+                           {:bindings bindings
+                            :executor-registry
+                            {:sample/dispatch
+                             (fn [{:keys [rule]}]
+                               {:consequents [{:context-id :cx-2
+                                               :failed-goal-id :g-failed
+                                               :emotion-id :e-shame
+                                               :emotion-strength 0.25
+                                               :selection-policy :failed_goal_negative_emotion}]
+                                :confidence (double (:plausibility rule))
+                                :reason "bad-effect"
+                                :aux-indices []
+                                :surface-summary "bad-effect"
+                                :effects [{:op :test/other}]})}})))))
+
+(deftest execute-rule-rejects-effect-without-keyword-op
+  (let [bindings {'?context-id :cx-2
+                  '?failed-goal-id :g-failed
+                  '?emotion-id :e-shame
+                  '?emotion-strength 0.25}
+        rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:executor-id :sample/dispatch
+                                      :effect-ops [:test/noop]}})]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"effects must declare keyword :op"
+                          (rules/execute-rule
+                           rule
+                           {:bindings bindings
+                            :executor-registry
+                            {:sample/dispatch
+                             (fn [{:keys [rule]}]
+                               {:consequents [{:context-id :cx-2
+                                               :failed-goal-id :g-failed
+                                               :emotion-id :e-shame
+                                               :emotion-strength 0.25
+                                               :selection-policy :failed_goal_negative_emotion}]
+                                :confidence (double (:plausibility rule))
+                                :reason "missing-op"
+                                :aux-indices []
+                                :surface-summary "missing-op"
+                                :effects [{:context-ref :branch-context}]})}})))))
 
 (deftest execute-rule-rejects-consequent-count-mismatch
   (let [rule (assoc sample-rule

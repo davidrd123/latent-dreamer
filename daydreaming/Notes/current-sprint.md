@@ -91,6 +91,9 @@ and path verifier are real.
   rule vertical slice: `execute-rule` dispatches it through a
   runtime executor binding, while effect application still stays
   kernel-owned and local
+- `rationalization-plan-dispatch` now runs through the same
+  `execute-rule` seam, so Step 2 has a second real vertical slice
+  without moving effect application out of the kernel yet
 
 ### Current subphase: memory ecology hardening
 
@@ -163,15 +166,19 @@ The reviews now make the next two abstractions explicit:
   `execute-rule`, not as growing local effect machinery inside
   `goal_families.clj`.
 
-The first honest Step 2 slice is now in code:
+The first honest Step 2 slices are now in code:
 - `execute-rule` can resolve a `:clojure-fn` executor from a
   call-supplied executor registry
+- `execute-rule` now also rejects malformed `:effects` at a narrow
+  shape level: effect programs must be vectors of maps with keyword
+  `:op`, and rule-declared `:effect-ops` are enforced
 - `goal_family_rules.clj` now marks
-  `:goal-family/roving-plan-dispatch` as `:clojure-fn`
-- `goal_families.clj` now routes roving dispatch through that rule
-  executor, while leaving `apply-family-effects` local
-- `rationalization` and `reversal` remain on the validated
-  instantiate path for now
+  `:goal-family/roving-plan-dispatch` and
+  `:goal-family/rationalization-plan-dispatch` as `:clojure-fn`
+- `goal_families.clj` now routes both roving and rationalization
+  dispatch through that rule executor, while leaving
+  `apply-family-effects` local
+- `reversal` remains on the validated instantiate path for now
 
 ### Next after this
 
@@ -185,7 +192,8 @@ The first honest Step 2 slice is now in code:
   drive stronger promotion/demotion decisions
 - continue the declarative effect vocabulary / executor boundary
   by adding `execute-rule` in `rules.clj`, then route
-  `goal_families.clj` through it before extracting more families
+  `goal_families.clj` through it before extracting more families;
+  `reversal` is now the next family move
 - widen anti-residue from evaluator annotations to stronger
   downstream demotion / contradiction detection
 - strengthen consolidation policy beyond the current first-pass

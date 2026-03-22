@@ -121,21 +121,30 @@ Implemented first pass:
 - `execute-rule` now supports call-supplied `:clojure-fn` executor
   bindings, so pure rule data can stay in the registry while runtime
   executor ownership lives at the family/kernel boundary
+- `execute-rule` now performs minimal effect validation:
+  `:effects` must be a vector of maps, each effect must declare a
+  keyword `:op`, and rule-declared `:effect-ops` are enforced
 - `:goal-family/roving-plan-dispatch` is now the first real
   `:clojure-fn` vertical slice: the rule dispatches through
   `execute-rule`, returns a typed effect program, and local kernel code
   still applies those effects
+- `:goal-family/rationalization-plan-dispatch` now runs through the
+  same seam, using a typed effect program for sprout/assert/diversion/
+  afterglow/log while keeping effect application kernel-local
 - first effect ops are:
   `:context/sprout`, `:fact/assert`, `:episode/reminding`,
   `:episode/assert-retrieval-hits`, `:episodes/note-family-uses`,
   `:episodes/resolve-use-outcomes`, `:context/set-ordering`,
-  `:goal/set-next-context`, `:mutation/log`
-- `rationalization` and `reversal` still execute procedurally
+  `:goal/set-next-context`, `:mutation/log`, `:facts/assert-many`,
+  `:rationalization/divert-emotion`,
+  `:rationalization/assert-afterglow`,
+  `:mutation/log-rationalization`
+- `reversal` still executes procedurally
 
 Next seam from review 10:
 - keep `instantiate-rule` as a compatibility wrapper
 - keep effect application local while more vertical slices migrate
-- move `rationalization` next, `reversal` last
+- move `reversal` next
 - only then widen toward generic effect-schema validation and a shared
   effect runtime
 

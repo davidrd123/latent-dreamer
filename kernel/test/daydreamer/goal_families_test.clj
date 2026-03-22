@@ -2766,6 +2766,64 @@
                                    :hope-situation-id :s5_the_guide}}]
              (:mutation-events world))))))
 
+(deftest rationalization-plan-effects-builds-typed-program
+  (let [[world root-id] (world-with-root)
+        [world trigger-context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        frame-id :rf-zone-mercy
+        frame-facts [guide-fact
+                     {:fact/type :rationalization
+                      :fact/id :zone_is_mercy}
+                     {:fact/type :rationalization
+                      :fact/id :delay_is_faith}]
+        world (-> world
+                  (cx/assert-fact trigger-context-id {:fact/type :goal
+                                                      :goal-id failed-goal-id
+                                                      :top-level-goal failed-goal-id
+                                                      :status :failed
+                                                      :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :emotion
+                                                      :emotion-id emotion-id
+                                                      :strength 0.82
+                                                      :valence :negative
+                                                      :affect :dread})
+                  (cx/assert-fact trigger-context-id {:fact/type :dependency
+                                                      :from-id emotion-id
+                                                      :to-id failed-goal-id})
+                  (cx/assert-fact trigger-context-id
+                                  (rationalization-frame-fact frame-id
+                                                              failed-goal-id
+                                                              0.91
+                                                              frame-facts)))
+        [world rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.82
+          :main-motiv :e-dread})
+        context-id (get-in world [:goals rationalization-goal-id :next-cx])
+        effect-program (families/rationalization-plan-effects
+                        world
+                        {:goal-id rationalization-goal-id
+                         :context-id context-id
+                         :trigger-context-id trigger-context-id
+                         :failed-goal-id failed-goal-id})]
+    (is (= :rf-zone-mercy (:frame-id effect-program)))
+    (is (= :stored_rationalization_frame (:selection-policy effect-program)))
+    (is (= "rationalization:stored_rationalization_frame::rf-zone-mercy"
+           (:surface-summary effect-program)))
+    (is (= [:context/sprout
+            :facts/assert-many
+            :context/set-ordering
+            :rationalization/divert-emotion
+            :rationalization/assert-afterglow
+            :goal/set-next-context
+            :mutation/log-rationalization]
+           (mapv :op (:effects effect-program))))))
+
 (deftest activate-family-goals-can-dispatch-roving-from-rationalization-afterglow
   (let [[world root-id] (world-with-root)
         world (assoc world :reality-context root-id)

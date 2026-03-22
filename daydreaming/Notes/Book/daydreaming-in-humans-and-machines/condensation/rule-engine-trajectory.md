@@ -182,10 +182,15 @@ Only after that seam is real should more family plans be extracted.
 Status update, 2026-03-22 late:
 - `execute-rule` is now real in `rules.clj`
 - `instantiate-rule` remains as a compatibility wrapper
+- `execute-rule` now includes minimal effect-program validation
+  (`:effects` vector, map entries, keyword `:op`, allowed op set)
 - `:goal-family/roving-plan-dispatch` is now the first actual
   `:clojure-fn` vertical slice, but effect application still stays local
   in `goal_families.clj`
-- `rationalization` and `reversal` have not migrated yet
+- `:goal-family/rationalization-plan-dispatch` is now the second actual
+  `:clojure-fn` vertical slice, still with local kernel effect
+  application
+- `reversal` has not migrated yet
 
 ### Step 3: LLM-backed evaluator pilot
 

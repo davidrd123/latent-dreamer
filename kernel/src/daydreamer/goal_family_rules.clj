@@ -148,7 +148,16 @@
                             [:missing-family-plan-request])
     :executor-kind :clojure-fn
     :executor-spec {:request-goal-type :roving
-                    :executor-id :goal-family/roving-plan-dispatch}
+                    :executor-id :goal-family/roving-plan-dispatch
+                    :effect-ops [:context/sprout
+                                 :fact/assert
+                                 :episode/reminding
+                                 :episode/assert-retrieval-hits
+                                 :episodes/note-family-uses
+                                 :episodes/resolve-use-outcomes
+                                 :context/set-ordering
+                                 :goal/set-next-context
+                                 :mutation/log]}
     :provenance (rule-provenance
                  [:theme-roving]
                  :partial
@@ -225,7 +234,16 @@
     :plausibility 1.0
     :denotation (denotation :dispatch-rationalization-plan-request
                             [:missing-family-plan-request])
-    :executor-spec {:request-goal-type :rationalization}
+    :executor-kind :clojure-fn
+    :executor-spec {:request-goal-type :rationalization
+                    :executor-id :goal-family/rationalization-plan-dispatch
+                    :effect-ops [:context/sprout
+                                 :facts/assert-many
+                                 :context/set-ordering
+                                 :rationalization/divert-emotion
+                                 :rationalization/assert-afterglow
+                                 :goal/set-next-context
+                                 :mutation/log-rationalization]}
     :provenance (rule-provenance
                  [:theme-rationalization]
                  :partial
