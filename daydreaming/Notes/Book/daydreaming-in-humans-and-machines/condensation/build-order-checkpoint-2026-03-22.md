@@ -103,6 +103,10 @@ Still missing inside step 1:
   artifacts (use/outcome, evaluation, retrieval aftermath, frontier
   admission) rather than adding more family-wrapper rules or letting
   evaluators bypass the substrate
+- review 13 sequencing guardrail: do not optimize write/read policy or
+  DSPy-style residue prompts until the memory membrane is trustworthy;
+  otherwise optimization will learn the current leaks instead of
+  strengthening the architecture
 
 ### 2. Executor boundary with declarative effects
 

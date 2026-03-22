@@ -235,7 +235,7 @@ Also incorporates: Mueller source verification (`dd_epis.cl`, `dd_ri.cl`, `dd_ru
 - No published DSPy work on write-side memory optimization specifically
 - Mem0 warning: graph-memory added only ~2% over base memory. Don't fetishize graph at expense of write/read discipline.
 - GradMem gives the right slogan ("writing should be evaluated, not one-shot dumped"), not the right literal method
-- **Sequencing: don't optimize until the membrane is stronger.** A DSPy pass on a leaky ecology learns to exploit the leaks.
+- **Sequencing: implementation stays parked until the membrane is stronger.** A DSPy pass on a leaky ecology learns to exploit the leaks.
 
 ### Developmental trajectory (from 13 Q6, replies 4-6 and all-8)
 
@@ -254,22 +254,25 @@ Also incorporates: Mueller source verification (`dd_epis.cl`, `dd_ri.cl`, `dd_ru
 - Soar warning: without explanation-based summarization, chunking degrades. Soar 9.4 learned 1263 rules; Soar 9.6 with EBBS learned 8 general rules for the same task. Discipline matters.
 - ACT-R warning: production compilation proliferates specialized rules. Risk is over-specialization and dead compiled rules, not frontier discovery.
 - Soar has proto-staged-admission: chunks from numeric-preference decisions are deferred until "sufficient accumulated experience." Closest lit match to our `:frontier → :accessible`.
-- Our `:frontier / :accessible / :quarantined` registry is "cleaner than either" (5T confidence 85%)
+- Our `:frontier / :accessible / :quarantined` registry is a more explicit staged-admission layer than the default Soar/ACT-R mechanisms, not a claim of overall architectural superiority
 - The ladder: candidate path → verified → provisional episode witness → durable episode evidence → frontier rule opened. Failure: opened rule → loop/backfire/contradiction → quarantine.
 - "The missing abstraction is still episode use with attributed outcomes."
 
 ### Multi-model routing as cognitive economics (from 13 Q8, replies 7-8 and all-8)
 
-**Route on internal ambiguity and stakes, not family label** — provisional
+**Routing principle: route on internal ambiguity and stakes, not family label** — provisional
 - Nelson & Narens monitoring/control is the right framework: monitoring estimates state, control allocates resources
 - FAtiMA is the architectural ancestor (metacognitive layer), not Mueller
-- Route to Reason: 60%+ token reduction, beats best single model. BEST-Route: 60% cost reduction, <1% perf drop. Budget-constrained contextual bandit formulation (EMNLP 2025).
 - Our distinctive advantage: kernel can monitor PROCESS state, not just input difficulty
 - Six monitoring features: verification ambiguity, retrieval ambiguity, memory-risk signals, emotional pressure/competition, action criticality, budget/history
 - Monitor vector: `[stakes, verification-ambiguity, retrieval-ambiguity, memory-risk, affective-pressure, budget]`
 - Control output: `{model, reasoning_strategy, n_samples, max_tokens}`
-- Phase 1: typed lexicographic policy (hand-authored). Phase 2: contextual bandit (learned from telemetry).
 - "Reversal family" is a lossy proxy. Real triggers: verification_level, open_obligation_count, binding_conflict_count, retrieval_margin, threshold_slack, anti_residue_flag_count, pending transitions.
+
+**Routing mechanism: hand-authored policy first, learned router later** — provisional
+- Phase 1: typed lexicographic policy (hand-authored)
+- Phase 2: learned router from telemetry (contextual bandit is the leading candidate, not a settled commitment)
+- Route to Reason and BEST-Route support the general direction, but the mechanism should remain subordinate to kernel-owned monitoring signals
 
 ---
 
