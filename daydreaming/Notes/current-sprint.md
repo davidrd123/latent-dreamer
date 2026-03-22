@@ -136,6 +136,9 @@ and "deserves future influence":
   family-plan episode is actually selected as the counterfactual
   source; only negative branch-local evidence resolves that use
   immediately
+- later cross-family success can now vindicate those pending
+  same-family source uses without turning that vindication itself into
+  new promotion evidence
 - cross-family success can promote through attributed use evidence
   (`:cross-family-use-success`), but raw roving reminding no longer
   counts as that evidence by itself
@@ -186,9 +189,12 @@ The reviews now make the next two abstractions explicit:
   evaluator is a gate or veto, not the sole authority. Review `13`
   sharpens the same guardrail from the higher level: growth should sit
   on top of typed cross-phase artifacts like use/outcome evidence and
-  frontier admission, not bypass them. Review `14` sharpens the next
+  frontier admission, not bypass them. Review `14` sharpened the next
   hardening split inside that substrate: `retrieved` vs `used` vs
-  `vindicated`, and `advisory` vs `admissible`.
+  `vindicated`, and `advisory` vs `admissible`. The substrate now has
+  the first real later-vindication path for pending same-family source
+  uses, but broader vindication policy and quarantine reopening are
+  still missing.
 - **Step 2:** the executor seam belongs in `rules.clj` as
   `execute-rule`, not as growing local effect machinery inside
   `goal_families.clj`.

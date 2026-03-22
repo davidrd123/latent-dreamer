@@ -68,6 +68,9 @@ Implemented in the first pass:
   reopen now also run through attributed use rather than the old
   same-family reuse wrapper; immediate resolution is now reserved for
   negative branch-local evidence, not plain successful reuse
+- later cross-family success can now vindicate those pending
+  same-family source uses without counting that vindication as new
+  promotion evidence
 - cross-family success now promotes via explicit use evidence
   (`:cross-family-use-success`); raw roving reminding no longer counts
   as that evidence by itself
@@ -97,6 +100,8 @@ Still missing inside step 1:
 - cleaner evidence/authority semantics:
   `retrieved` vs `used` vs `vindicated`, and evaluator output as
   advisory/gating input rather than direct admission authority
+- broader vindication policy beyond the first pending-same-family
+  source-use path, plus explicit quarantine reopening / rehabilitation
 - rule accessibility state derived from durable evidence, not from
   provisional storage or evaluator opinion alone; current family
   rules all still start as authored-core

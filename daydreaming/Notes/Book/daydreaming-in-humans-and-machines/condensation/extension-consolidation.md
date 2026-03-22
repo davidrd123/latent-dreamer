@@ -45,6 +45,9 @@ As the system accumulates episodes, rules, and graph connections:
   attributed use when a stored family-plan episode actually shapes
   the later branch; immediate outcome resolution there is now reserved
   for negative evidence rather than plain successful reuse
+- later cross-family success can now vindicate those pending
+  same-family source uses without adding fresh promotion evidence of
+  its own
 - repeated failed same-family attributed use can now auto-flag
   `:stale` and demote a durable episode back to `:provisional`;
   one later cross-family success does not re-promote it automatically
@@ -106,7 +109,8 @@ trajectory: growth should sit on top of these typed cross-phase
 artifacts and frontier admission, not bypass them through family-local
 shortcuts or evaluator fiat.
 
-The kernel now has the first real version of that substrate, but only
+The kernel now has the first real version of that substrate, including
+a later-vindication path for pending same-family source uses, but only
 on the roving cross-family path plus the stored rationalization /
 reversal reopen paths. The next move is to extend it beyond those
 slices and let richer outcomes than simple success/failure drive

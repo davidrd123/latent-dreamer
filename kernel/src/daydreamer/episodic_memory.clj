@@ -514,6 +514,13 @@
        (filter #(= :cross-family-use-success (:type %)))
        count))
 
+(defn- pending-same-family-use-records
+  [episode]
+  (->> (:use-history episode)
+       (filter #(and (= :pending (:status %))
+                     (= (:source-family %) (:target-family %))))
+       vec))
+
 (defn- same-family-failed-use-count
   [use-history]
   (->> use-history
@@ -708,13 +715,38 @@
        (>= (qualifying-promotion-evidence-count episode)
            stale-rehabilitation-success-threshold)))
 
+(defn- vindicate-pending-same-family-uses
+  [world episode-id]
+  (let [episode (episode-or-throw world episode-id)
+        anti-residue-flags (set (:anti-residue-flags episode))]
+    (if (or (empty? (pending-same-family-use-records episode))
+            (nil? (qualifying-promotion-evidence episode))
+            (seq (set/intersection #{:backfired :contradicted}
+                                   anti-residue-flags)))
+      [world []]
+      (reduce (fn [[current-world resolved-use-ids] use-record]
+                (let [[next-world outcome-info]
+                      (resolve-episode-use-outcome current-world
+                                                   episode-id
+                                                   (:use-id use-record)
+                                                   {:outcome :succeeded
+                                                    :reason :later-cross-family-vindication})]
+                  [next-world
+                   (cond-> resolved-use-ids
+                     (not (:already-resolved? outcome-info))
+                     (conj (:use-id use-record)))]))
+              [world []]
+              (pending-same-family-use-records episode)))))
+
 (defn reconcile-episode-admission
   "Promote or demote an episode according to the current evidence and flags.
 
   Returns `[world transition]` where `transition` is nil or a map describing
   the applied status change."
   [world episode-id]
-  (let [episode (episode-or-throw world episode-id)
+  (let [[world _vindicated-use-ids] (vindicate-pending-same-family-uses world
+                                                                        episode-id)
+        episode (episode-or-throw world episode-id)
         current-status (:admission-status episode :durable)
         [world _stale-cleared?]
         (if (and (not= :durable current-status)
