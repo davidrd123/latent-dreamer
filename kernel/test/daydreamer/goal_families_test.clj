@@ -862,6 +862,68 @@
     (is (not (some #{unrelated-episode-id}
                    (:reminded-episode-ids (:result roving-result)))))))
 
+(deftest stored-reversal-family-plan-episode-feeds-later-roving
+  (let [[world root-id] (world-with-root)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        world (cx/assert-fact world
+                              old-context-id
+                              (failure-cause-fact :fc-wall-open
+                                                  old-top-level-goal-id
+                                                  0.9
+                                                  [counterfactual-fact]))
+        [world reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})
+        [world reversal-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id reversal-goal-id})
+        reversal-family-episode-id (:family-episode-id reversal-family-plan)
+        shared-cue (first (:retrieval-indices reversal-family-plan))
+        [world unrelated-episode-id]
+        (episodic/add-episode world
+                              {:rule :unrelated-memory
+                               :rule-path [:test/unrelated]
+                               :reminding-threshold 2})
+        [world pleasant-episode-id]
+        (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode unrelated-episode-id shared-cue
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id shared-cue
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :calm
+                                          {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        roving-context-id (get-in world [:goals roving-goal-id :next-cx])
+        [_world roving-result]
+        (families/run-family-plan world
+                                  {:goal-id roving-goal-id
+                                   :context-id roving-context-id})]
+    (is (= [:wall_was_open :wall_is_open]
+           (:retrieval-indices reversal-family-plan)))
+    (is (= [reversal-family-episode-id]
+           (:reminded-episode-ids (:result roving-result))))
+    (is (not (some #{unrelated-episode-id}
+                   (:reminded-episode-ids (:result roving-result)))))))
+
 (deftest rationalization-activation-candidates-detect-framed-failures
   (let [[world root-id] (world-with-root)
         [world context-id] (cx/sprout world root-id)
