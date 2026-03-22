@@ -773,7 +773,9 @@
     (is (= #{:goal-family/roving-plan-request
              :goal-family/roving-plan-dispatch
              :goal-family/rationalization-plan-request
-             :goal-family/rationalization-plan-dispatch}
+             :goal-family/rationalization-plan-dispatch
+             :goal-family/reversal-plan-request
+             :goal-family/reversal-plan-dispatch}
            (set (keys rules-by-id))))
     (is (= [{:from-rule :goal-family/rationalization-plan-request
              :to-rule :goal-family/rationalization-plan-dispatch
@@ -803,6 +805,30 @@
                             :failed-goal-id
                             :frame-id
                             :ordering
+                            :selection-policy}
+             :edge-kind :state-transition}
+            {:from-rule :goal-family/reversal-plan-request
+             :to-rule :goal-family/reversal-plan-dispatch
+             :from-projection {:fact/type :family-plan-request
+                               :goal-type :reversal
+                               :old-context-id '?old-context-id
+                               :old-top-level-goal-id '?old-top-level-goal-id
+                               :new-context-id '?new-context-id
+                               :new-top-level-goal-id '?new-top-level-goal-id
+                               :selection-policy :intends_weak_leaf}
+             :to-projection {:fact/type :family-plan-request
+                             :goal-type :reversal
+                             :old-context-id '?old-context-id
+                             :old-top-level-goal-id '?old-top-level-goal-id
+                             :new-context-id '?new-context-id
+                             :new-top-level-goal-id '?new-top-level-goal-id
+                             :selection-policy '?selection-policy}
+             :bindings {}
+             :shared-keys #{:goal-type
+                            :old-context-id
+                            :old-top-level-goal-id
+                            :new-context-id
+                            :new-top-level-goal-id
                             :selection-policy}
              :edge-kind :state-transition}
             {:from-rule :goal-family/roving-plan-request
@@ -841,7 +867,13 @@
                           [:goal-family/rationalization-plan-request :graph-cache :out-edge-bases]))))
     (is (= 1
            (count (get-in rules-by-id
-                          [:goal-family/rationalization-plan-dispatch :graph-cache :in-edge-bases]))))))
+                          [:goal-family/rationalization-plan-dispatch :graph-cache :in-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/reversal-plan-request :graph-cache :out-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/reversal-plan-dispatch :graph-cache :in-edge-bases]))))))
 
 (deftest rationalization-plan-sprouts-and-asserts-reframe-facts
   (let [[world root-id] (world-with-root)

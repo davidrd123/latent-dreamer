@@ -206,6 +206,68 @@
                 :kernel-status :partial
                 :notes "Consumes a rationalization plan request into the current bounded plan payload."}})
 
+(def ^:private reversal-plan-request-rule
+  {:id :goal-family/reversal-plan-request
+   :rule-kind :planning
+   :mueller-mode :plan-only
+   :antecedent-schema [{:goal-type :reversal
+                        :old-context-id '?old-context-id
+                        :old-top-level-goal-id '?old-top-level-goal-id
+                        :new-context-id '?new-context-id
+                        :new-top-level-goal-id '?new-top-level-goal-id}]
+   :consequent-schema [{:fact/type :family-plan-request
+                        :goal-type :reversal
+                        :old-context-id '?old-context-id
+                        :old-top-level-goal-id '?old-top-level-goal-id
+                        :new-context-id '?new-context-id
+                        :new-top-level-goal-id '?new-top-level-goal-id
+                        :selection-policy reverse-leaf-policy}]
+   :plausibility 1.0
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :emit-reversal-plan-request
+                :failure-modes [:missing-old-context
+                                :missing-new-context]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:requires-old-context? true
+                     :requires-new-context? true}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-reversal]
+                :kernel-status :partial
+                :notes "Graphable request fact for reversal branch planning."}})
+
+(def ^:private reversal-plan-dispatch-rule
+  {:id :goal-family/reversal-plan-dispatch
+   :rule-kind :planning
+   :mueller-mode :plan-only
+   :antecedent-schema [{:fact/type :family-plan-request
+                        :goal-type :reversal
+                        :old-context-id '?old-context-id
+                        :old-top-level-goal-id '?old-top-level-goal-id
+                        :new-context-id '?new-context-id
+                        :new-top-level-goal-id '?new-top-level-goal-id
+                        :selection-policy '?selection-policy}]
+   :consequent-schema [{:old-context-id '?old-context-id
+                        :old-top-level-goal-id '?old-top-level-goal-id
+                        :new-context-id '?new-context-id
+                        :new-top-level-goal-id '?new-top-level-goal-id
+                        :selection-policy '?selection-policy}]
+   :plausibility 1.0
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :dispatch-reversal-plan-request
+                :failure-modes [:missing-family-plan-request]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:request-goal-type :reversal}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-reversal]
+                :kernel-status :partial
+                :notes "Consumes a reversal plan request into the current bounded plan payload."}})
+
 (def ^:private roving-trigger-rule
   {:id :goal-family/roving-trigger
    :rule-kind :inference
@@ -485,7 +547,9 @@
   [roving-plan-request-rule
    roving-plan-dispatch-rule
    rationalization-plan-request-rule
-   rationalization-plan-dispatch-rule])
+   rationalization-plan-dispatch-rule
+   reversal-plan-request-rule
+   reversal-plan-dispatch-rule])
 
 (declare reversal-sprout-alternative
          reversal-trigger-facts
@@ -1232,6 +1296,24 @@
                                                  (:frame-id frame)
                                                  ordering)])))
 
+(defn- instantiate-reversal-plan-request
+  [old-context-id old-top-level-goal-id new-context-id new-top-level-goal-id]
+  (-> (rules/instantiate-rule reversal-plan-request-rule
+                              {'?old-context-id old-context-id
+                               '?old-top-level-goal-id old-top-level-goal-id
+                               '?new-context-id new-context-id
+                               '?new-top-level-goal-id new-top-level-goal-id})
+      :consequents
+      first))
+
+(defn- reversal-plan-request-facts
+  [{:keys [old-context-id old-top-level-goal-id new-context-id new-top-level-goal-id]}]
+  (when (and old-context-id old-top-level-goal-id new-context-id new-top-level-goal-id)
+    [(instantiate-reversal-plan-request old-context-id
+                                        old-top-level-goal-id
+                                        new-context-id
+                                        new-top-level-goal-id)]))
+
 (defn roving-plan
   "Sprout a side-channel context and seed it with a pleasant episode reminder.
 
@@ -1456,24 +1538,37 @@
   [world {:keys [input-facts]
           :or {input-facts []}
           :as reversal-target}]
-  (reduce (fn [[current-world branch-results] branch]
-            (let [[next-world sprouted-context-id]
-                  (reversal-sprout-alternative
-                   current-world
-                   {:old-context-id (:old-context-id branch)
-                    :old-top-level-goal-id (:old-top-level-goal-id reversal-target)
-                    :new-context-id (:new-context-id reversal-target)
-                    :new-top-level-goal-id (:new-top-level-goal-id reversal-target)
-                    :ordering (:ordering branch)
-                    :input-facts input-facts
-                    :retract-facts (:objective-facts branch)})]
-              [next-world
-               (conj branch-results
-                     (assoc branch
-                            :sprouted-context-id sprouted-context-id
-                            :retracted-fact-ids (mapv fact-id (:objective-facts branch))))]))
-          [world []]
-          (reverse-leaf-branches world reversal-target)))
+  (let [plan-request-facts (or (seq (reversal-plan-request-facts reversal-target))
+                               (throw (ex-info "REVERSAL needs a planning target"
+                                               {:reversal-target reversal-target})))
+        {:keys [old-context-id old-top-level-goal-id new-context-id new-top-level-goal-id]}
+        (or (first (plan-payloads-from-request-facts plan-request-facts))
+            (throw (ex-info "REVERSAL needs a plan payload"
+                            {:reversal-target reversal-target
+                             :plan-request-facts plan-request-facts})))
+        reversal-target (assoc reversal-target
+                               :old-context-id old-context-id
+                               :old-top-level-goal-id old-top-level-goal-id
+                               :new-context-id new-context-id
+                               :new-top-level-goal-id new-top-level-goal-id)]
+    (reduce (fn [[current-world branch-results] branch]
+              (let [[next-world sprouted-context-id]
+                    (reversal-sprout-alternative
+                     current-world
+                     {:old-context-id (:old-context-id branch)
+                      :old-top-level-goal-id (:old-top-level-goal-id reversal-target)
+                      :new-context-id (:new-context-id reversal-target)
+                      :new-top-level-goal-id (:new-top-level-goal-id reversal-target)
+                      :ordering (:ordering branch)
+                      :input-facts input-facts
+                      :retract-facts (:objective-facts branch)})]
+                [next-world
+                 (conj branch-results
+                       (assoc branch
+                              :sprouted-context-id sprouted-context-id
+                              :retracted-fact-ids (mapv fact-id (:objective-facts branch))))]))
+            [world []]
+            (reverse-leaf-branches world reversal-target))))
 
 (defn- retract-facts
   [world context-id facts]
