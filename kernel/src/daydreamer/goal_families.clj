@@ -943,6 +943,97 @@
        distinct
        vec))
 
+(defn- family-plan-selection-policy
+  [family-plan]
+  (let [selection (:selection family-plan)]
+    (case (:family family-plan)
+      :roving (:roving_selection_policy selection)
+      :rationalization (:rationalization_selection_policy selection)
+      :reversal (:reversal_target_policy selection)
+      nil)))
+
+(defn- family-plan-payload-cluster
+  [family-plan]
+  (let [selection (:selection family-plan)]
+    (case (:family family-plan)
+      :roving [:family/roving
+               (:family_goal_id selection)
+               (family-plan-selection-policy family-plan)]
+      :rationalization [:family/rationalization
+                        (:family_goal_id selection)
+                        (:rationalization_frame_id selection)]
+      :reversal [:family/reversal
+                 (:family_goal_id selection)
+                 (:reversal_counterfactual_source selection)]
+      [:family (:family family-plan) (:family_goal_id selection)])))
+
+(defn- family-plan-evaluation
+  [family-plan]
+  (let [payload (:episode-payload family-plan)
+        payload-cluster (family-plan-payload-cluster family-plan)]
+    (case (:family family-plan)
+      :roving {:realism :imaginary
+               :desirability :positive
+               :retention-class :hot-cues
+               :keep-decision :keep-hot
+               :payload-cluster payload-cluster
+               :evaluation-reasons [:pleasant_seed
+                                    :attentional_surface]}
+      :rationalization {:realism :plausible
+                        :desirability :positive
+                        :retention-class (if (seq (:reframe-facts payload))
+                                           :payload-exemplar
+                                           :hot-cues)
+                        :keep-decision (if (seq (:reframe-facts payload))
+                                         :keep-exemplar
+                                         :keep-hot)
+                        :payload-cluster payload-cluster
+                        :evaluation-reasons (cond-> [:hope_reframe]
+                                              (seq (:reframe-facts payload))
+                                              (conj :reusable_reframe_payload))}
+      :reversal {:realism :counterfactual
+                 :desirability :mixed
+                 :retention-class (if (seq (:input-facts payload))
+                                    :payload-exemplar
+                                    :hot-cues)
+                 :keep-decision (if (seq (:input-facts payload))
+                                  :keep-exemplar
+                                  :keep-hot)
+                 :payload-cluster payload-cluster
+                 :evaluation-reasons (cond-> [:counterfactual_reopened]
+                                       (seq (:input-facts payload))
+                                       (conj :reusable_counterfactual_payload))}
+      {:realism :imaginary
+       :desirability :mixed
+       :retention-class :hot-cues
+       :keep-decision :keep-hot
+       :payload-cluster payload-cluster
+       :evaluation-reasons [:default_family_evaluation]})))
+
+(defn- family-plan-evaluation-support-indices
+  [{:keys [realism desirability retention-class keep-decision payload-cluster]}]
+  (cond-> [(keyword "realism" (name realism))
+           (keyword "desirability" (name desirability))
+           (keyword "retention" (name retention-class))
+           (keyword "keep" (name keep-decision))]
+    payload-cluster
+    (conj [:payload-cluster payload-cluster])))
+
+(defn- family-plan-evaluation-fact
+  [family-plan episode-id evaluation]
+  {:fact/type :episode-evaluation
+   :episode-id episode-id
+   :family (:family family-plan)
+   :family-goal-id (get-in family-plan [:selection :family_goal_id])
+   :source-rule (last (get-in family-plan [:rule-provenance :rule-path]))
+   :selection-policy (family-plan-selection-policy family-plan)
+   :realism (:realism evaluation)
+   :desirability (:desirability evaluation)
+   :retention-class (:retention-class evaluation)
+   :keep-decision (:keep-decision evaluation)
+   :payload-cluster (:payload-cluster evaluation)
+   :evaluation-reasons (:evaluation-reasons evaluation)})
+
 (defn- store-family-plan-episode
   [world family-plan]
   (let [selection (:selection family-plan)
@@ -951,8 +1042,11 @@
         edge-path (vec (:edge-path rule-provenance))
         goal-id (:family_goal_id selection)
         context-id (family-plan-branch-context-id family-plan)
+        evaluation (family-plan-evaluation family-plan)
         retrieval-indices (family-plan-retrieval-indices family-plan)
-        support-indices (->> (family-plan-support-indices family-plan)
+        support-indices (->> (concat (family-plan-support-indices family-plan)
+                                     (family-plan-evaluation-support-indices
+                                      evaluation))
                              (remove (set retrieval-indices))
                              vec)
         episode-payload (:episode-payload family-plan)]
@@ -962,8 +1056,11 @@
       (let [episode-spec (cond-> {:rule (last rule-path)
                                   :goal-id goal-id
                                   :context-id context-id
-                                  :realism :imaginary
-                                  :desirability :mixed
+                                  :realism (:realism evaluation)
+                                  :desirability (:desirability evaluation)
+                                  :retention-class (:retention-class evaluation)
+                                  :keep-decision (:keep-decision evaluation)
+                                  :evaluation evaluation
                                   :provenance {:source :family-plan
                                                :family (:family family-plan)
                                                :selection selection}
@@ -1000,17 +1097,24 @@
                                                     {:plan? false
                                                      :reminding? false}))
                           world
-                          rule-path)]
+                          rule-path)
+            evaluation-fact (family-plan-evaluation-fact family-plan
+                                                         episode-id
+                                                         evaluation)
+            world (cx/assert-fact world context-id evaluation-fact)]
         [world
          (-> family-plan
              (assoc :retrieval-indices retrieval-indices)
              (assoc :support-indices support-indices)
+             (assoc :evaluation evaluation)
              (assoc :family-episode-id episode-id)
+             (assoc :episode-evaluation-fact evaluation-fact)
              (assoc-in [:selection :family_plan_episode_id] episode-id))])
       [world
        (-> family-plan
            (assoc :retrieval-indices retrieval-indices)
-           (assoc :support-indices support-indices))])))
+           (assoc :support-indices support-indices)
+           (assoc :evaluation evaluation))])))
 
 (defn- ranked-roving-episode-ids
   [world goal-id candidate-episode-ids]
@@ -1172,6 +1276,19 @@
    gf-rules/roving-plan-request-rule
    (roving-plan-ready-facts world opts)))
 
+(defn- retrieval-hit-fact
+  [{:keys [episode-id family-goal-id branch-context-id retrieval-role
+           retrieval-order selection-policy rule-provenance]}]
+  {:fact/type :retrieval-hit
+   :episode-id episode-id
+   :family :roving
+   :family-goal-id family-goal-id
+   :branch-context-id branch-context-id
+   :retrieval-role retrieval-role
+   :retrieval-order retrieval-order
+   :selection-policy selection-policy
+   :source-rule (last (:rule-path rule-provenance))})
+
 (defn- rationalization-plan-request-facts
   [world {:keys [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
           :or {ordering 1.0}}]
@@ -1281,6 +1398,31 @@
          {:connection-graph connection-graph
           :active-rule-path (:rule-path rule-provenance)
           :active-edge-path (:edge-path rule-provenance)})
+        retrieval-hit-facts (vec (concat [(retrieval-hit-fact
+                                           {:episode-id episode-id
+                                            :family-goal-id goal-id
+                                            :branch-context-id sprouted-context-id
+                                            :retrieval-role :seed
+                                            :retrieval-order 0
+                                            :selection-policy selection-policy
+                                            :rule-provenance rule-provenance})]
+                                         (map-indexed
+                                          (fn [idx reminded-episode-id]
+                                            (retrieval-hit-fact
+                                             {:episode-id reminded-episode-id
+                                              :family-goal-id goal-id
+                                              :branch-context-id sprouted-context-id
+                                              :retrieval-role :reminded
+                                              :retrieval-order (inc idx)
+                                              :selection-policy selection-policy
+                                              :rule-provenance rule-provenance}))
+                                          reminded-episode-ids)))
+        world (reduce (fn [current-world fact]
+                        (cx/assert-fact current-world
+                                        sprouted-context-id
+                                        fact))
+                      world
+                      retrieval-hit-facts)
         world (assoc-in world [:contexts sprouted-context-id :ordering] ordering)
         world (if (contains? (:goals world) goal-id)
                 (goals/set-next-context world goal-id sprouted-context-id)
@@ -1296,6 +1438,7 @@
     [world {:sprouted-context-id sprouted-context-id
             :episode-id episode-id
             :reminded-episode-ids (vec reminded-episode-ids)
+            :retrieval-hit-facts retrieval-hit-facts
             :active-indices (vec (:recent-indices world))
             :selection-policy selection-policy
             :rule-provenance rule-provenance}]))

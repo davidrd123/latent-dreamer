@@ -623,7 +623,8 @@
           :strength 0.6
           :main-motiv :e-relief})
         context-id (get-in world [:goals roving-goal-id :next-cx])
-        [world {:keys [reminded-episode-ids rule-provenance]}]
+        [world {:keys [reminded-episode-ids rule-provenance
+                       retrieval-hit-facts sprouted-context-id]}]
         (families/roving-plan world {:goal-id roving-goal-id
                                      :context-id context-id})]
     (testing "a deeper reversal-to-roving bridge can recover a one-cue episode"
@@ -636,7 +637,29 @@
       (is (= (expected-rule-provenance :goal-family/roving-plan-request
                                        :goal-family/roving-plan-dispatch
                                        :family-plan-request)
-             rule-provenance)))))
+             rule-provenance)))
+    (testing "seed and reminded retrievals become graph-visible facts"
+      (is (= [{:fact/type :retrieval-hit
+               :episode-id pleasant-episode-id
+               :family :roving
+               :family-goal-id roving-goal-id
+               :branch-context-id sprouted-context-id
+               :retrieval-role :seed
+               :retrieval-order 0
+               :selection-policy :pleasant_episode_seed
+               :source-rule :goal-family/roving-plan-dispatch}
+              {:fact/type :retrieval-hit
+               :episode-id bridge-linked-episode-id
+               :family :roving
+               :family-goal-id roving-goal-id
+               :branch-context-id sprouted-context-id
+               :retrieval-role :reminded
+               :retrieval-order 1
+               :selection-policy :pleasant_episode_seed
+               :source-rule :goal-family/roving-plan-dispatch}]
+             retrieval-hit-facts))
+      (is (every? #(contains? (cx/visible-facts world sprouted-context-id) %)
+                  retrieval-hit-facts)))))
 
 (deftest roving-plan-prefers-a-graph-connected-seed-episode
   (let [[world root-id] (world-with-root)
@@ -711,15 +734,32 @@
                                   {:goal-id roving-goal-id
                                    :context-id context-id})
         family-episode-id (:family-episode-id family-plan)
-        stored-episode (get-in world [:episodes family-episode-id])]
+        stored-episode (get-in world [:episodes family-episode-id])
+        branch-context-id (:roving_branch_context (:selection family-plan))]
     (is (= [:calm :sunlight]
            (:retrieval-indices family-plan)))
     (is (= [:family/roving
             roving-goal-id
-            :pleasant_episode_seed]
+            :pleasant_episode_seed
+            :realism/imaginary
+            :desirability/positive
+            :retention/hot-cues
+            :keep/keep-hot
+            [:payload-cluster
+             [:family/roving roving-goal-id :pleasant_episode_seed]]]
            (:support-indices family-plan)))
     (is (= family-episode-id
            (get-in family-plan [:selection :family_plan_episode_id])))
+    (is (= {:realism :imaginary
+            :desirability :positive
+            :retention-class :hot-cues
+            :keep-decision :keep-hot
+            :payload-cluster [:family/roving
+                              roving-goal-id
+                              :pleasant_episode_seed]
+            :evaluation-reasons [:pleasant_seed
+                                 :attentional_surface]}
+           (:evaluation family-plan)))
     (is (= {:rule-path [:goal-family/roving-plan-request
                         :goal-family/roving-plan-dispatch]
             :edge-path [{:from-rule :goal-family/roving-plan-request
@@ -729,16 +769,40 @@
            (select-keys stored-episode [:rule-path :edge-path])))
     (is (= (:roving_branch_context (:selection family-plan))
            (:context-id stored-episode)))
+    (is (= :hot-cues (:retention-class stored-episode)))
+    (is (= :keep-hot (:keep-decision stored-episode)))
     (is (= #{:calm
              :sunlight
              :family/roving
              :pleasant_episode_seed
+             :realism/imaginary
+             :desirability/positive
+             :retention/hot-cues
+             :keep/keep-hot
+             [:payload-cluster
+              [:family/roving roving-goal-id :pleasant_episode_seed]]
              roving-goal-id
              :goal-family/roving-plan-request
              :goal-family/roving-plan-dispatch}
            (:indices stored-episode)))
     (is (= 2 (:plan-threshold stored-episode)))
     (is (= 2 (:reminding-threshold stored-episode)))
+    (is (contains? (cx/visible-facts world branch-context-id)
+                   {:fact/type :episode-evaluation
+                    :episode-id family-episode-id
+                    :family :roving
+                    :family-goal-id roving-goal-id
+                    :source-rule :goal-family/roving-plan-dispatch
+                    :selection-policy :pleasant_episode_seed
+                    :realism :imaginary
+                    :desirability :positive
+                    :retention-class :hot-cues
+                    :keep-decision :keep-hot
+                    :payload-cluster [:family/roving
+                                      roving-goal-id
+                                      :pleasant_episode_seed]
+                    :evaluation-reasons [:pleasant_seed
+                                         :attentional_surface]}))
     (is (= #{family-episode-id}
            (get-in world [:episode-index :goal-family/roving-plan-dispatch])))))
 
@@ -827,6 +891,7 @@
                                    :trigger-context-id trigger-context-id
                                    :failed-goal-id failed-goal-id})
         rationalization-family-episode-id (:family-episode-id rationalization-family-plan)
+        stored-rationalization-episode (get-in world [:episodes rationalization-family-episode-id])
         [world unrelated-episode-id]
         (episodic/add-episode world
                               {:rule :unrelated-memory
@@ -857,6 +922,20 @@
                                    :context-id roving-context-id})]
     (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
            (:retrieval-indices rationalization-family-plan)))
+    (is (= :payload-exemplar
+           (:retention-class stored-rationalization-episode)))
+    (is (= :keep-exemplar
+           (:keep-decision stored-rationalization-episode)))
+    (is (= {:realism :plausible
+            :desirability :positive
+            :retention-class :payload-exemplar
+            :keep-decision :keep-exemplar
+            :payload-cluster [:family/rationalization
+                              rationalization-goal-id
+                              frame-id]
+            :evaluation-reasons [:hope_reframe
+                                 :reusable_reframe_payload]}
+           (:evaluation rationalization-family-plan)))
     (is (= [rationalization-family-episode-id]
            (:reminded-episode-ids (:result roving-result))))
     (is (not (some #{unrelated-episode-id}
