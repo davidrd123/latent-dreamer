@@ -511,18 +511,53 @@
     (is (= (first candidates)
            (families/select-rationalization-trigger world)))))
 
-(deftest activation-rules-register-cleanly-without-fake-graph-edges
+(deftest activation-rules-register-cleanly-with-first-honest-graph-edge
   (let [graph (rules/build-connection-graph (families/activation-rules))
         rules-by-id (:rules-by-id graph)]
-    (is (= #{:goal-family/reversal-activation
-             :goal-family/rationalization-activation
-             :goal-family/roving-activation}
+    (is (= #{:goal-family/roving-trigger
+             :goal-family/roving-activation
+             :goal-family/reversal-activation
+             :goal-family/rationalization-activation}
            (set (keys rules-by-id))))
-    (is (= []
+    (is (= [{:from-rule :goal-family/roving-trigger
+             :to-rule :goal-family/roving-activation
+             :from-projection {:fact/type :goal-family-trigger
+                               :goal-type :roving
+                               :trigger-context-id '?context-id
+                               :failed-goal-id '?failed-goal-id
+                               :emotion-id '?emotion-id
+                               :emotion-strength '?emotion-strength
+                               :selection-policy :failed_goal_negative_emotion
+                               :selection-reasons [:failed_goal
+                                                   :negative_emotion
+                                                   :dependency_link]}
+             :to-projection {:fact/type :goal-family-trigger
+                             :goal-type :roving
+                             :trigger-context-id '?context-id
+                             :failed-goal-id '?failed-goal-id
+                             :emotion-id '?emotion-id
+                             :emotion-strength '?emotion-strength
+                             :selection-policy '?selection-policy
+                             :selection-reasons '?selection-reasons}
+             :bindings {}
+             :shared-keys #{:goal-type
+                            :trigger-context-id
+                            :failed-goal-id
+                            :emotion-id
+                            :emotion-strength
+                            :selection-policy
+                            :selection-reasons}
+             :edge-kind :state-transition}]
            (:edges graph)))
     (is (= 3
            (count (get-in rules-by-id
+                          [:goal-family/roving-trigger :graph-cache :in-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
                           [:goal-family/roving-activation :graph-cache :in-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/roving-trigger :graph-cache :out-edge-bases]))))
     (is (= 0
            (count (get-in rules-by-id
                           [:goal-family/roving-activation :graph-cache :out-edge-bases]))))

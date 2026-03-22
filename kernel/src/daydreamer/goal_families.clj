@@ -74,8 +74,8 @@
 (def ^:private rationalization-diversion-scale
   0.35)
 
-(def ^:private roving-activation-rule
-  {:id :goal-family/roving-activation
+(def ^:private roving-trigger-rule
+  {:id :goal-family/roving-trigger
    :rule-kind :inference
    :mueller-mode :inference-only
    :antecedent-schema [{:fact/type :goal
@@ -89,7 +89,9 @@
                        {:fact/type :dependency
                         :from-id '?emotion-id
                         :to-id '?failed-goal-id}]
-   :consequent-schema [{:context-id '?context-id
+   :consequent-schema [{:fact/type :goal-family-trigger
+                        :goal-type :roving
+                        :trigger-context-id '?context-id
                         :failed-goal-id '?failed-goal-id
                         :emotion-id '?emotion-id
                         :emotion-strength '?emotion-strength
@@ -100,7 +102,7 @@
    :plausibility roving-emotion-threshold
    :index-projections {:match []
                        :emit []}
-   :denotation {:intended-effect :activate-roving-daydream-goal
+   :denotation {:intended-effect :emit-roving-goal-family-trigger
                 :failure-modes [:emotion-below-threshold
                                 :rationalization-frame-available
                                 :missing-dependency-link]
@@ -113,7 +115,39 @@
                  :in-edge-bases []}
    :provenance {:book-anchors [:theme-roving]
                 :kernel-status :partial
-                :notes "First extracted RuleV1 slice from goal_families activation logic."}})
+                :notes "First graphable trigger slice from goal_families activation logic."}})
+
+(def ^:private roving-activation-rule
+  {:id :goal-family/roving-activation
+   :rule-kind :inference
+   :mueller-mode :inference-only
+   :antecedent-schema [{:fact/type :goal-family-trigger
+                        :goal-type :roving
+                        :trigger-context-id '?context-id
+                        :failed-goal-id '?failed-goal-id
+                        :emotion-id '?emotion-id
+                        :emotion-strength '?emotion-strength
+                        :selection-policy '?selection-policy
+                        :selection-reasons '?selection-reasons}]
+   :consequent-schema [{:context-id '?context-id
+                        :failed-goal-id '?failed-goal-id
+                        :emotion-id '?emotion-id
+                        :emotion-strength '?emotion-strength
+                        :selection-policy '?selection-policy
+                        :selection-reasons '?selection-reasons}]
+   :plausibility roving-emotion-threshold
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :activate-roving-daydream-goal
+                :failure-modes [:missing-goal-family-trigger]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:trigger-goal-type :roving}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-roving]
+                :kernel-status :partial
+                :notes "Consumes the structural roving trigger into an activation payload."}})
 
 (def ^:private rationalization-activation-rule
   {:id :goal-family/rationalization-activation
@@ -216,9 +250,10 @@
   family activation logic expressed as structural rules rather than hidden
   procedural scans."
   []
-  [reversal-activation-rule
-   rationalization-activation-rule
-   roving-activation-rule])
+  [roving-trigger-rule
+   roving-activation-rule
+   reversal-activation-rule
+   rationalization-activation-rule])
 
 (declare reversal-sprout-alternative
          retract-facts)
@@ -682,15 +717,24 @@
   [world]
   (first (rationalization-activation-candidates world)))
 
-(defn- instantiate-roving-activation
+(defn- instantiate-roving-trigger
   [context-id failed-goal-id emotion-id emotion-strength]
-  (-> (rules/instantiate-rule roving-activation-rule
+  (-> (rules/instantiate-rule roving-trigger-rule
                               {'?context-id context-id
                                '?failed-goal-id failed-goal-id
                                '?emotion-id emotion-id
                                '?emotion-strength emotion-strength})
       :consequents
       first))
+
+(defn- instantiate-roving-activation
+  [trigger-fact]
+  (when-let [match (first (rules/match-rule roving-activation-rule
+                                            [trigger-fact]))]
+    (-> (rules/instantiate-rule roving-activation-rule
+                                (:bindings match))
+        :consequents
+        first)))
 
 (defn roving-activation-candidates
   "Find failed-goal / negative-emotion pairs that can activate ROVING."
@@ -699,7 +743,7 @@
        (mapcat (fn [context-id]
                  (let [facts (cx/visible-facts world context-id)
                        frame-counts (rationalization-frame-counts facts)]
-                   (->> (rules/match-rule roving-activation-rule
+                   (->> (rules/match-rule roving-trigger-rule
                                           facts
                                           {'?context-id context-id})
                         (keep (fn [{:keys [bindings matched-facts]}]
@@ -712,11 +756,12 @@
                                              (> emotion-strength
                                                 roving-emotion-threshold)
                                              (zero? (get frame-counts failed-goal-id 0)))
-                                    (instantiate-roving-activation
-                                     context-id
-                                     failed-goal-id
-                                     ('?emotion-id bindings)
-                                     emotion-strength)))))
+                                    (-> (instantiate-roving-trigger
+                                         context-id
+                                         failed-goal-id
+                                         ('?emotion-id bindings)
+                                         emotion-strength)
+                                        instantiate-roving-activation)))))
                         vec))))
        (sort-by (juxt (comp - :emotion-strength)
                       (comp str :context-id)
