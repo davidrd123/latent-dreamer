@@ -1,7 +1,8 @@
 (ns daydreamer.episodic-memory-test
   (:require [clojure.test :refer [deftest is testing]]
             [daydreamer.context :as cx]
-            [daydreamer.episodic-memory :as epmem]))
+            [daydreamer.episodic-memory :as epmem]
+            [daydreamer.rules :as rules]))
 
 (defn world-with-root
   []
@@ -127,6 +128,98 @@
                                     [:s1]
                                     {:serendipity? true
                                      :threshold-key :reminding-threshold})))))
+
+(deftest retrieve-episodes-adds-provenance-bonus-for-graph-connected-history
+  (let [[world root-id] (world-with-root)
+        [world connected-episode-id]
+        (epmem/add-episode world
+                           {:rule :connected-memory
+                            :context-id root-id
+                            :rule-path [:test/terminal]
+                            :reminding-threshold 1})
+        [world unrelated-episode-id]
+        (epmem/add-episode world
+                           {:rule :unrelated-memory
+                            :context-id root-id
+                            :rule-path [:test/unrelated]
+                            :reminding-threshold 1})
+        world (-> world
+                  (epmem/store-episode connected-episode-id :shared-cue
+                                       {:reminding? true})
+                  (epmem/store-episode unrelated-episode-id :shared-cue
+                                       {:reminding? true}))
+        connection-graph
+        (rules/build-connection-graph
+         [{:id :test/source
+           :rule-kind :planning
+           :mueller-mode :both
+           :antecedent-schema [{:fact/type :source-state}]
+           :consequent-schema [{:fact/type :bridge-state}]
+           :plausibility 1.0
+           :index-projections {:match [] :emit []}
+           :denotation {:intended-effect :emit-bridge-state
+                        :failure-modes []
+                        :validation-fn nil}
+           :executor {:kind :instantiate :spec {}}
+           :graph-cache {:out-edge-bases [] :in-edge-bases []}
+           :provenance {}}
+          {:id :test/bridge
+           :rule-kind :planning
+           :mueller-mode :both
+           :antecedent-schema [{:fact/type :bridge-state}]
+           :consequent-schema [{:fact/type :target-state}]
+           :plausibility 1.0
+           :index-projections {:match [] :emit []}
+           :denotation {:intended-effect :emit-target-state
+                        :failure-modes []
+                        :validation-fn nil}
+           :executor {:kind :instantiate :spec {}}
+           :graph-cache {:out-edge-bases [] :in-edge-bases []}
+           :provenance {}}
+          {:id :test/terminal
+           :rule-kind :planning
+           :mueller-mode :both
+           :antecedent-schema [{:fact/type :target-state}]
+           :consequent-schema [{:fact/type :terminal-state}]
+           :plausibility 1.0
+           :index-projections {:match [] :emit []}
+           :denotation {:intended-effect :emit-terminal-state
+                        :failure-modes []
+                        :validation-fn nil}
+           :executor {:kind :instantiate :spec {}}
+           :graph-cache {:out-edge-bases [] :in-edge-bases []}
+           :provenance {}}
+          {:id :test/unrelated
+           :rule-kind :planning
+           :mueller-mode :both
+           :antecedent-schema [{:fact/type :other-state}]
+           :consequent-schema [{:fact/type :other-terminal-state}]
+           :plausibility 1.0
+           :index-projections {:match [] :emit []}
+           :denotation {:intended-effect :emit-other-terminal-state
+                        :failure-modes []
+                        :validation-fn nil}
+           :executor {:kind :instantiate :spec {}}
+           :graph-cache {:out-edge-bases [] :in-edge-bases []}
+           :provenance {}}])]
+    (testing "without provenance opts the single cue stays below threshold"
+      (is (= []
+             (epmem/retrieve-episodes world
+                                      [:shared-cue]
+                                      {:threshold-key :reminding-threshold}))))
+    (testing "graph-connected history earns a retrieval bonus"
+      (is (= [{:episode-id connected-episode-id
+               :marks 1
+               :threshold 2
+               :provenance-bonus 1.0
+               :effective-marks 2.0
+               :provenance-reason :graph-bridge}]
+             (epmem/retrieve-episodes
+              world
+              [:shared-cue]
+              {:threshold-key :reminding-threshold
+               :connection-graph connection-graph
+               :active-rule-path [:test/source]}))))))
 
 (deftest recent-index-and-episode-bounds
   (let [[world _] (world-with-root)

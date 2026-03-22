@@ -1504,6 +1504,7 @@
             (throw (ex-info "ROVING needs a plan payload"
                             {:opts opts
                              :plan-request-facts plan-request-facts})))
+        connection-graph (rules/build-connection-graph (family-rules))
         [world sprouted-context-id] (cx/sprout world context-id)
         success-intends {:fact/type :intends
                          :from-goal-id goal-id
@@ -1512,7 +1513,13 @@
                          :status :succeeded
                          :rule :roving-plan1}
         world (cx/assert-fact world sprouted-context-id success-intends)
-        [world reminded-episode-ids] (episodic/episode-reminding world episode-id)
+        [world reminded-episode-ids]
+        (episodic/episode-reminding
+         world
+         episode-id
+         {:connection-graph connection-graph
+          :active-rule-path (:rule-path rule-provenance)
+          :active-edge-path (:edge-path rule-provenance)})
         world (assoc-in world [:contexts sprouted-context-id :ordering] ordering)
         world (if (contains? (:goals world) goal-id)
                 (goals/set-next-context world goal-id sprouted-context-id)

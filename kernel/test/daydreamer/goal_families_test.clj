@@ -486,6 +486,57 @@
                :active-indices [:calm :sunlight]}]
              (:mutation-events world))))))
 
+(deftest roving-plan-uses-rule-provenance-to-boost-reminding-retrieval
+  (let [[world root-id] (world-with-root)
+        [world pleasant-episode-id]
+        (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :calm
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :sunlight
+                                          {:reminding? true}))
+        [world provenance-linked-episode-id]
+        (episodic/add-episode
+         world
+         {:rule :rule-linked-memory
+          :rule-path [:goal-family/roving-plan-dispatch]
+          :reminding-threshold 1})
+        [world unrelated-episode-id]
+        (episodic/add-episode
+         world
+         {:rule :unrelated-memory
+          :rule-path [:goal-family/reversal-plan-dispatch]
+          :reminding-threshold 1})
+        world (-> world
+                  (episodic/store-episode provenance-linked-episode-id :calm
+                                          {:reminding? true})
+                  (episodic/store-episode unrelated-episode-id :calm
+                                          {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])
+        [world {:keys [reminded-episode-ids rule-provenance]}]
+        (families/roving-plan world {:goal-id roving-goal-id
+                                     :context-id context-id})]
+    (testing "one-cue reminder is recovered when its stored rule path overlaps the active plan"
+      (is (= [provenance-linked-episode-id] reminded-episode-ids))
+      (is (= [pleasant-episode-id provenance-linked-episode-id]
+             (:recent-episodes world))))
+    (testing "unrelated episodes with the same single cue remain below threshold"
+      (is (not (some #{unrelated-episode-id} reminded-episode-ids))))
+    (testing "the active roving plan provenance is the retrieval anchor"
+      (is (= (expected-rule-provenance :goal-family/roving-plan-request
+                                       :goal-family/roving-plan-dispatch
+                                       :family-plan-request)
+             rule-provenance)))))
+
 (deftest rationalization-activation-candidates-detect-framed-failures
   (let [[world root-id] (world-with-root)
         [world context-id] (cx/sprout world root-id)
