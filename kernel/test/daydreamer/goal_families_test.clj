@@ -982,6 +982,21 @@
                              {:goal-id roving-goal-id
                               :context-id context-id}))))))
 
+(deftest apply-family-effects-rejects-unresolved-context-ref
+  (let [[world root-id] (world-with-root)]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"Unknown family effect context ref"
+                          (#'daydreamer.goal-families/apply-family-effects
+                           world
+                           [{:op :mutation/log-rationalization
+                             :source-context-id root-id
+                             :trigger-context-id root-id
+                             :context-ref :branch-context
+                             :failed-goal-id :g-failed
+                             :frame-id :rf-test
+                             :reframe-facts []
+                             :from-diversion :missing}])))))
+
 (deftest same-family-loop-flagged-roving-episode-is-not-used-as-seed
   (let [[world root-id] (world-with-root)
         [world flagged-episode-id]
@@ -3059,6 +3074,39 @@
                   :new-context-id (get-in world [:goals reversal-goal-id :next-cx])
                   :new-top-level-goal-id reversal-goal-id
                   :input-facts [counterfactual-fact]}))))))
+
+(deftest reversal-no-result-composes-through-reverse-leafs-and-run-family-plan
+  (let [[world root-id] (world-with-root)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        [world reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})
+        reversal-target {:goal-id reversal-goal-id
+                         :old-context-id old-context-id
+                         :old-top-level-goal-id old-top-level-goal-id
+                         :failed-goal-id old-top-level-goal-id
+                         :trigger-emotion-id emotion-id
+                         :trigger-emotion-strength 0.7
+                         :new-context-id (get-in world [:goals reversal-goal-id :next-cx])
+                         :new-top-level-goal-id reversal-goal-id
+                         :input-facts [counterfactual-fact]}]
+    (with-redefs [families/reverse-leaf-branches (constantly [])]
+      (let [[world branch-results] (families/reverse-leafs world reversal-target)
+            [world family-plan] (families/run-family-plan world
+                                                          {:goal-id reversal-goal-id})]
+        (is (= [] branch-results))
+        (is (nil? family-plan))
+        (is (map? world))))))
 
 (deftest reversal-plan-effects-rejects-missing-effects-payload
   (let [[world root-id] (world-with-root)

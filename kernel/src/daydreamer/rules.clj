@@ -1053,7 +1053,13 @@
   (let [rule (validate-rule! rule)
         call (normalize-rule-call rule call)
         result (dispatch-executor rule call)]
-    (when result
+    (cond
+      (nil? result) nil
+      (false? result)
+      (throw (ex-info "Executor returned illegal false result"
+                      {:rule-id (:id rule)
+                       :call call}))
+      :else
       (->> result
            (validate-rule-result-shape! rule call)
            (validate-effects! rule call)
@@ -1093,8 +1099,19 @@
   (execute-rule rule {:bindings bindings}))
 
 (defn- resolve-effect-context-id
-  [effect-state context-ref]
-  (get-in effect-state [:context-refs context-ref] context-ref))
+  [world effect-state context-ref]
+  (cond
+    (contains? (:context-refs effect-state) context-ref)
+    (get-in effect-state [:context-refs context-ref])
+
+    (contains? (:contexts world) context-ref)
+    context-ref
+
+    :else
+    (throw (ex-info "Unknown effect context ref"
+                    {:context-ref context-ref
+                     :known-context-refs (sort (keys (:context-refs effect-state)))
+                     :known-context-ids (sort (keys (:contexts world)))}))))
 
 (defn- handle-context-sprout
   [{:keys [world effect effect-state]}]
@@ -1103,13 +1120,13 @@
 
 (defn- handle-fact-assert
   [{:keys [world effect effect-state]}]
-  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+  (let [context-id (resolve-effect-context-id world effect-state (:context-ref effect))]
     [(cx/assert-fact world context-id (:fact effect))
      effect-state]))
 
 (defn- handle-facts-assert-many
   [{:keys [world effect effect-state]}]
-  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+  (let [context-id (resolve-effect-context-id world effect-state (:context-ref effect))]
     [(reduce (fn [current-world fact]
                (cx/assert-fact current-world context-id fact))
              world
@@ -1118,13 +1135,13 @@
 
 (defn- handle-context-set-ordering
   [{:keys [world effect effect-state]}]
-  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+  (let [context-id (resolve-effect-context-id world effect-state (:context-ref effect))]
     [(assoc-in world [:contexts context-id :ordering] (:ordering effect))
      effect-state]))
 
 (defn- handle-goal-set-next-context
   [{:keys [world effect effect-state]}]
-  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+  (let [context-id (resolve-effect-context-id world effect-state (:context-ref effect))]
     [(if (contains? (:goals world) (:goal-id effect))
        (goals/set-next-context world (:goal-id effect) context-id)
        world)

@@ -1753,8 +1753,19 @@
      :effects effect-program}))
 
 (defn- resolve-effect-context-id
-  [effect-state context-ref]
-  (get-in effect-state [:context-refs context-ref] context-ref))
+  [world effect-state context-ref]
+  (cond
+    (contains? (:context-refs effect-state) context-ref)
+    (get-in effect-state [:context-refs context-ref])
+
+    (contains? (:contexts world) context-ref)
+    context-ref
+
+    :else
+    (throw (ex-info "Unknown family effect context ref"
+                    {:context-ref context-ref
+                     :known-context-refs (sort (keys (:context-refs effect-state)))
+                     :known-context-ids (sort (keys (:contexts world)))}))))
 
 (defn- handle-episode-reminding
   [{:keys [world effect effect-state]}]
@@ -1771,7 +1782,7 @@
   [{:keys [world effect effect-state]}]
   (let [{:keys [episode-id reminded-episode-ids]}
         (get-in effect-state [:results (:from-reminding effect)])
-        context-id (resolve-effect-context-id effect-state (:context-ref effect))
+        context-id (resolve-effect-context-id world effect-state (:context-ref effect))
         rule-provenance (:rule-provenance effect)
         selection-policy (:selection-policy effect)
         goal-id (:goal-id effect)
@@ -1809,7 +1820,7 @@
   [{:keys [world effect effect-state]}]
   (let [{:keys [episode-id reminded-episode-ids]}
         (get-in effect-state [:results (:from-reminding effect)])
-        context-id (resolve-effect-context-id effect-state (:context-ref effect))
+        context-id (resolve-effect-context-id world effect-state (:context-ref effect))
         [world use-records use-facts]
         (note-family-plan-episode-uses world
                                        context-id
@@ -1828,7 +1839,7 @@
   [{:keys [world effect effect-state]}]
   (let [{:keys [use-records]}
         (get-in effect-state [:results (:from-uses effect)])
-        context-id (resolve-effect-context-id effect-state (:context-ref effect))
+        context-id (resolve-effect-context-id world effect-state (:context-ref effect))
         [world outcome-facts promotion-facts promoted-episode-ids]
         (resolve-family-plan-use-outcomes
          world
@@ -1846,7 +1857,7 @@
 
 (defn- handle-rationalization-divert-emotion
   [{:keys [world effect effect-state]}]
-  (let [sprouted-context-id (resolve-effect-context-id effect-state (:context-ref effect))
+  (let [sprouted-context-id (resolve-effect-context-id world effect-state (:context-ref effect))
         [world diversion]
         (apply-rationalization-emotional-diversion
          world
@@ -1860,7 +1871,7 @@
 
 (defn- handle-rationalization-assert-afterglow
   [{:keys [world effect effect-state]}]
-  (let [sprouted-context-id (resolve-effect-context-id effect-state (:context-ref effect))
+  (let [sprouted-context-id (resolve-effect-context-id world effect-state (:context-ref effect))
         diversion (get-in effect-state [:results (:from-diversion effect)])
         affect-state-fact
         (rationalization-afterglow-fact
@@ -1887,7 +1898,7 @@
         {:keys [promoted-episode-ids]}
         (get-in effect-state [:results (:from-promotions effect)]
                 {:promoted-episode-ids []})
-        context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+        context-id (resolve-effect-context-id world effect-state (:context-ref effect))]
     [(update world :mutation-events
              (fnil conj [])
              {:family (:family effect)
@@ -1901,7 +1912,7 @@
 
 (defn- handle-mutation-log-rationalization
   [{:keys [world effect effect-state]}]
-  (let [sprouted-context-id (resolve-effect-context-id effect-state (:context-ref effect))
+  (let [sprouted-context-id (resolve-effect-context-id world effect-state (:context-ref effect))
         diversion (get-in effect-state [:results (:from-diversion effect)] {})]
     [(update world :mutation-events
              (fnil conj [])
@@ -2437,7 +2448,7 @@
                                           :goal-id goal-id
                                           :context-id context-id))
         [world effect-state] (apply-family-effects world effects)
-        sprouted-context-id (resolve-effect-context-id effect-state :branch-context)
+        sprouted-context-id (resolve-effect-context-id world effect-state :branch-context)
         {:keys [reminded-episode-ids active-indices]}
         (get-in effect-state [:results :roving/reminding])
         retrieval-hit-facts (get-in effect-state [:results :roving/retrieval-hit-facts] [])
@@ -2816,7 +2827,7 @@
           :frame-id frame-id
           :ordering ordering})
         [world effect-state] (apply-family-effects world effects)
-        sprouted-context-id (resolve-effect-context-id effect-state :branch-context)
+        sprouted-context-id (resolve-effect-context-id world effect-state :branch-context)
         diversion (get-in effect-state [:results :rationalization/diversion]
                           {:emotion-shifts []
                            :emotional-state []})
@@ -2850,15 +2861,16 @@
   [world {:keys [input-facts]
           :or {input-facts []}
           :as reversal-target}]
-  (let [{:keys [effects]}
-        (reversal-plan-effects world
-                               (assoc reversal-target
-                                      :input-facts input-facts))
-        [world effect-state] (apply-family-effects world effects)]
-    [world
-     (vec (get-in effect-state
-                  [:results :reversal/branches :branch-results]
-                  []))]))
+  (if-let [{:keys [effects]}
+           (reversal-plan-effects world
+                                  (assoc reversal-target
+                                         :input-facts input-facts))]
+    (let [[world effect-state] (apply-family-effects world effects)]
+      [world
+       (vec (get-in effect-state
+                    [:results :reversal/branches :branch-results]
+                    []))])
+    [world []]))
 
 (defn run-family-plan
   "Execute one family plan through the extracted request/dispatch layer.

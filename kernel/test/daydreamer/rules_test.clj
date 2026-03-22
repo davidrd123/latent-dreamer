@@ -467,6 +467,20 @@
     (is (= branch-id
            (get-in world [:goals :g-1 :next-cx])))))
 
+(deftest apply-effects-rejects-unresolved-context-ref
+  (let [root-id :cx-1
+        world {:id-counter 1
+               :contexts {root-id (assoc (cx/create-context) :id root-id)}
+               :goals {}}]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"Unknown effect context ref"
+                          (rules/apply-effects
+                           world
+                           [{:op :context/set-ordering
+                             :context-ref :branch-context
+                             :ordering 0.75}]
+                           {})))))
+
 (deftest apply-effects-rejects-builtin-handler-overrides
   (is (thrown-with-msg? clojure.lang.ExceptionInfo
                         #"Builtin effect handlers cannot be overridden"
@@ -619,6 +633,20 @@
               :to-id :g-failed}]
             {}
             {:executor-registry {:sample/dispatch (fn [_] nil)}})))))
+
+(deftest execute-rule-rejects-false-executor-result
+  (let [rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:executor-id :sample/dispatch}})]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"illegal false result"
+                          (rules/execute-rule
+                           rule
+                           {:bindings {'?context-id :cx-2
+                                       '?failed-goal-id :g-failed
+                                       '?emotion-id :e-shame
+                                       '?emotion-strength 0.25}
+                            :executor-registry {:sample/dispatch (fn [_] false)}})))))
 
 (deftest execute-rule-rejects-consequent-count-mismatch
   (let [rule (assoc sample-rule
