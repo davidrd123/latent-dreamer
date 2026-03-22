@@ -241,15 +241,6 @@
   [world context-id]
   (empty? (cx/children world context-id)))
 
-(defn- strongest-emotion
-  [world context-id predicate]
-  (->> (cx/visible-facts world context-id)
-       (filter emotion-fact?)
-       (filter predicate)
-       (sort-by (juxt (comp - #(double (or % 0.0)) :strength)
-                      (comp str fact-id)))
-       first))
-
 (defn- primary-situation-id
   [world context-id]
   (->> (cx/visible-facts world context-id)
@@ -375,28 +366,40 @@
   [world]
   (->> (reversal-leaf-candidates world)
        (keep (fn [candidate]
-               (when-let [emotion-fact (strongest-emotion world
-                                                          (:old-context-id candidate)
-                                                          negative-emotion-fact?)]
-                 (let [emotion-strength (double (or (:strength emotion-fact) 0.0))]
-                   (when (> emotion-strength reversal-emotion-threshold)
-                     (-> (rules/instantiate-rule
-                          reversal-activation-rule
-                          {'?old-context-id (:old-context-id candidate)
-                           '?old-top-level-goal-id (:old-top-level-goal-id candidate)
-                           '?failed-goal-id (:failed-goal-id candidate)
-                           '?context-depth (:context-depth candidate)
-                           '?emotion-pressure (:emotion-pressure candidate)
-                           '?failure-count (:failure-count candidate)
-                           '?selection-policy (:selection-policy candidate)
-                           '?selection-reasons (:selection-reasons candidate)
-                           '?emotion-id (fact-id emotion-fact)
-                           '?emotion-strength emotion-strength
-                           '?situation-id (primary-situation-id
-                                           world
-                                           (:old-context-id candidate))})
-                         :consequents
-                         first))))))
+               (let [facts (cx/visible-facts world (:old-context-id candidate))]
+                 (->> (rules/match-rule reversal-activation-rule
+                                        facts
+                                        {'?old-context-id (:old-context-id candidate)
+                                         '?old-top-level-goal-id (:old-top-level-goal-id candidate)
+                                         '?failed-goal-id (:failed-goal-id candidate)})
+                      (keep (fn [{:keys [bindings matched-facts]}]
+                              (let [emotion-fact (second matched-facts)
+                                    emotion-strength (double
+                                                      (or ('?emotion-strength bindings)
+                                                          0.0))]
+                                (when (and (negative-emotion-fact? emotion-fact)
+                                           (> emotion-strength
+                                              reversal-emotion-threshold))
+                                  (-> (rules/instantiate-rule
+                                       reversal-activation-rule
+                                       {'?old-context-id (:old-context-id candidate)
+                                        '?old-top-level-goal-id (:old-top-level-goal-id candidate)
+                                        '?failed-goal-id (:failed-goal-id candidate)
+                                        '?context-depth (:context-depth candidate)
+                                        '?emotion-pressure (:emotion-pressure candidate)
+                                        '?failure-count (:failure-count candidate)
+                                        '?selection-policy (:selection-policy candidate)
+                                        '?selection-reasons (:selection-reasons candidate)
+                                        '?emotion-id ('?emotion-id bindings)
+                                        '?emotion-strength emotion-strength
+                                        '?situation-id (primary-situation-id
+                                                        world
+                                                        (:old-context-id candidate))})
+                                      :consequents
+                                      first)))))
+                      (sort-by (juxt (comp - :emotion-strength)
+                                     (comp str :emotion-id)))
+                      first))))
        (sort-by (juxt (comp - :emotion-strength)
                       (comp str :old-context-id)
                       (comp str :failed-goal-id)))
