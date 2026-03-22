@@ -133,6 +133,33 @@
     (is (= 2 (get-in world [:episodes episode-id :plan-threshold])))
     (is (= 1 (get-in world [:episodes episode-id :reminding-threshold])))))
 
+(deftest promote-episode-upgrades-provisional-to-durable
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id
+                                               :admission-status :provisional})
+        [world promoted?]
+        (epmem/promote-episode world
+                               episode-id
+                               {:reason :cross-family-reuse
+                                :source-family :rationalization
+                                :target-family :roving
+                                :source-rule :goal-family/rationalization-plan-dispatch
+                                :target-rule :goal-family/roving-plan-dispatch})
+        episode (get-in world [:episodes episode-id])]
+    (is promoted?)
+    (is (= :durable (:admission-status episode)))
+    (is (= [{:from-status :provisional
+             :to-status :durable
+             :cycle 0
+             :reason :cross-family-reuse
+             :source-family :rationalization
+             :target-family :roving
+             :source-rule :goal-family/rationalization-plan-dispatch
+             :target-rule :goal-family/roving-plan-dispatch}]
+           (:promotion-history episode)))))
+
 (deftest retrieve-episodes-threshold-test
   (let [[world root-id] (world-with-root)
         [world episode-id] (epmem/add-episode world

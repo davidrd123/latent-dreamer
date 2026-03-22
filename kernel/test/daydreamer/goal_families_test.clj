@@ -533,6 +533,7 @@
                :target-context sprouted-context-id
                :seed-episode-id pleasant-episode-id
                :reminded-episode-ids [linked-episode-id]
+               :promoted-episode-ids []
                :active-indices [:calm :sunlight]}]
              (:mutation-events world))))))
 
@@ -1026,7 +1027,11 @@
         [_world roving-result]
         (families/run-family-plan world
                                   {:goal-id roving-goal-id
-                                   :context-id roving-context-id})]
+                                   :context-id roving-context-id})
+        promoted-rationalization-episode (get-in _world
+                                                 [:episodes rationalization-family-episode-id])
+        branch-context-id (get-in roving-result
+                                  [:result :sprouted-context-id])]
     (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
            (:retrieval-indices rationalization-family-plan)))
     (is (= :payload-exemplar
@@ -1046,6 +1051,17 @@
            (:evaluation rationalization-family-plan)))
     (is (= [rationalization-family-episode-id]
            (:reminded-episode-ids (:result roving-result))))
+    (is (= [rationalization-family-episode-id]
+           (:promoted-episode-ids (:result roving-result))))
+    (is (= :durable (:admission-status promoted-rationalization-episode)))
+    (is (= [{:fact/type :episode-promotion
+             :episode-id rationalization-family-episode-id
+             :branch-context-id branch-context-id
+             :source-family :rationalization
+             :target-family :roving
+             :promotion-reason :cross-family-reuse
+             :source-rule :goal-family/roving-plan-dispatch}]
+           (:promotion-facts (:result roving-result))))
     (is (not (some #{unrelated-episode-id}
                    (:reminded-episode-ids (:result roving-result)))))))
 
@@ -1216,11 +1232,25 @@
         [_world roving-result]
         (families/run-family-plan world
                                   {:goal-id roving-goal-id
-                                   :context-id roving-context-id})]
+                                   :context-id roving-context-id})
+        promoted-reversal-episode (get-in _world
+                                          [:episodes reversal-family-episode-id])
+        branch-context-id (get-in roving-result [:result :sprouted-context-id])]
     (is (= [:wall_was_open :wall_is_open]
            (:retrieval-indices reversal-family-plan)))
     (is (= [reversal-family-episode-id]
            (:reminded-episode-ids (:result roving-result))))
+    (is (= [reversal-family-episode-id]
+           (:promoted-episode-ids (:result roving-result))))
+    (is (= :durable (:admission-status promoted-reversal-episode)))
+    (is (= [{:fact/type :episode-promotion
+             :episode-id reversal-family-episode-id
+             :branch-context-id branch-context-id
+             :source-family :reversal
+             :target-family :roving
+             :promotion-reason :cross-family-reuse
+             :source-rule :goal-family/roving-plan-dispatch}]
+           (:promotion-facts (:result roving-result))))
     (is (not (some #{unrelated-episode-id}
                    (:reminded-episode-ids (:result roving-result)))))))
 

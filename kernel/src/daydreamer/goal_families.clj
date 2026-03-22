@@ -1332,6 +1332,57 @@
    :selection-policy selection-policy
    :source-rule (last (:rule-path rule-provenance))})
 
+(defn- episode-promotion-fact
+  [{:keys [episode-id branch-context-id source-family target-family
+           promotion-reason rule-provenance]}]
+  {:fact/type :episode-promotion
+   :episode-id episode-id
+   :branch-context-id branch-context-id
+   :source-family source-family
+   :target-family target-family
+   :promotion-reason promotion-reason
+   :source-rule (last (:rule-path rule-provenance))})
+
+(defn- promote-cross-family-retrieval-episodes
+  [world branch-context-id target-family rule-provenance episode-ids]
+  (reduce (fn [[current-world promotion-facts promoted-episode-ids] episode-id]
+            (let [episode (get-in current-world [:episodes episode-id])
+                  source-family (get-in episode [:provenance :family])]
+              (if (and episode
+                       (= :family-plan (get-in episode [:provenance :source]))
+                       (= :provisional (:admission-status episode))
+                       source-family
+                       (not= source-family target-family))
+                (let [[next-world promoted?]
+                      (episodic/promote-episode current-world
+                                                episode-id
+                                                {:reason :cross-family-reuse
+                                                 :source-family source-family
+                                                 :target-family target-family
+                                                 :source-rule (last (:rule-path episode))
+                                                 :target-rule (last (:rule-path
+                                                                     rule-provenance))})
+                      promotion-fact (episode-promotion-fact
+                                      {:episode-id episode-id
+                                       :branch-context-id branch-context-id
+                                       :source-family source-family
+                                       :target-family target-family
+                                       :promotion-reason :cross-family-reuse
+                                       :rule-provenance rule-provenance})
+                      next-world (if promoted?
+                                   (cx/assert-fact next-world
+                                                   branch-context-id
+                                                   promotion-fact)
+                                   next-world)]
+                  [next-world
+                   (cond-> promotion-facts promoted?
+                           (conj promotion-fact))
+                   (cond-> promoted-episode-ids promoted?
+                           (conj episode-id))])
+                [current-world promotion-facts promoted-episode-ids])))
+          [world [] []]
+          episode-ids))
+
 (defn- rationalization-plan-request-facts
   [world {:keys [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
           :or {ordering 1.0}}]
@@ -1467,6 +1518,13 @@
                                         fact))
                       world
                       retrieval-hit-facts)
+        [world promotion-facts promoted-episode-ids]
+        (promote-cross-family-retrieval-episodes
+         world
+         sprouted-context-id
+         :roving
+         rule-provenance
+         (vec (cons episode-id reminded-episode-ids)))
         world (assoc-in world [:contexts sprouted-context-id :ordering] ordering)
         world (if (contains? (:goals world) goal-id)
                 (goals/set-next-context world goal-id sprouted-context-id)
@@ -1478,11 +1536,14 @@
                        :target-context sprouted-context-id
                        :seed-episode-id episode-id
                        :reminded-episode-ids (vec reminded-episode-ids)
+                       :promoted-episode-ids (vec promoted-episode-ids)
                        :active-indices (vec (:recent-indices world))})]
     [world {:sprouted-context-id sprouted-context-id
             :episode-id episode-id
             :reminded-episode-ids (vec reminded-episode-ids)
             :retrieval-hit-facts retrieval-hit-facts
+            :promotion-facts (vec promotion-facts)
+            :promoted-episode-ids (vec promoted-episode-ids)
             :active-indices (vec (:recent-indices world))
             :selection-policy selection-policy
             :rule-provenance rule-provenance}]))

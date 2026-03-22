@@ -22,10 +22,12 @@ As the system accumulates episodes, rules, and graph connections:
   - `:trace` — auditable only
   - `:provisional` — retrievable under stricter conditions
   - `:durable` — promoted only after downstream evidence
-- Current implementation has the first pass of this:
+- Current implementation now has the first two passes of this:
   - `:archive-cold -> :trace`
   - other family-plan episodes default to `:provisional`
-- The missing piece is promotion logic from `:provisional -> :durable`.
+  - cross-family reuse can promote `:provisional -> :durable`
+  - `:episode-promotion` facts make those promotions graph-visible
+- The missing piece is evaluator-gated promotion and later demotion.
 
 **Cue zone separation:**
 - Content cues drive retrieval and reminding.
@@ -42,7 +44,7 @@ As the system accumulates episodes, rules, and graph connections:
 
 **What remains open:**
 - Anti-residue flags (`:backfired`, `:stale`, `:contradicted`, `:same-family-loop`)
-- Promotion criteria to `:durable`
+- Evaluator-gated promotion criteria beyond cross-family reuse
 - Stronger source-type decay and cluster caps
 - Graph hygiene for larger, less toy rule sets
 - Re-evaluation of stored material after later contradiction or success

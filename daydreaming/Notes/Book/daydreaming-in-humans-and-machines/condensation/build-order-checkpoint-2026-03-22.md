@@ -43,9 +43,11 @@ Implemented in the first pass:
   (`1` for ordinary episodes, `2` for imaginary / counterfactual)
 - rationalization stored-frame fallback no longer gets cheap `:serendipity? true`
 - same-family fallback for rationalization and reversal is gated on durable promotion
+- cross-family reuse can now promote `:provisional -> :durable`
+- promotion emits a typed `:episode-promotion` fact into the branch context
 
 Still missing inside step 1:
-- durable promotion path (`:provisional -> :durable`)
+- evaluator-gated promotion beyond cross-family reuse
 - anti-residue flags
 - source-type decay / stronger zone-specific consolidation
 - explicit loop-risk metadata shaping retrieval
@@ -151,13 +153,14 @@ Rule fires
 | Same-family reuse gated on durable promotion | Done |
 | Conductor extraction | Done |
 | Evaluation metadata fields on episodes | Done |
-| **Admission tiers (trace/provisional/durable)** | **First pass done** |
+| **Admission tiers (trace/provisional/durable)** | **Second pass done** |
 | **Cue zone separation (content/provenance/support)** | **First pass done** |
 | **Double-counting elimination** | **First pass done** |
 | **Same-family provenance cap** | **First pass done** |
 | **Content-mark floor before provenance applies** | **Done** |
 | **Rationalization no-cheap-resurrection gate** | **Done** |
-| **Promotion to durable** | **Not done** |
+| **Cross-family promotion to durable** | **Done** |
+| **Evaluator-gated durable promotion** | **Not done** |
 | **Anti-residue flags** | **Not done** |
 | **Effect vocabulary** | **Not done** |
 | **:llm-backed evaluator pilot** | **First pass done (post-plan evaluator seam)** |

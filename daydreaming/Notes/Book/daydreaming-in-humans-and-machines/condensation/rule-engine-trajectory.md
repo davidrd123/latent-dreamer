@@ -126,6 +126,12 @@ The current pass introduces:
 - cue-zone separation (content / reminding / provenance / support)
 - provenance floors before imagined material can reenter retrieval
 - same-family fallback gated on promotion
+- first durable promotion slice for cross-family reuse, with typed
+  `:episode-promotion` facts asserted into branch contexts
+
+The remaining gap inside Step 1 is not "promotion exists or not."
+It is whether promotion is evaluator-gated and whether anti-residue
+signals can demote or suppress loops.
 
 This is what prevents the graph from becoming a self-soothing loop machine.
 

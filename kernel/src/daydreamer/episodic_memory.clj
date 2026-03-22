@@ -191,6 +191,41 @@
                                                                 child-descendants)))))]
     [(assoc-in world [:episodes episode-id] episode) episode-id]))
 
+(defn promote-episode
+  "Promote an episode from provisional to durable with a structured reason.
+
+  Returns `[world promoted?]`. Promotion is monotonic and leaves non-provisional
+  episodes unchanged."
+  [world episode-id promotion]
+  (let [episode (episode-or-throw world episode-id)
+        current-status (:admission-status episode :durable)]
+    (if (not= :provisional current-status)
+      [world false]
+      (let [promotion-record (cond-> {:from-status current-status
+                                      :to-status :durable
+                                      :cycle (:cycle world)}
+                               (:reason promotion)
+                               (assoc :reason (:reason promotion))
+
+                               (:source-family promotion)
+                               (assoc :source-family (:source-family promotion))
+
+                               (:target-family promotion)
+                               (assoc :target-family (:target-family promotion))
+
+                               (:source-rule promotion)
+                               (assoc :source-rule (:source-rule promotion))
+
+                               (:target-rule promotion)
+                               (assoc :target-rule (:target-rule promotion)))]
+        [(-> world
+             (assoc-in [:episodes episode-id :admission-status] :durable)
+             (assoc-in [:episodes episode-id :promoted-cycle] (:cycle world))
+             (update-in [:episodes episode-id :promotion-history]
+                        (fnil conj [])
+                        promotion-record))
+         true]))))
+
 (defn store-episode
   "Store an episode under an index, incrementing the requested thresholds."
   [world episode-id index {:keys [plan? reminding? zone]

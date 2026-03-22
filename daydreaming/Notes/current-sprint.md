@@ -104,11 +104,15 @@ and "deserves future influence":
   on durable promotion
 - rationalization stored-frame fallback no longer uses cheap
   `:serendipity? true` reopening
+- cross-family reuse can now promote a family-plan episode from
+  `:provisional -> :durable`, with a typed `:episode-promotion`
+  fact asserted into the branch context
 
 ### Next after this
 
 - define the declarative effect vocabulary / executor boundary
-- use evaluator output to promote `:provisional -> :durable`
+- use evaluator output to widen promotion beyond the current
+  cross-family reuse path
 - add anti-residue flags and stronger consolidation policy
 - only then build verified paths and generic `:clojure-fn`
   dispatch
