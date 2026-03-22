@@ -115,6 +115,54 @@
                 :kernel-status :partial
                 :notes "First extracted RuleV1 slice from goal_families activation logic."}})
 
+(def ^:private rationalization-activation-rule
+  {:id :goal-family/rationalization-activation
+   :rule-kind :inference
+   :mueller-mode :inference-only
+   :antecedent-schema [{:fact/type :goal
+                        :goal-id '?failed-goal-id
+                        :top-level-goal '?failed-goal-id
+                        :status :failed
+                        :activation-context '?context-id}
+                       {:fact/type :emotion
+                        :emotion-id '?emotion-id
+                        :strength '?emotion-strength}
+                       {:fact/type :dependency
+                        :from-id '?emotion-id
+                        :to-id '?failed-goal-id}
+                       {:fact/type :rationalization-frame
+                        :fact/id '?frame-id}]
+   :consequent-schema [{:context-id '?context-id
+                        :failed-goal-id '?failed-goal-id
+                        :emotion-id '?emotion-id
+                        :emotion-strength '?emotion-strength
+                        :frame-id '?frame-id
+                        :frame-priority '?frame-priority
+                        :frame-count '?frame-count
+                        :situation-id '?situation-id
+                        :selection-policy :failed_goal_negative_emotion_rationalization_frame
+                        :selection-reasons [:failed_goal
+                                            :negative_emotion
+                                            :dependency_link
+                                            :rationalization_frame]}]
+   :plausibility rationalization-emotion-threshold
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :activate-rationalization-daydream-goal
+                :failure-modes [:emotion-below-threshold
+                                :missing-dependency-link
+                                :missing-rationalization-frame]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:emotion-threshold rationalization-emotion-threshold
+                     :requires-negative-emotion? true
+                     :requires-frame? true}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-rationalization]
+                :kernel-status :partial
+                :notes "Second extracted RuleV1 slice from goal_families activation logic."}})
+
 (declare reversal-sprout-alternative
          retract-facts)
 
@@ -523,20 +571,19 @@
                                               (and (contains? ref-ids failed-goal-id)
                                                    (contains? ref-ids (fact-id emotion-fact)))))
                                           dependencies))]
-                     {:context-id context-id
-                      :failed-goal-id failed-goal-id
-                      :emotion-id (fact-id emotion-fact)
-                      :emotion-strength (double (or (:strength emotion-fact) 0.0))
-                      :frame-id (:frame-id frame)
-                      :frame-priority (:priority frame)
-                      :frame-count (count frames)
-                      :situation-id (or (:situation-id frame)
-                                        (primary-situation-id world context-id))
-                      :selection-policy :failed_goal_negative_emotion_rationalization_frame
-                      :selection-reasons [:failed_goal
-                                          :negative_emotion
-                                          :dependency_link
-                                          :rationalization_frame]}))))
+                     (-> (rules/instantiate-rule
+                          rationalization-activation-rule
+                          {'?context-id context-id
+                           '?failed-goal-id failed-goal-id
+                           '?emotion-id (fact-id emotion-fact)
+                           '?emotion-strength (double (or (:strength emotion-fact) 0.0))
+                           '?frame-id (:frame-id frame)
+                           '?frame-priority (:priority frame)
+                           '?frame-count (count frames)
+                           '?situation-id (or (:situation-id frame)
+                                              (primary-situation-id world context-id))})
+                         :consequents
+                         first)))))
        (sort-by (juxt (comp - :emotion-strength)
                       (comp - :frame-priority)
                       (comp - :frame-count)
