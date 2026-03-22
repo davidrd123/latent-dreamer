@@ -210,6 +210,116 @@
              :goal-id :g-1}]
            (:promotion-evidence episode)))))
 
+(deftest resolve-episode-use-outcome-is-idempotent-for-already-resolved-use
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id
+                                               :retention-class :payload-exemplar
+                                               :keep-decision :keep-exemplar
+                                               :admission-status :provisional
+                                               :provenance {:source :family-plan
+                                                            :family :rationalization}})
+        [world use-info]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :reminded
+                                 :goal-id :g-1
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :roving
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/roving-plan-dispatch})
+        [world first-outcome]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id use-info)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        [world second-outcome]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id use-info)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        episode (get-in world [:episodes episode-id])]
+    (is (false? (:already-resolved? first-outcome)))
+    (is (:evidence-recorded? first-outcome))
+    (is (true? (:already-resolved? second-outcome)))
+    (is (false? (:evidence-recorded? second-outcome)))
+    (is (= 1 (get-in episode [:outcome-stats :successful-use-count])))
+    (is (= 1 (count (:promotion-evidence episode))))
+    (is (= 1 (count (:use-history episode))))
+    (is (= :resolved (get-in episode [:use-history 0 :status])))))
+
+(deftest resolve-episode-use-outcome-rejects-unsupported-outcomes
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id})
+        [world use-info]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :source-family :rationalization
+                                 :target-family :roving})]
+    (try
+      (epmem/resolve-episode-use-outcome world
+                                         episode-id
+                                         (:use-id use-info)
+                                         {:outcome :success})
+      (is false "expected unsupported episode use outcome to throw")
+      (catch clojure.lang.ExceptionInfo ex
+        (is (= "Unsupported episode use outcome" (ex-message ex)))
+        (is (= {:episode-id episode-id
+                :use-id (:use-id use-info)
+                :outcome :success
+                :allowed-outcomes #{:succeeded :failed :backfired :contradicted}}
+               (ex-data ex)))))))
+
+(deftest reconcile-episode-admission-uses-qualifying-promotion-evidence
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :reversal-plan
+                                               :context-id root-id
+                                               :retention-class :payload-exemplar
+                                               :keep-decision :keep-exemplar
+                                               :admission-status :provisional})
+        [world _]
+        (epmem/record-promotion-evidence world
+                                         episode-id
+                                         {:type :cross-family-use-success
+                                          :source-family :reversal
+                                          :target-family :roving
+                                          :source-rule :goal-family/reversal-plan-dispatch
+                                          :target-rule :goal-family/roving-plan-dispatch})
+        [world _]
+        (epmem/record-promotion-evidence world
+                                         episode-id
+                                         {:type :other-evidence
+                                          :source-family :other
+                                          :target-family :other-target
+                                          :source-rule :goal-family/other
+                                          :target-rule :goal-family/other-target})
+        [world transition]
+        (epmem/reconcile-episode-admission world episode-id)
+        episode (get-in world [:episodes episode-id])]
+    (is (= {:episode-id episode-id
+            :from-status :provisional
+            :to-status :durable
+            :reason :cross-family-use-success}
+           transition))
+    (is (= [{:from-status :provisional
+             :to-status :durable
+             :cycle 0
+             :reason :cross-family-use-success
+             :source-family :reversal
+             :target-family :roving
+             :source-rule :goal-family/reversal-plan-dispatch
+             :target-rule :goal-family/roving-plan-dispatch}]
+           (:promotion-history episode)))))
+
 (deftest same-family-loop-flag-blocks-same-family-reentry
   (let [[world root-id] (world-with-root)
         [world episode-id] (epmem/add-episode world

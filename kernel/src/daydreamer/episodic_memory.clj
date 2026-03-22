@@ -19,6 +19,8 @@
 (def ^:private payload-exemplar-cluster-cap 2)
 (def ^:private same-family-provenance-max 0.75)
 (def ^:private same-family-loop-threshold 2)
+(def ^:private valid-episode-use-outcomes
+  #{:succeeded :failed :backfired :contradicted})
 
 (defn- graph-bridge-bonus-scale
   [depth]
@@ -465,117 +467,143 @@
                 evidence-record)
      evidence-record]))
 
+(defn- qualifying-promotion-evidence
+  [episode]
+  (->> (:promotion-evidence episode)
+       (filter #(= :cross-family-use-success (:type %)))
+       last))
+
 (defn resolve-episode-use-outcome
   "Resolve a previously recorded episode use with an attributed outcome.
 
   Returns `[world outcome-info]`. Backfire/contradiction outcomes flag the
-  episode immediately. Cross-family success records promotion evidence."
+  episode immediately. Cross-family success records promotion evidence.
+  Re-resolving the same use with the same outcome is a no-op."
   [world episode-id use-id outcome]
   (let [episode (episode-or-throw world episode-id)
         use-history (vec (:use-history episode))
-        use-record (some #(when (= use-id (:use-id %)) %) use-history)]
+        use-record (some #(when (= use-id (:use-id %)) %) use-history)
+        outcome-type (:outcome outcome)]
     (when-not use-record
       (throw (ex-info "Unknown episode use"
                       {:episode-id episode-id
                        :use-id use-id})))
-    (let [outcome-type (:outcome outcome)
-          resolved-record (cond-> use-record
-                            outcome-type
-                            (assoc :outcome outcome-type)
+    (when-not (contains? valid-episode-use-outcomes outcome-type)
+      (throw (ex-info "Unsupported episode use outcome"
+                      {:episode-id episode-id
+                       :use-id use-id
+                       :outcome outcome-type
+                       :allowed-outcomes valid-episode-use-outcomes})))
+    (if (= :resolved (:status use-record))
+      (do
+        (when-not (= outcome-type (:outcome use-record))
+          (throw (ex-info "Episode use already resolved with different outcome"
+                          {:episode-id episode-id
+                           :use-id use-id
+                           :existing-outcome (:outcome use-record)
+                           :requested-outcome outcome-type})))
+        [world {:use-id use-id
+                :episode-id episode-id
+                :source-family (:source-family use-record)
+                :target-family (:target-family use-record)
+                :outcome outcome-type
+                :already-resolved? true
+                :evidence-recorded? false
+                :flagged? false}])
+      (let [resolved-record (cond-> use-record
+                              true
+                              (assoc :outcome outcome-type
+                                     :resolved-cycle (:cycle world)
+                                     :status :resolved)
 
-                            true
-                            (assoc :resolved-cycle (:cycle world)
-                                   :status :resolved)
+                              (:reason outcome)
+                              (assoc :outcome-reason (:reason outcome)))
+            world (assoc-in world
+                            [:episodes episode-id :use-history]
+                            (mapv (fn [record]
+                                    (if (= use-id (:use-id record))
+                                      resolved-record
+                                      record))
+                                  use-history))
+            world (update-in world
+                             [:episodes episode-id :outcome-stats]
+                             (fnil merge {:successful-use-count 0
+                                          :failed-use-count 0
+                                          :backfire-count 0
+                                          :contradiction-count 0}))
+            world (case outcome-type
+                    :succeeded
+                    (-> world
+                        (update-in [:episodes episode-id :outcome-stats :successful-use-count]
+                                   (fnil + 0) 1)
+                        (assoc-in [:episodes episode-id :outcome-stats :last-success-cycle]
+                                  (:cycle world)))
 
-                            (:reason outcome)
-                            (assoc :outcome-reason (:reason outcome)))
-          world (assoc-in world
-                          [:episodes episode-id :use-history]
-                          (mapv (fn [record]
-                                  (if (= use-id (:use-id record))
-                                    resolved-record
-                                    record))
-                                use-history))
-          world (update-in world
-                           [:episodes episode-id :outcome-stats]
-                           (fnil merge {:successful-use-count 0
-                                        :failed-use-count 0
-                                        :backfire-count 0
-                                        :contradiction-count 0}))
-          world (case outcome-type
-                  :succeeded
-                  (-> world
-                      (update-in [:episodes episode-id :outcome-stats :successful-use-count]
-                                 (fnil + 0) 1)
-                      (assoc-in [:episodes episode-id :outcome-stats :last-success-cycle]
-                                (:cycle world)))
+                    :failed
+                    (-> world
+                        (update-in [:episodes episode-id :outcome-stats :failed-use-count]
+                                   (fnil + 0) 1)
+                        (assoc-in [:episodes episode-id :outcome-stats :last-failed-cycle]
+                                  (:cycle world)))
 
-                  :failed
-                  (-> world
-                      (update-in [:episodes episode-id :outcome-stats :failed-use-count]
-                                 (fnil + 0) 1)
-                      (assoc-in [:episodes episode-id :outcome-stats :last-failed-cycle]
-                                (:cycle world)))
+                    :backfired
+                    (-> world
+                        (update-in [:episodes episode-id :outcome-stats :backfire-count]
+                                   (fnil + 0) 1)
+                        (assoc-in [:episodes episode-id :outcome-stats :last-backfire-cycle]
+                                  (:cycle world)))
 
-                  :backfired
-                  (-> world
-                      (update-in [:episodes episode-id :outcome-stats :backfire-count]
-                                 (fnil + 0) 1)
-                      (assoc-in [:episodes episode-id :outcome-stats :last-backfire-cycle]
-                                (:cycle world)))
+                    :contradicted
+                    (-> world
+                        (update-in [:episodes episode-id :outcome-stats :contradiction-count]
+                                   (fnil + 0) 1)
+                        (assoc-in [:episodes episode-id :outcome-stats :last-contradiction-cycle]
+                                  (:cycle world))))
+            [world evidence-record]
+            (if (and (= :succeeded outcome-type)
+                     (not= (:source-family use-record)
+                           (:target-family use-record)))
+              (record-promotion-evidence world
+                                         episode-id
+                                         {:type :cross-family-use-success
+                                          :use-id use-id
+                                          :source-family (:source-family use-record)
+                                          :target-family (:target-family use-record)
+                                          :source-rule (:source-rule use-record)
+                                          :target-rule (:target-rule use-record)
+                                          :branch-context-id (:branch-context-id use-record)
+                                          :goal-id (:goal-id use-record)})
+              [world nil])
+            [world flagged?]
+            (case outcome-type
+              :backfired
+              (flag-episode world
+                            episode-id
+                            :backfired
+                            {:reason (:reason outcome)
+                             :source-family (:source-family use-record)
+                             :target-family (:target-family use-record)
+                             :episode-id episode-id})
 
-                  :contradicted
-                  (-> world
-                      (update-in [:episodes episode-id :outcome-stats :contradiction-count]
-                                 (fnil + 0) 1)
-                      (assoc-in [:episodes episode-id :outcome-stats :last-contradiction-cycle]
-                                (:cycle world)))
+              :contradicted
+              (flag-episode world
+                            episode-id
+                            :contradicted
+                            {:reason (:reason outcome)
+                             :source-family (:source-family use-record)
+                             :target-family (:target-family use-record)
+                             :episode-id episode-id})
 
-                  world)
-          [world evidence-record]
-          (if (and (= :succeeded outcome-type)
-                   (not= (:source-family use-record)
-                         (:target-family use-record)))
-            (record-promotion-evidence world
-                                       episode-id
-                                       {:type :cross-family-use-success
-                                        :use-id use-id
-                                        :source-family (:source-family use-record)
-                                        :target-family (:target-family use-record)
-                                        :source-rule (:source-rule use-record)
-                                        :target-rule (:target-rule use-record)
-                                        :branch-context-id (:branch-context-id use-record)
-                                        :goal-id (:goal-id use-record)})
-            [world nil])
-          [world flagged?]
-          (case outcome-type
-            :backfired
-            (flag-episode world
-                          episode-id
-                          :backfired
-                          {:reason (:reason outcome)
-                           :source-family (:source-family use-record)
-                           :target-family (:target-family use-record)
-                           :episode-id episode-id})
-
-            :contradicted
-            (flag-episode world
-                          episode-id
-                          :contradicted
-                          {:reason (:reason outcome)
-                           :source-family (:source-family use-record)
-                           :target-family (:target-family use-record)
-                           :episode-id episode-id})
-
-            [world false])]
-      [world {:use-id use-id
-              :episode-id episode-id
-              :source-family (:source-family use-record)
-              :target-family (:target-family use-record)
-              :outcome outcome-type
-              :evidence-recorded? (boolean evidence-record)
-              :evidence evidence-record
-              :flagged? flagged?}])))
+              [world false])]
+        [world {:use-id use-id
+                :episode-id episode-id
+                :source-family (:source-family use-record)
+                :target-family (:target-family use-record)
+                :outcome outcome-type
+                :already-resolved? false
+                :evidence-recorded? (boolean evidence-record)
+                :evidence evidence-record
+                :flagged? flagged?}]))))
 
 (defn- durable-candidate?
   [episode]
@@ -591,9 +619,8 @@
   This first pass is intentionally conservative and only considers
   cross-family use success evidence, not later demotion/frontier policy."
   [episode]
-  (let [evidence-types (set (map :type (:promotion-evidence episode)))]
-    (and (durable-candidate? episode)
-         (contains? evidence-types :cross-family-use-success))))
+  (and (durable-candidate? episode)
+       (some? (qualifying-promotion-evidence episode))))
 
 (defn reconcile-episode-admission
   "Promote or demote an episode according to the current evidence and flags.
@@ -603,7 +630,7 @@
   [world episode-id]
   (let [episode (episode-or-throw world episode-id)
         current-status (:admission-status episode :durable)
-        latest-evidence (last (:promotion-evidence episode))
+        promotion-evidence (qualifying-promotion-evidence episode)
         hard-failure? (seq (set/intersection #{:backfired :contradicted}
                                              (set (:anti-residue-flags episode))))]
     (cond
@@ -624,17 +651,17 @@
       (let [[world promoted?]
             (promote-episode world
                              episode-id
-                             {:reason (or (:type latest-evidence)
+                             {:reason (or (:type promotion-evidence)
                                           :evidence-driven-promotion)
-                              :source-family (:source-family latest-evidence)
-                              :target-family (:target-family latest-evidence)
-                              :source-rule (:source-rule latest-evidence)
-                              :target-rule (:target-rule latest-evidence)})]
+                              :source-family (:source-family promotion-evidence)
+                              :target-family (:target-family promotion-evidence)
+                              :source-rule (:source-rule promotion-evidence)
+                              :target-rule (:target-rule promotion-evidence)})]
         [world (when promoted?
                  {:episode-id episode-id
                   :from-status current-status
                   :to-status :durable
-                  :reason (or (:type latest-evidence)
+                  :reason (or (:type promotion-evidence)
                               :evidence-driven-promotion)})])
 
       :else
