@@ -18,6 +18,7 @@
 (def ^:private shared-rule-bonus-scale 4.0)
 (def ^:private payload-exemplar-cluster-cap 2)
 (def ^:private same-family-provenance-max 0.75)
+(def ^:private same-family-loop-threshold 2)
 
 (defn- graph-bridge-bonus-scale
   [depth]
@@ -119,48 +120,81 @@
        (mapv :id)))
 
 (defn- retention-accessibility-info
-  [world episode]
+  [world episode retrieval-opts]
   (let [retention-class (:retention-class episode)
         keep-decision (:keep-decision episode)
         age (episode-age world episode)
-        cluster (payload-cluster episode)]
+        cluster (payload-cluster episode)
+        anti-residue-flags (set (:anti-residue-flags episode))
+        active-family (:active-family retrieval-opts)
+        source-family (get-in episode [:provenance :family])
+        same-family-reentry? (and active-family
+                                  source-family
+                                  (= active-family source-family))
+        base-info
+        (cond
+          (= :hot-cues retention-class)
+          (cond
+            (>= age 4)
+            {:retention-adjustment -1.0
+             :retention-reason :hot-cue-stale
+             :retention-age age}
+
+            (>= age 2)
+            {:retention-adjustment -0.5
+             :retention-reason :hot-cue-aging
+             :retention-age age}
+
+            :else
+            {:retention-adjustment 0.0
+             :retention-reason :hot-cue-fresh
+             :retention-age age})
+
+          (and (= :payload-exemplar retention-class)
+               (= :keep-exemplar keep-decision)
+               cluster)
+          (let [ranked-ids (ranked-cluster-episode-ids world cluster)
+                rank (.indexOf ranked-ids (:id episode))]
+            (if (and (not= -1 rank)
+                     (< rank payload-exemplar-cluster-cap))
+              {:retention-adjustment 0.0
+               :retention-reason :payload-exemplar-active
+               :payload-cluster cluster
+               :payload-cluster-rank (inc rank)}
+              {:retention-accessible? false
+               :retention-adjustment 0.0
+               :retention-reason :payload-cluster-capped
+               :payload-cluster cluster
+               :payload-cluster-rank (when (not= -1 rank) (inc rank))}))
+
+          :else
+          nil)]
     (cond
-      (= :hot-cues retention-class)
-      (cond
-        (>= age 4)
-        {:retention-adjustment -1.0
-         :retention-reason :hot-cue-stale
-         :retention-age age}
+      (contains? anti-residue-flags :contradicted)
+      {:retention-accessible? false
+       :retention-adjustment 0.0
+       :retention-reason :flagged-contradicted}
 
-        (>= age 2)
-        {:retention-adjustment -0.5
-         :retention-reason :hot-cue-aging
-         :retention-age age}
+      (contains? anti-residue-flags :backfired)
+      {:retention-accessible? false
+       :retention-adjustment 0.0
+       :retention-reason :flagged-backfired}
 
-        :else
-        {:retention-adjustment 0.0
-         :retention-reason :hot-cue-fresh
-         :retention-age age})
+      (and same-family-reentry?
+           (contains? anti-residue-flags :same-family-loop))
+      {:retention-accessible? false
+       :retention-adjustment 0.0
+       :retention-reason :flagged-same-family-loop}
 
-      (and (= :payload-exemplar retention-class)
-           (= :keep-exemplar keep-decision)
-           cluster)
-      (let [ranked-ids (ranked-cluster-episode-ids world cluster)
-            rank (.indexOf ranked-ids (:id episode))]
-        (if (and (not= -1 rank)
-                 (< rank payload-exemplar-cluster-cap))
-          {:retention-adjustment 0.0
-           :retention-reason :payload-exemplar-active
-           :payload-cluster cluster
-           :payload-cluster-rank (inc rank)}
-          {:retention-accessible? false
-           :retention-adjustment 0.0
-           :retention-reason :payload-cluster-capped
-           :payload-cluster cluster
-           :payload-cluster-rank (when (not= -1 rank) (inc rank))}))
+      (contains? anti-residue-flags :stale)
+      (merge (or base-info {:retention-adjustment 0.0})
+             {:retention-adjustment (+ -1.0
+                                       (double (or (:retention-adjustment base-info)
+                                                   0.0)))
+              :retention-reason :flagged-stale})
 
       :else
-      nil)))
+      base-info)))
 
 (defn- next-episode-id
   [world]
@@ -225,6 +259,104 @@
                         (fnil conj [])
                         promotion-record))
          true]))))
+
+(defn flag-episode
+  "Attach an anti-residue flag to an episode with structured reason metadata.
+
+  Returns `[world flagged?]` and is idempotent for an existing flag."
+  [world episode-id flag flag-record]
+  (let [episode (episode-or-throw world episode-id)
+        current-flags (set (:anti-residue-flags episode))]
+    (if (contains? current-flags flag)
+      [world false]
+      [(-> world
+           (update-in [:episodes episode-id :anti-residue-flags]
+                      (fnil (fn [flags new-flag]
+                              (->> (conj (vec flags) new-flag)
+                                   distinct
+                                   vec))
+                            [])
+                      flag)
+           (update-in [:episodes episode-id :anti-residue-history]
+                      (fnil conj [])
+                      (cond-> {:flag flag
+                               :cycle (:cycle world)}
+                        (:reason flag-record)
+                        (assoc :reason (:reason flag-record))
+
+                        (:source-family flag-record)
+                        (assoc :source-family (:source-family flag-record))
+
+                        (:target-family flag-record)
+                        (assoc :target-family (:target-family flag-record))
+
+                        (:episode-id flag-record)
+                        (assoc :episode-id (:episode-id flag-record)))))
+       true])))
+
+(defn note-episode-reuse
+  "Record reuse of an episode by a later family plan.
+
+  Returns `[world reuse-info]`. Repeated same-family reuse without any
+  cross-family reuse is flagged as `:same-family-loop`."
+  [world episode-id reuse]
+  (let [episode (episode-or-throw world episode-id)
+        source-family (or (:source-family reuse)
+                          (get-in episode [:provenance :family]))
+        target-family (:target-family reuse)
+        same-family? (and source-family
+                          target-family
+                          (= source-family target-family))
+        reuse-record (cond-> {:cycle (:cycle world)
+                              :source-family source-family
+                              :target-family target-family}
+                       (:reason reuse)
+                       (assoc :reason (:reason reuse))
+
+                       (:source-rule reuse)
+                       (assoc :source-rule (:source-rule reuse))
+
+                       (:target-rule reuse)
+                       (assoc :target-rule (:target-rule reuse)))
+        world (-> world
+                  (update-in [:episodes episode-id :reuse-history]
+                             (fnil conj [])
+                             reuse-record)
+                  (update-in [:episodes episode-id :reuse-stats]
+                             (fnil merge {:same-family-reuse-count 0
+                                          :cross-family-reuse-count 0}))
+                  (update-in [:episodes episode-id :reuse-stats :same-family-reuse-count]
+                             (fnil + 0)
+                             (if same-family? 1 0))
+                  (update-in [:episodes episode-id :reuse-stats :cross-family-reuse-count]
+                             (fnil + 0)
+                             (if same-family? 0 1))
+                  (assoc-in [:episodes episode-id :reuse-stats :last-reuse-cycle]
+                            (:cycle world))
+                  (assoc-in [:episodes episode-id :reuse-stats :last-source-family]
+                            source-family)
+                  (assoc-in [:episodes episode-id :reuse-stats :last-target-family]
+                            target-family))
+        reuse-stats (get-in world [:episodes episode-id :reuse-stats])
+        same-family-count (:same-family-reuse-count reuse-stats 0)
+        cross-family-count (:cross-family-reuse-count reuse-stats 0)
+        loop-risk? (and same-family?
+                        (>= same-family-count same-family-loop-threshold)
+                        (zero? cross-family-count))
+        [world flagged?] (if loop-risk?
+                           (flag-episode world
+                                         episode-id
+                                         :same-family-loop
+                                         {:reason :same-family-reuse-threshold
+                                          :source-family source-family
+                                          :target-family target-family
+                                          :episode-id episode-id})
+                           [world false])]
+    [world {:same-family? same-family?
+            :same-family-reuse-count same-family-count
+            :cross-family-reuse-count cross-family-count
+            :loop-risk? loop-risk?
+            :flagged? flagged?}]))
 
 (defn store-episode
   "Store an episode under an index, incrementing the requested thresholds."
@@ -466,7 +598,9 @@
                                                  episode))
                        bonus-info (when provenance-eligible?
                                     (provenance-bonus-info episode retrieval-opts))
-                       retention-info (retention-accessibility-info world episode)
+                       retention-info (retention-accessibility-info world
+                                                                    episode
+                                                                    retrieval-opts)
                        retention-accessible? (not= false
                                                    (:retention-accessible?
                                                     retention-info))

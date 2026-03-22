@@ -27,6 +27,7 @@ As the system accumulates episodes, rules, and graph connections:
   - other family-plan episodes default to `:provisional`
   - cross-family reuse can promote `:provisional -> :durable`
   - `:episode-promotion` facts make those promotions graph-visible
+  - promotion still obeys the recent-episode anti-echo gate
 - The missing piece is evaluator-gated promotion and later demotion.
 
 **Cue zone separation:**
@@ -43,7 +44,8 @@ As the system accumulates episodes, rules, and graph connections:
 - Cheap rationalization resurrection via `:serendipity? true` is now disabled.
 
 **What remains open:**
-- Anti-residue flags (`:backfired`, `:stale`, `:contradicted`, `:same-family-loop`)
+- Remaining anti-residue flags (`:backfired`, `:stale`, `:contradicted`)
+- Using the new `:same-family-loop` flag as a broader consolidation signal
 - Evaluator-gated promotion criteria beyond cross-family reuse
 - Stronger source-type decay and cluster caps
 - Graph hygiene for larger, less toy rule sets

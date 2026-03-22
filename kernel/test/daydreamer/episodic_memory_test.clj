@@ -160,6 +160,53 @@
              :target-rule :goal-family/roving-plan-dispatch}]
            (:promotion-history episode)))))
 
+(deftest same-family-loop-flag-blocks-same-family-reentry
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id
+                                               :provenance {:source :family-plan
+                                                            :family :rationalization}
+                                               :admission-status :durable})
+        world (epmem/store-episode world episode-id :shared-frame {:plan? true})
+        [world first-reuse]
+        (epmem/note-episode-reuse world
+                                  episode-id
+                                  {:reason :family-plan-reuse
+                                   :source-family :rationalization
+                                   :target-family :rationalization})
+        [world second-reuse]
+        (epmem/note-episode-reuse world
+                                  episode-id
+                                  {:reason :family-plan-reuse
+                                   :source-family :rationalization
+                                   :target-family :rationalization})
+        episode (get-in world [:episodes episode-id])]
+    (is (= {:same-family? true
+            :same-family-reuse-count 1
+            :cross-family-reuse-count 0
+            :loop-risk? false
+            :flagged? false}
+           first-reuse))
+    (is (= {:same-family? true
+            :same-family-reuse-count 2
+            :cross-family-reuse-count 0
+            :loop-risk? true
+            :flagged? true}
+           second-reuse))
+    (is (= [:same-family-loop] (:anti-residue-flags episode)))
+    (is (= []
+           (epmem/retrieve-episodes world
+                                    [:shared-frame]
+                                    {:active-family :rationalization})))
+    (is (= [{:episode-id episode-id
+             :marks 1
+             :threshold 1
+             :admission-status :durable}]
+           (epmem/retrieve-episodes world
+                                    [:shared-frame]
+                                    {:active-family :roving})))))
+
 (deftest retrieve-episodes-threshold-test
   (let [[world root-id] (world-with-root)
         [world episode-id] (epmem/add-episode world

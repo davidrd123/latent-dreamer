@@ -107,13 +107,18 @@ and "deserves future influence":
 - cross-family reuse can now promote a family-plan episode from
   `:provisional -> :durable`, with a typed `:episode-promotion`
   fact asserted into the branch context
+- promotion does not bypass the recent-episode anti-echo gate;
+  a promoted episode becomes reusable only after recent eviction
+- same-family reuse is now tracked, and repeated same-family reuse
+  can flag `:same-family-loop` to suppress reentry
 
 ### Next after this
 
 - define the declarative effect vocabulary / executor boundary
 - use evaluator output to widen promotion beyond the current
   cross-family reuse path
-- add anti-residue flags and stronger consolidation policy
+- add the remaining anti-residue flags (`:backfired`, `:stale`,
+  `:contradicted`) and stronger consolidation policy
 - only then build verified paths and generic `:clojure-fn`
   dispatch
 

@@ -615,6 +615,7 @@
                        (when (seq reframe-facts)
                          {:candidate-rank 0
                           :frame-id (fact-id fact)
+                          :episode-id nil
                           :goal-id (or (:failed-goal-id fact)
                                        (:goal-id fact)
                                        (:top-level-goal fact))
@@ -651,6 +652,7 @@
                                     (= failed-goal-id frame-goal-id)
                                     (seq reframe-facts))
                            {:candidate-rank 1
+                            :episode-id (:episode-id hit)
                             :frame-id (or (:frame-id payload)
                                           (:rationalization_frame_id selection))
                             :goal-id frame-goal-id
@@ -1343,6 +1345,33 @@
    :promotion-reason promotion-reason
    :source-rule (last (:rule-path rule-provenance))})
 
+(defn- note-family-plan-episode-reuse
+  [world episode-id target-family rule-provenance]
+  (let [episode (get-in world [:episodes episode-id])
+        source-family (get-in episode [:provenance :family])]
+    (if (and episode
+             (= :family-plan (get-in episode [:provenance :source]))
+             source-family)
+      (first (episodic/note-episode-reuse
+              world
+              episode-id
+              {:reason :family-plan-reuse
+               :source-family source-family
+               :target-family target-family
+               :source-rule (last (:rule-path episode))
+               :target-rule (last (:rule-path rule-provenance))}))
+      world)))
+
+(defn- note-family-plan-episode-reuses
+  [world target-family rule-provenance episode-ids]
+  (reduce (fn [current-world episode-id]
+            (note-family-plan-episode-reuse current-world
+                                            episode-id
+                                            target-family
+                                            rule-provenance))
+          world
+          episode-ids))
+
 (defn- promote-cross-family-retrieval-episodes
   [world branch-context-id target-family rule-provenance episode-ids]
   (reduce (fn [[current-world promotion-facts promoted-episode-ids] episode-id]
@@ -1518,6 +1547,11 @@
                                         fact))
                       world
                       retrieval-hit-facts)
+        world (note-family-plan-episode-reuses
+               world
+               :roving
+               rule-provenance
+               (vec (cons episode-id reminded-episode-ids)))
         [world promotion-facts promoted-episode-ids]
         (promote-cross-family-retrieval-episodes
          world
@@ -1757,6 +1791,13 @@
         world (cond-> world
                 affect-state-fact
                 (cx/assert-fact sprouted-context-id affect-state-fact))
+        world (if (and (= :stored_rationalization_episode selection-policy)
+                       (:episode-id frame))
+                (note-family-plan-episode-reuse world
+                                                (:episode-id frame)
+                                                :rationalization
+                                                rule-provenance)
+                world)
         world (if (contains? (:goals world) goal-id)
                 (goals/set-next-context world goal-id sprouted-context-id)
                 world)
@@ -1865,7 +1906,16 @@
               world (cond-> world
                       affect-state-fact
                       (cx/assert-fact (:old-context-id reversal-target)
-                                      affect-state-fact))]
+                                      affect-state-fact))
+              world (if (and primary-branch
+                             (= :stored_reversal_episode
+                                (:counterfactual-policy reversal-target))
+                             (:counterfactual-cause-id reversal-target))
+                      (note-family-plan-episode-reuse world
+                                                      (:counterfactual-cause-id reversal-target)
+                                                      :reversal
+                                                      (:rule-provenance primary-branch))
+                      world)]
           (if-not primary-branch
             [world nil]
             (store-family-plan-episode

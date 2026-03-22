@@ -45,10 +45,13 @@ Implemented in the first pass:
 - same-family fallback for rationalization and reversal is gated on durable promotion
 - cross-family reuse can now promote `:provisional -> :durable`
 - promotion emits a typed `:episode-promotion` fact into the branch context
+- promotion still respects the recent-episode anti-echo gate
+- repeated same-family reuse can now flag `:same-family-loop`
+  and suppress same-family reentry
 
 Still missing inside step 1:
 - evaluator-gated promotion beyond cross-family reuse
-- anti-residue flags
+- remaining anti-residue flags (`:backfired`, `:stale`, `:contradicted`)
 - source-type decay / stronger zone-specific consolidation
 - explicit loop-risk metadata shaping retrieval
 
@@ -161,7 +164,8 @@ Rule fires
 | **Rationalization no-cheap-resurrection gate** | **Done** |
 | **Cross-family promotion to durable** | **Done** |
 | **Evaluator-gated durable promotion** | **Not done** |
-| **Anti-residue flags** | **Not done** |
+| **Same-family-loop anti-residue flag** | **First pass done** |
+| **Other anti-residue flags** | **Not done** |
 | **Effect vocabulary** | **Not done** |
 | **:llm-backed evaluator pilot** | **First pass done (post-plan evaluator seam)** |
 | **Verified paths** | **Not done** |
