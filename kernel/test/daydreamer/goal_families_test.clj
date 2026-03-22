@@ -555,7 +555,7 @@
         (episodic/add-episode
          world
          {:rule :unrelated-memory
-          :rule-path [:goal-family/reversal-plan-dispatch]
+          :rule-path [:test/unrelated]
           :reminding-threshold 1})
         world (-> world
                   (episodic/store-episode provenance-linked-episode-id :calm
@@ -582,6 +582,57 @@
     (testing "unrelated episodes with the same single cue remain below threshold"
       (is (not (some #{unrelated-episode-id} reminded-episode-ids))))
     (testing "the active roving plan provenance is the retrieval anchor"
+      (is (= (expected-rule-provenance :goal-family/roving-plan-request
+                                       :goal-family/roving-plan-dispatch
+                                       :family-plan-request)
+             rule-provenance)))))
+
+(deftest roving-plan-uses-graph-bridge-depth-to-retrieve-cross-family-memory
+  (let [[world root-id] (world-with-root)
+        [world pleasant-episode-id]
+        (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :calm
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :sunlight
+                                          {:reminding? true}))
+        [world bridge-linked-episode-id]
+        (episodic/add-episode
+         world
+         {:rule :reversal-memory
+          :rule-path [:goal-family/reversal-plan-dispatch]
+          :reminding-threshold 2})
+        [world unrelated-episode-id]
+        (episodic/add-episode
+         world
+         {:rule :unrelated-memory
+          :rule-path [:test/unrelated]
+          :reminding-threshold 2})
+        world (-> world
+                  (episodic/store-episode bridge-linked-episode-id :calm
+                                          {:reminding? true})
+                  (episodic/store-episode unrelated-episode-id :calm
+                                          {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])
+        [world {:keys [reminded-episode-ids rule-provenance]}]
+        (families/roving-plan world {:goal-id roving-goal-id
+                                     :context-id context-id})]
+    (testing "a deeper reversal-to-roving bridge can recover a one-cue episode"
+      (is (= [bridge-linked-episode-id] reminded-episode-ids))
+      (is (= [pleasant-episode-id bridge-linked-episode-id]
+             (:recent-episodes world))))
+    (testing "an unrelated one-cue episode stays below threshold"
+      (is (not (some #{unrelated-episode-id} reminded-episode-ids))))
+    (testing "the active roving plan provenance remains the retrieval anchor"
       (is (= (expected-rule-provenance :goal-family/roving-plan-request
                                        :goal-family/roving-plan-dispatch
                                        :family-plan-request)

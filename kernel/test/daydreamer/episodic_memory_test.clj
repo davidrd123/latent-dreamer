@@ -21,6 +21,22 @@
       :id-counter 1}
      root-id]))
 
+(defn graph-rule
+  [rule-id antecedent-type consequent-type]
+  {:id rule-id
+   :rule-kind :planning
+   :mueller-mode :both
+   :antecedent-schema [{:fact/type antecedent-type}]
+   :consequent-schema [{:fact/type consequent-type}]
+   :plausibility 1.0
+   :index-projections {:match [] :emit []}
+   :denotation {:intended-effect consequent-type
+                :failure-modes []
+                :validation-fn nil}
+   :executor {:kind :instantiate :spec {}}
+   :graph-cache {:out-edge-bases [] :in-edge-bases []}
+   :provenance {}})
+
 (deftest create-episode-test
   (is (= {:id :ep-1
           :rule :reversal-plan
@@ -150,58 +166,10 @@
                                        {:reminding? true}))
         connection-graph
         (rules/build-connection-graph
-         [{:id :test/source
-           :rule-kind :planning
-           :mueller-mode :both
-           :antecedent-schema [{:fact/type :source-state}]
-           :consequent-schema [{:fact/type :bridge-state}]
-           :plausibility 1.0
-           :index-projections {:match [] :emit []}
-           :denotation {:intended-effect :emit-bridge-state
-                        :failure-modes []
-                        :validation-fn nil}
-           :executor {:kind :instantiate :spec {}}
-           :graph-cache {:out-edge-bases [] :in-edge-bases []}
-           :provenance {}}
-          {:id :test/bridge
-           :rule-kind :planning
-           :mueller-mode :both
-           :antecedent-schema [{:fact/type :bridge-state}]
-           :consequent-schema [{:fact/type :target-state}]
-           :plausibility 1.0
-           :index-projections {:match [] :emit []}
-           :denotation {:intended-effect :emit-target-state
-                        :failure-modes []
-                        :validation-fn nil}
-           :executor {:kind :instantiate :spec {}}
-           :graph-cache {:out-edge-bases [] :in-edge-bases []}
-           :provenance {}}
-          {:id :test/terminal
-           :rule-kind :planning
-           :mueller-mode :both
-           :antecedent-schema [{:fact/type :target-state}]
-           :consequent-schema [{:fact/type :terminal-state}]
-           :plausibility 1.0
-           :index-projections {:match [] :emit []}
-           :denotation {:intended-effect :emit-terminal-state
-                        :failure-modes []
-                        :validation-fn nil}
-           :executor {:kind :instantiate :spec {}}
-           :graph-cache {:out-edge-bases [] :in-edge-bases []}
-           :provenance {}}
-          {:id :test/unrelated
-           :rule-kind :planning
-           :mueller-mode :both
-           :antecedent-schema [{:fact/type :other-state}]
-           :consequent-schema [{:fact/type :other-terminal-state}]
-           :plausibility 1.0
-           :index-projections {:match [] :emit []}
-           :denotation {:intended-effect :emit-other-terminal-state
-                        :failure-modes []
-                        :validation-fn nil}
-           :executor {:kind :instantiate :spec {}}
-           :graph-cache {:out-edge-bases [] :in-edge-bases []}
-           :provenance {}}])]
+         [(graph-rule :test/source :source-state :bridge-state)
+          (graph-rule :test/bridge :bridge-state :target-state)
+          (graph-rule :test/terminal :target-state :terminal-state)
+          (graph-rule :test/unrelated :other-state :other-terminal-state)])]
     (testing "without provenance opts the single cue stays below threshold"
       (is (= []
              (epmem/retrieve-episodes world
@@ -211,15 +179,60 @@
       (is (= [{:episode-id connected-episode-id
                :marks 1
                :threshold 2
-               :provenance-bonus 1.0
-               :effective-marks 2.0
-               :provenance-reason :graph-bridge}]
+               :provenance-bonus 2.0
+               :effective-marks 3.0
+               :provenance-reason :graph-bridge
+               :provenance-bridge-depth 2
+               :provenance-bridge-path [:test/source
+                                        :test/bridge
+                                        :test/terminal]
+               :provenance-bridge-direction :active-to-episode
+               :provenance-bridge-count 1}]
              (epmem/retrieve-episodes
               world
               [:shared-cue]
               {:threshold-key :reminding-threshold
                :connection-graph connection-graph
                :active-rule-path [:test/source]}))))))
+
+(deftest retrieve-episodes-prefers-deeper-graph-bridges
+  (let [[world root-id] (world-with-root)
+        [world shallow-episode-id]
+        (epmem/add-episode world
+                           {:rule :shallow-memory
+                            :context-id root-id
+                            :rule-path [:test/bridge]
+                            :reminding-threshold 1})
+        [world deep-episode-id]
+        (epmem/add-episode world
+                           {:rule :deep-memory
+                            :context-id root-id
+                            :rule-path [:test/terminal]
+                            :reminding-threshold 1})
+        world (-> world
+                  (epmem/store-episode shallow-episode-id :shared-cue
+                                       {:reminding? true})
+                  (epmem/store-episode deep-episode-id :shared-cue
+                                       {:reminding? true}))
+        connection-graph
+        (rules/build-connection-graph
+         [(graph-rule :test/source :source-state :bridge-state)
+          (graph-rule :test/bridge :bridge-state :target-state)
+          (graph-rule :test/terminal :target-state :terminal-state)])
+        results (epmem/retrieve-episodes
+                 world
+                 [:shared-cue]
+                 {:threshold-key :reminding-threshold
+                  :connection-graph connection-graph
+                  :active-rule-path [:test/source]})]
+    (is (= [deep-episode-id shallow-episode-id]
+           (mapv :episode-id results)))
+    (is (= [2 1]
+           (mapv :provenance-bridge-depth results)))
+    (is (= [2.0 1.0]
+           (mapv :provenance-bonus results)))
+    (is (= [3.0 2.0]
+           (mapv :effective-marks results)))))
 
 (deftest recent-index-and-episode-bounds
   (let [[world _] (world-with-root)

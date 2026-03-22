@@ -132,6 +132,36 @@
   [edge]
   (select-keys edge [:from-rule :to-rule :fact-type :edge-kind]))
 
+(defn- bridge-candidates
+  [connection-graph active-rule-path episode-rule-path provenance-max-depth]
+  (letfn [(candidate-paths [direction start-rules target-rules]
+            (for [start-rule-id start-rules
+                  target-rule-id target-rules
+                  bridge (rules/bridge-paths connection-graph
+                                             start-rule-id
+                                             target-rule-id
+                                             {:min-depth 1
+                                              :max-depth provenance-max-depth})]
+              (assoc bridge
+                     :direction direction
+                     :start-rule start-rule-id
+                     :target-rule target-rule-id)))]
+    (->> (concat (candidate-paths :active-to-episode
+                                  active-rule-path
+                                  episode-rule-path)
+                 (candidate-paths :episode-to-active
+                                  episode-rule-path
+                                  active-rule-path))
+         distinct
+         vec)))
+
+(defn- best-bridge-candidate
+  [candidates]
+  (first (sort-by (juxt (comp - :depth)
+                        (comp pr-str :rule-path)
+                        (comp str :direction))
+                  candidates)))
+
 (defn- provenance-bonus-info
   [episode {:keys [connection-graph
                    active-rule-path
@@ -151,18 +181,15 @@
         shared-edge? (seq (set/intersection active-edge-path episode-edge-path))
         shared-rule? (seq (set/intersection (set active-rule-path)
                                             (set episode-rule-path)))
-        bridge? (and connection-graph
-                     (seq active-rule-path)
-                     (seq episode-rule-path)
-                     (some (fn [active-rule-id]
-                             (some (fn [episode-rule-id]
-                                     (seq (rules/bridge-paths connection-graph
-                                                              active-rule-id
-                                                              episode-rule-id
-                                                              {:min-depth 1
-                                                               :max-depth provenance-max-depth})))
-                                   episode-rule-path))
-                           active-rule-path))]
+        bridge-candidates (when (and connection-graph
+                                     (seq active-rule-path)
+                                     (seq episode-rule-path))
+                            (bridge-candidates connection-graph
+                                               active-rule-path
+                                               episode-rule-path
+                                               provenance-max-depth))
+        best-bridge (when (seq bridge-candidates)
+                      (best-bridge-candidate bridge-candidates))]
     (cond
       shared-edge?
       {:provenance-bonus provenance-bonus
@@ -172,9 +199,14 @@
       {:provenance-bonus provenance-bonus
        :provenance-reason :shared-rule}
 
-      bridge?
-      {:provenance-bonus provenance-bonus
-       :provenance-reason :graph-bridge}
+      best-bridge
+      {:provenance-bonus (* provenance-bonus
+                            (double (:depth best-bridge)))
+       :provenance-reason :graph-bridge
+       :provenance-bridge-depth (:depth best-bridge)
+       :provenance-bridge-path (:rule-path best-bridge)
+       :provenance-bridge-direction (:direction best-bridge)
+       :provenance-bridge-count (count bridge-candidates)}
 
       :else
       nil)))
@@ -208,9 +240,14 @@
                               :marks mark-count
                               :threshold threshold}
                        (pos? provenance-bonus)
-                       (assoc :provenance-bonus provenance-bonus
-                              :effective-marks effective-marks
-                              :provenance-reason (:provenance-reason bonus-info)))))))
+                       (merge {:provenance-bonus provenance-bonus
+                               :effective-marks effective-marks
+                               :provenance-reason (:provenance-reason bonus-info)}
+                              (select-keys bonus-info
+                                           [:provenance-bridge-depth
+                                            :provenance-bridge-path
+                                            :provenance-bridge-direction
+                                            :provenance-bridge-count])))))))
          (sort-by (juxt (comp - #(or % 0.0) :effective-marks)
                         (comp - :marks)
                         (comp str :episode-id)))
