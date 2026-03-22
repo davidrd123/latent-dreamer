@@ -23,697 +23,15 @@
                                            negative-emotion-fact?
                                            positive-emotion-fact?
                                            rationalization-frame-fact?]]
+            [daydreamer.goal-family-rules :as gf-rules]
             [daydreamer.goals :as goals]
             [daydreamer.rules :as rules]))
-
-(def ^:private supported-families
-  #{:reversal :roving :rationalization :recovery :rehearsal})
-
-(def ^:private terminal-goal-statuses
-  #{:failed :succeeded :terminated})
 
 (defn supported-family?
   "Return true when the kernel has a namespace-level implementation target for
   the given family."
   [goal-type]
-  (contains? supported-families goal-type))
-
-(def ^:private reversal-leaf-policy
-  :emotion_then_depth)
-
-(def ^:private reversal-cause-policy
-  :stored_priority)
-
-(def ^:private reverse-leaf-policy
-  :intends_weak_leaf)
-
-(def ^:private reverse-leaf-threshold
-  0.5)
-
-(def ^:private roving-emotion-threshold
-  0.04)
-
-(def ^:private rationalization-emotion-threshold
-  0.7)
-
-(def ^:private reversal-emotion-threshold
-  0.5)
-
-(def ^:private roving-plan-policy
-  :pleasant_episode_seed)
-
-(def ^:private rationalization-frame-policy
-  :stored_priority)
-
-(def ^:private rationalization-plan-policy
-  :stored_rationalization_frame)
-
-(def ^:private rationalization-diversion-policy
-  :divert_emot_to_tlg_bridge)
-
-(def ^:private rationalization-diversion-scale
-  0.35)
-
-(def ^:private roving-plan-request-rule
-  {:id :goal-family/roving-plan-request
-   :rule-kind :planning
-   :mueller-mode :plan-only
-   :antecedent-schema [{:fact/type :family-plan-ready
-                        :goal-type :roving
-                        :goal-id '?goal-id
-                        :context-id '?context-id
-                        :episode-id '?episode-id
-                        :ordering '?ordering}]
-   :consequent-schema [{:fact/type :family-plan-request
-                        :goal-type :roving
-                        :goal-id '?goal-id
-                        :context-id '?context-id
-                        :episode-id '?episode-id
-                        :ordering '?ordering
-                        :selection-policy roving-plan-policy}]
-   :plausibility 1.0
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :emit-roving-plan-request
-                :failure-modes [:missing-seed-episode
-                                :missing-planning-context]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:requires-episode? true
-                     :requires-context? true}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-roving]
-                :kernel-status :partial
-                :notes "Graphable request fact for roving branch planning."}})
-
-(def ^:private roving-plan-dispatch-rule
-  {:id :goal-family/roving-plan-dispatch
-   :rule-kind :planning
-   :mueller-mode :plan-only
-   :antecedent-schema [{:fact/type :family-plan-request
-                        :goal-type :roving
-                        :goal-id '?goal-id
-                        :context-id '?context-id
-                        :episode-id '?episode-id
-                        :ordering '?ordering
-                        :selection-policy '?selection-policy}]
-   :consequent-schema [{:goal-id '?goal-id
-                        :context-id '?context-id
-                        :episode-id '?episode-id
-                        :ordering '?ordering
-                        :selection-policy '?selection-policy}]
-   :plausibility 1.0
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :dispatch-roving-plan-request
-                :failure-modes [:missing-family-plan-request]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:request-goal-type :roving}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-roving]
-                :kernel-status :partial
-                :notes "Consumes a roving plan request into the current bounded plan payload."}})
-
-(def ^:private rationalization-plan-request-rule
-  {:id :goal-family/rationalization-plan-request
-   :rule-kind :planning
-   :mueller-mode :plan-only
-   :antecedent-schema [{:fact/type :family-plan-ready
-                        :goal-type :rationalization
-                        :goal-id '?goal-id
-                        :context-id '?context-id
-                        :trigger-context-id '?trigger-context-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :frame-id '?frame-id
-                        :ordering '?ordering}]
-   :consequent-schema [{:fact/type :family-plan-request
-                        :goal-type :rationalization
-                        :goal-id '?goal-id
-                        :context-id '?context-id
-                        :trigger-context-id '?trigger-context-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :frame-id '?frame-id
-                        :ordering '?ordering
-                        :selection-policy rationalization-plan-policy}]
-   :plausibility 1.0
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :emit-rationalization-plan-request
-                :failure-modes [:missing-rationalization-frame
-                                :missing-planning-context]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:requires-frame? true
-                     :requires-context? true}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-rationalization]
-                :kernel-status :partial
-                :notes "Graphable request fact for rationalization branch planning."}})
-
-(def ^:private rationalization-plan-dispatch-rule
-  {:id :goal-family/rationalization-plan-dispatch
-   :rule-kind :planning
-   :mueller-mode :plan-only
-   :antecedent-schema [{:fact/type :family-plan-request
-                        :goal-type :rationalization
-                        :goal-id '?goal-id
-                        :context-id '?context-id
-                        :trigger-context-id '?trigger-context-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :frame-id '?frame-id
-                        :ordering '?ordering
-                        :selection-policy '?selection-policy}]
-   :consequent-schema [{:goal-id '?goal-id
-                        :context-id '?context-id
-                        :trigger-context-id '?trigger-context-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :frame-id '?frame-id
-                        :ordering '?ordering
-                        :selection-policy '?selection-policy}
-                       {:fact/type :family-affect-state
-                        :source-family :rationalization
-                        :goal-id '?goal-id
-                        :context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :frame-id '?frame-id
-                        :affect :hope
-                        :transition :reappraised}]
-   :plausibility 1.0
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :dispatch-rationalization-plan-request
-                :failure-modes [:missing-family-plan-request]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:request-goal-type :rationalization}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-rationalization]
-                :kernel-status :partial
-                :notes "Consumes a rationalization plan request into the current bounded plan payload."}})
-
-(def ^:private rationalization-afterglow-to-roving-rule
-  {:id :goal-family/rationalization-afterglow-to-roving
-   :rule-kind :inference
-   :mueller-mode :both
-   :antecedent-schema [{:fact/type :family-affect-state
-                        :source-family :rationalization
-                        :goal-id '?goal-id
-                        :context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :frame-id '?frame-id
-                        :affect :hope
-                        :transition :reappraised}]
-   :consequent-schema [{:fact/type :goal-family-trigger
-                        :goal-type :roving
-                        :trigger-context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :emotion-id '?trigger-emotion-id
-                        :emotion-strength '?trigger-emotion-strength
-                        :selection-policy :rationalization_afterglow
-                        :selection-reasons [:rationalization_afterglow
-                                            :hope_reframe]}]
-   :plausibility roving-emotion-threshold
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :emit-roving-trigger-from-rationalization-afterglow
-                :failure-modes [:missing-rationalization-afterglow]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:source-family :rationalization
-                     :target-goal-type :roving}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-rationalization
-                               :theme-roving]
-                :kernel-status :proposed
-                :notes "Cross-family bridge from rationalization's hopeful afterglow into a roving trigger."}})
-
-(def ^:private reversal-aftershock-to-roving-rule
-  {:id :goal-family/reversal-aftershock-to-roving
-   :rule-kind :inference
-   :mueller-mode :both
-   :antecedent-schema [{:fact/type :family-affect-state
-                        :source-family :reversal
-                        :goal-id '?goal-id
-                        :context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :transition :counterfactual_reopened}]
-   :consequent-schema [{:fact/type :goal-family-trigger
-                        :goal-type :roving
-                        :trigger-context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :emotion-id '?trigger-emotion-id
-                        :emotion-strength '?trigger-emotion-strength
-                        :selection-policy :reversal_aftershock
-                        :selection-reasons [:reversal_aftershock
-                                            :counterfactual_reopened]}]
-   :plausibility roving-emotion-threshold
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :emit-roving-trigger-from-reversal-aftershock
-                :failure-modes [:missing-reversal-aftershock]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:source-family :reversal
-                     :target-goal-type :roving}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-reversal
-                               :theme-roving]
-                :kernel-status :proposed
-                :notes "Cross-family bridge from reversal's counterfactual aftershock into a roving trigger."}})
-
-(def ^:private reversal-aftershock-to-rationalization-rule
-  {:id :goal-family/reversal-aftershock-to-rationalization
-   :rule-kind :inference
-   :mueller-mode :both
-   :antecedent-schema [{:fact/type :family-affect-state
-                        :source-family :reversal
-                        :goal-id '?goal-id
-                        :context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :transition :counterfactual_reopened}
-                       {:fact/type :rationalization-frame
-                        :fact/id '?frame-id
-                        :goal-id '?failed-goal-id
-                        :priority '?frame-priority}]
-   :consequent-schema [{:fact/type :goal-family-trigger
-                        :goal-type :rationalization
-                        :trigger-context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :emotion-id '?trigger-emotion-id
-                        :emotion-strength '?trigger-emotion-strength
-                        :frame-id '?frame-id
-                        :frame-priority '?frame-priority
-                        :frame-count 1
-                        :situation-id nil
-                        :selection-policy :reversal_aftershock_rationalization_frame
-                        :selection-reasons [:reversal_aftershock
-                                            :counterfactual_reopened
-                                            :rationalization_frame]}]
-   :plausibility rationalization-emotion-threshold
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :emit-rationalization-trigger-from-reversal-aftershock
-                :failure-modes [:missing-reversal-aftershock
-                                :missing-rationalization-frame]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:source-family :reversal
-                     :target-goal-type :rationalization}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-reversal
-                               :theme-rationalization]
-                :kernel-status :proposed
-                :notes "Cross-family bridge from reversal's counterfactual aftershock into a rationalization trigger when a reframing frame is available."}})
-
-(def ^:private reversal-plan-request-rule
-  {:id :goal-family/reversal-plan-request
-   :rule-kind :planning
-   :mueller-mode :plan-only
-   :antecedent-schema [{:fact/type :family-plan-ready
-                        :goal-type :reversal
-                        :goal-id '?goal-id
-                        :old-context-id '?old-context-id
-                        :old-top-level-goal-id '?old-top-level-goal-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :new-context-id '?new-context-id
-                        :new-top-level-goal-id '?new-top-level-goal-id}]
-   :consequent-schema [{:fact/type :family-plan-request
-                        :goal-type :reversal
-                        :goal-id '?goal-id
-                        :old-context-id '?old-context-id
-                        :old-top-level-goal-id '?old-top-level-goal-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :new-context-id '?new-context-id
-                        :new-top-level-goal-id '?new-top-level-goal-id
-                        :selection-policy reverse-leaf-policy}]
-   :plausibility 1.0
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :emit-reversal-plan-request
-                :failure-modes [:missing-old-context
-                                :missing-new-context]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:requires-old-context? true
-                     :requires-new-context? true}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-reversal]
-                :kernel-status :partial
-                :notes "Graphable request fact for reversal branch planning."}})
-
-(def ^:private reversal-plan-dispatch-rule
-  {:id :goal-family/reversal-plan-dispatch
-   :rule-kind :planning
-   :mueller-mode :plan-only
-   :antecedent-schema [{:fact/type :family-plan-request
-                        :goal-type :reversal
-                        :goal-id '?goal-id
-                        :old-context-id '?old-context-id
-                        :old-top-level-goal-id '?old-top-level-goal-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :new-context-id '?new-context-id
-                        :new-top-level-goal-id '?new-top-level-goal-id
-                        :selection-policy '?selection-policy}]
-   :consequent-schema [{:goal-id '?goal-id
-                        :old-context-id '?old-context-id
-                        :old-top-level-goal-id '?old-top-level-goal-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :new-context-id '?new-context-id
-                        :new-top-level-goal-id '?new-top-level-goal-id
-                        :selection-policy '?selection-policy}
-                       {:fact/type :family-affect-state
-                        :source-family :reversal
-                        :goal-id '?goal-id
-                        :context-id '?old-context-id
-                        :failed-goal-id '?failed-goal-id
-                        :trigger-emotion-id '?trigger-emotion-id
-                        :trigger-emotion-strength '?trigger-emotion-strength
-                        :transition :counterfactual_reopened}]
-   :plausibility 1.0
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :dispatch-reversal-plan-request
-                :failure-modes [:missing-family-plan-request]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:request-goal-type :reversal}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-reversal]
-                :kernel-status :partial
-                :notes "Consumes a reversal plan request into the current bounded plan payload."}})
-
-(def ^:private roving-trigger-rule
-  {:id :goal-family/roving-trigger
-   :rule-kind :inference
-   :mueller-mode :inference-only
-   :antecedent-schema [{:fact/type :goal
-                        :goal-id '?failed-goal-id
-                        :top-level-goal '?failed-goal-id
-                        :status :failed
-                        :activation-context '?context-id}
-                       {:fact/type :emotion
-                        :emotion-id '?emotion-id
-                        :strength '?emotion-strength}
-                       {:fact/type :dependency
-                        :from-id '?emotion-id
-                        :to-id '?failed-goal-id}]
-   :consequent-schema [{:fact/type :goal-family-trigger
-                        :goal-type :roving
-                        :trigger-context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :emotion-id '?emotion-id
-                        :emotion-strength '?emotion-strength
-                        :selection-policy :failed_goal_negative_emotion
-                        :selection-reasons [:failed_goal
-                                            :negative_emotion
-                                            :dependency_link]}]
-   :plausibility roving-emotion-threshold
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :emit-roving-goal-family-trigger
-                :failure-modes [:emotion-below-threshold
-                                :rationalization-frame-available
-                                :missing-dependency-link]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:emotion-threshold roving-emotion-threshold
-                     :requires-negative-emotion? true
-                     :requires-frame-absence? true}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-roving]
-                :kernel-status :partial
-                :notes "First graphable trigger slice from goal_families activation logic."}})
-
-(def ^:private roving-activation-rule
-  {:id :goal-family/roving-activation
-   :rule-kind :inference
-   :mueller-mode :inference-only
-   :antecedent-schema [{:fact/type :goal-family-trigger
-                        :goal-type :roving
-                        :trigger-context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :emotion-id '?emotion-id
-                        :emotion-strength '?emotion-strength
-                        :selection-policy '?selection-policy
-                        :selection-reasons '?selection-reasons}]
-   :consequent-schema [{:context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :emotion-id '?emotion-id
-                        :emotion-strength '?emotion-strength
-                        :selection-policy '?selection-policy
-                        :selection-reasons '?selection-reasons}
-                       {:fact/type :family-plan-ready
-                        :goal-type :roving
-                        :trigger-context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :emotion-id '?emotion-id
-                        :emotion-strength '?emotion-strength}]
-   :plausibility roving-emotion-threshold
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :activate-roving-daydream-goal
-                :failure-modes [:missing-goal-family-trigger]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:trigger-goal-type :roving}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-roving]
-                :kernel-status :partial
-                :notes "Consumes the structural roving trigger into an activation payload."}})
-
-(def ^:private rationalization-trigger-rule
-  {:id :goal-family/rationalization-trigger
-   :rule-kind :inference
-   :mueller-mode :inference-only
-   :antecedent-schema [{:fact/type :goal
-                        :goal-id '?failed-goal-id
-                        :top-level-goal '?failed-goal-id
-                        :status :failed
-                        :activation-context '?context-id}
-                       {:fact/type :emotion
-                        :emotion-id '?emotion-id
-                        :strength '?emotion-strength}
-                       {:fact/type :dependency
-                        :from-id '?emotion-id
-                        :to-id '?failed-goal-id}
-                       {:fact/type :rationalization-frame
-                        :fact/id '?frame-id
-                        :goal-id '?failed-goal-id}]
-   :consequent-schema [{:fact/type :goal-family-trigger
-                        :goal-type :rationalization
-                        :trigger-context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :emotion-id '?emotion-id
-                        :emotion-strength '?emotion-strength
-                        :frame-id '?frame-id
-                        :frame-priority '?frame-priority
-                        :frame-count '?frame-count
-                        :situation-id '?situation-id
-                        :selection-policy :failed_goal_negative_emotion_rationalization_frame
-                        :selection-reasons [:failed_goal
-                                            :negative_emotion
-                                            :dependency_link
-                                            :rationalization_frame]}]
-   :plausibility rationalization-emotion-threshold
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :emit-rationalization-goal-family-trigger
-                :failure-modes [:emotion-below-threshold
-                                :missing-dependency-link
-                                :missing-rationalization-frame]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:emotion-threshold rationalization-emotion-threshold
-                     :requires-negative-emotion? true
-                     :requires-frame? true}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-rationalization]
-                :kernel-status :partial
-                :notes "Graphable rationalization trigger emitted from activation logic."}})
-
-(def ^:private rationalization-activation-rule
-  {:id :goal-family/rationalization-activation
-   :rule-kind :inference
-   :mueller-mode :inference-only
-   :antecedent-schema [{:fact/type :goal-family-trigger
-                        :goal-type :rationalization
-                        :trigger-context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :emotion-id '?emotion-id
-                        :emotion-strength '?emotion-strength
-                        :frame-id '?frame-id
-                        :frame-priority '?frame-priority
-                        :frame-count '?frame-count
-                        :situation-id '?situation-id
-                        :selection-policy '?selection-policy
-                        :selection-reasons '?selection-reasons}]
-   :consequent-schema [{:context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :emotion-id '?emotion-id
-                        :emotion-strength '?emotion-strength
-                        :frame-id '?frame-id
-                        :frame-priority '?frame-priority
-                        :frame-count '?frame-count
-                        :situation-id '?situation-id
-                        :selection-policy '?selection-policy
-                        :selection-reasons '?selection-reasons}
-                       {:fact/type :family-plan-ready
-                        :goal-type :rationalization
-                        :trigger-context-id '?context-id
-                        :failed-goal-id '?failed-goal-id
-                        :emotion-id '?emotion-id
-                        :emotion-strength '?emotion-strength
-                        :frame-id '?frame-id}]
-   :plausibility rationalization-emotion-threshold
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :activate-rationalization-daydream-goal
-                :failure-modes [:missing-goal-family-trigger]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:trigger-goal-type :rationalization}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-rationalization]
-                :kernel-status :partial
-                :notes "Consumes the structural rationalization trigger into an activation payload."}})
-
-(def ^:private reversal-trigger-rule
-  {:id :goal-family/reversal-trigger
-   :rule-kind :inference
-   :mueller-mode :inference-only
-   :antecedent-schema [{:fact/type :goal
-                        :goal-id '?failed-goal-id
-                        :top-level-goal '?old-top-level-goal-id
-                        :status :failed
-                        :activation-context '?old-context-id}
-                       {:fact/type :emotion
-                        :emotion-id '?emotion-id
-                        :strength '?emotion-strength}]
-   :consequent-schema [{:fact/type :goal-family-trigger
-                        :goal-type :reversal
-                        :old-context-id '?old-context-id
-                        :old-top-level-goal-id '?old-top-level-goal-id
-                        :failed-goal-id '?failed-goal-id
-                        :context-depth '?context-depth
-                        :emotion-pressure '?emotion-pressure
-                        :failure-count '?failure-count
-                        :selection-policy '?selection-policy
-                        :selection-reasons '?selection-reasons
-                        :emotion-id '?emotion-id
-                        :emotion-strength '?emotion-strength
-                        :situation-id '?situation-id}]
-   :plausibility reversal-emotion-threshold
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :emit-reversal-goal-family-trigger
-                :failure-modes [:emotion-below-threshold
-                                :missing-negative-emotion
-                                :missing-failed-leaf]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:emotion-threshold reversal-emotion-threshold
-                     :requires-negative-emotion? true
-                     :requires-failed-leaf? true}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-reversal]
-                :kernel-status :partial
-                :notes "Graphable reversal trigger emitted from failed-leaf selection."}})
-
-(def ^:private reversal-activation-rule
-  {:id :goal-family/reversal-activation
-   :rule-kind :inference
-   :mueller-mode :inference-only
-   :antecedent-schema [{:fact/type :goal-family-trigger
-                        :goal-type :reversal
-                        :old-context-id '?old-context-id
-                        :old-top-level-goal-id '?old-top-level-goal-id
-                        :failed-goal-id '?failed-goal-id
-                        :context-depth '?context-depth
-                        :emotion-pressure '?emotion-pressure
-                        :failure-count '?failure-count
-                        :selection-policy '?selection-policy
-                        :selection-reasons '?selection-reasons
-                        :emotion-id '?emotion-id
-                        :emotion-strength '?emotion-strength
-                        :situation-id '?situation-id}]
-   :consequent-schema [{:old-context-id '?old-context-id
-                        :old-top-level-goal-id '?old-top-level-goal-id
-                        :failed-goal-id '?failed-goal-id
-                        :context-depth '?context-depth
-                        :emotion-pressure '?emotion-pressure
-                        :failure-count '?failure-count
-                        :selection-policy '?selection-policy
-                        :selection-reasons '?selection-reasons
-                        :emotion-id '?emotion-id
-                        :emotion-strength '?emotion-strength
-                        :activation-policy :failed_goal_negative_emotion
-                        :activation-reasons [:failed_goal
-                                             :negative_emotion
-                                             :reversal_candidate]
-                        :situation-id '?situation-id}
-                       {:fact/type :family-plan-ready
-                        :goal-type :reversal
-                        :old-context-id '?old-context-id
-                        :old-top-level-goal-id '?old-top-level-goal-id
-                        :failed-goal-id '?failed-goal-id
-                        :emotion-id '?emotion-id
-                        :emotion-strength '?emotion-strength}]
-   :plausibility reversal-emotion-threshold
-   :index-projections {:match []
-                       :emit []}
-   :denotation {:intended-effect :activate-reversal-daydream-goal
-                :failure-modes [:emotion-below-threshold
-                                :missing-negative-emotion
-                                :missing-failed-leaf]
-                :validation-fn nil}
-   :executor {:kind :instantiate
-              :spec {:emotion-threshold reversal-emotion-threshold
-                     :requires-negative-emotion? true
-                     :requires-failed-leaf? true}}
-   :graph-cache {:out-edge-bases []
-                 :in-edge-bases []}
-   :provenance {:book-anchors [:theme-reversal]
-                :kernel-status :partial
-                :notes "Third extracted RuleV1 slice from goal_families activation logic."}})
+  (gf-rules/supported-family? goal-type))
 
 (defn activation-rules
   "Return the currently extracted RuleV1 activation slices.
@@ -722,36 +40,22 @@
   family activation logic expressed as structural rules rather than hidden
   procedural scans."
   []
-  [roving-trigger-rule
-   roving-activation-rule
-   rationalization-trigger-rule
-   rationalization-activation-rule
-   reversal-trigger-rule
-   reversal-activation-rule])
+  (gf-rules/activation-rules))
 
 (defn planning-rules
   "Return the currently extracted RuleV1 planning slices."
   []
-  [roving-plan-request-rule
-   roving-plan-dispatch-rule
-   rationalization-plan-request-rule
-   rationalization-plan-dispatch-rule
-   reversal-plan-request-rule
-   reversal-plan-dispatch-rule])
+  (gf-rules/planning-rules))
 
 (defn cross-family-rules
   "Return the currently extracted cross-family handoff rules."
   []
-  [rationalization-afterglow-to-roving-rule
-   reversal-aftershock-to-roving-rule
-   reversal-aftershock-to-rationalization-rule])
+  (gf-rules/cross-family-rules))
 
 (defn family-rules
   "Return the current combined family rule registry."
   []
-  (vec (concat (planning-rules)
-               (cross-family-rules)
-               (activation-rules))))
+  (gf-rules/family-rules))
 
 (defn- seed-rule-provenance
   [rule]
@@ -998,7 +302,7 @@
                       :emotion-pressure pressure
                       :failure-count (count failed-goals)
                       :selection-reasons reasons
-                      :selection-policy reversal-leaf-policy})))))
+                      :selection-policy gf-rules/reversal-leaf-policy})))))
        (sort-by (juxt (comp - :emotion-pressure)
                       (comp - :context-depth)
                       (comp - :failure-count)
@@ -1022,7 +326,7 @@
   (->> (reversal-leaf-candidates world)
        (keep (fn [candidate]
                (let [facts (cx/visible-facts world (:old-context-id candidate))]
-                 (->> (rules/match-rule reversal-trigger-rule
+                 (->> (rules/match-rule gf-rules/reversal-trigger-rule
                                         facts
                                         {'?old-context-id (:old-context-id candidate)
                                          '?old-top-level-goal-id (:old-top-level-goal-id candidate)
@@ -1034,9 +338,9 @@
                                                           0.0))]
                                 (when (and (negative-emotion-fact? emotion-fact)
                                            (> emotion-strength
-                                              reversal-emotion-threshold))
+                                              gf-rules/reversal-emotion-threshold))
                                   (emit-rule-fact
-                                   reversal-trigger-rule
+                                   gf-rules/reversal-trigger-rule
                                    {'?old-context-id (:old-context-id candidate)
                                     '?old-top-level-goal-id (:old-top-level-goal-id candidate)
                                     '?failed-goal-id (:failed-goal-id candidate)
@@ -1121,7 +425,7 @@
                    (empty? (get children-by-goal (fact-id goal-fact) []))))
          (keep (fn [goal-fact]
                  (let [strength (goal-strength world goal-fact)]
-                   (when (< strength reverse-leaf-threshold)
+                   (when (< strength gf-rules/reverse-leaf-threshold)
                      {:old-context-id (or (:activation-context goal-fact)
                                           old-context-id)
                       :old-top-level-goal-id old-top-level-goal-id
@@ -1129,7 +433,7 @@
                       :leaf-strength strength
                       :ordering (/ 1.0 (max strength 1.0e-9))
                       :objective-facts (goal-objective-facts goal-fact)
-                      :selection-policy reverse-leaf-policy
+                      :selection-policy gf-rules/reverse-leaf-policy
                       :selection-reasons (cond-> [:intends_leaf
                                                   :weak_assumption]
                                            (seq (goal-objective-facts goal-fact))
@@ -1182,7 +486,7 @@
                           :priority (double (or (:priority fact) 0.0))
                           :counterfactual-count (count counterfactual-facts)
                           :counterfactual-facts counterfactual-facts
-                          :selection-policy reversal-cause-policy
+                          :selection-policy gf-rules/reversal-cause-policy
                           :selection-reasons (cond-> [:stored_failure_cause
                                                       :matching_failed_goal]
                                                (> (count counterfactual-facts) 1)
@@ -1317,7 +621,7 @@
                           :reframe-facts reframe-facts
                           :situation-id (or (:situation-id fact)
                                             (rationalization-frame-situation-id reframe-facts))
-                          :selection-policy rationalization-frame-policy
+                          :selection-policy gf-rules/rationalization-frame-policy
                           :selection-reasons (cond-> [:stored_rationalization_frame
                                                       :matching_failed_goal]
                                                (> (count reframe-facts) 1)
@@ -1376,7 +680,7 @@
        (mapcat (fn [context-id]
                  (let [facts (cx/visible-facts world context-id)
                        frame-counts (rationalization-frame-counts facts)]
-                   (->> (rules/match-rule rationalization-trigger-rule
+                   (->> (rules/match-rule gf-rules/rationalization-trigger-rule
                                           facts
                                           {'?context-id context-id})
                         (keep (fn [{:keys [bindings matched-facts]}]
@@ -1387,7 +691,7 @@
                                                             0.0))]
                                   (when (and (negative-emotion-fact? emotion-fact)
                                              (> emotion-strength
-                                                rationalization-emotion-threshold)
+                                                gf-rules/rationalization-emotion-threshold)
                                              (seq (:reframe-facts frame-fact)))
                                     (instantiate-rationalization-trigger
                                      context-id
@@ -1437,7 +741,7 @@
    frame-priority
    frame-count
    situation-id]
-  (emit-rule-fact rationalization-trigger-rule
+  (emit-rule-fact gf-rules/rationalization-trigger-rule
                   {'?context-id context-id
                    '?failed-goal-id failed-goal-id
                    '?emotion-id emotion-id
@@ -1449,7 +753,7 @@
 
 (defn- instantiate-roving-trigger
   [context-id failed-goal-id emotion-id emotion-strength]
-  (emit-rule-fact roving-trigger-rule
+  (emit-rule-fact gf-rules/roving-trigger-rule
                   {'?context-id context-id
                    '?failed-goal-id failed-goal-id
                    '?emotion-id emotion-id
@@ -1468,7 +772,7 @@
        (mapcat (fn [context-id]
                  (let [facts (cx/visible-facts world context-id)
                        frame-counts (rationalization-frame-counts facts)]
-                   (->> (rules/match-rule roving-trigger-rule
+                   (->> (rules/match-rule gf-rules/roving-trigger-rule
                                           facts
                                           {'?context-id context-id})
                         (keep (fn [{:keys [bindings matched-facts]}]
@@ -1479,7 +783,7 @@
                                       failed-goal-id ('?failed-goal-id bindings)]
                                   (when (and (negative-emotion-fact? emotion-fact)
                                              (> emotion-strength
-                                                roving-emotion-threshold)
+                                                gf-rules/roving-emotion-threshold)
                                              (zero? (get frame-counts failed-goal-id 0)))
                                     (instantiate-roving-trigger
                                      context-id
@@ -1531,7 +835,7 @@
   [world goal-type trigger-context-id failed-goal-id]
   (some (fn [goal]
           (and (= goal-type (:goal-type goal))
-               (not (contains? terminal-goal-statuses (:status goal)))
+               (not (contains? gf-rules/terminal-goal-statuses (:status goal)))
                (= trigger-context-id (:trigger-context-id goal))
                (= failed-goal-id (:trigger-failed-goal-id goal))))
         (vals (:goals world))))
@@ -1865,14 +1169,14 @@
 (defn- roving-plan-request-facts
   [world opts]
   (plan-request-facts-from-ready-facts
-   roving-plan-request-rule
+   gf-rules/roving-plan-request-rule
    (roving-plan-ready-facts world opts)))
 
 (defn- rationalization-plan-request-facts
   [world {:keys [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
           :or {ordering 1.0}}]
   (plan-request-facts-from-ready-facts
-   rationalization-plan-request-rule
+   gf-rules/rationalization-plan-request-rule
    (rationalization-plan-ready-facts world
                                      {:goal-id goal-id
                                       :context-id context-id
@@ -1904,7 +1208,7 @@
                                       (:strength goal)
                                       0.0))]
     (plan-request-facts-from-ready-facts
-     reversal-plan-request-rule
+     gf-rules/reversal-plan-request-rule
      (reversal-plan-ready-facts
       world
       {:goal-id goal-id
@@ -2006,7 +1310,7 @@
     (let [trigger-emotion-id (fact-id trigger-emotion)
           trigger-strength-before (double (or (:strength trigger-emotion) 0.0))
           diverted-strength (* trigger-strength-before
-                               rationalization-diversion-scale
+                               gf-rules/rationalization-diversion-scale
                                (double (or (:priority frame) 0.0)))
           trigger-strength-after (clamp-strength
                                   (- trigger-strength-before diverted-strength))
@@ -2058,7 +1362,7 @@
                                                 :reframe
                                                 sprouted-context-id)]]
       [world (assoc plan-state
-                    :diversion-policy rationalization-diversion-policy
+                    :diversion-policy gf-rules/rationalization-diversion-policy
                     :trigger-emotion-id trigger-emotion-id
                     :trigger-emotion-before trigger-strength-before
                     :trigger-emotion-after trigger-strength-after
@@ -2068,7 +1372,7 @@
                     :emotion-shifts emotion-shifts
                     :emotional-state emotional-state)])
     [world (assoc plan-state
-                  :diversion-policy rationalization-diversion-policy
+                  :diversion-policy gf-rules/rationalization-diversion-policy
                   :emotion-shifts []
                   :emotional-state [])]))
 
@@ -2455,7 +1759,7 @@
              :activation-context context-id)
 
       (and (goal-fact? fact)
-           (contains? terminal-goal-statuses (:status fact)))
+           (contains? gf-rules/terminal-goal-statuses (:status fact)))
       (assoc :status :runable)
 
       (and (intends-fact? fact)
