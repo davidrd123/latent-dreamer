@@ -3,7 +3,8 @@
             [daydreamer.context :as cx]
             [daydreamer.episodic-memory :as episodic]
             [daydreamer.goal-families :as families]
-            [daydreamer.goals :as goals]))
+            [daydreamer.goals :as goals]
+            [daydreamer.rules :as rules]))
 
 (def state-fact
   {:fact/type :situation
@@ -509,6 +510,28 @@
            candidates))
     (is (= (first candidates)
            (families/select-rationalization-trigger world)))))
+
+(deftest activation-rules-register-cleanly-without-fake-graph-edges
+  (let [graph (rules/build-connection-graph (families/activation-rules))
+        rules-by-id (:rules-by-id graph)]
+    (is (= #{:goal-family/reversal-activation
+             :goal-family/rationalization-activation
+             :goal-family/roving-activation}
+           (set (keys rules-by-id))))
+    (is (= []
+           (:edges graph)))
+    (is (= 3
+           (count (get-in rules-by-id
+                          [:goal-family/roving-activation :graph-cache :in-edge-bases]))))
+    (is (= 0
+           (count (get-in rules-by-id
+                          [:goal-family/roving-activation :graph-cache :out-edge-bases]))))
+    (is (= 4
+           (count (get-in rules-by-id
+                          [:goal-family/rationalization-activation :graph-cache :in-edge-bases]))))
+    (is (= 2
+           (count (get-in rules-by-id
+                          [:goal-family/reversal-activation :graph-cache :in-edge-bases]))))))
 
 (deftest rationalization-plan-sprouts-and-asserts-reframe-facts
   (let [[world root-id] (world-with-root)

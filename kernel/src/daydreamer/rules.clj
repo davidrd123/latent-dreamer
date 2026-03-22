@@ -160,6 +160,111 @@
                             facts
                             initial-bindings)))
 
+(defn graphable-pattern?
+  [pattern]
+  (and (map? pattern)
+       (keyword? (:fact/type pattern))))
+
+(defn projection-basis
+  [pattern]
+  (when (graphable-pattern? pattern)
+    {:fact-type (:fact/type pattern)
+     :projection pattern
+     :required-keys (->> (keys pattern)
+                         (remove #{:fact/type})
+                         set)
+     :open-fields (->> pattern
+                       (keep (fn [[key value]]
+                               (when (logic-var? value)
+                                 key)))
+                       set)
+     :constant-fields (into {}
+                            (keep (fn [[key value]]
+                                    (when (and (not= key :fact/type)
+                                               (not (logic-var? value)))
+                                      [key value])))
+                            pattern)}))
+
+(defn derive-graph-cache
+  [rule]
+  (validate-rule! rule)
+  (assoc rule
+         :graph-cache
+         {:out-edge-bases (->> (:consequent-schema rule)
+                               (keep projection-basis)
+                               vec)
+          :in-edge-bases (->> (:antecedent-schema rule)
+                              (keep projection-basis)
+                              vec)}))
+
+(defn- compatible-constant-fields?
+  [left right]
+  (every? (fn [shared-key]
+            (= (get left shared-key)
+               (get right shared-key)))
+          (set/intersection (set (keys left))
+                            (set (keys right)))))
+
+(defn compatible-projection-bases?
+  [from-basis to-basis]
+  (and (= (:fact-type from-basis)
+          (:fact-type to-basis))
+       (compatible-constant-fields? (:constant-fields from-basis)
+                                    (:constant-fields to-basis))))
+
+(defn- infer-edge-kind
+  [from-basis]
+  (case (:fact-type from-basis)
+    :goal :goal-decomposition
+    :emotion :emotion-trigger
+    :repair-step :repair-step
+    :state-transition))
+
+(defn connection-edge-basis
+  [from-rule to-rule from-basis to-basis]
+  (when (compatible-projection-bases? from-basis to-basis)
+    {:from-rule (:id from-rule)
+     :to-rule (:id to-rule)
+     :from-projection (:projection from-basis)
+     :to-projection (:projection to-basis)
+     :bindings {}
+     :shared-keys (set/intersection (:required-keys from-basis)
+                                    (:required-keys to-basis))
+     :edge-kind (infer-edge-kind from-basis)}))
+
+(defn connection-edges
+  [rules]
+  (let [rules (mapv derive-graph-cache rules)]
+    (->> (for [from-rule rules
+               to-rule rules
+               :when (not= (:id from-rule) (:id to-rule))
+               from-basis (get-in from-rule [:graph-cache :out-edge-bases])
+               to-basis (get-in to-rule [:graph-cache :in-edge-bases])
+               :let [edge (connection-edge-basis
+                           from-rule
+                           to-rule
+                           from-basis
+                           to-basis)]
+               :when edge]
+           edge)
+         distinct
+         (sort-by (juxt (comp str :from-rule)
+                        (comp str :to-rule)
+                        (comp str :edge-kind)
+                        (comp pr-str :from-projection)
+                        (comp pr-str :to-projection)))
+         vec)))
+
+(defn build-connection-graph
+  [rules]
+  (let [rules (mapv derive-graph-cache rules)
+        edges (connection-edges rules)]
+    {:rules rules
+     :rules-by-id (into {} (map (juxt :id identity)) rules)
+     :edges edges
+     :outgoing (group-by :from-rule edges)
+     :incoming (group-by :to-rule edges)}))
+
 (defn instantiate-rule
   [rule bindings]
   (validate-rule! rule)

@@ -209,6 +209,17 @@
                 :kernel-status :partial
                 :notes "Third extracted RuleV1 slice from goal_families activation logic."}})
 
+(defn activation-rules
+  "Return the currently extracted RuleV1 activation slices.
+
+  This is the first honest kernel-facing rule registry: a small subset of
+  family activation logic expressed as structural rules rather than hidden
+  procedural scans."
+  []
+  [reversal-activation-rule
+   rationalization-activation-rule
+   roving-activation-rule])
+
 (declare reversal-sprout-alternative
          retract-facts)
 

@@ -35,6 +35,63 @@
                 :kernel-status :proposed
                 :notes "Test rule"}})
 
+(def bridge-source-rule
+  {:id :test/source
+   :rule-kind :planning
+   :mueller-mode :both
+   :antecedent-schema [{:fact/type :situation
+                        :fact/id '?situation-id}]
+   :consequent-schema [{:fact/type :goal
+                        :goal-id '?goal-id
+                        :status :failed
+                        :activation-context '?context-id}]
+   :plausibility 0.7
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :create-failed-goal
+                :failure-modes []
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors []
+                :kernel-status :proposed
+                :notes "Synthetic source rule for graph tests."}})
+
+(def bridge-target-rule
+  {:id :test/target
+   :rule-kind :inference
+   :mueller-mode :inference-only
+   :antecedent-schema [{:fact/type :goal
+                        :goal-id '?failed-goal-id
+                        :status :failed
+                        :activation-context '?context-id}
+                       {:fact/type :emotion
+                        :emotion-id '?emotion-id
+                        :strength '?emotion-strength}]
+   :consequent-schema [{:fact/type :concern-trigger
+                        :goal-id '?failed-goal-id
+                        :emotion-id '?emotion-id}]
+   :plausibility 0.5
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :activate-concern
+                :failure-modes []
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors []
+                :kernel-status :proposed
+                :notes "Synthetic target rule for graph tests."}})
+
+(def incompatible-target-rule
+  (assoc-in bridge-target-rule
+            [:antecedent-schema 0 :status]
+            :succeeded))
+
 (deftest instantiate-rule-substitutes-bindings
   (testing "RuleV1 validation accepts a complete instantiate rule"
     (is (true? (rules/valid-rule? sample-rule))))
@@ -98,3 +155,46 @@
                 :to-id :g-failed}]
         matches (rules/match-rule sample-rule facts {'?context-id :cx-2})]
     (is (= [] matches))))
+
+(deftest derive-graph-cache-exposes-graphable-projections
+  (let [cached-rule (rules/derive-graph-cache bridge-source-rule)]
+    (is (= [{:fact-type :goal
+             :projection {:fact/type :goal
+                          :goal-id '?goal-id
+                          :status :failed
+                          :activation-context '?context-id}
+             :required-keys #{:goal-id :status :activation-context}
+             :open-fields #{:goal-id :activation-context}
+             :constant-fields {:status :failed}}]
+           (get-in cached-rule [:graph-cache :out-edge-bases])))
+    (is (= [{:fact-type :situation
+             :projection {:fact/type :situation
+                          :fact/id '?situation-id}
+             :required-keys #{:fact/id}
+             :open-fields #{:fact/id}
+             :constant-fields {}}]
+           (get-in cached-rule [:graph-cache :in-edge-bases])))))
+
+(deftest build-connection-graph-creates-structural-edges-only-for-compatible-rules
+  (let [graph (rules/build-connection-graph
+               [bridge-source-rule
+                bridge-target-rule
+                incompatible-target-rule])]
+    (is (= [{:from-rule :test/source
+             :to-rule :test/target
+             :from-projection {:fact/type :goal
+                               :goal-id '?goal-id
+                               :status :failed
+                               :activation-context '?context-id}
+             :to-projection {:fact/type :goal
+                             :goal-id '?failed-goal-id
+                             :status :failed
+                             :activation-context '?context-id}
+             :bindings {}
+             :shared-keys #{:goal-id :status :activation-context}
+             :edge-kind :goal-decomposition}]
+           (:edges graph)))
+    (is (= [:test/target]
+           (mapv :to-rule (get (:outgoing graph) :test/source))))
+    (is (nil? (get (:outgoing graph) :test/target)))
+    (is (nil? (get (:incoming graph) :test/source)))))
