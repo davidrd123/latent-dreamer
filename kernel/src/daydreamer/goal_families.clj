@@ -263,19 +263,64 @@
                 :kernel-status :proposed
                 :notes "Cross-family bridge from rationalization's hopeful afterglow into a roving trigger."}})
 
+(def ^:private reversal-aftershock-to-roving-rule
+  {:id :goal-family/reversal-aftershock-to-roving
+   :rule-kind :inference
+   :mueller-mode :both
+   :antecedent-schema [{:fact/type :family-affect-state
+                        :source-family :reversal
+                        :goal-id '?goal-id
+                        :context-id '?context-id
+                        :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
+                        :transition :counterfactual_reopened}]
+   :consequent-schema [{:fact/type :goal-family-trigger
+                        :goal-type :roving
+                        :trigger-context-id '?context-id
+                        :failed-goal-id '?failed-goal-id
+                        :emotion-id '?trigger-emotion-id
+                        :emotion-strength '?trigger-emotion-strength
+                        :selection-policy :reversal_aftershock
+                        :selection-reasons [:reversal_aftershock
+                                            :counterfactual_reopened]}]
+   :plausibility roving-emotion-threshold
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :emit-roving-trigger-from-reversal-aftershock
+                :failure-modes [:missing-reversal-aftershock]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:source-family :reversal
+                     :target-goal-type :roving}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-reversal
+                               :theme-roving]
+                :kernel-status :proposed
+                :notes "Cross-family bridge from reversal's counterfactual aftershock into a roving trigger."}})
+
 (def ^:private reversal-plan-request-rule
   {:id :goal-family/reversal-plan-request
    :rule-kind :planning
    :mueller-mode :plan-only
    :antecedent-schema [{:goal-type :reversal
+                        :goal-id '?goal-id
                         :old-context-id '?old-context-id
                         :old-top-level-goal-id '?old-top-level-goal-id
+                        :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
                         :new-context-id '?new-context-id
                         :new-top-level-goal-id '?new-top-level-goal-id}]
    :consequent-schema [{:fact/type :family-plan-request
                         :goal-type :reversal
+                        :goal-id '?goal-id
                         :old-context-id '?old-context-id
                         :old-top-level-goal-id '?old-top-level-goal-id
+                        :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
                         :new-context-id '?new-context-id
                         :new-top-level-goal-id '?new-top-level-goal-id
                         :selection-policy reverse-leaf-policy}]
@@ -301,16 +346,32 @@
    :mueller-mode :plan-only
    :antecedent-schema [{:fact/type :family-plan-request
                         :goal-type :reversal
+                        :goal-id '?goal-id
                         :old-context-id '?old-context-id
                         :old-top-level-goal-id '?old-top-level-goal-id
+                        :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
                         :new-context-id '?new-context-id
                         :new-top-level-goal-id '?new-top-level-goal-id
                         :selection-policy '?selection-policy}]
-   :consequent-schema [{:old-context-id '?old-context-id
+   :consequent-schema [{:goal-id '?goal-id
+                        :old-context-id '?old-context-id
                         :old-top-level-goal-id '?old-top-level-goal-id
+                        :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
                         :new-context-id '?new-context-id
                         :new-top-level-goal-id '?new-top-level-goal-id
-                        :selection-policy '?selection-policy}]
+                        :selection-policy '?selection-policy}
+                       {:fact/type :family-affect-state
+                        :source-family :reversal
+                        :goal-id '?goal-id
+                        :context-id '?old-context-id
+                        :failed-goal-id '?failed-goal-id
+                        :trigger-emotion-id '?trigger-emotion-id
+                        :trigger-emotion-strength '?trigger-emotion-strength
+                        :transition :counterfactual_reopened}]
    :plausibility 1.0
    :index-projections {:match []
                        :emit []}
@@ -611,7 +672,8 @@
 (defn cross-family-rules
   "Return the currently extracted cross-family handoff rules."
   []
-  [rationalization-afterglow-to-roving-rule])
+  [rationalization-afterglow-to-roving-rule
+   reversal-aftershock-to-roving-rule])
 
 (defn family-rules
   "Return the current combined family rule registry."
@@ -1444,20 +1506,61 @@
                                                  ordering)])))
 
 (defn- instantiate-reversal-plan-request
-  [old-context-id old-top-level-goal-id new-context-id new-top-level-goal-id]
+  [goal-id
+   old-context-id
+   old-top-level-goal-id
+   failed-goal-id
+   trigger-emotion-id
+   trigger-emotion-strength
+   new-context-id
+   new-top-level-goal-id]
   (emit-rule-fact reversal-plan-request-rule
-                  {'?old-context-id old-context-id
+                  {'?goal-id goal-id
+                   '?old-context-id old-context-id
                    '?old-top-level-goal-id old-top-level-goal-id
+                   '?failed-goal-id failed-goal-id
+                   '?trigger-emotion-id trigger-emotion-id
+                   '?trigger-emotion-strength trigger-emotion-strength
                    '?new-context-id new-context-id
                    '?new-top-level-goal-id new-top-level-goal-id}))
 
 (defn- reversal-plan-request-facts
-  [{:keys [old-context-id old-top-level-goal-id new-context-id new-top-level-goal-id]}]
-  (when (and old-context-id old-top-level-goal-id new-context-id new-top-level-goal-id)
-    [(instantiate-reversal-plan-request old-context-id
-                                        old-top-level-goal-id
-                                        new-context-id
-                                        new-top-level-goal-id)]))
+  [world {:keys [goal-id
+                 old-context-id
+                 old-top-level-goal-id
+                 failed-goal-id
+                 trigger-emotion-id
+                 trigger-emotion-strength
+                 new-context-id
+                 new-top-level-goal-id]}]
+  (let [goal-id (or goal-id new-top-level-goal-id)
+        goal (get-in world [:goals goal-id])
+        failed-goal-id (or failed-goal-id
+                           (:trigger-failed-goal-id goal)
+                           old-top-level-goal-id)
+        trigger-emotion-id (or trigger-emotion-id
+                               (:trigger-emotion-id goal)
+                               (:main-motiv goal))
+        trigger-emotion-strength (double
+                                  (or trigger-emotion-strength
+                                      (:trigger-emotion-strength goal)
+                                      (:strength goal)
+                                      0.0))]
+    (when (and goal-id
+               old-context-id
+               old-top-level-goal-id
+               failed-goal-id
+               trigger-emotion-id
+               new-context-id
+               new-top-level-goal-id)
+      [(instantiate-reversal-plan-request goal-id
+                                          old-context-id
+                                          old-top-level-goal-id
+                                          failed-goal-id
+                                          trigger-emotion-id
+                                          trigger-emotion-strength
+                                          new-context-id
+                                          new-top-level-goal-id)])))
 
 (defn- default-plan-context
   [world goal-id]
@@ -1637,6 +1740,42 @@
      :transition :reappraised
      :rule-provenance rule-provenance}))
 
+(defn- reversal-aftershock-fact
+  [world goal-id reversal-target primary-branch]
+  (let [old-context-id (:old-context-id reversal-target)
+        failed-goal-id (or (:failed-goal-id reversal-target)
+                           (get-in world [:goals goal-id :trigger-failed-goal-id])
+                           (:old-top-level-goal-id reversal-target))
+        trigger-emotion (when (and old-context-id failed-goal-id)
+                          (select-trigger-emotion world
+                                                  old-context-id
+                                                  failed-goal-id))
+        trigger-emotion-id (or (fact-id trigger-emotion)
+                               (get-in world [:goals goal-id :trigger-emotion-id]))
+        trigger-emotion-strength (double
+                                  (or (:strength trigger-emotion)
+                                      (get-in world [:goals goal-id
+                                                     :trigger-emotion-strength])
+                                      0.0))
+        rule-provenance (:rule-provenance primary-branch)]
+    (when (and goal-id
+               old-context-id
+               (:sprouted-context-id primary-branch)
+               failed-goal-id
+               trigger-emotion-id
+               rule-provenance)
+      {:fact/type :family-affect-state
+       :source-family :reversal
+       :goal-id goal-id
+       :context-id old-context-id
+       :branch-context-id (:sprouted-context-id primary-branch)
+       :failed-goal-id failed-goal-id
+       :trigger-emotion-id trigger-emotion-id
+       :trigger-emotion-strength trigger-emotion-strength
+       :affect (or (:affect trigger-emotion) :negative)
+       :transition :counterfactual_reopened
+       :rule-provenance rule-provenance})))
+
 (defn rationalization-plan
   "Sprout a reinterpretation branch from an explicit rationalization frame.
 
@@ -1758,7 +1897,8 @@
   [world {:keys [input-facts]
           :or {input-facts []}
           :as reversal-target}]
-  (let [plan-request-facts (or (seq (reversal-plan-request-facts reversal-target))
+  (let [plan-request-facts (or (seq (reversal-plan-request-facts world
+                                                                 reversal-target))
                                (throw (ex-info "REVERSAL needs a planning target"
                                                {:reversal-target reversal-target})))
         {:keys [old-context-id old-top-level-goal-id new-context-id
@@ -1810,7 +1950,15 @@
       (if-let [reversal-target (resolve-reversal-plan-target world goal-id opts)]
         (let [[world branch-results] (reverse-leafs world reversal-target)
               primary-branch (first branch-results)
-              sprouted-context-ids (mapv :sprouted-context-id branch-results)]
+              sprouted-context-ids (mapv :sprouted-context-id branch-results)
+              affect-state-fact (reversal-aftershock-fact world
+                                                          goal-id
+                                                          reversal-target
+                                                          primary-branch)
+              world (cond-> world
+                      affect-state-fact
+                      (cx/assert-fact (:old-context-id reversal-target)
+                                      affect-state-fact))]
           (if-not primary-branch
             [world nil]
             [world {:family :reversal
@@ -1836,6 +1984,7 @@
                                 :reversal_counterfactual_reasons (:counterfactual-reasons reversal-target)
                                 :reversal_counterfactual_fact_ids (:counterfactual-fact-ids reversal-target)
                                 :reversal_branch_context (:sprouted-context-id primary-branch)}
+                    :affect-state-fact affect-state-fact
                     :reversal-target reversal-target
                     :primary-branch primary-branch
                     :branch-results branch-results}]))
