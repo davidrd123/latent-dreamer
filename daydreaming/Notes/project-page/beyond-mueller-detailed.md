@@ -94,6 +94,16 @@ connections. The 5 Pro prompt-set reply called this "constrain the
 question, not the surprise" — one-end anchored search where the
 concern fixes the top and reminding/mutation leave the bottom open.
 
+Two versions:
+- **Thin (implementable now):** Brief = situation configuration +
+  initial episode set. Operators fire endogenously from emotion.
+  The kernel's existing situation model already supports this.
+  Graffito demo needs this version.
+- **Thick (needs beyond-Mueller stack):** Brief also shapes
+  serendipity anchoring, mutation constraints, operator priors,
+  evaluation criteria. Needs the heterogeneous graph and
+  verified paths to be meaningful.
+
 ### 5. DSPy-style optimization of the write/read interface
 
 The GradMem insight: HOW you write memory matters as much as how many
@@ -119,6 +129,12 @@ goal families, recurring motif neighborhoods, edge kinds used in
 successful serendipities, repair families used most often.
 
 ### 7. The accessibility frontier as a creative growth mechanism
+
+(Note: 5 Pro confirmed this may be a genuine contribution to the
+cognitive architecture space. Neither Soar chunking nor ACT-R
+production compilation has explicit staged admission with evidence
+requirements. Our `:frontier / :accessible / :quarantined` registry
+is architecturally novel, not a literature rename.)
 
 Mueller had rules starting inaccessible and serendipity unlocking
 them. In a cross-session system with LLM-generated rules, this

@@ -227,6 +227,11 @@ Also incorporates: Mueller source verification (`dd_epis.cl`, `dd_ri.cl`, `dd_ru
 - Mueller explicitly excluded directed vs. undirected from his theory. This is our extension.
 - Outside support: fMRI study showing goal-directed simulation couples default+control networks. Incubation study (N=200, β=0.38) showing mind wandering during incubation predicts creative improvement. N=1309 study: deliberate mind wandering positively associated with creativity.
 
+**Thin/thick split** — settled as framing
+- **Thin version (implementable now):** Brief = situation configuration + initial episode set. Kernel's existing situation model already supports this. Operators fire endogenously from emotion. This is a control surface, not a new mechanism. Graffito demo needs this.
+- **Thick version (needs beyond-Mueller stack):** Brief also shapes serendipity search anchoring, mutation constraints, operator priors, evaluation criteria, admissibility filters. Needs heterogeneous graph + verified paths + write optimization.
+- The thin version should land early as a product surface. The thick version waits for infrastructure. Don't let architectural purity delay the product path.
+
 ### DSPy write optimization (from 13 Q5, replies 4-6 and all-8)
 
 **Optimize later usefulness + hygiene, NOT trace divergence** — provisional
@@ -248,6 +253,12 @@ Also incorporates: Mueller source verification (`dd_epis.cl`, `dd_ri.cl`, `dd_ru
 - "If the system just remembers more, that is drift, not development."
 
 ### Accessibility frontier as growth (from 13 Q7, replies 7-8 and all-8)
+
+**This direction may be a genuine contribution to the cognitive architecture space** — settled as assessment
+- 5 Pro confirmed: "your `:frontier / :accessible / :quarantined` idea looks like an actual contribution, not a literature rename"
+- Neither Soar chunking nor ACT-R production compilation has explicit staged admission with evidence requirements
+- Soar has proto-staged-admission (deferred numeric-preference chunks) but it's not a designed framework
+- This is rare — the project is contributing something architecturally novel, not just recombining existing ideas
 
 **Mueller's frontier is access restructuring, not Soar-style automatic compilation** — provisional
 - Mueller's mechanism: reindex latent structure so future thought can reach it. Closer to "chunking + verification-based learning + deferred reliance" than plain chunking.
