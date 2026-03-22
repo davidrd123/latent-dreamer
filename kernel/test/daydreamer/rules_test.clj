@@ -319,6 +319,25 @@
                                 :surface-summary "missing-effect-ops"
                                 :effects [{:op :test/noop}]})}})))))
 
+(deftest matched-rule-applications-drops-nil-executor-results
+  (let [rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:executor-id :sample/dispatch}})]
+    (is (= []
+           (rules/matched-rule-applications
+            rule
+            [{:fact/type :goal
+              :goal-id :g-failed
+              :activation-context :cx-2}
+             {:fact/type :emotion
+              :emotion-id :e-shame
+              :strength 0.25}
+             {:fact/type :dependency
+              :from-id :e-shame
+              :to-id :g-failed}]
+            {}
+            {:executor-registry {:sample/dispatch (fn [_] nil)}})))))
+
 (deftest execute-rule-rejects-consequent-count-mismatch
   (let [rule (assoc sample-rule
                     :executor {:kind :clojure-fn

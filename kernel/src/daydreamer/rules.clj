@@ -1000,11 +1000,12 @@
   (let [rule (validate-rule! rule)
         call (normalize-rule-call rule call)
         result (dispatch-executor rule call)]
-    (->> result
-         (validate-rule-result-shape! rule call)
-         (validate-effects! rule call)
-         (validate-consequents! rule call)
-         (validate-denotation! rule call))))
+    (when result
+      (->> result
+           (validate-rule-result-shape! rule call)
+           (validate-effects! rule call)
+           (validate-consequents! rule call)
+           (validate-denotation! rule call)))))
 
 (defn matched-rule-applications
   "Match a rule against facts, then execute it for every successful match.
@@ -1012,16 +1013,19 @@
   ([rule facts]
    (matched-rule-applications rule facts {} {}))
   ([rule facts initial-bindings call-base]
-   (mapv (fn [{:keys [bindings matched-facts]}]
-           (let [call (merge call-base
-                             {:rule-id (:id rule)
-                              :bindings bindings
-                              :matched-facts matched-facts})]
-             {:bindings bindings
-              :matched-facts matched-facts
-              :call call
-              :result (execute-rule rule call)}))
-         (match-rule rule facts initial-bindings))))
+   (->> (match-rule rule facts initial-bindings)
+        (keep (fn [{:keys [bindings matched-facts]}]
+                (let [call (merge call-base
+                                  {:rule-id (:id rule)
+                                   :bindings bindings
+                                   :matched-facts matched-facts})
+                      result (execute-rule rule call)]
+                  (when result
+                    {:bindings bindings
+                     :matched-facts matched-facts
+                     :call call
+                     :result result}))))
+        vec)))
 
 (defn instantiate-rule
   "Compatibility wrapper for callers that still expect the instantiate-only

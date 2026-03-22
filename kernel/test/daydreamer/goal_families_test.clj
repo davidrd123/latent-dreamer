@@ -2934,6 +2934,75 @@
     (is (= 2
            (count (get-in effect-program [:effects 0 :branches]))))))
 
+(deftest reversal-plan-effects-returns-nil-when-no-executable-branches
+  (let [[world root-id] (world-with-root)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        [world reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})]
+    (with-redefs [families/reverse-leaf-branches (constantly [])]
+      (is (nil? (families/reversal-plan-effects
+                 world
+                 {:goal-id reversal-goal-id
+                  :old-context-id old-context-id
+                  :old-top-level-goal-id old-top-level-goal-id
+                  :failed-goal-id old-top-level-goal-id
+                  :trigger-emotion-id emotion-id
+                  :trigger-emotion-strength 0.7
+                  :new-context-id (get-in world [:goals reversal-goal-id :next-cx])
+                  :new-top-level-goal-id reversal-goal-id
+                  :input-facts [counterfactual-fact]}))))))
+
+(deftest reversal-plan-effects-rejects-missing-effects-payload
+  (let [[world root-id] (world-with-root)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        [world reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})]
+    (with-redefs [daydreamer.goal-families/plan-payloads-from-request-facts
+                  (fn [_world _facts]
+                    [{:old-context-id old-context-id
+                      :old-top-level-goal-id old-top-level-goal-id
+                      :new-context-id (get-in world [:goals reversal-goal-id :next-cx])
+                      :new-top-level-goal-id reversal-goal-id
+                      :selection-policy gf-rules/reverse-leaf-policy
+                      :rule-provenance {:rule-path [:goal-family/reversal-plan-dispatch]
+                                        :edge-path []}
+                      :surface-summary "reversal:test-missing-effects"}])]
+      (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                            #"REVERSAL dispatch must return typed effects"
+                            (families/reversal-plan-effects
+                             world
+                             {:goal-id reversal-goal-id
+                              :old-context-id old-context-id
+                              :old-top-level-goal-id old-top-level-goal-id
+                              :failed-goal-id old-top-level-goal-id
+                              :trigger-emotion-id emotion-id
+                              :trigger-emotion-strength 0.7
+                              :new-context-id (get-in world [:goals reversal-goal-id :next-cx])
+                              :new-top-level-goal-id reversal-goal-id
+                              :input-facts [counterfactual-fact]}))))))
+
 (deftest activate-family-goals-can-dispatch-roving-from-rationalization-afterglow
   (let [[world root-id] (world-with-root)
         world (assoc world :reality-context root-id)

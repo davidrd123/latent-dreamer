@@ -2220,32 +2220,32 @@
                                                                  reversal-target))
                                (throw (ex-info "REVERSAL needs a planning target"
                                                {:reversal-target reversal-target})))
-        {:keys [old-context-id old-top-level-goal-id new-context-id
-                new-top-level-goal-id selection-policy rule-provenance
-                effects surface-summary]}
-        (or (first (plan-payloads-from-request-facts world plan-request-facts))
-            (throw (ex-info "REVERSAL needs a plan payload"
-                            {:reversal-target reversal-target
-                             :plan-request-facts plan-request-facts})))
-        effects (mapv (fn [effect]
-                        (if (= :reversal/execute-branches (:op effect))
-                          (assoc effect :input-facts (vec input-facts))
-                          effect))
-                      effects)]
-    (when-not (vector? effects)
-      (throw (ex-info "REVERSAL dispatch must return typed effects"
-                      {:reversal-target reversal-target
-                       :plan-request-facts plan-request-facts})))
-    {:goal-id goal-id
-     :old-context-id old-context-id
-     :old-top-level-goal-id old-top-level-goal-id
-     :new-context-id new-context-id
-     :new-top-level-goal-id new-top-level-goal-id
-     :selection-policy selection-policy
-     :rule-provenance rule-provenance
-     :surface-summary surface-summary
-     :input-facts (vec input-facts)
-     :effects effects}))
+        payload (first (plan-payloads-from-request-facts world plan-request-facts))]
+    (when payload
+      (let [{:keys [old-context-id old-top-level-goal-id new-context-id
+                    new-top-level-goal-id selection-policy rule-provenance
+                    effects surface-summary]}
+            payload]
+        (when-not (vector? effects)
+          (throw (ex-info "REVERSAL dispatch must return typed effects"
+                          {:reversal-target reversal-target
+                           :plan-request-facts plan-request-facts
+                           :payload payload})))
+        (let [effects (mapv (fn [effect]
+                              (if (= :reversal/execute-branches (:op effect))
+                                (assoc effect :input-facts (vec input-facts))
+                                effect))
+                            effects)]
+          {:goal-id goal-id
+           :old-context-id old-context-id
+           :old-top-level-goal-id old-top-level-goal-id
+           :new-context-id new-context-id
+           :new-top-level-goal-id new-top-level-goal-id
+           :selection-policy selection-policy
+           :rule-provenance rule-provenance
+           :surface-summary surface-summary
+           :input-facts (vec input-facts)
+           :effects effects})))))
 
 (defn- default-plan-context
   [world goal-id]
@@ -2600,16 +2600,17 @@
         effect-program (reversal-effect-program
                         world
                         (assoc payload :rule-provenance rule-provenance))]
-    {:consequents [payload affect-proxy]
-     :confidence (double (:plausibility rule))
-     :reason (str (or (get-in rule [:denotation :intended-effect])
-                      (:id rule)))
-     :aux-indices []
-     :surface-summary (str "reversal:"
-                           (name (:selection-policy payload))
-                           ":"
-                           (:old-top-level-goal-id payload))
-     :effects effect-program}))
+    (when (seq (get-in effect-program [0 :branches]))
+      {:consequents [payload affect-proxy]
+       :confidence (double (:plausibility rule))
+       :reason (str (or (get-in rule [:denotation :intended-effect])
+                        (:id rule)))
+       :aux-indices []
+       :surface-summary (str "reversal:"
+                             (name (:selection-policy payload))
+                             ":"
+                             (:old-top-level-goal-id payload))
+       :effects effect-program})))
 
 (defn- reversal-aftershock-fact
   [world goal-id reversal-target primary-branch]
