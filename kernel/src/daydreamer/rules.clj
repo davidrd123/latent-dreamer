@@ -9,34 +9,46 @@
             [clojure.string :as str]
             [clojure.walk :as walk]))
 
+;; --- Allowed values for rule fields ---
+;; These sets define what's valid. A rule with :rule-kind :banana fails validation.
+
 (def ^:private rule-kinds
-  #{:inference :planning})
+  #{:inference    ; fires automatically when antecedents are present (forward chaining)
+    :planning})   ; fires during goal decomposition (planner invokes it)
 
 (def ^:private mueller-modes
-  #{:plan-only :inference-only :both})
+  #{:plan-only       ; only usable as a planning rule
+    :inference-only  ; only usable as an inference rule
+    :both})          ; can serve as either
 
 (def ^:private executor-kinds
-  #{:instantiate :clojure-fn :llm-backed})
+  #{:instantiate  ; fill in consequent template from bindings (Mueller default)
+    :clojure-fn   ; run a Clojure function that returns RuleResultV1
+    :llm-backed}) ; call an LLM and validate the response
 
+;; Every RuleV1 must have all of these keys. Validation rejects anything missing.
 (def ^:private required-rule-keys
-  #{:id
-    :rule-kind
-    :mueller-mode
-    :antecedent-schema
-    :consequent-schema
-    :plausibility
-    :index-projections
-    :denotation
-    :executor
-    :graph-cache
-    :provenance})
+  #{:id                  ; unique keyword like :rule/unanswered-repair-bid
+    :rule-kind           ; :inference or :planning
+    :mueller-mode        ; :plan-only, :inference-only, or :both
+    :antecedent-schema   ; vector of patterns that must match for rule to fire
+    :consequent-schema   ; vector of patterns the rule produces (graphable shape)
+    :plausibility        ; 0.0-1.0, used for realism scoring
+    :index-projections   ; {:match [...] :emit [...]} for episode retrieval/storage
+    :denotation          ; what state change this rule is SUPPOSED to accomplish
+    :executor            ; {:kind :instantiate/:clojure-fn/:llm-backed, :spec ...}
+    :graph-cache         ; derived edges — rebuilt from schemas, not source of truth
+    :provenance})        ; where this rule came from (book anchors, kernel status)
 
 (defn logic-var?
+  "Is this a logic variable? Convention: symbols starting with ? like '?target"
   [value]
   (and (symbol? value)
        (str/starts-with? (name value) "?")))
 
 (defn valid-rule?
+  "Check that a rule has all required fields with valid types.
+  Returns true/false — use validate-rule! for the throwing version."
   [rule]
   (and (map? rule)
        (set/subset? required-rule-keys (set (keys rule)))
@@ -53,6 +65,8 @@
        (map? (:provenance rule))))
 
 (defn validate-rule!
+  "Like valid-rule? but throws on failure. Returns the rule on success,
+  so you can use it inline: (-> rule validate-rule! do-stuff)"
   [rule]
   (when-not (valid-rule? rule)
     (throw (ex-info "Invalid RuleV1"
@@ -61,6 +75,13 @@
   rule)
 
 (defn instantiate-template
+  "Walk a template (map, vector, nested structure) and replace every
+  logic variable with its bound value. Used to fill in consequent schemas
+  after matching produces bindings.
+
+  Example:
+    (instantiate-template {:target-ref '?target} {'?target :sister})
+    => {:target-ref :sister}"
   [template bindings]
   (walk/postwalk
    (fn [node]
@@ -74,25 +95,39 @@
    template))
 
 (defn- unify-node
+  "Try to match a single pattern against a single value, threading bindings.
+  Returns updated bindings on success, nil on failure.
+
+  Four cases:
+  1. Logic variable (?x) — bind if new, check consistency if already bound
+  2. Map — subset match: every key in the pattern must exist in the value
+  3. Vector — exact shape: same length, each element must unify
+  4. Literal — must be equal"
   [pattern value bindings]
   (cond
+    ;; Case 1: ?variable — either bind it or check it matches existing binding
     (logic-var? pattern)
     (if (contains? bindings pattern)
+      ;; Already bound: the value must equal the existing binding, or fail
       (when (= (get bindings pattern) value)
         bindings)
+      ;; Not bound yet: record this binding
       (assoc bindings pattern value))
 
+    ;; Case 2: map pattern — every key in the pattern must exist in the value
+    ;; and each nested value must unify. Extra keys in the value are fine.
     (map? pattern)
     (when (map? value)
       (reduce-kv (fn [acc key nested-pattern]
                    (if (nil? acc)
-                     (reduced nil)
+                     (reduced nil)  ; previous key failed — short-circuit
                      (if (contains? value key)
                        (unify-node nested-pattern (get value key) acc)
-                       (reduced nil))))
+                       (reduced nil))))  ; key missing from value — fail
                  bindings
                  pattern))
 
+    ;; Case 3: vector pattern — both must be vectors of same length
     (vector? pattern)
     (when (and (vector? value)
                (= (count pattern) (count value)))
@@ -103,17 +138,22 @@
               bindings
               (map vector pattern value)))
 
+    ;; Case 4: literal — must be exactly equal
     :else
     (when (= pattern value)
       bindings)))
 
 (defn match-fact-pattern
+  "Try to match one pattern against one fact. Returns bindings on success, nil on failure.
+  Optionally takes initial bindings to enforce consistency with earlier matches."
   ([pattern fact]
    (match-fact-pattern pattern fact {}))
   ([pattern fact initial-bindings]
    (unify-node pattern fact initial-bindings)))
 
 (defn- candidate-facts
+  "Pre-filter: only try facts whose :fact/type matches the pattern's.
+  Returns [index, fact] pairs so we can track which facts are used."
   [pattern facts]
   (let [expected-type (when (map? pattern)
                         (:fact/type pattern))]
@@ -124,11 +164,22 @@
                            [idx fact]))))))
 
 (defn- remove-fact-at
+  "Remove the fact at idx from the vector. Used to prevent the same
+  fact from matching two different patterns in the same antecedent."
   [facts idx]
   (into (subvec facts 0 idx)
         (subvec facts (inc idx))))
 
 (defn match-antecedent-schema
+  "Find all ways to satisfy multiple patterns against a set of facts.
+
+  Each pattern must match a DIFFERENT fact, and logic variables shared
+  across patterns must bind consistently. Returns a vector of
+  {:bindings {?var value}, :matched-facts [fact1 fact2 ...]} for every
+  valid combination.
+
+  The search is depth-first with immutable bindings — each branch gets
+  its own bindings map, so backtracking is free (no state to undo)."
   ([patterns facts]
    (match-antecedent-schema patterns facts {}))
   ([patterns facts initial-bindings]
@@ -136,22 +187,30 @@
          facts (vec facts)]
      (letfn [(search [remaining-patterns available-facts bindings matched-facts]
                (if (empty? remaining-patterns)
+                 ;; All patterns matched — emit this solution
                  [{:bindings bindings
                    :matched-facts matched-facts}]
+                 ;; Try each candidate fact for the next pattern
                  (mapcat (fn [[idx fact]]
                            (when-let [next-bindings (match-fact-pattern
                                                      (first remaining-patterns)
                                                      fact
                                                      bindings)]
+                             ;; This fact matched — remove it so later patterns
+                             ;; can't reuse it, and recurse with updated bindings
                              (search (subvec remaining-patterns 1)
                                      (remove-fact-at available-facts idx)
                                      next-bindings
                                      (conj matched-facts fact))))
+                         ;; Pre-filter: only try facts whose :fact/type matches
                          (candidate-facts (first remaining-patterns)
                                           available-facts))))]
        (search patterns facts initial-bindings [])))))
 
 (defn match-rule
+  "Match a rule's antecedent schema against a set of facts.
+  Validates the rule first, then delegates to match-antecedent-schema.
+  Returns all valid binding sets (may be empty if no match)."
   ([rule facts]
    (match-rule rule facts {}))
   ([rule facts initial-bindings]
@@ -161,11 +220,28 @@
                             initial-bindings)))
 
 (defn graphable-pattern?
+  "Can this pattern participate in the connection graph?
+  Only map patterns with a keyword :fact/type are graphable —
+  bare values, vectors, and untyped maps are not."
   [pattern]
   (and (map? pattern)
        (keyword? (:fact/type pattern))))
 
 (defn projection-basis
+  "Analyze a pattern for graph-connection purposes.
+
+  Separates a pattern into:
+  - :open-fields    — keys with logic vars (holes to fill at runtime)
+  - :constant-fields — keys with fixed values (must match for an edge to form)
+
+  Example:
+    {:fact/type :goal, :goal-id '?gid, :status :failed}
+    => {:fact-type :goal
+        :open-fields #{:goal-id}
+        :constant-fields {:status :failed}}
+
+  Two rules connect when one's output and the other's input have
+  the same :fact-type AND compatible constant fields."
   [pattern]
   (when (graphable-pattern? pattern)
     {:fact-type (:fact/type pattern)
@@ -186,6 +262,12 @@
                             pattern)}))
 
 (defn derive-graph-cache
+  "Fill in a rule's :graph-cache from its schemas.
+
+  :out-edge-bases — what this rule PRODUCES (from consequent patterns)
+  :in-edge-bases  — what this rule NEEDS (from antecedent patterns)
+
+  Edges form when one rule's out-basis matches another's in-basis."
   [rule]
   (validate-rule! rule)
   (assoc rule
@@ -198,6 +280,9 @@
                               vec)}))
 
 (defn- compatible-constant-fields?
+  "Do two sets of constant fields agree on their shared keys?
+  {:status :failed} and {:status :failed, :type :goal} — yes (shared key :status matches)
+  {:status :failed} and {:status :succeeded} — no (shared key :status conflicts)"
   [left right]
   (every? (fn [shared-key]
             (= (get left shared-key)
@@ -205,14 +290,25 @@
           (set/intersection (set (keys left))
                             (set (keys right)))))
 
-(defn compatible-projection-bases?
+(defn- shared-required-keys
   [from-basis to-basis]
-  (and (= (:fact-type from-basis)
-          (:fact-type to-basis))
-       (compatible-constant-fields? (:constant-fields from-basis)
-                                    (:constant-fields to-basis))))
+  (set/intersection (:required-keys from-basis)
+                    (:required-keys to-basis)))
+
+(defn compatible-projection-bases?
+  "Can these two projections form a candidate edge?
+  Requires the same :fact/type, at least one shared structural key, and no
+  conflicting constant fields on those shared keys."
+  [from-basis to-basis]
+  (let [shared-keys (shared-required-keys from-basis to-basis)]
+    (and (= (:fact-type from-basis)
+            (:fact-type to-basis))
+         (seq shared-keys)
+         (compatible-constant-fields? (:constant-fields from-basis)
+                                      (:constant-fields to-basis)))))
 
 (defn- infer-edge-kind
+  "Label the edge based on what kind of fact flows through it."
   [from-basis]
   (case (:fact-type from-basis)
     :goal :goal-decomposition
@@ -221,18 +317,33 @@
     :state-transition))
 
 (defn connection-edge-basis
+  "Build one edge between two rules if their projections are compatible.
+  Returns nil if they can't connect (different fact types or conflicting constants)."
   [from-rule to-rule from-basis to-basis]
-  (when (compatible-projection-bases? from-basis to-basis)
-    {:from-rule (:id from-rule)
-     :to-rule (:id to-rule)
-     :from-projection (:projection from-basis)
-     :to-projection (:projection to-basis)
-     :bindings {}
-     :shared-keys (set/intersection (:required-keys from-basis)
-                                    (:required-keys to-basis))
-     :edge-kind (infer-edge-kind from-basis)}))
+  (let [shared-keys (shared-required-keys from-basis to-basis)]
+    (when (and (seq shared-keys)
+               (compatible-projection-bases? from-basis to-basis))
+      {:from-rule (:id from-rule)
+       :to-rule (:id to-rule)
+       :from-projection (:projection from-basis)  ; what from-rule produces
+       :to-projection (:projection to-basis)       ; what to-rule needs
+       :bindings {}
+       :shared-keys shared-keys
+       :edge-kind (infer-edge-kind from-basis)})))
 
 (defn connection-edges
+  "Compute all edges in the rule connection graph.
+
+  For every pair of rules A→B, check if any of A's output projections
+  (from consequent schema) is compatible with any of B's input projections
+  (from antecedent schema). Compatible means: same :fact/type AND any
+  shared structural keys exist AND any shared constant fields have the same
+  value.
+
+  This is the O(n²) pairwise comparison. Fine for hundreds of rules.
+  The graph is a candidate-adjacency graph: it says one rule's output could
+  feed another rule's input, not that the full downstream rule is verified
+  fireable in context."
   [rules]
   (let [rules (mapv derive-graph-cache rules)]
     (->> (for [from-rule rules
@@ -256,6 +367,18 @@
          vec)))
 
 (defn build-connection-graph
+  "Build the full connection graph over a set of rules.
+
+  Returns:
+  - :rules       — the rules with graph caches filled in
+  - :rules-by-id — lookup table: rule-id → rule
+  - :edges       — flat list of all edges
+  - :outgoing    — {rule-id → [edges FROM this rule]}
+  - :incoming    — {rule-id → [edges TO this rule]}
+
+  This graph is a candidate-adjacency substrate for later serendipity search.
+  It is structurally derived and does not change based on usage — a
+  never-traversed path is equally findable as one used a hundred times."
   [rules]
   (let [rules (mapv derive-graph-cache rules)
         edges (connection-edges rules)]
@@ -266,14 +389,18 @@
      :incoming (group-by :to-rule edges)}))
 
 (defn outgoing-edges
+  "What rules can fire AFTER this one? (this rule's output feeds their input)"
   [graph rule-id]
   (vec (get-in graph [:outgoing rule-id] [])))
 
 (defn incoming-edges
+  "What rules must fire BEFORE this one? (their output feeds this rule's input)"
   [graph rule-id]
   (vec (get-in graph [:incoming rule-id] [])))
 
 (defn explain-path
+  "Given a sequence of rule IDs, explain the edges connecting them.
+  Returns nil if any hop in the path has no edge (broken path)."
   [graph rule-path]
   (let [rule-path (vec rule-path)
         edge-pairs (partition 2 1 rule-path)
@@ -291,6 +418,10 @@
        :shared-keys (mapv :shared-keys edges)})))
 
 (defn reachable-paths
+  "Walk the connection graph from a starting rule up to max-depth hops.
+  Returns all reachable paths with explanations (which edges, which fact types).
+  These are candidate paths through rule adjacency, not yet verified firing
+  sequences."
   ([graph start-rule-id]
    (reachable-paths graph start-rule-id {:max-depth 3}))
   ([graph start-rule-id {:keys [max-depth]
@@ -329,6 +460,10 @@
           vec))))
 
 (defn bridge-paths
+  "Find paths of length 2-4 between two specific rules.
+  This is the serendipity question: 'is there a non-obvious connection
+  between my current concern and this salient thing?' The result is a candidate
+  bridge, not yet a verified executable chain."
   ([graph start-rule-id target-rule-id]
    (bridge-paths graph
                  start-rule-id
@@ -347,6 +482,7 @@
         vec)))
 
 (defn remove-rules
+  "Remove rules by ID. Used by intervention-delta to test what breaks."
   [rules rule-ids]
   (let [rule-id-set (set rule-ids)]
     (->> rules
@@ -354,11 +490,21 @@
          vec)))
 
 (defn graph-without-rules
+  "Rebuild the connection graph with some rules removed."
   [graph rule-ids]
   (build-connection-graph
    (remove-rules (:rules graph) rule-ids)))
 
 (defn intervention-delta
+  "Evaluation ladder Level 2: intervention sensitivity.
+
+  Remove some rules from the graph, then compare reachable paths
+  before and after. If removing a rule kills downstream paths,
+  the rule is structurally load-bearing. If nothing changes,
+  the rule was decorative.
+
+  Returns :removed-paths (paths that broke) and :preserved-paths
+  (paths that survived)."
   ([graph start-rule-id rule-ids]
    (intervention-delta graph start-rule-id rule-ids {:max-depth 3}))
   ([graph start-rule-id rule-ids opts]
@@ -382,6 +528,9 @@
                             vec)})))
 
 (defn instantiate-rule
+  "Execute an :instantiate rule: fill in consequent templates from bindings.
+  Returns a RuleResultV1 with :consequents, :confidence, :reason, :aux-indices.
+  Only works for :instantiate executors — throws for :clojure-fn or :llm-backed."
   [rule bindings]
   (validate-rule! rule)
   (when-not (= :instantiate (get-in rule [:executor :kind]))

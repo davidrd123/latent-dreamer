@@ -26,8 +26,10 @@
   {:id rule-id
    :rule-kind :planning
    :mueller-mode :both
-   :antecedent-schema [{:fact/type antecedent-type}]
-   :consequent-schema [{:fact/type consequent-type}]
+   :antecedent-schema [{:fact/type antecedent-type
+                        :fact/id '?fact-id}]
+   :consequent-schema [{:fact/type consequent-type
+                        :fact/id '?fact-id}]
    :plausibility 1.0
    :index-projections {:match [] :emit []}
    :denotation {:intended-effect consequent-type
@@ -179,8 +181,8 @@
       (is (= [{:episode-id connected-episode-id
                :marks 1
                :threshold 2
-               :provenance-bonus 2.0
-               :effective-marks 3.0
+               :provenance-bonus 2.5
+               :effective-marks 3.5
                :provenance-reason :graph-bridge
                :provenance-bridge-depth 2
                :provenance-bridge-path [:test/source
@@ -195,7 +197,7 @@
                :connection-graph connection-graph
                :active-rule-path [:test/source]}))))))
 
-(deftest retrieve-episodes-prefers-deeper-graph-bridges
+(deftest retrieve-episodes-prefers-closer-graph-bridges-for-relevance
   (let [[world root-id] (world-with-root)
         [world shallow-episode-id]
         (epmem/add-episode world
@@ -225,13 +227,13 @@
                  {:threshold-key :reminding-threshold
                   :connection-graph connection-graph
                   :active-rule-path [:test/source]})]
-    (is (= [deep-episode-id shallow-episode-id]
+    (is (= [shallow-episode-id deep-episode-id]
            (mapv :episode-id results)))
-    (is (= [2 1]
+    (is (= [1 2]
            (mapv :provenance-bridge-depth results)))
-    (is (= [2.0 1.0]
+    (is (= [3.0 2.5]
            (mapv :provenance-bonus results)))
-    (is (= [3.0 2.0]
+    (is (= [4.0 3.5]
            (mapv :effective-marks results)))))
 
 (deftest episode-provenance-info-detects-episode-to-active-bridges
@@ -251,7 +253,7 @@
               episode-id
               {:connection-graph connection-graph
                :active-rule-path [:test/terminal]})]
-    (is (= {:provenance-bonus 2.0
+    (is (= {:provenance-bonus 2.5
             :provenance-reason :graph-bridge
             :provenance-bridge-depth 2
             :provenance-bridge-path [:test/source

@@ -14,6 +14,16 @@
 
 (def ^:private recent-index-max-length 6)
 (def ^:private recent-episode-max-length 4)
+(def ^:private shared-edge-bonus-scale 5.0)
+(def ^:private shared-rule-bonus-scale 4.0)
+
+(defn- graph-bridge-bonus-scale
+  [depth]
+  (case depth
+    1 3.0
+    2 2.5
+    3 2.0
+    1.5))
 
 (defn create-episode
   "Create an episode map. This is a pure constructor for fixtures and tests."
@@ -160,7 +170,7 @@
 
 (defn- best-bridge-candidate
   [candidates]
-  (first (sort-by (juxt (comp - :depth)
+  (first (sort-by (juxt :depth
                         (comp pr-str :rule-path)
                         (comp str :direction))
                   candidates)))
@@ -195,16 +205,19 @@
                       (best-bridge-candidate bridge-candidates))]
     (cond
       shared-edge?
-      {:provenance-bonus provenance-bonus
+      {:provenance-bonus (* provenance-bonus
+                            shared-edge-bonus-scale)
        :provenance-reason :shared-edge}
 
       shared-rule?
-      {:provenance-bonus provenance-bonus
+      {:provenance-bonus (* provenance-bonus
+                            shared-rule-bonus-scale)
        :provenance-reason :shared-rule}
 
       best-bridge
       {:provenance-bonus (* provenance-bonus
-                            (double (:depth best-bridge)))
+                            (graph-bridge-bonus-scale
+                             (long (:depth best-bridge))))
        :provenance-reason :graph-bridge
        :provenance-bridge-depth (:depth best-bridge)
        :provenance-bridge-path (:rule-path best-bridge)

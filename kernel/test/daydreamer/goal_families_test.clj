@@ -776,8 +776,8 @@
     (is (= [{:episode-id family-episode-id
              :marks 1
              :threshold 2
-             :provenance-bonus 1.0
-             :effective-marks 2.0
+             :provenance-bonus 4.0
+             :effective-marks 5.0
              :provenance-reason :shared-rule}]
            hits))))
 

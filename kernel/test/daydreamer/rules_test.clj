@@ -92,6 +92,50 @@
             [:antecedent-schema 0 :status]
             :succeeded))
 
+(def same-type-cloud-source-rule
+  {:id :test/cloud-source
+   :rule-kind :planning
+   :mueller-mode :both
+   :antecedent-schema [{:fact/type :situation
+                        :fact/id '?situation-id}]
+   :consequent-schema [{:fact/type :goal
+                        :goal-id '?goal-id}]
+   :plausibility 0.7
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :create-goal-stub
+                :failure-modes []
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors []
+                :kernel-status :proposed
+                :notes "Synthetic source rule with only goal-id on output."}})
+
+(def same-type-cloud-target-rule
+  {:id :test/cloud-target
+   :rule-kind :inference
+   :mueller-mode :inference-only
+   :antecedent-schema [{:fact/type :goal
+                        :status :failed}]
+   :consequent-schema [{:fact/type :concern-trigger
+                        :goal-status :failed}]
+   :plausibility 0.5
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :create-concern-from-failed-goal
+                :failure-modes []
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors []
+                :kernel-status :proposed
+                :notes "Synthetic target rule sharing only :fact/type."}})
+
 (def bridge-terminal-rule
   {:id :test/terminal
    :rule-kind :planning
@@ -223,6 +267,14 @@
            (mapv :to-rule (get (:outgoing graph) :test/source))))
     (is (nil? (get (:outgoing graph) :test/target)))
     (is (nil? (get (:incoming graph) :test/source)))))
+
+(deftest build-connection-graph-requires-shared-structural-keys
+  (let [graph (rules/build-connection-graph
+               [same-type-cloud-source-rule
+                same-type-cloud-target-rule])]
+    (is (= [] (:edges graph)))
+    (is (nil? (get (:outgoing graph) :test/cloud-source)))
+    (is (nil? (get (:incoming graph) :test/cloud-target)))))
 
 (deftest graph-query-helpers-explain-bounded-paths
   (let [graph (rules/build-connection-graph
