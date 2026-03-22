@@ -2250,11 +2250,6 @@
       {:outcome :backfired
        :reason :family-evaluation-backfired}
 
-      (or (contains? flags :stale)
-          (= :archive-cold (:keep-decision evaluation)))
-      {:outcome :failed
-       :reason :family-evaluation-not-reused}
-
       :else
       nil)))
 

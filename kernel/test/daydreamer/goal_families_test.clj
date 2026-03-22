@@ -1590,6 +1590,103 @@
                     :source-rule :goal-family/rationalization-plan-dispatch}))
     (is (= [] candidates))))
 
+(deftest archived-rationalization-branch-does-not-mark-source-episode-failed
+  (let [[world root-id] (world-with-root)
+        [world trigger-context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        frame-id :rf-zone-mercy
+        frame-facts [guide-fact
+                     {:fact/type :rationalization
+                      :fact/id :zone_is_mercy}
+                     {:fact/type :rationalization
+                      :fact/id :delay_is_faith}]
+        frame-fact (rationalization-frame-fact frame-id
+                                               failed-goal-id
+                                               0.91
+                                               frame-facts)
+        archive-evaluator
+        (fn [_family-plan _default-evaluation]
+          {:realism :plausible
+           :desirability :negative
+           :retention-class :cold-provenance
+           :keep-decision :archive-cold
+           :promotion-decision :stay-provisional
+           :anti-residue-flags []
+           :evaluation-reasons [:mock_archive_review]
+           :evaluation-source :mock-llm})
+        world (-> world
+                  (cx/assert-fact trigger-context-id guide-fact)
+                  (cx/assert-fact trigger-context-id {:fact/type :goal
+                                                      :goal-id failed-goal-id
+                                                      :top-level-goal failed-goal-id
+                                                      :status :failed
+                                                      :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :emotion
+                                                      :emotion-id emotion-id
+                                                      :strength 0.82
+                                                      :valence :negative
+                                                      :affect :dread})
+                  (cx/assert-fact trigger-context-id {:fact/type :dependency
+                                                      :from-id emotion-id
+                                                      :to-id failed-goal-id})
+                  (cx/assert-fact trigger-context-id frame-fact))
+        [world initial-rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.82
+          :main-motiv :e-dread})
+        initial-context-id (get-in world [:goals initial-rationalization-goal-id :next-cx])
+        [world initial-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id initial-rationalization-goal-id
+                                   :context-id initial-context-id
+                                   :trigger-context-id trigger-context-id
+                                   :failed-goal-id failed-goal-id
+                                   :family-evaluator family-evaluator/mock-family-evaluator})
+        stored-episode-id (:family-episode-id initial-family-plan)
+        world (-> world
+                  (promote-family-episode-via-cross-family-evidence
+                   stored-episode-id
+                   :roving)
+                  (cx/retract-fact trigger-context-id frame-fact)
+                  (cx/assert-fact trigger-context-id guide-fact)
+                  (cx/assert-fact trigger-context-id {:fact/type :rationalization
+                                                      :fact/id :zone_is_mercy})
+                  (cx/assert-fact trigger-context-id {:fact/type :rationalization
+                                                      :fact/id :delay_is_faith}))
+        [world later-rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.76
+          :main-motiv :e-dread})
+        later-context-id (get-in world [:goals later-rationalization-goal-id :next-cx])
+        [world later-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id later-rationalization-goal-id
+                                   :context-id later-context-id
+                                   :trigger-context-id trigger-context-id
+                                   :failed-goal-id failed-goal-id
+                                   :family-evaluator archive-evaluator})
+        stored-episode (get-in world [:episodes stored-episode-id])
+        latest-use-record (last (:use-history stored-episode))]
+    (is (= :stored_rationalization_frame
+           (get-in later-family-plan
+                   [:selection :rationalization_selection_policy])))
+    (is (= :archive-cold
+           (get-in later-family-plan [:evaluation :keep-decision])))
+    (is (= :pending (:status latest-use-record)))
+    (is (nil? (:outcome latest-use-record)))
+    (is (nil? (:outcome-reason latest-use-record)))
+    (is (= [] (get-in later-family-plan [:result :episode-outcome-facts])))
+    (is (= :durable (:admission-status stored-episode)))))
+
 (deftest reused-rationalization-source-episode-can-be-contradicted-and-demoted
   (let [[world root-id] (world-with-root)
         [world trigger-context-id] (cx/sprout world root-id)
