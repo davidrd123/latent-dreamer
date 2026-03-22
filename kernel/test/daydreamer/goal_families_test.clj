@@ -3584,8 +3584,15 @@
                                      (remove #(= reversal-goal-id (:id %)))
                                      (map :id)
                                      first)
+        rationalization-context-id (get-in world [:goals rationalization-goal-id :next-cx])
         [_world rationalization-result]
-        (families/run-family-plan world {:goal-id rationalization-goal-id})
+        (families/rationalization-plan world
+                                       {:goal-id rationalization-goal-id
+                                        :context-id rationalization-context-id
+                                        :trigger-context-id old-context-id
+                                        :failed-goal-id old-top-level-goal-id
+                                        :frame-id frame-id})
+        branch-context-id (:sprouted-context-id rationalization-result)
         expected-rule-provenance
         {:rule-path [:goal-family/reversal-plan-request
                      :goal-family/reversal-plan-dispatch
@@ -3613,6 +3620,18 @@
                       :to-rule :goal-family/rationalization-plan-dispatch
                       :fact-type :family-plan-request
                       :edge-kind :state-transition}]}]
+    (is (some? (:affect-state-fact rationalization-result)))
+    (is (= emotion-id
+           (:trigger-emotion-id rationalization-result)))
+    (is (= 0.7
+           (:trigger-emotion-after rationalization-result)))
+    (is (= emotion-id
+           (:trigger-emotion-id (:affect-state-fact rationalization-result))))
+    (is (= 0.7
+           (:trigger-emotion-strength (:affect-state-fact rationalization-result))))
+    (is (cx/fact-true? _world
+                       branch-context-id
+                       (:affect-state-fact rationalization-result)))
     (is (= expected-rule-provenance
            (:rule-provenance rationalization-result)))))
 

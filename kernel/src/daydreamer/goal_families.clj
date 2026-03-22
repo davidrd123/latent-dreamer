@@ -282,6 +282,8 @@
                :from-diversion
                :result-key]
     :predicates {:context-ref [keyword? "keyword context ref"]
+                 :fallback-trigger-emotion-id [keyword? "keyword emotion id"]
+                 :fallback-trigger-emotion-strength [number? "numeric emotion strength"]
                  :rule-provenance [map? "rule provenance map"]
                  :from-diversion [keyword? "keyword result key"]
                  :result-key [keyword? "keyword result key"]}}
@@ -1880,8 +1882,10 @@
           :sprouted-context-id sprouted-context-id
           :failed-goal-id (:failed-goal-id effect)
           :frame-id (:frame-id effect)
-          :trigger-emotion-id (:trigger-emotion-id diversion)
-          :trigger-emotion-strength (:trigger-emotion-after diversion)
+          :trigger-emotion-id (or (:trigger-emotion-id diversion)
+                                  (:fallback-trigger-emotion-id effect))
+          :trigger-emotion-strength (or (:trigger-emotion-after diversion)
+                                        (:fallback-trigger-emotion-strength effect))
           :rule-provenance (:rule-provenance effect)})
         world (cond-> world
                 affect-state-fact
@@ -2588,8 +2592,9 @@
        :hope-situation-id reframe-situation-id})))
 
 (defn- rationalization-effect-program
-  [{:keys [goal-id context-id trigger-context-id failed-goal-id ordering
-           rule-provenance frame]}]
+  [{:keys [goal-id context-id trigger-context-id failed-goal-id
+           trigger-emotion-id trigger-emotion-strength
+           ordering rule-provenance frame]}]
   (let [success-intends {:fact/type :intends
                          :from-goal-id goal-id
                          :to-goal-id :rtrue
@@ -2618,6 +2623,10 @@
       :goal-id goal-id
       :failed-goal-id failed-goal-id
       :frame-id (:frame-id frame)
+      :fallback-trigger-emotion-id trigger-emotion-id
+      :fallback-trigger-emotion-strength (double
+                                          (or trigger-emotion-strength
+                                              0.0))
       :rule-provenance rule-provenance
       :from-diversion :rationalization/diversion
       :result-key :rationalization/afterglow}
@@ -2832,7 +2841,13 @@
                           {:emotion-shifts []
                            :emotional-state []})
         affect-state-fact (get-in effect-state
-                                  [:results :rationalization/afterglow :affect-state-fact])]
+                                  [:results :rationalization/afterglow :affect-state-fact])
+        trigger-emotion-id (or (:trigger-emotion-id diversion)
+                               (:trigger-emotion-id affect-state-fact))
+        trigger-emotion-before (or (:trigger-emotion-before diversion)
+                                   (:trigger-emotion-strength affect-state-fact))
+        trigger-emotion-after (or (:trigger-emotion-after diversion)
+                                  (:trigger-emotion-strength affect-state-fact))]
     [world {:sprouted-context-id sprouted-context-id
             :source-episode-id source-episode-id
             :frame-id frame-id
@@ -2844,9 +2859,9 @@
             :selection-reasons selection-reasons
             :situation-id situation-id
             :diversion-policy (:diversion-policy diversion)
-            :trigger-emotion-id (:trigger-emotion-id diversion)
-            :trigger-emotion-before (:trigger-emotion-before diversion)
-            :trigger-emotion-after (:trigger-emotion-after diversion)
+            :trigger-emotion-id trigger-emotion-id
+            :trigger-emotion-before trigger-emotion-before
+            :trigger-emotion-after trigger-emotion-after
             :hope-emotion-id (:hope-emotion-id diversion)
             :hope-strength (:hope-strength diversion)
             :hope-situation-id (:hope-situation-id diversion)
