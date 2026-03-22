@@ -160,7 +160,7 @@
              :target-rule :goal-family/roving-plan-dispatch}]
            (:promotion-history episode)))))
 
-(deftest note-episode-use-and-resolve-outcome-promotes-cross-family-exemplar
+(deftest note-episode-use-and-resolve-outcome-promotes-cross-family-exemplar-after-repeated-success
   (let [[world root-id] (world-with-root)
         [world episode-id] (epmem/add-episode world
                                               {:rule :rationalization-plan
@@ -170,7 +170,7 @@
                                                :admission-status :provisional
                                                :provenance {:source :family-plan
                                                             :family :rationalization}})
-        [world use-info]
+        [world use-info-1]
         (epmem/note-episode-use world
                                 episode-id
                                 {:reason :family-plan-use
@@ -181,33 +181,65 @@
                                  :target-family :roving
                                  :source-rule :goal-family/rationalization-plan-dispatch
                                  :target-rule :goal-family/roving-plan-dispatch})
-        [world outcome-info]
+        [world outcome-info-1]
         (epmem/resolve-episode-use-outcome world
                                            episode-id
-                                           (:use-id use-info)
+                                           (:use-id use-info-1)
                                            {:outcome :succeeded
                                             :reason :cross-family-family-plan-success})
-        [world transition]
+        [world first-transition]
+        (epmem/reconcile-episode-admission world episode-id)
+        [world use-info-2]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :reminded
+                                 :goal-id :g-2
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :roving
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/roving-plan-dispatch})
+        [world outcome-info-2]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id use-info-2)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        [world second-transition]
         (epmem/reconcile-episode-admission world episode-id)
         episode (get-in world [:episodes episode-id])]
-    (is (= :pending (:status use-info)))
-    (is (= :succeeded (:outcome outcome-info)))
-    (is (:evidence-recorded? outcome-info))
+    (is (= :pending (:status use-info-1)))
+    (is (= :succeeded (:outcome outcome-info-1)))
+    (is (:evidence-recorded? outcome-info-1))
+    (is (nil? first-transition))
+    (is (= :pending (:status use-info-2)))
+    (is (= :succeeded (:outcome outcome-info-2)))
+    (is (:evidence-recorded? outcome-info-2))
     (is (= {:episode-id episode-id
             :from-status :provisional
             :to-status :durable
             :reason :cross-family-use-success}
-           transition))
+           second-transition))
     (is (= :durable (:admission-status episode)))
     (is (= [{:type :cross-family-use-success
              :cycle 0
-             :use-id (:use-id use-info)
+             :use-id (:use-id use-info-1)
              :source-family :rationalization
              :target-family :roving
              :source-rule :goal-family/rationalization-plan-dispatch
              :target-rule :goal-family/roving-plan-dispatch
              :branch-context-id root-id
-             :goal-id :g-1}]
+             :goal-id :g-1}
+            {:type :cross-family-use-success
+             :cycle 0
+             :use-id (:use-id use-info-2)
+             :source-family :rationalization
+             :target-family :roving
+             :source-rule :goal-family/rationalization-plan-dispatch
+             :target-rule :goal-family/roving-plan-dispatch
+             :branch-context-id root-id
+             :goal-id :g-2}]
            (:promotion-evidence episode)))))
 
 (deftest resolve-episode-use-outcome-is-idempotent-for-already-resolved-use
@@ -290,6 +322,16 @@
         (epmem/record-promotion-evidence world
                                          episode-id
                                          {:type :cross-family-use-success
+                                          :use-id :epuse-1
+                                          :source-family :reversal
+                                          :target-family :roving
+                                          :source-rule :goal-family/reversal-plan-dispatch
+                                          :target-rule :goal-family/roving-plan-dispatch})
+        [world _]
+        (epmem/record-promotion-evidence world
+                                         episode-id
+                                         {:type :cross-family-use-success
+                                          :use-id :epuse-2
                                           :source-family :reversal
                                           :target-family :roving
                                           :source-rule :goal-family/reversal-plan-dispatch

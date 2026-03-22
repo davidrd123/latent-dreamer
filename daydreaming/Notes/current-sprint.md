@@ -139,9 +139,9 @@ and "deserves future influence":
 - later cross-family success can now vindicate those pending
   same-family source uses without turning that vindication itself into
   new promotion evidence
-- cross-family success can promote through attributed use evidence
-  (`:cross-family-use-success`), but raw roving reminding no longer
-  counts as that evidence by itself
+- repeated cross-family success can now promote through attributed use
+  evidence (`:cross-family-use-success`), but raw roving reminding no
+  longer counts as that evidence by itself
 - promotion does not bypass the recent-episode anti-echo gate;
   a promoted episode becomes reusable only after recent eviction
 - same-family reuse is now tracked, and repeated same-family reuse

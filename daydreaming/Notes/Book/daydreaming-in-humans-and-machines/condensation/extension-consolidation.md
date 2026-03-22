@@ -25,7 +25,7 @@ As the system accumulates episodes, rules, and graph connections:
 - Current implementation now has the first two passes of this:
   - `:archive-cold -> :trace`
   - other family-plan episodes default to `:provisional`
-- cross-family reuse can promote `:provisional -> :durable`
+- repeated cross-family reuse can promote `:provisional -> :durable`
 - `:episode-promotion` facts make those promotions graph-visible
   - promotion still obeys the recent-episode anti-echo gate
 - external evaluator output can now annotate promotion eligibility,

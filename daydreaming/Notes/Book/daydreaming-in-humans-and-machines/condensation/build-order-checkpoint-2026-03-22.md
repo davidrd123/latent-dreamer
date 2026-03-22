@@ -71,7 +71,7 @@ Implemented in the first pass:
 - later cross-family success can now vindicate those pending
   same-family source uses without counting that vindication as new
   promotion evidence
-- cross-family success now promotes via explicit use evidence
+- repeated cross-family success now promotes via explicit use evidence
   (`:cross-family-use-success`); raw roving reminding no longer counts
   as that evidence by itself
 - repeated failed same-family attributed use can now auto-flag

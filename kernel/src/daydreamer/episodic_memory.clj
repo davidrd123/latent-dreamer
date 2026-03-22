@@ -20,6 +20,7 @@
 (def ^:private same-family-provenance-max 0.75)
 (def ^:private same-family-loop-threshold 2)
 (def ^:private stale-same-family-failed-use-threshold 2)
+(def ^:private durable-promotion-success-threshold 2)
 (def ^:private stale-rehabilitation-success-threshold 2)
 (def ^:private valid-episode-use-outcomes
   #{:succeeded :failed :backfired :contradicted})
@@ -712,6 +713,8 @@
   cross-family use success evidence, not later demotion/frontier policy."
   [episode]
   (and (durable-candidate? episode)
+       (>= (qualifying-promotion-evidence-count episode)
+           durable-promotion-success-threshold)
        (some? (qualifying-promotion-evidence episode))))
 
 (defn- stale-rehabilitation-ready?

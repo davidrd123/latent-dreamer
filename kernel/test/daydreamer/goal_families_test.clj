@@ -89,15 +89,15 @@
 (defn promote-family-episode-via-cross-family-evidence
   [world episode-id target-family]
   (let [source-family (get-in world [:episodes episode-id :provenance :family])
-        [world use-info]
+        [world use-info-1]
         (episodic/note-episode-use
          world
          episode-id
          {:source-family source-family
           :target-family target-family
-          :reason :test-cross-family-use
+          :reason :test-cross-family-use-1
           :use-role :test-cross-family-use
-          :goal-id :g-test
+          :goal-id :g-test-1
           :branch-context-id :cx-test
           :source-rule (get-in world [:episodes episode-id :rule])
           :target-rule :test/target-rule})
@@ -105,9 +105,28 @@
         (episodic/resolve-episode-use-outcome
          world
          episode-id
-         (:use-id use-info)
+         (:use-id use-info-1)
          {:outcome :succeeded
-          :reason :test-cross-family-use-succeeded})
+          :reason :test-cross-family-use-succeeded-1})
+        [world use-info-2]
+        (episodic/note-episode-use
+         world
+         episode-id
+         {:source-family source-family
+          :target-family target-family
+          :reason :test-cross-family-use-2
+          :use-role :test-cross-family-use
+          :goal-id :g-test-2
+          :branch-context-id :cx-test
+          :source-rule (get-in world [:episodes episode-id :rule])
+          :target-rule :test/target-rule})
+        [world _]
+        (episodic/resolve-episode-use-outcome
+         world
+         episode-id
+         (:use-id use-info-2)
+         {:outcome :succeeded
+          :reason :test-cross-family-use-succeeded-2})
         [world _]
         (episodic/reconcile-episode-admission world episode-id)]
     world))
