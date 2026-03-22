@@ -1208,6 +1208,15 @@
                    '?emotion-id emotion-id
                    '?emotion-strength emotion-strength}))
 
+(defn- instantiate-cross-family-trigger
+  [producer-provenance rule bindings]
+  (assoc (-> (rules/instantiate-rule rule bindings)
+             :consequents
+             first)
+         :rule-provenance (extend-rule-provenance producer-provenance
+                                                  rule
+                                                  :family-affect-state)))
+
 (defn- roving-trigger-facts
   [world]
   (->> (keys (:contexts world))
@@ -1239,6 +1248,29 @@
                       (comp str :emotion-id)))
        vec))
 
+(defn- cross-family-trigger-facts
+  [world]
+  (->> (keys (:contexts world))
+       (mapcat (fn [context-id]
+                 (let [facts (cx/visible-facts world context-id)]
+                   (->> (cross-family-rules)
+                        (mapcat (fn [rule]
+                                  (->> (rules/match-rule rule facts)
+                                       (keep (fn [{:keys [bindings matched-facts]}]
+                                               (let [producer-fact (first matched-facts)]
+                                                 (when-let [producer-provenance (:rule-provenance producer-fact)]
+                                                   (instantiate-cross-family-trigger
+                                                    producer-provenance
+                                                    rule
+                                                    bindings))))))))
+                        vec))))
+       (sort-by (juxt (comp - :emotion-strength)
+                      (comp str :trigger-context-id)
+                      (comp str :failed-goal-id)
+                      (comp str :emotion-id)
+                      (comp str :selection-policy)))
+       vec))
+
 (defn roving-activation-candidates
   "Find failed-goal / negative-emotion pairs that can activate ROVING."
   [world]
@@ -1263,6 +1295,7 @@
   [world]
   (vec (concat (reversal-trigger-facts world)
                (rationalization-trigger-facts world)
+               (cross-family-trigger-facts world)
                (roving-trigger-facts world))))
 
 (def ^:private trigger-dispatch-goal-types
@@ -1575,6 +1608,28 @@
                   :emotion-shifts []
                   :emotional-state [])]))
 
+(defn- rationalization-afterglow-fact
+  [{:keys [goal-id context-id sprouted-context-id failed-goal-id frame-id
+           trigger-emotion-id trigger-emotion-strength rule-provenance]}]
+  (when (and goal-id
+             context-id
+             sprouted-context-id
+             failed-goal-id
+             trigger-emotion-id
+             rule-provenance)
+    {:fact/type :family-affect-state
+     :source-family :rationalization
+     :goal-id goal-id
+     :context-id context-id
+     :branch-context-id sprouted-context-id
+     :failed-goal-id failed-goal-id
+     :trigger-emotion-id trigger-emotion-id
+     :trigger-emotion-strength (double (or trigger-emotion-strength 0.0))
+     :frame-id frame-id
+     :affect :hope
+     :transition :reappraised
+     :rule-provenance rule-provenance}))
+
 (defn rationalization-plan
   "Sprout a reinterpretation branch from an explicit rationalization frame.
 
@@ -1638,6 +1693,18 @@
           :failed-goal-id failed-goal-id
           :sprouted-context-id sprouted-context-id}
          frame)
+        affect-state-fact (rationalization-afterglow-fact
+                           {:goal-id goal-id
+                            :context-id context-id
+                            :sprouted-context-id sprouted-context-id
+                            :failed-goal-id failed-goal-id
+                            :frame-id (:frame-id frame)
+                            :trigger-emotion-id (:trigger-emotion-id diversion)
+                            :trigger-emotion-strength (:trigger-emotion-after diversion)
+                            :rule-provenance rule-provenance})
+        world (cond-> world
+                affect-state-fact
+                (cx/assert-fact sprouted-context-id affect-state-fact))
         world (if (contains? (:goals world) goal-id)
                 (goals/set-next-context world goal-id sprouted-context-id)
                 world)
@@ -1673,6 +1740,7 @@
             :hope-emotion-id (:hope-emotion-id diversion)
             :hope-strength (:hope-strength diversion)
             :hope-situation-id (:hope-situation-id diversion)
+            :affect-state-fact affect-state-fact
             :emotion-shifts (:emotion-shifts diversion)
             :emotional-state (:emotional-state diversion)}]))
 

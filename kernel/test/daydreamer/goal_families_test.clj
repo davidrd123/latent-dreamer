@@ -1010,6 +1010,7 @@
                        diversion-policy trigger-emotion-id
                        trigger-emotion-before trigger-emotion-after
                        hope-emotion-id hope-strength hope-situation-id
+                       affect-state-fact
                        emotion-shifts emotional-state]}]
         (families/rationalization-plan world
                                        {:goal-id rationalization-goal-id
@@ -1054,6 +1055,21 @@
                           :source-emotion-id emotion-id
                           :frame-id :rf-zone-mercy
                           :situation-id :s5_the_guide}))
+      (is (= {:fact/type :family-affect-state
+              :source-family :rationalization
+              :goal-id rationalization-goal-id
+              :context-id context-id
+              :branch-context-id sprouted-context-id
+              :failed-goal-id failed-goal-id
+              :trigger-emotion-id emotion-id
+              :trigger-emotion-strength expected-trigger-after
+              :frame-id :rf-zone-mercy
+              :affect :hope
+              :transition :reappraised}
+             (dissoc affect-state-fact :rule-provenance)))
+      (is (cx/fact-true? world
+                         sprouted-context-id
+                         affect-state-fact))
       (is (= [{:emotion-id emotion-id
                :from-strength 0.82
                :to-strength expected-trigger-after
@@ -1113,6 +1129,98 @@
                                    :hope-strength expected-hope-strength
                                    :hope-situation-id :s5_the_guide}}]
              (:mutation-events world))))))
+
+(deftest activate-family-goals-can-dispatch-roving-from-rationalization-afterglow
+  (let [[world root-id] (world-with-root)
+        world (assoc world :reality-context root-id)
+        [world trigger-context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        frame-id :rf-zone-mercy
+        frame-facts [guide-fact
+                     {:fact/type :rationalization
+                      :fact/id :zone_is_mercy}
+                     {:fact/type :rationalization
+                      :fact/id :delay_is_faith}]
+        world (-> world
+                  (cx/assert-fact trigger-context-id {:fact/type :goal
+                                                      :goal-id failed-goal-id
+                                                      :top-level-goal failed-goal-id
+                                                      :status :failed
+                                                      :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :emotion
+                                                      :emotion-id emotion-id
+                                                      :strength 0.82
+                                                      :valence :negative
+                                                      :affect :dread})
+                  (cx/assert-fact trigger-context-id {:fact/type :dependency
+                                                      :from-id emotion-id
+                                                      :to-id failed-goal-id})
+                  (cx/assert-fact trigger-context-id
+                                  (rationalization-frame-fact frame-id
+                                                              failed-goal-id
+                                                              0.91
+                                                              frame-facts)))
+        [world rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.82
+          :main-motiv emotion-id
+          :trigger-context-id trigger-context-id
+          :trigger-failed-goal-id failed-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.82
+          :trigger-frame-id frame-id})
+        context-id (get-in world [:goals rationalization-goal-id :next-cx])
+        [world rationalization-result]
+        (families/rationalization-plan world
+                                       {:goal-id rationalization-goal-id
+                                        :context-id context-id
+                                        :trigger-context-id trigger-context-id
+                                        :failed-goal-id failed-goal-id})
+        world (families/activate-family-goals world)
+        roving-goal (->> (vals (:goals world))
+                         (filter #(= :roving (:goal-type %)))
+                         first)
+        activation-event (->> (:activation-events world)
+                              (filter #(= :roving (:goal-type %)))
+                              first)
+        expected-rule-provenance
+        {:rule-path [:goal-family/rationalization-plan-request
+                     :goal-family/rationalization-plan-dispatch
+                     :goal-family/rationalization-afterglow-to-roving
+                     :goal-family/roving-activation]
+         :edge-path [{:from-rule :goal-family/rationalization-plan-request
+                      :to-rule :goal-family/rationalization-plan-dispatch
+                      :fact-type :family-plan-request
+                      :edge-kind :state-transition}
+                     {:from-rule :goal-family/rationalization-plan-dispatch
+                      :to-rule :goal-family/rationalization-afterglow-to-roving
+                      :fact-type :family-affect-state
+                      :edge-kind :state-transition}
+                     {:from-rule :goal-family/rationalization-afterglow-to-roving
+                      :to-rule :goal-family/roving-activation
+                      :fact-type :goal-family-trigger
+                      :edge-kind :state-transition}]}]
+    (is (some? (:affect-state-fact rationalization-result)))
+    (is (some? roving-goal))
+    (is (= context-id (:trigger-context-id roving-goal)))
+    (is (= failed-goal-id (:trigger-failed-goal-id roving-goal)))
+    (is (= emotion-id (:trigger-emotion-id roving-goal)))
+    (is (= (:trigger-emotion-after rationalization-result)
+           (:trigger-emotion-strength roving-goal)))
+    (is (= :rationalization_afterglow
+           (:activation-policy roving-goal)))
+    (is (= [:rationalization_afterglow
+            :hope_reframe]
+           (:activation-reasons roving-goal)))
+    (is (= expected-rule-provenance
+           (:rule-provenance activation-event)))
+    (is (= (:id roving-goal)
+           (:goal-id activation-event)))))
 
 (deftest reverse-leafs-follow-intends-and-retract-weak-leaf-objectives
   (let [[world root-id] (world-with-root)
