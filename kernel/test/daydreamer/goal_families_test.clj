@@ -921,6 +921,52 @@
             :mutation/log]
            (mapv :op (:effects effect-program))))))
 
+(deftest same-family-loop-flagged-roving-episode-is-not-used-as-seed
+  (let [[world root-id] (world-with-root)
+        [world flagged-episode-id]
+        (episodic/add-episode world
+                              {:rule :roving-plan
+                               :retention-class :hot-cues
+                               :keep-decision :keep-hot
+                               :provenance {:source :family-plan
+                                            :family :roving}
+                               :rule-path [:goal-family/roving-plan-dispatch]
+                               :admission-status :durable})
+        [world pleasant-episode-id] (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode flagged-episode-id :sunlight
+                                          {:reminding? true})
+                  (episodic/store-episode flagged-episode-id :calm
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :sunlight
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :calm
+                                          {:reminding? true}))
+        [world _]
+        (episodic/flag-episode world
+                               flagged-episode-id
+                               :same-family-loop
+                               {:reason :test-loop})
+        world (assoc world :roving-episodes [flagged-episode-id
+                                             pleasant-episode-id])
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])
+        [_world roving-result]
+        (families/roving-plan world
+                              {:goal-id roving-goal-id
+                               :context-id context-id})]
+    (is (= pleasant-episode-id
+           (:episode-id roving-result)))
+    (is (not= flagged-episode-id
+              (:episode-id roving-result)))))
+
 (deftest run-family-plan-can-archive-family-memory-via-external-evaluator
   (let [[world root-id] (world-with-root)
         [world pleasant-episode-id]

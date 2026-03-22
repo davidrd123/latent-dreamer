@@ -1225,14 +1225,25 @@
 (defn- ranked-roving-episode-ids
   [world goal-id candidate-episode-ids]
   (let [candidate-episode-ids (vec candidate-episode-ids)
+        accessible-episode-ids
+        (->> candidate-episode-ids
+             (keep (fn [episode-id]
+                     (when (:accessible?
+                            (episodic/episode-accessibility-info
+                             world
+                             episode-id
+                             {:active-family :roving
+                              :respect-recent? false}))
+                       episode-id)))
+             vec)
         rule-provenance (goal-rule-provenance world goal-id)
         active-rule-path (vec (:rule-path rule-provenance))
         active-edge-path (vec (:edge-path rule-provenance))]
-    (if (or (<= (count candidate-episode-ids) 1)
+    (if (or (<= (count accessible-episode-ids) 1)
             (empty? active-rule-path))
-      candidate-episode-ids
+      accessible-episode-ids
       (let [connection-graph (rules/build-connection-graph (family-rules))]
-        (->> candidate-episode-ids
+        (->> accessible-episode-ids
              (map-indexed
               (fn [idx episode-id]
                 (let [bonus-info (episodic/episode-provenance-info

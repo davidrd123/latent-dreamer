@@ -207,6 +207,44 @@
                                     [:shared-frame]
                                     {:active-family :roving})))))
 
+(deftest episode-accessibility-info-respects-loop-and-recent-gates
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :roving-plan
+                                               :context-id root-id
+                                               :retention-class :hot-cues
+                                               :keep-decision :keep-hot
+                                               :provenance {:source :family-plan
+                                                            :family :roving}
+                                               :admission-status :durable})
+        world (epmem/store-episode world episode-id :sunlight {:plan? true :reminding? true})
+        [world _] (epmem/flag-episode world
+                                      episode-id
+                                      :same-family-loop
+                                      {:reason :test-loop})]
+    (is (= {:episode-id episode-id
+            :admission-status :durable
+            :recent? false
+            :accessible? false
+            :retention-adjustment 0.0
+            :retention-reason :flagged-same-family-loop}
+           (epmem/episode-accessibility-info world
+                                             episode-id
+                                             {:active-family :roving})))
+    (is (= {:episode-id episode-id
+            :admission-status :durable
+            :recent? true
+            :accessible? false
+            :retention-adjustment 0.0
+            :retention-reason :hot-cue-fresh
+            :retention-age 0}
+           (epmem/episode-accessibility-info
+            (-> world
+                (update :recent-episodes conj episode-id)
+                (update :recent-indices into [:sunlight]))
+            episode-id
+            {:active-family :other-family})))))
+
 (deftest contradicted-and-backfired-flags-block-retrieval
   (let [[world root-id] (world-with-root)
         [world contradicted-id] (epmem/add-episode world

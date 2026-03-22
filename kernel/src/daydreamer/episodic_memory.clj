@@ -578,6 +578,36 @@
   (some-> (get-in world [:episodes episode-id])
           (provenance-bonus-info retrieval-opts)))
 
+(defn episode-accessibility-info
+  "Return retrieval accessibility info for one stored episode under the given
+  retrieval context."
+  [world episode-id retrieval-opts]
+  (when-let [episode (get-in world [:episodes episode-id])]
+    (let [admission-status (:admission-status episode :durable)
+          respect-recent? (not= false (:respect-recent? retrieval-opts))
+          recent? (recent-episode? world episode-id)
+          retention-info (retention-accessibility-info world
+                                                       episode
+                                                       retrieval-opts)
+          retention-accessible? (not= false (:retention-accessible?
+                                             retention-info))
+          accessible? (and (not= :trace admission-status)
+                           (or (not respect-recent?)
+                               (not recent?))
+                           retention-accessible?)]
+      (cond-> {:episode-id episode-id
+               :admission-status admission-status
+               :recent? recent?
+               :accessible? accessible?}
+        (or (:retention-reason retention-info)
+            (contains? retention-info :retention-adjustment))
+        (merge (select-keys retention-info
+                            [:retention-adjustment
+                             :retention-reason
+                             :retention-age
+                             :payload-cluster
+                             :payload-cluster-rank]))))))
+
 (defn retrieve-episodes
   "Retrieve episodes by coincidence counting over indices.
 
