@@ -303,6 +303,39 @@
                                 (throw (ex-info "custom effect validation failed"
                                                 {:effect effect}))))})))))
 
+(deftest execute-rule-runs-call-supplied-effect-program-validator
+  (let [bindings {'?context-id :cx-2
+                  '?failed-goal-id :g-failed
+                  '?emotion-id :e-shame
+                  '?emotion-strength 0.25}
+        rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:executor-id :sample/dispatch
+                                      :effect-ops [:test/noop]}})]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"custom effect-program validation failed"
+                          (rules/execute-rule
+                           rule
+                           {:bindings bindings
+                            :executor-registry
+                            {:sample/dispatch
+                             (fn [{:keys [rule]}]
+                               {:consequents [{:context-id :cx-2
+                                               :failed-goal-id :g-failed
+                                               :emotion-id :e-shame
+                                               :emotion-strength 0.25
+                                               :selection-policy :failed_goal_negative_emotion}]
+                                :confidence (double (:plausibility rule))
+                                :reason "registry-dispatch"
+                                :aux-indices []
+                                :surface-summary nil
+                                :effects [{:op :test/noop}]})}
+                            :effect-program-validator
+                            (fn [{:keys [result]}]
+                              (when (= [{:op :test/noop}] (:effects result))
+                                (throw (ex-info "custom effect-program validation failed"
+                                                {:result result}))))})))))
+
 (deftest execute-rule-rejects-effect-count-mismatch
   (let [bindings {'?context-id :cx-2
                   '?failed-goal-id :g-failed

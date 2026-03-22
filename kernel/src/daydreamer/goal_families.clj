@@ -10,6 +10,7 @@
   full search over failure leafs yet; it provides the alternative-past branch
   primitive that later goal-family plans can call."
   (:require [clojure.set :as set]
+            [clojure.string :as str]
             [daydreamer.context :as cx]
             [daydreamer.episodic-memory :as episodic]
             [daydreamer.fact-query :refer [dependency-fact?
@@ -180,6 +181,83 @@
                        :value value
                        :expected expected})))))
 
+(defn- vector-of-keywords?
+  [value]
+  (and (vector? value)
+       (every? keyword? value)))
+
+(defn- validate-reversal-branches!
+  [rule effect]
+  (doseq [[idx branch] (map-indexed vector (:branches effect))]
+    (when-not (map? branch)
+      (throw (ex-info "Invalid reversal branch payload"
+                      {:rule-id (:id rule)
+                       :effect effect
+                       :branch-index idx
+                       :branch branch
+                       :expected "branch map"})))
+    (doseq [[key predicate expected]
+            [[:old-context-id keyword? "keyword context id"]
+             [:old-top-level-goal-id keyword? "keyword top-level goal id"]
+             [:leaf-goal-id keyword? "keyword leaf goal id"]
+             [:leaf-strength number? "numeric leaf strength"]
+             [:ordering number? "numeric ordering"]
+             [:objective-facts vector-of-maps? "vector of objective fact maps"]
+             [:selection-policy keyword? "keyword selection policy"]
+             [:selection-reasons vector-of-keywords? "vector of selection-reason keywords"]]]
+      (let [value (get branch key missing-effect-value)]
+        (when (or (= missing-effect-value value)
+                  (nil? value)
+                  (not (predicate value)))
+          (throw (ex-info "Invalid reversal branch payload"
+                          {:rule-id (:id rule)
+                           :effect effect
+                           :branch-index idx
+                           :branch branch
+                           :key key
+                           :value (when-not (= missing-effect-value value) value)
+                           :expected expected})))))))
+
+(defn- effect-source-ref-keys
+  [effect]
+  (->> (keys effect)
+       (filter keyword?)
+       (filter #(str/starts-with? (name %) "from-"))
+       vec))
+
+(defn- validate-family-effect-program!
+  [{:keys [rule result]}]
+  (let [effects (:effects result)]
+    (when (vector? effects)
+      (loop [idx 0
+             produced {}]
+        (when (< idx (count effects))
+          (let [effect (nth effects idx)
+                result-key (:result-key effect)]
+            (doseq [source-key (effect-source-ref-keys effect)]
+              (let [source-ref (get effect source-key)]
+                (when-not (contains? produced source-ref)
+                  (throw (ex-info "Typed family effect references missing prior result-key"
+                                  {:rule-id (:id rule)
+                                   :effect-index idx
+                                   :effect effect
+                                   :source-key source-key
+                                   :source-ref source-ref
+                                   :known-result-keys (sort (keys produced))})))))
+            (when result-key
+              (when (contains? produced result-key)
+                (throw (ex-info "Typed family effect result-key must be unique"
+                                {:rule-id (:id rule)
+                                 :effect-index idx
+                                 :effect effect
+                                 :result-key result-key
+                                 :first-produced-by (get produced result-key)}))))
+            (recur (inc idx)
+                   (cond-> produced
+                     result-key
+                     (assoc result-key {:effect-index idx
+                                        :op (:op effect)})))))))))
+
 (def ^:private family-effect-specs
   {:context/sprout
    {:required [:source-context-id :ref]
@@ -254,12 +332,10 @@
    {:required [:family
                :source-context-id
                :context-ref
-               :from-reminding
-               :from-promotions]
+               :from-reminding]
     :predicates {:family [keyword? "keyword family"]
                  :context-ref [keyword? "keyword context ref"]
-                 :from-reminding [keyword? "keyword result key"]
-                 :from-promotions [keyword? "keyword result key"]}}
+                 :from-reminding [keyword? "keyword result key"]}}
 
    :rationalization/divert-emotion
    {:required [:context-ref
@@ -324,13 +400,16 @@
                        :known-ops (sort (keys family-effect-specs))})))
     (require-effect-keys! rule effect required)
     (doseq [[key [predicate expected]] predicates]
-      (validate-effect-predicate! rule effect key predicate expected))))
+      (validate-effect-predicate! rule effect key predicate expected))
+    (when (= :reversal/execute-branches (:op effect))
+      (validate-reversal-branches! rule effect))))
 
 (defn- family-rule-call-base
   [world]
   {:world world
    :executor-registry (family-executor-registry)
-   :effect-validator validate-family-effect!})
+   :effect-validator validate-family-effect!
+   :effect-program-validator validate-family-effect-program!})
 
 (defn- fact-consumer-rule?
   [fact-type rule]
@@ -1722,8 +1801,7 @@
       :family :roving
       :source-context-id context-id
       :context-ref :branch-context
-      :from-reminding :roving/reminding
-      :from-promotions :roving/promotions}]))
+      :from-reminding :roving/reminding}]))
 
 (defn- roving-plan-dispatch-executor
   [{:keys [rule call]}]
@@ -1900,8 +1978,10 @@
   (let [{:keys [episode-id reminded-episode-ids active-indices]}
         (get-in effect-state [:results (:from-reminding effect)])
         {:keys [promoted-episode-ids]}
-        (get-in effect-state [:results (:from-promotions effect)]
-                {:promoted-episode-ids []})
+        (if-let [promotions-key (:from-promotions effect)]
+          (get-in effect-state [:results promotions-key]
+                  {:promoted-episode-ids []})
+          {:promoted-episode-ids []})
         context-id (resolve-effect-context-id world effect-state (:context-ref effect))]
     [(update world :mutation-events
              (fnil conj [])

@@ -958,6 +958,23 @@
                              :effect effect})))
       result)))
 
+(defn- validate-effect-program!
+  [rule call result]
+  (let [effect-program-validator (:effect-program-validator call)]
+    (cond
+      (nil? effect-program-validator) result
+      (not (ifn? effect-program-validator))
+      (throw (ex-info "RuleCallV1 :effect-program-validator must be callable"
+                      {:rule-id (:id rule)
+                       :call call
+                       :effect-program-validator effect-program-validator}))
+      :else
+      (do
+        (effect-program-validator {:rule rule
+                                   :call call
+                                   :result result})
+        result))))
+
 (defn- validate-effect-schema!
   [rule call {:keys [effects] :as result}]
   (if-not (contains? rule :effect-schema)
@@ -1064,6 +1081,7 @@
            (validate-rule-result-shape! rule call)
            (validate-effects! rule call)
            (validate-effect-schema! rule call)
+           (validate-effect-program! rule call)
            (validate-consequents! rule call)
            (validate-denotation! rule call)))))
 
