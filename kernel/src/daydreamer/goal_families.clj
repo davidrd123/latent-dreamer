@@ -136,6 +136,76 @@
                 :kernel-status :partial
                 :notes "Consumes a roving plan request into the current bounded plan payload."}})
 
+(def ^:private rationalization-plan-request-rule
+  {:id :goal-family/rationalization-plan-request
+   :rule-kind :planning
+   :mueller-mode :plan-only
+   :antecedent-schema [{:goal-type :rationalization
+                        :goal-id '?goal-id
+                        :context-id '?context-id
+                        :trigger-context-id '?trigger-context-id
+                        :failed-goal-id '?failed-goal-id
+                        :frame-id '?frame-id
+                        :ordering '?ordering}]
+   :consequent-schema [{:fact/type :family-plan-request
+                        :goal-type :rationalization
+                        :goal-id '?goal-id
+                        :context-id '?context-id
+                        :trigger-context-id '?trigger-context-id
+                        :failed-goal-id '?failed-goal-id
+                        :frame-id '?frame-id
+                        :ordering '?ordering
+                        :selection-policy rationalization-plan-policy}]
+   :plausibility 1.0
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :emit-rationalization-plan-request
+                :failure-modes [:missing-rationalization-frame
+                                :missing-planning-context]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:requires-frame? true
+                     :requires-context? true}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-rationalization]
+                :kernel-status :partial
+                :notes "Graphable request fact for rationalization branch planning."}})
+
+(def ^:private rationalization-plan-dispatch-rule
+  {:id :goal-family/rationalization-plan-dispatch
+   :rule-kind :planning
+   :mueller-mode :plan-only
+   :antecedent-schema [{:fact/type :family-plan-request
+                        :goal-type :rationalization
+                        :goal-id '?goal-id
+                        :context-id '?context-id
+                        :trigger-context-id '?trigger-context-id
+                        :failed-goal-id '?failed-goal-id
+                        :frame-id '?frame-id
+                        :ordering '?ordering
+                        :selection-policy '?selection-policy}]
+   :consequent-schema [{:goal-id '?goal-id
+                        :context-id '?context-id
+                        :trigger-context-id '?trigger-context-id
+                        :failed-goal-id '?failed-goal-id
+                        :frame-id '?frame-id
+                        :ordering '?ordering
+                        :selection-policy '?selection-policy}]
+   :plausibility 1.0
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :dispatch-rationalization-plan-request
+                :failure-modes [:missing-family-plan-request]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:request-goal-type :rationalization}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-rationalization]
+                :kernel-status :partial
+                :notes "Consumes a rationalization plan request into the current bounded plan payload."}})
+
 (def ^:private roving-trigger-rule
   {:id :goal-family/roving-trigger
    :rule-kind :inference
@@ -413,7 +483,9 @@
   "Return the currently extracted RuleV1 planning slices."
   []
   [roving-plan-request-rule
-   roving-plan-dispatch-rule])
+   roving-plan-dispatch-rule
+   rationalization-plan-request-rule
+   rationalization-plan-dispatch-rule])
 
 (declare reversal-sprout-alternative
          reversal-trigger-facts
@@ -1129,6 +1201,37 @@
                                       episode-id
                                       ordering)]))
 
+(defn- instantiate-rationalization-plan-request
+  [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
+  (-> (rules/instantiate-rule rationalization-plan-request-rule
+                              {'?goal-id goal-id
+                               '?context-id context-id
+                               '?trigger-context-id trigger-context-id
+                               '?failed-goal-id failed-goal-id
+                               '?frame-id frame-id
+                               '?ordering ordering})
+      :consequents
+      first))
+
+(defn- rationalization-plan-request-facts
+  [world {:keys [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
+          :or {ordering 1.0}}]
+  (let [trigger-context-id (or trigger-context-id context-id)
+        frame-candidates (rationalization-frame-candidates
+                          world
+                          {:trigger-context-id trigger-context-id
+                           :failed-goal-id failed-goal-id})
+        frame (or (when frame-id
+                    (some #(when (= frame-id (:frame-id %)) %) frame-candidates))
+                  (first frame-candidates))]
+    (when frame
+      [(instantiate-rationalization-plan-request goal-id
+                                                 context-id
+                                                 trigger-context-id
+                                                 failed-goal-id
+                                                 (:frame-id frame)
+                                                 ordering)])))
+
 (defn roving-plan
   "Sprout a side-channel context and seed it with a pleasant episode reminder.
 
@@ -1255,7 +1358,26 @@
   assert its reframe facts into a fresh branch."
   [world {:keys [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
           :or {ordering 1.0}}]
-  (let [trigger-context-id (or trigger-context-id context-id)
+  (let [plan-request-facts (or (seq (rationalization-plan-request-facts
+                                     world
+                                     {:goal-id goal-id
+                                      :context-id context-id
+                                      :trigger-context-id trigger-context-id
+                                      :failed-goal-id failed-goal-id
+                                      :frame-id frame-id
+                                      :ordering ordering}))
+                               (throw (ex-info "RATIONALIZATION needs a matching frame"
+                                               {:goal-id goal-id
+                                                :context-id context-id
+                                                :trigger-context-id trigger-context-id
+                                                :failed-goal-id failed-goal-id
+                                                :frame-id frame-id})))
+        {:keys [trigger-context-id failed-goal-id frame-id ordering selection-policy]}
+        (or (first (plan-payloads-from-request-facts plan-request-facts))
+            (throw (ex-info "RATIONALIZATION needs a plan payload"
+                            {:goal-id goal-id
+                             :context-id context-id
+                             :plan-request-facts plan-request-facts})))
         frame-candidates (rationalization-frame-candidates
                           world
                           {:trigger-context-id trigger-context-id
@@ -1263,11 +1385,13 @@
         frame (or (when frame-id
                     (some #(when (= frame-id (:frame-id %)) %) frame-candidates))
                   (first frame-candidates)
-                  (throw (ex-info "RATIONALIZATION needs a matching frame"
+                  (throw (ex-info "RATIONALIZATION plan payload resolved to missing frame"
                                   {:goal-id goal-id
                                    :context-id context-id
                                    :trigger-context-id trigger-context-id
-                                   :failed-goal-id failed-goal-id})))
+                                   :failed-goal-id failed-goal-id
+                                   :frame-id frame-id
+                                   :plan-request-facts plan-request-facts})))
         [world sprouted-context-id] (cx/sprout world context-id)
         success-intends {:fact/type :intends
                          :from-goal-id goal-id
@@ -1312,7 +1436,7 @@
             :frame-id (:frame-id frame)
             :frame-goal-id (:goal-id frame)
             :reframe-fact-ids (mapv fact-id (:reframe-facts frame))
-            :selection-policy rationalization-plan-policy
+            :selection-policy selection-policy
             :selection-reasons (:selection-reasons frame)
             :situation-id (:situation-id frame)
             :diversion-policy (:diversion-policy diversion)
