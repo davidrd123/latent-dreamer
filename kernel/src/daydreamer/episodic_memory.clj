@@ -16,6 +16,7 @@
 (def ^:private recent-episode-max-length 4)
 (def ^:private shared-edge-bonus-scale 5.0)
 (def ^:private shared-rule-bonus-scale 4.0)
+(def ^:private payload-exemplar-cluster-cap 2)
 
 (defn- graph-bridge-bonus-scale
   [depth]
@@ -70,6 +71,73 @@
 
     (some? cycle-created)
     (assoc :cycle-created cycle-created)))
+
+(defn- payload-cluster
+  [episode]
+  (or (:payload-cluster episode)
+      (get-in episode [:evaluation :payload-cluster])))
+
+(defn- episode-age
+  [world episode]
+  (max 0
+       (- (long (or (:cycle world) 0))
+          (long (or (:cycle-created episode) 0)))))
+
+(defn- ranked-cluster-episode-ids
+  [world cluster]
+  (->> (:episodes world)
+       vals
+       (filter (fn [episode]
+                 (and (= :payload-exemplar (:retention-class episode))
+                      (= :keep-exemplar (:keep-decision episode))
+                      (= cluster (payload-cluster episode)))))
+       (sort-by (juxt (comp - #(long (or % 0)) :cycle-created)
+                      (comp str :id)))
+       (mapv :id)))
+
+(defn- retention-accessibility-info
+  [world episode]
+  (let [retention-class (:retention-class episode)
+        keep-decision (:keep-decision episode)
+        age (episode-age world episode)
+        cluster (payload-cluster episode)]
+    (cond
+      (= :hot-cues retention-class)
+      (cond
+        (>= age 4)
+        {:retention-adjustment -1.0
+         :retention-reason :hot-cue-stale
+         :retention-age age}
+
+        (>= age 2)
+        {:retention-adjustment -0.5
+         :retention-reason :hot-cue-aging
+         :retention-age age}
+
+        :else
+        {:retention-adjustment 0.0
+         :retention-reason :hot-cue-fresh
+         :retention-age age})
+
+      (and (= :payload-exemplar retention-class)
+           (= :keep-exemplar keep-decision)
+           cluster)
+      (let [ranked-ids (ranked-cluster-episode-ids world cluster)
+            rank (.indexOf ranked-ids (:id episode))]
+        (if (and (not= -1 rank)
+                 (< rank payload-exemplar-cluster-cap))
+          {:retention-adjustment 0.0
+           :retention-reason :payload-exemplar-active
+           :payload-cluster cluster
+           :payload-cluster-rank (inc rank)}
+          {:retention-accessible? false
+           :retention-adjustment 0.0
+           :retention-reason :payload-cluster-capped
+           :payload-cluster cluster
+           :payload-cluster-rank (when (not= -1 rank) (inc rank))}))
+
+      :else
+      nil)))
 
 (defn- next-episode-id
   [world]
@@ -262,15 +330,25 @@
          (keep (fn [[episode-id mark-count]]
                  (let [episode (episode-or-throw world episode-id)
                        bonus-info (provenance-bonus-info episode retrieval-opts)
+                       retention-info (retention-accessibility-info world episode)
+                       retention-accessible? (not= false
+                                                   (:retention-accessible?
+                                                    retention-info))
                        provenance-bonus (double (or (:provenance-bonus bonus-info)
                                                     0.0))
+                       retention-adjustment (double
+                                             (or (:retention-adjustment
+                                                  retention-info)
+                                                 0.0))
                        effective-marks (+ (double mark-count)
-                                          provenance-bonus)
+                                          provenance-bonus
+                                          retention-adjustment)
                        threshold (max 0
                                       (if serendipity?
                                         (dec (or (threshold-key episode) 0))
                                         (or (threshold-key episode) 0)))]
-                   (when (and (not (recent-episode? world episode-id))
+                   (when (and retention-accessible?
+                              (not (recent-episode? world episode-id))
                               (>= effective-marks threshold))
                      (cond-> {:episode-id episode-id
                               :marks mark-count
@@ -283,7 +361,16 @@
                                            [:provenance-bridge-depth
                                             :provenance-bridge-path
                                             :provenance-bridge-direction
-                                            :provenance-bridge-count])))))))
+                                            :provenance-bridge-count]))
+
+                       (or (not (zero? retention-adjustment))
+                           (:retention-reason retention-info))
+                       (merge {:retention-adjustment retention-adjustment}
+                              (select-keys retention-info
+                                           [:retention-reason
+                                            :retention-age
+                                            :payload-cluster
+                                            :payload-cluster-rank])))))))
          (sort-by (juxt (comp - #(or % 0.0) :effective-marks)
                         (comp - :marks)
                         (comp str :episode-id)))

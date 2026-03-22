@@ -236,6 +236,90 @@
     (is (= [4.0 3.5]
            (mapv :effective-marks results)))))
 
+(deftest hot-cue-episodes-lose-accessibility-as-they-age
+  (let [[world root-id] (world-with-root)
+        [world episode-id]
+        (epmem/add-episode world
+                           {:rule :roving-plan
+                            :context-id root-id
+                            :retention-class :hot-cues
+                            :keep-decision :keep-hot})
+        world (epmem/store-episode world episode-id :sunlight {:reminding? true})]
+    (testing "fresh hot cues remain accessible"
+      (is (= [{:episode-id episode-id
+               :marks 1
+               :threshold 1
+               :retention-adjustment 0.0
+               :retention-reason :hot-cue-fresh
+               :retention-age 0}]
+             (epmem/retrieve-episodes world
+                                      [:sunlight]
+                                      {:threshold-key :reminding-threshold}))))
+    (testing "stale hot cues decay below the same retrieval threshold"
+      (is (= []
+             (epmem/retrieve-episodes (assoc world :cycle 5)
+                                      [:sunlight]
+                                      {:threshold-key :reminding-threshold}))))))
+
+(deftest payload-exemplar-access-is-capped-per-cluster
+  (let [[world root-id] (world-with-root)
+        cluster [:family/rationalization :g-1 :frame-1]
+        [world oldest-episode-id]
+        (epmem/add-episode world
+                           {:rule :rationalization-plan
+                            :context-id root-id
+                            :retention-class :payload-exemplar
+                            :keep-decision :keep-exemplar
+                            :evaluation {:payload-cluster cluster}})
+        world (-> world
+                  (assoc :cycle 1)
+                  (epmem/store-episode oldest-episode-id :hope {:reminding? true}))
+        [world middle-episode-id]
+        (epmem/add-episode world
+                           {:rule :rationalization-plan
+                            :context-id root-id
+                            :retention-class :payload-exemplar
+                            :keep-decision :keep-exemplar
+                            :evaluation {:payload-cluster cluster}})
+        world (-> world
+                  (assoc :cycle 2)
+                  (epmem/store-episode middle-episode-id :hope {:reminding? true}))
+        [world newest-episode-id]
+        (epmem/add-episode world
+                           {:rule :rationalization-plan
+                            :context-id root-id
+                            :retention-class :payload-exemplar
+                            :keep-decision :keep-exemplar
+                            :evaluation {:payload-cluster cluster}})
+        world (-> world
+                  (assoc :cycle 3)
+                  (epmem/store-episode newest-episode-id :hope {:reminding? true}))
+        results (epmem/retrieve-episodes world
+                                         [:hope]
+                                         {:threshold-key :reminding-threshold})
+        result-by-id (into {} (map (juxt :episode-id identity) results))]
+    (is (= #{middle-episode-id newest-episode-id}
+           (set (map :episode-id results))))
+    (is (= nil (get result-by-id oldest-episode-id)))
+    (is (= {:retention-adjustment 0.0
+            :retention-reason :payload-exemplar-active
+            :payload-cluster cluster
+            :payload-cluster-rank 2}
+           (select-keys (get result-by-id middle-episode-id)
+                        [:retention-adjustment
+                         :retention-reason
+                         :payload-cluster
+                         :payload-cluster-rank])))
+    (is (= {:retention-adjustment 0.0
+            :retention-reason :payload-exemplar-active
+            :payload-cluster cluster
+            :payload-cluster-rank 1}
+           (select-keys (get result-by-id newest-episode-id)
+                        [:retention-adjustment
+                         :retention-reason
+                         :payload-cluster
+                         :payload-cluster-rank])))))
+
 (deftest episode-provenance-info-detects-episode-to-active-bridges
   (let [[world root-id] (world-with-root)
         [world episode-id]

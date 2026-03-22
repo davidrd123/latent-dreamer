@@ -842,7 +842,10 @@
              :threshold 2
              :provenance-bonus 4.0
              :effective-marks 5.0
-             :provenance-reason :shared-rule}]
+             :provenance-reason :shared-rule
+             :retention-adjustment 0.0
+             :retention-reason :hot-cue-fresh
+             :retention-age 0}]
            hits))))
 
 (deftest stored-rationalization-family-plan-episode-feeds-later-roving
