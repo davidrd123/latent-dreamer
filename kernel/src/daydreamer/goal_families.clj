@@ -1523,24 +1523,7 @@
 
 (defn- family-plan-retrieval-indices
   [family-plan]
-  (->> (case (:family family-plan)
-         :roving (get-in family-plan [:selection :roving_active_indices])
-         :rationalization (concat (get-in family-plan
-                                          [:selection
-                                           :rationalization_reframe_fact_ids]
-                                          [])
-                                  [(get-in family-plan
-                                           [:selection
-                                            :rationalization_hope_situation])])
-         :reversal (concat (get-in family-plan
-                                   [:selection
-                                    :reversal_counterfactual_fact_ids]
-                                   [])
-                           (get-in family-plan
-                                   [:selection
-                                    :reversal_leaf_retracted_facts]
-                                   []))
-         [])
+  (->> (:retrieval-indices family-plan)
        (keep identity)
        distinct
        (take 3)
@@ -1548,17 +1531,10 @@
 
 (defn- family-plan-support-indices
   [family-plan]
-  (let [selection (:selection family-plan)]
-    (->> [(keyword "family" (name (:family family-plan)))
-          (:family_goal_id selection)
-          (case (:family family-plan)
-            :roving (:roving_selection_policy selection)
-            :rationalization (:rationalization_selection_policy selection)
-            :reversal (:reversal_target_policy selection)
-            nil)]
-         (keep identity)
-         distinct
-         vec)))
+  (->> (:support-indices family-plan)
+       (keep identity)
+       distinct
+       vec))
 
 (defn- store-family-plan-episode
   [world family-plan]
@@ -1616,9 +1592,14 @@
                           rule-path)]
         [world
          (-> family-plan
+             (assoc :retrieval-indices retrieval-indices)
+             (assoc :support-indices support-indices)
              (assoc :family-episode-id episode-id)
              (assoc-in [:selection :family_plan_episode_id] episode-id))])
-      [world family-plan])))
+      [world
+       (-> family-plan
+           (assoc :retrieval-indices retrieval-indices)
+           (assoc :support-indices support-indices))])))
 
 (defn- ranked-roving-episode-ids
   [world goal-id candidate-episode-ids]
@@ -2232,6 +2213,11 @@
              {:family :reversal
               :sprouted-context-ids sprouted-context-ids
               :rule-provenance (:rule-provenance primary-branch)
+              :retrieval-indices (concat (:counterfactual-fact-ids reversal-target)
+                                         (:retracted-fact-ids primary-branch))
+              :support-indices [(keyword "family" "reversal")
+                                (:new-top-level-goal-id reversal-target)
+                                (:selection-policy reversal-target)]
               :selection {:goal_family :reversal
                           :family_goal_id (:new-top-level-goal-id reversal-target)
                           :reversal_target_policy (:selection-policy reversal-target)
@@ -2270,6 +2256,10 @@
          {:family :roving
           :sprouted-context-ids [(:sprouted-context-id roving-result)]
           :rule-provenance (:rule-provenance roving-result)
+          :retrieval-indices (:active-indices roving-result)
+          :support-indices [(keyword "family" "roving")
+                            goal-id
+                            (:selection-policy roving-result)]
           :selection {:goal_family :roving
                       :family_goal_id goal-id
                       :roving_selection_policy (:selection-policy roving-result)
@@ -2299,6 +2289,12 @@
          {:family :rationalization
           :sprouted-context-ids [(:sprouted-context-id rationalization-result)]
           :rule-provenance (:rule-provenance rationalization-result)
+          :retrieval-indices (concat (:reframe-fact-ids rationalization-result)
+                                     [(:hope-situation-id rationalization-result)])
+          :support-indices [(keyword "family" "rationalization")
+                            goal-id
+                            (:selection-policy rationalization-result)
+                            (:frame-id rationalization-result)]
           :selection {:goal_family :rationalization
                       :family_goal_id goal-id
                       :rationalization_selection_policy (:selection-policy rationalization-result)

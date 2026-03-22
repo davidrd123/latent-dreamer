@@ -712,6 +712,12 @@
                                    :context-id context-id})
         family-episode-id (:family-episode-id family-plan)
         stored-episode (get-in world [:episodes family-episode-id])]
+    (is (= [:calm :sunlight]
+           (:retrieval-indices family-plan)))
+    (is (= [:family/roving
+            roving-goal-id
+            :pleasant_episode_seed]
+           (:support-indices family-plan)))
     (is (= family-episode-id
            (get-in family-plan [:selection :family_plan_episode_id])))
     (is (= {:rule-path [:goal-family/roving-plan-request
@@ -774,6 +780,87 @@
              :effective-marks 2.0
              :provenance-reason :shared-rule}]
            hits))))
+
+(deftest stored-rationalization-family-plan-episode-feeds-later-roving
+  (let [[world root-id] (world-with-root)
+        [world trigger-context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        frame-id :rf-zone-mercy
+        frame-facts [guide-fact
+                     {:fact/type :rationalization
+                      :fact/id :zone_is_mercy}
+                     {:fact/type :rationalization
+                      :fact/id :delay_is_faith}]
+        world (-> world
+                  (cx/assert-fact trigger-context-id {:fact/type :goal
+                                                      :goal-id failed-goal-id
+                                                      :top-level-goal failed-goal-id
+                                                      :status :failed
+                                                      :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :emotion
+                                                      :emotion-id emotion-id
+                                                      :strength 0.82
+                                                      :valence :negative
+                                                      :affect :dread})
+                  (cx/assert-fact trigger-context-id {:fact/type :dependency
+                                                      :from-id emotion-id
+                                                      :to-id failed-goal-id})
+                  (cx/assert-fact trigger-context-id
+                                  (rationalization-frame-fact frame-id
+                                                              failed-goal-id
+                                                              0.91
+                                                              frame-facts)))
+        [world rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.82
+          :main-motiv :e-dread})
+        rationalization-context-id (get-in world [:goals rationalization-goal-id :next-cx])
+        [world rationalization-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id rationalization-goal-id
+                                   :context-id rationalization-context-id
+                                   :trigger-context-id trigger-context-id
+                                   :failed-goal-id failed-goal-id})
+        rationalization-family-episode-id (:family-episode-id rationalization-family-plan)
+        [world unrelated-episode-id]
+        (episodic/add-episode world
+                              {:rule :unrelated-memory
+                               :rule-path [:test/unrelated]
+                               :reminding-threshold 2})
+        [world pleasant-episode-id]
+        (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode unrelated-episode-id :s5_the_guide
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :s5_the_guide
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :calm
+                                          {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        roving-context-id (get-in world [:goals roving-goal-id :next-cx])
+        [_world roving-result]
+        (families/run-family-plan world
+                                  {:goal-id roving-goal-id
+                                   :context-id roving-context-id})]
+    (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
+           (:retrieval-indices rationalization-family-plan)))
+    (is (= [rationalization-family-episode-id]
+           (:reminded-episode-ids (:result roving-result))))
+    (is (not (some #{unrelated-episode-id}
+                   (:reminded-episode-ids (:result roving-result)))))))
 
 (deftest rationalization-activation-candidates-detect-framed-failures
   (let [[world root-id] (world-with-root)
