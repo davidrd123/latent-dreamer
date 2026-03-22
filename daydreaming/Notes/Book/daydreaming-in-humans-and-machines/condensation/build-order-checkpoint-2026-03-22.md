@@ -59,6 +59,9 @@ Implemented in the first pass:
   `record-promotion-evidence`, and `reconcile-episode-admission`
 - `roving` now emits typed `:episode-use` and `:episode-outcome`
   facts for the family-plan episodes it actually uses
+- stored rationalization-frame reopen and stored reversal-counterfactual
+  reopen now also run through attributed use/outcome rather than the
+  old same-family reuse wrapper
 - cross-family success now promotes via explicit use evidence
   (`:cross-family-use-success`) rather than raw retrieval alone
 

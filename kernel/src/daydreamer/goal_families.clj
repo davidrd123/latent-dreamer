@@ -1680,23 +1680,6 @@
    :goal-id goal-id
    :source-rule (last (:rule-path rule-provenance))})
 
-(defn- note-family-plan-episode-reuse
-  [world episode-id target-family rule-provenance]
-  (let [episode (get-in world [:episodes episode-id])
-        source-family (get-in episode [:provenance :family])]
-    (if (and episode
-             (= :family-plan (get-in episode [:provenance :source]))
-             source-family)
-      (first (episodic/note-episode-reuse
-              world
-              episode-id
-              {:reason :family-plan-reuse
-               :source-family source-family
-               :target-family target-family
-               :source-rule (last (:rule-path episode))
-               :target-rule (last (:rule-path rule-provenance))}))
-      world)))
-
 (defn- note-family-plan-episode-use
   [world episode-id target-family rule-provenance use-role goal-id branch-context-id]
   (let [episode (get-in world [:episodes episode-id])
@@ -1813,6 +1796,118 @@
                        (conj (:episode-id use-record)))]))
           [world [] [] []]
           use-records))
+
+(defn- immediate-family-plan-use-outcome
+  [family-plan]
+  (let [evaluation (:evaluation family-plan)
+        flags (set (:anti-residue-flags evaluation))]
+    (cond
+      (contains? flags :contradicted)
+      {:outcome :contradicted
+       :reason :family-evaluation-contradicted}
+
+      (contains? flags :backfired)
+      {:outcome :backfired
+       :reason :family-evaluation-backfired}
+
+      (or (contains? flags :stale)
+          (= :archive-cold (:keep-decision evaluation)))
+      {:outcome :failed
+       :reason :family-evaluation-not-reused}
+
+      :else
+      {:outcome :succeeded
+       :reason :family-plan-branch-succeeded})))
+
+(defn- family-plan-source-episode
+  [family-plan]
+  (case (:family family-plan)
+    :rationalization
+    (when-let [episode-id (get-in family-plan
+                                  [:selection :rationalization_source_episode])]
+      {:episode-id episode-id
+       :use-role :frame-source})
+
+    :reversal
+    (when-let [episode-id (get-in family-plan
+                                  [:selection :reversal_counterfactual_source])]
+      {:episode-id episode-id
+       :use-role :counterfactual-source})
+
+    nil))
+
+(defn- record-family-plan-source-episode-use
+  [world family-plan]
+  (if-let [{:keys [episode-id use-role]} (family-plan-source-episode family-plan)]
+    (let [branch-context-id (family-plan-branch-context-id family-plan)
+          target-family (:family family-plan)
+          goal-id (get-in family-plan [:selection :family_goal_id])
+          rule-provenance (:rule-provenance family-plan)
+          [world use-record]
+          (note-family-plan-episode-use world
+                                        episode-id
+                                        target-family
+                                        rule-provenance
+                                        use-role
+                                        goal-id
+                                        branch-context-id)]
+      (if-not use-record
+        [world family-plan]
+        (let [source-family (:source-family use-record)
+              use-fact (episode-use-fact
+                        {:episode-id episode-id
+                         :use-id (:use-id use-record)
+                         :branch-context-id branch-context-id
+                         :source-family source-family
+                         :target-family target-family
+                         :use-role use-role
+                         :goal-id goal-id
+                         :rule-provenance rule-provenance})
+              world (cx/assert-fact world branch-context-id use-fact)
+              outcome-spec (immediate-family-plan-use-outcome family-plan)
+              [world _outcome-info]
+              (episodic/resolve-episode-use-outcome world
+                                                    episode-id
+                                                    (:use-id use-record)
+                                                    outcome-spec)
+              outcome-fact (episode-outcome-fact
+                            {:episode-id episode-id
+                             :use-id (:use-id use-record)
+                             :branch-context-id branch-context-id
+                             :source-family source-family
+                             :target-family target-family
+                             :outcome (:outcome outcome-spec)
+                             :goal-id goal-id
+                             :rule-provenance rule-provenance})
+              world (cx/assert-fact world branch-context-id outcome-fact)
+              [world transition] (episodic/reconcile-episode-admission world
+                                                                       episode-id)
+              promotion-fact (when (= :durable (:to-status transition))
+                               (episode-promotion-fact
+                                {:episode-id episode-id
+                                 :branch-context-id branch-context-id
+                                 :source-family source-family
+                                 :target-family target-family
+                                 :promotion-reason (:reason transition)
+                                 :rule-provenance rule-provenance}))
+              world (if promotion-fact
+                      (cx/assert-fact world branch-context-id promotion-fact)
+                      world)]
+          [world
+           (update family-plan
+                   :result
+                   (fn [result]
+                     (-> (or result {})
+                         (update :episode-use-records (fnil conj []) use-record)
+                         (update :episode-use-facts (fnil conj []) use-fact)
+                         (update :episode-outcome-facts (fnil conj []) outcome-fact)
+                         (update :promotion-facts (fnil into [])
+                                 (cond-> []
+                                   promotion-fact (conj promotion-fact)))
+                         (update :promoted-episode-ids (fnil into [])
+                                 (cond-> []
+                                   promotion-fact (conj episode-id))))))])))
+    [world family-plan]))
 
 (defn- rationalization-plan-request-facts
   [world {:keys [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
@@ -2140,13 +2235,6 @@
         world (cond-> world
                 affect-state-fact
                 (cx/assert-fact sprouted-context-id affect-state-fact))
-        world (if (and (= :stored_rationalization_episode selection-policy)
-                       (:episode-id frame))
-                (note-family-plan-episode-reuse world
-                                                (:episode-id frame)
-                                                :rationalization
-                                                rule-provenance)
-                world)
         world (if (contains? (:goals world) goal-id)
                 (goals/set-next-context world goal-id sprouted-context-id)
                 world)
@@ -2168,6 +2256,7 @@
                                                         :hope-strength
                                                         :hope-situation-id])})]
     [world {:sprouted-context-id sprouted-context-id
+            :source-episode-id (:episode-id frame)
             :frame-id (:frame-id frame)
             :frame-goal-id (:goal-id frame)
             :reframe-facts (:reframe-facts frame)
@@ -2255,55 +2344,50 @@
               world (cond-> world
                       affect-state-fact
                       (cx/assert-fact (:old-context-id reversal-target)
-                                      affect-state-fact))
-              world (if (and primary-branch
-                             (= :stored_reversal_episode
-                                (:counterfactual-policy reversal-target))
-                             (:counterfactual-cause-id reversal-target))
-                      (note-family-plan-episode-reuse world
-                                                      (:counterfactual-cause-id reversal-target)
-                                                      :reversal
-                                                      (:rule-provenance primary-branch))
-                      world)]
+                                      affect-state-fact))]
           (if-not primary-branch
             [world nil]
-            (store-family-plan-episode
-             world
-             (maybe-apply-family-evaluator
-              {:family :reversal
-               :sprouted-context-ids sprouted-context-ids
-               :rule-provenance (:rule-provenance primary-branch)
-               :episode-payload {:input-facts (:input-facts reversal-target)}
-               :retrieval-indices (concat (:counterfactual-fact-ids reversal-target)
-                                          (:retracted-fact-ids primary-branch))
-               :support-indices [(keyword "family" "reversal")
-                                 (:new-top-level-goal-id reversal-target)
-                                 (:selection-policy reversal-target)]
-               :selection {:goal_family :reversal
-                           :family_goal_id (:new-top-level-goal-id reversal-target)
-                           :reversal_target_policy (:selection-policy reversal-target)
-                           :reversal_target_goal (:old-top-level-goal-id reversal-target)
-                           :reversal_source_context (:old-context-id primary-branch)
-                           :reversal_leaf_policy (:selection-policy primary-branch)
-                           :reversal_leaf_goal (:leaf-goal-id primary-branch)
-                           :reversal_leaf_strength (:leaf-strength primary-branch)
-                           :reversal_leaf_depth (:context-depth reversal-target)
-                           :reversal_leaf_emotion_pressure (:emotion-pressure reversal-target)
-                           :reversal_leaf_reasons (:selection-reasons primary-branch)
-                           :reversal_leaf_retracted_facts (:retracted-fact-ids primary-branch)
-                           :reversal_branch_count (count branch-results)
-                           :reversal_branch_contexts sprouted-context-ids
-                           :reversal_counterfactual_policy (:counterfactual-policy reversal-target)
-                           :reversal_counterfactual_source (:counterfactual-cause-id reversal-target)
-                           :reversal_counterfactual_goal (:counterfactual-goal-id reversal-target)
-                           :reversal_counterfactual_reasons (:counterfactual-reasons reversal-target)
-                           :reversal_counterfactual_fact_ids (:counterfactual-fact-ids reversal-target)
-                           :reversal_branch_context (:sprouted-context-id primary-branch)}
-               :affect-state-fact affect-state-fact
-               :reversal-target reversal-target
-               :primary-branch primary-branch
-               :branch-results branch-results}
-              (:family-evaluator opts)))))
+            (let [[world family-plan]
+                  (store-family-plan-episode
+                   world
+                   (maybe-apply-family-evaluator
+                    {:family :reversal
+                     :sprouted-context-ids sprouted-context-ids
+                     :rule-provenance (:rule-provenance primary-branch)
+                     :episode-payload {:input-facts (:input-facts reversal-target)}
+                     :retrieval-indices (concat (:counterfactual-fact-ids reversal-target)
+                                                (:retracted-fact-ids primary-branch))
+                     :support-indices [(keyword "family" "reversal")
+                                       (:new-top-level-goal-id reversal-target)
+                                       (:selection-policy reversal-target)]
+                     :selection {:goal_family :reversal
+                                 :family_goal_id (:new-top-level-goal-id reversal-target)
+                                 :reversal_target_policy (:selection-policy reversal-target)
+                                 :reversal_target_goal (:old-top-level-goal-id reversal-target)
+                                 :reversal_source_context (:old-context-id primary-branch)
+                                 :reversal_leaf_policy (:selection-policy primary-branch)
+                                 :reversal_leaf_goal (:leaf-goal-id primary-branch)
+                                 :reversal_leaf_strength (:leaf-strength primary-branch)
+                                 :reversal_leaf_depth (:context-depth reversal-target)
+                                 :reversal_leaf_emotion_pressure (:emotion-pressure reversal-target)
+                                 :reversal_leaf_reasons (:selection-reasons primary-branch)
+                                 :reversal_leaf_retracted_facts (:retracted-fact-ids primary-branch)
+                                 :reversal_branch_count (count branch-results)
+                                 :reversal_branch_contexts sprouted-context-ids
+                                 :reversal_counterfactual_policy (:counterfactual-policy reversal-target)
+                                 :reversal_counterfactual_source (:counterfactual-cause-id reversal-target)
+                                 :reversal_counterfactual_goal (:counterfactual-goal-id reversal-target)
+                                 :reversal_counterfactual_reasons (:counterfactual-reasons reversal-target)
+                                 :reversal_counterfactual_fact_ids (:counterfactual-fact-ids reversal-target)
+                                 :reversal_branch_context (:sprouted-context-id primary-branch)}
+                     :affect-state-fact affect-state-fact
+                     :reversal-target reversal-target
+                     :primary-branch primary-branch
+                     :branch-results branch-results}
+                    (:family-evaluator opts)))
+                  [world family-plan]
+                  (record-family-plan-source-episode-use world family-plan)]
+              [world family-plan])))
         [world nil])
 
       :roving
@@ -2347,42 +2431,47 @@
                     :failed-goal-id (or (:failed-goal-id opts)
                                         (get-in world [:goals goal-id :trigger-failed-goal-id]))
                     :frame-id (or (:frame-id opts)
-                                  (get-in world [:goals goal-id :trigger-frame-id]))))]
-        (store-family-plan-episode
-         world
-         (maybe-apply-family-evaluator
-          {:family :rationalization
-           :sprouted-context-ids [(:sprouted-context-id rationalization-result)]
-           :rule-provenance (:rule-provenance rationalization-result)
-           :episode-payload {:reframe-facts (:reframe-facts rationalization-result)
-                             :frame-id (:frame-id rationalization-result)
-                             :frame-goal-id (:frame-goal-id rationalization-result)
-                             :hope-situation-id (:hope-situation-id rationalization-result)}
-           :retrieval-indices (concat (:reframe-fact-ids rationalization-result)
-                                      [(:hope-situation-id rationalization-result)])
-           :support-indices [(keyword "family" "rationalization")
-                             goal-id
-                             (:selection-policy rationalization-result)
-                             (:frame-id rationalization-result)]
-           :selection {:goal_family :rationalization
-                       :family_goal_id goal-id
-                       :rationalization_selection_policy (:selection-policy rationalization-result)
-                       :rationalization_frame_id (:frame-id rationalization-result)
-                       :rationalization_frame_goal (:frame-goal-id rationalization-result)
-                       :rationalization_frame_reasons (:selection-reasons rationalization-result)
-                       :rationalization_reframe_fact_ids (:reframe-fact-ids rationalization-result)
-                       :rationalization_branch_context (:sprouted-context-id rationalization-result)
-                       :rationalization_diversion_policy (:diversion-policy rationalization-result)
-                       :rationalization_trigger_emotion_id (:trigger-emotion-id rationalization-result)
-                       :rationalization_trigger_emotion_before (:trigger-emotion-before rationalization-result)
-                       :rationalization_trigger_emotion_after (:trigger-emotion-after rationalization-result)
-                       :rationalization_hope_emotion_id (:hope-emotion-id rationalization-result)
-                       :rationalization_hope_strength (:hope-strength rationalization-result)
-                       :rationalization_hope_situation (:hope-situation-id rationalization-result)}
-           :emotion-shifts (:emotion-shifts rationalization-result)
-           :emotional-state (:emotional-state rationalization-result)
-           :result rationalization-result}
-          (:family-evaluator opts))))
+                                  (get-in world [:goals goal-id :trigger-frame-id]))))
+            [world family-plan]
+            (store-family-plan-episode
+             world
+             (maybe-apply-family-evaluator
+              {:family :rationalization
+               :sprouted-context-ids [(:sprouted-context-id rationalization-result)]
+               :rule-provenance (:rule-provenance rationalization-result)
+               :episode-payload {:reframe-facts (:reframe-facts rationalization-result)
+                                 :frame-id (:frame-id rationalization-result)
+                                 :frame-goal-id (:frame-goal-id rationalization-result)
+                                 :hope-situation-id (:hope-situation-id rationalization-result)}
+               :retrieval-indices (concat (:reframe-fact-ids rationalization-result)
+                                          [(:hope-situation-id rationalization-result)])
+               :support-indices [(keyword "family" "rationalization")
+                                 goal-id
+                                 (:selection-policy rationalization-result)
+                                 (:frame-id rationalization-result)]
+               :selection {:goal_family :rationalization
+                           :family_goal_id goal-id
+                           :rationalization_selection_policy (:selection-policy rationalization-result)
+                           :rationalization_source_episode (:source-episode-id rationalization-result)
+                           :rationalization_frame_id (:frame-id rationalization-result)
+                           :rationalization_frame_goal (:frame-goal-id rationalization-result)
+                           :rationalization_frame_reasons (:selection-reasons rationalization-result)
+                           :rationalization_reframe_fact_ids (:reframe-fact-ids rationalization-result)
+                           :rationalization_branch_context (:sprouted-context-id rationalization-result)
+                           :rationalization_diversion_policy (:diversion-policy rationalization-result)
+                           :rationalization_trigger_emotion_id (:trigger-emotion-id rationalization-result)
+                           :rationalization_trigger_emotion_before (:trigger-emotion-before rationalization-result)
+                           :rationalization_trigger_emotion_after (:trigger-emotion-after rationalization-result)
+                           :rationalization_hope_emotion_id (:hope-emotion-id rationalization-result)
+                           :rationalization_hope_strength (:hope-strength rationalization-result)
+                           :rationalization_hope_situation (:hope-situation-id rationalization-result)}
+               :emotion-shifts (:emotion-shifts rationalization-result)
+               :emotional-state (:emotional-state rationalization-result)
+               :result rationalization-result}
+              (:family-evaluator opts)))
+            [world family-plan]
+            (record-family-plan-source-episode-use world family-plan)]
+        [world family-plan])
 
       [world nil])))
 

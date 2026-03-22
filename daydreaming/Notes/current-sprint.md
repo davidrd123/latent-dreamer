@@ -115,6 +115,10 @@ and "deserves future influence":
   reconcile-episode-admission`
 - `roving` now records typed `:episode-use` and `:episode-outcome`
   facts for the seed/reminded family-plan episodes it actually uses
+- `rationalization` now records attributed use/outcome when a stored
+  family-plan episode is actually selected as the frame source
+- `reversal` now records attributed use/outcome when a stored
+  family-plan episode is actually selected as the counterfactual source
 - cross-family success now promotes through attributed use evidence
   (`:cross-family-use-success`) rather than raw retrieval alone
 - promotion does not bypass the recent-episode anti-echo gate;
@@ -133,10 +137,11 @@ and "deserves future influence":
 The reviews now make the next two abstractions explicit:
 - **Step 1:** promotion / anti-residue / accessibility should be
   driven by **episode use with attributed outcomes**, not by retrieval
-  alone. The first roving cross-family slice is now in code, but
-  broader family coverage, outcome resolution beyond simple
-  success/failure, and accessibility are still missing. The evaluator
-  is a gate or veto, not the sole authority.
+  alone. The first real slices are now in code for roving cross-family
+  reuse and the stored rationalization/reversal reopen paths, but
+  broader coverage, richer outcome resolution beyond simple
+  success/failure/backfire/contradiction, and accessibility are still
+  missing. The evaluator is a gate or veto, not the sole authority.
 - **Step 2:** the executor seam belongs in `rules.clj` as
   `execute-rule`, not as growing local effect machinery inside
   `goal_families.clj`.

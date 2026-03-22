@@ -1276,7 +1276,8 @@
                                    :trigger-context-id trigger-context-id
                                    :failed-goal-id failed-goal-id})
         branch-context-id (get-in later-family-plan
-                                  [:selection :rationalization_branch_context])]
+                                  [:selection :rationalization_branch_context])
+        stored-episode (get-in world [:episodes stored-episode-id])]
     (is (= frame-id
            (:frame-id selected-frame)))
     (is (= failed-goal-id
@@ -1299,6 +1300,56 @@
     (is (= frame-id
            (get-in later-family-plan
                    [:selection :rationalization_frame_id])))
+    (is (= [stored-episode-id]
+           (mapv :episode-id
+                 (get-in later-family-plan
+                         [:result :episode-use-records]))))
+    (is (= [:frame-source]
+           (mapv :use-role
+                 (get-in later-family-plan
+                         [:result :episode-use-records]))))
+    (is (= [:succeeded]
+           (mapv :outcome
+                 (get-in later-family-plan
+                         [:result :episode-outcome-facts]))))
+    (is (= [{:fact/type :episode-use
+             :episode-id stored-episode-id
+             :use-id (get-in stored-episode [:use-history 0 :use-id])
+             :branch-context-id branch-context-id
+             :source-family :rationalization
+             :target-family :rationalization
+             :use-role :frame-source
+             :goal-id later-rationalization-goal-id
+             :source-rule :goal-family/rationalization-plan-dispatch}]
+           (get-in later-family-plan
+                   [:result :episode-use-facts])))
+    (is (= [{:fact/type :episode-outcome
+             :episode-id stored-episode-id
+             :use-id (get-in stored-episode [:use-history 0 :use-id])
+             :branch-context-id branch-context-id
+             :source-family :rationalization
+             :target-family :rationalization
+             :outcome :succeeded
+             :goal-id later-rationalization-goal-id
+             :source-rule :goal-family/rationalization-plan-dispatch}]
+           (get-in later-family-plan
+                   [:result :episode-outcome-facts])))
+    (is (= [{:use-id (get-in stored-episode [:use-history 0 :use-id])
+             :episode-id stored-episode-id
+             :cycle 0
+             :source-family :rationalization
+             :target-family :rationalization
+             :status :resolved
+             :reason :family-plan-use
+             :use-role :frame-source
+             :goal-id later-rationalization-goal-id
+             :branch-context-id branch-context-id
+             :source-rule :goal-family/rationalization-plan-dispatch
+             :target-rule :goal-family/rationalization-plan-dispatch
+             :outcome :succeeded
+             :resolved-cycle 0
+             :outcome-reason :family-plan-branch-succeeded}]
+           (:use-history stored-episode)))
     (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
            (get-in later-family-plan [:result :reframe-fact-ids])))
     (is (every? #(cx/fact-true? world branch-context-id %)
@@ -1613,7 +1664,10 @@
         _ (is (= :durable (get-in world [:episodes stored-episode-id :admission-status])))
         [_world later-family-plan]
         (families/run-family-plan world
-                                  {:goal-id later-reversal-goal-id})]
+                                  {:goal-id later-reversal-goal-id})
+        stored-episode (get-in _world [:episodes stored-episode-id])
+        branch-context-id (get-in later-family-plan
+                                  [:selection :reversal_branch_context])]
     (is (= [stored-episode-id]
            (mapv :cause-id candidates)))
     (is (= :stored_reversal_episode
@@ -1627,7 +1681,57 @@
     (is (= :stored_reversal_episode
            (get-in later-family-plan [:selection :reversal_counterfactual_policy])))
     (is (= stored-episode-id
-           (get-in later-family-plan [:selection :reversal_counterfactual_source])))))
+           (get-in later-family-plan [:selection :reversal_counterfactual_source])))
+    (is (= [stored-episode-id]
+           (mapv :episode-id
+                 (get-in later-family-plan
+                         [:result :episode-use-records]))))
+    (is (= [:counterfactual-source]
+           (mapv :use-role
+                 (get-in later-family-plan
+                         [:result :episode-use-records]))))
+    (is (= [:succeeded]
+           (mapv :outcome
+                 (get-in later-family-plan
+                         [:result :episode-outcome-facts]))))
+    (is (= [{:fact/type :episode-use
+             :episode-id stored-episode-id
+             :use-id (get-in stored-episode [:use-history 0 :use-id])
+             :branch-context-id branch-context-id
+             :source-family :reversal
+             :target-family :reversal
+             :use-role :counterfactual-source
+             :goal-id later-reversal-goal-id
+             :source-rule :goal-family/reversal-plan-dispatch}]
+           (get-in later-family-plan
+                   [:result :episode-use-facts])))
+    (is (= [{:fact/type :episode-outcome
+             :episode-id stored-episode-id
+             :use-id (get-in stored-episode [:use-history 0 :use-id])
+             :branch-context-id branch-context-id
+             :source-family :reversal
+             :target-family :reversal
+             :outcome :succeeded
+             :goal-id later-reversal-goal-id
+             :source-rule :goal-family/reversal-plan-dispatch}]
+           (get-in later-family-plan
+                   [:result :episode-outcome-facts])))
+    (is (= [{:use-id (get-in stored-episode [:use-history 0 :use-id])
+             :episode-id stored-episode-id
+             :cycle 0
+             :source-family :reversal
+             :target-family :reversal
+             :status :resolved
+             :reason :family-plan-use
+             :use-role :counterfactual-source
+             :goal-id later-reversal-goal-id
+             :branch-context-id branch-context-id
+             :source-rule :goal-family/reversal-plan-dispatch
+             :target-rule :goal-family/reversal-plan-dispatch
+             :outcome :succeeded
+             :resolved-cycle 0
+             :outcome-reason :family-plan-branch-succeeded}]
+           (:use-history stored-episode)))))
 
 (deftest rationalization-activation-candidates-detect-framed-failures
   (let [[world root-id] (world-with-root)

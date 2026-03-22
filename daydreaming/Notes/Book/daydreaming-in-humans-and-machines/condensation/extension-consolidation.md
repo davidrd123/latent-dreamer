@@ -38,6 +38,9 @@ As the system accumulates episodes, rules, and graph connections:
   `reconcile-episode-admission`
 - `roving` now emits typed `:episode-use` and `:episode-outcome`
   facts and reconciles admission from those use records
+- stored rationalization and reversal reopen paths now also record
+  attributed use/outcome when a stored family-plan episode actually
+  shapes the later branch
 - The missing piece is broader evaluator discipline, later demotion,
   and downstream evidence that can set or clear these flags.
   The newest review pair sharpens this further:
