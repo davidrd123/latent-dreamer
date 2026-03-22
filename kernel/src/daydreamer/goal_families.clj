@@ -131,7 +131,8 @@
                         :from-id '?emotion-id
                         :to-id '?failed-goal-id}
                        {:fact/type :rationalization-frame
-                        :fact/id '?frame-id}]
+                        :fact/id '?frame-id
+                        :goal-id '?failed-goal-id}]
    :consequent-schema [{:context-id '?context-id
                         :failed-goal-id '?failed-goal-id
                         :emotion-id '?emotion-id
@@ -560,6 +561,24 @@
        (sort-by str)
        first))
 
+(defn- rationalization-frame-goal-id
+  [fact]
+  (or (:goal-id fact)
+      (:failed-goal-id fact)
+      (:top-level-goal fact)))
+
+(defn- rationalization-frame-counts
+  [facts]
+  (->> facts
+       (keep (fn [fact]
+               (let [reframe-facts (vec (:reframe-facts fact []))
+                     goal-id (rationalization-frame-goal-id fact)]
+                 (when (and (rationalization-frame-fact? fact)
+                            goal-id
+                            (seq reframe-facts))
+                   goal-id))))
+       frequencies))
+
 (defn rationalization-frame-candidates
   "Find explicit rationalization frames for a failed goal.
 
@@ -599,41 +618,43 @@
   (->> (keys (:contexts world))
        (mapcat (fn [context-id]
                  (let [facts (cx/visible-facts world context-id)
-                       failed-goals (local-failed-goal-facts world context-id)
-                       negative-emotions (->> facts
-                                              (filter negative-emotion-fact?)
-                                              (filter #(> (double (or (:strength %) 0.0))
-                                                          rationalization-emotion-threshold))
-                                              (sort-by (juxt (comp - :strength)
-                                                             (comp str fact-id))))
-                       dependencies (filter dependency-fact? facts)]
-                   (for [goal-fact failed-goals
-                         emotion-fact negative-emotions
-                         :let [failed-goal-id (fact-id goal-fact)
-                               frames (rationalization-frame-candidates
-                                       world
-                                       {:trigger-context-id context-id
-                                        :failed-goal-id failed-goal-id})
-                               frame (first frames)]
-                         :when (and frame
-                                    (some (fn [dependency-fact]
-                                            (let [ref-ids (fact-ref-ids dependency-fact)]
-                                              (and (contains? ref-ids failed-goal-id)
-                                                   (contains? ref-ids (fact-id emotion-fact)))))
-                                          dependencies))]
-                     (-> (rules/instantiate-rule
-                          rationalization-activation-rule
-                          {'?context-id context-id
-                           '?failed-goal-id failed-goal-id
-                           '?emotion-id (fact-id emotion-fact)
-                           '?emotion-strength (double (or (:strength emotion-fact) 0.0))
-                           '?frame-id (:frame-id frame)
-                           '?frame-priority (:priority frame)
-                           '?frame-count (count frames)
-                           '?situation-id (or (:situation-id frame)
-                                              (primary-situation-id world context-id))})
-                         :consequents
-                         first)))))
+                       frame-counts (rationalization-frame-counts facts)]
+                   (->> (rules/match-rule rationalization-activation-rule
+                                          facts
+                                          {'?context-id context-id})
+                        (keep (fn [{:keys [bindings matched-facts]}]
+                                (let [emotion-fact (second matched-facts)
+                                      frame-fact (nth matched-facts 3)
+                                      emotion-strength (double
+                                                        (or ('?emotion-strength bindings)
+                                                            0.0))]
+                                  (when (and (negative-emotion-fact? emotion-fact)
+                                             (> emotion-strength
+                                                rationalization-emotion-threshold)
+                                             (seq (:reframe-facts frame-fact)))
+                                    (-> (rules/instantiate-rule
+                                         rationalization-activation-rule
+                                         {'?context-id context-id
+                                          '?failed-goal-id ('?failed-goal-id bindings)
+                                          '?emotion-id ('?emotion-id bindings)
+                                          '?emotion-strength emotion-strength
+                                          '?frame-id ('?frame-id bindings)
+                                          '?frame-priority (double
+                                                            (or (:priority frame-fact)
+                                                                0.0))
+                                          '?frame-count (get frame-counts
+                                                             (rationalization-frame-goal-id
+                                                              frame-fact)
+                                                             0)
+                                          '?situation-id (or (:situation-id frame-fact)
+                                                             (rationalization-frame-situation-id
+                                                              (:reframe-facts frame-fact))
+                                                             (primary-situation-id
+                                                              world
+                                                              context-id))})
+                                        :consequents
+                                        first)))))
+                        vec))))
        (sort-by (juxt (comp - :emotion-strength)
                       (comp - :frame-priority)
                       (comp - :frame-count)
@@ -663,32 +684,26 @@
   (->> (keys (:contexts world))
        (mapcat (fn [context-id]
                  (let [facts (cx/visible-facts world context-id)
-                       failed-goals (local-failed-goal-facts world context-id)
-                       negative-emotions (->> facts
-                                              (filter negative-emotion-fact?)
-                                              (filter #(> (double (or (:strength %) 0.0))
-                                                          roving-emotion-threshold))
-                                              (sort-by (juxt (comp - :strength)
-                                                             (comp str fact-id))))
-                       dependencies (filter dependency-fact? facts)]
-                   (for [goal-fact failed-goals
-                         emotion-fact negative-emotions
-                         :let [failed-goal-id (fact-id goal-fact)
-                               rationalization-frames (rationalization-frame-candidates
-                                                       world
-                                                       {:trigger-context-id context-id
-                                                        :failed-goal-id failed-goal-id})]
-                         :when (empty? rationalization-frames)
-                         :when (some (fn [dependency-fact]
-                                       (let [ref-ids (fact-ref-ids dependency-fact)]
-                                         (and (contains? ref-ids failed-goal-id)
-                                              (contains? ref-ids (fact-id emotion-fact)))))
-                                     dependencies)]
-                     (instantiate-roving-activation
-                      context-id
-                      failed-goal-id
-                      (fact-id emotion-fact)
-                      (double (or (:strength emotion-fact) 0.0)))))))
+                       frame-counts (rationalization-frame-counts facts)]
+                   (->> (rules/match-rule roving-activation-rule
+                                          facts
+                                          {'?context-id context-id})
+                        (keep (fn [{:keys [bindings matched-facts]}]
+                                (let [emotion-fact (second matched-facts)
+                                      emotion-strength (double
+                                                        (or ('?emotion-strength bindings)
+                                                            0.0))
+                                      failed-goal-id ('?failed-goal-id bindings)]
+                                  (when (and (negative-emotion-fact? emotion-fact)
+                                             (> emotion-strength
+                                                roving-emotion-threshold)
+                                             (zero? (get frame-counts failed-goal-id 0)))
+                                    (instantiate-roving-activation
+                                     context-id
+                                     failed-goal-id
+                                     ('?emotion-id bindings)
+                                     emotion-strength)))))
+                        vec))))
        (sort-by (juxt (comp - :emotion-strength)
                       (comp str :context-id)
                       (comp str :failed-goal-id)

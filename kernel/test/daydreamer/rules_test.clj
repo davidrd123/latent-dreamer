@@ -7,10 +7,14 @@
    :rule-kind :inference
    :mueller-mode :inference-only
    :antecedent-schema [{:fact/type :goal
-                        :goal-id '?failed-goal-id}
+                        :goal-id '?failed-goal-id
+                        :activation-context '?context-id}
                        {:fact/type :emotion
                         :emotion-id '?emotion-id
-                        :strength '?emotion-strength}]
+                        :strength '?emotion-strength}
+                       {:fact/type :dependency
+                        :from-id '?emotion-id
+                        :to-id '?failed-goal-id}]
    :consequent-schema [{:context-id '?context-id
                         :failed-goal-id '?failed-goal-id
                         :emotion-id '?emotion-id
@@ -50,3 +54,47 @@
                                     '?failed-goal-id :g-failed
                                     '?emotion-id :e-shame
                                     '?emotion-strength 0.25})))))
+
+(deftest match-rule-binds-shared-variables-across-facts
+  (let [facts [{:fact/type :goal
+                :goal-id :g-failed
+                :top-level-goal :g-failed
+                :status :failed
+                :activation-context :cx-2
+                :extra :ignored}
+               {:fact/type :emotion
+                :emotion-id :e-shame
+                :strength 0.25
+                :valence :negative}
+               {:fact/type :dependency
+                :from-id :e-shame
+                :to-id :g-failed}
+               {:fact/type :goal
+                :goal-id :g-other
+                :top-level-goal :g-other
+                :status :failed
+                :activation-context :cx-2}]
+        matches (rules/match-rule sample-rule facts {'?context-id :cx-2})]
+    (is (= 1 (count matches)))
+    (is (= {'?context-id :cx-2
+            '?failed-goal-id :g-failed
+            '?emotion-id :e-shame
+            '?emotion-strength 0.25}
+           (:bindings (first matches))))
+    (is (= [:goal :emotion :dependency]
+           (mapv :fact/type (:matched-facts (first matches)))))))
+
+(deftest match-rule-respects-prebound-variables-and-shared-links
+  (let [facts [{:fact/type :goal
+                :goal-id :g-failed
+                :top-level-goal :g-failed
+                :status :failed
+                :activation-context :cx-2}
+               {:fact/type :emotion
+                :emotion-id :e-shame
+                :strength 0.25}
+               {:fact/type :dependency
+                :from-id :e-other
+                :to-id :g-failed}]
+        matches (rules/match-rule sample-rule facts {'?context-id :cx-2})]
+    (is (= [] matches))))
