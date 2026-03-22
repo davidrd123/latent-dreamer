@@ -28,7 +28,9 @@ As the system accumulates episodes, rules, and graph connections:
   - cross-family reuse can promote `:provisional -> :durable`
   - `:episode-promotion` facts make those promotions graph-visible
   - promotion still obeys the recent-episode anti-echo gate
-- The missing piece is evaluator-gated promotion and later demotion.
+  - external evaluator output can now promote selected family-plan
+    episodes to `:durable`
+- The missing piece is broader evaluator discipline and later demotion.
 
 **Cue zone separation:**
 - Content cues drive retrieval and reminding.
@@ -46,7 +48,7 @@ As the system accumulates episodes, rules, and graph connections:
 **What remains open:**
 - Remaining anti-residue flags (`:backfired`, `:stale`, `:contradicted`)
 - Using the new `:same-family-loop` flag as a broader consolidation signal
-- Evaluator-gated promotion criteria beyond cross-family reuse
+- Stronger evaluator-gated promotion criteria and later demotion
 - Stronger source-type decay and cluster caps
 - Graph hygiene for larger, less toy rule sets
 - Re-evaluation of stored material after later contradiction or success

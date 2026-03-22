@@ -48,9 +48,11 @@ Implemented in the first pass:
 - promotion still respects the recent-episode anti-echo gate
 - repeated same-family reuse can now flag `:same-family-loop`
   and suppress same-family reentry
+- external evaluator output can now widen promotion beyond the
+  cross-family reuse path through an explicit promotion decision;
+  heuristic evaluation still defaults to `:stay-provisional`
 
 Still missing inside step 1:
-- evaluator-gated promotion beyond cross-family reuse
 - remaining anti-residue flags (`:backfired`, `:stale`, `:contradicted`)
 - source-type decay / stronger zone-specific consolidation
 - explicit loop-risk metadata shaping retrieval
@@ -163,7 +165,7 @@ Rule fires
 | **Content-mark floor before provenance applies** | **Done** |
 | **Rationalization no-cheap-resurrection gate** | **Done** |
 | **Cross-family promotion to durable** | **Done** |
-| **Evaluator-gated durable promotion** | **Not done** |
+| **Evaluator-gated durable promotion** | **First pass done** |
 | **Same-family-loop anti-residue flag** | **First pass done** |
 | **Other anti-residue flags** | **Not done** |
 | **Effect vocabulary** | **Not done** |

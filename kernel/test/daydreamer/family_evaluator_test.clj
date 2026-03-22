@@ -7,6 +7,7 @@
                             :desirability :positive
                             :retention-class :hot-cues
                             :keep-decision :keep-hot
+                            :promotion-decision :stay-provisional
                             :payload-cluster [:family/roving :g-1 :pleasant_episode_seed]
                             :evaluation-source :heuristic
                             :evaluation-reasons [:pleasant_seed]}
@@ -15,6 +16,7 @@
                      :desirability "negative"
                      :retention_class "cold-provenance"
                      :keep_decision "archive-cold"
+                     :promotion_decision "promote-durable"
                      :evaluation_reasons ["mock_archive_review" "still_salient"]
                      :evaluation_source "mock-llm"}
                     default-evaluation)]
@@ -22,6 +24,7 @@
             :desirability :negative
             :retention-class :cold-provenance
             :keep-decision :archive-cold
+            :promotion-decision :promote-durable
             :payload-cluster [:family/roving :g-1 :pleasant_episode_seed]
             :evaluation-source :mock-llm
             :evaluation-reasons [:mock_archive_review :still_salient]}
@@ -33,6 +36,7 @@
                             :desirability :mixed
                             :retention-class :hot-cues
                             :keep-decision :keep-hot
+                            :promotion-decision :stay-provisional
                             :payload-cluster [:family/reversal :g-2 :stored_priority]
                             :evaluation-source :heuristic
                             :evaluation-reasons [:fallback]}
@@ -43,5 +47,6 @@
     (is (= :counterfactual (:realism evaluation)))
     (is (= :payload-exemplar (:retention-class evaluation)))
     (is (= :keep-exemplar (:keep-decision evaluation)))
+    (is (= :promote-durable (:promotion-decision evaluation)))
     (is (= :mock-llm (:evaluation-source evaluation)))
     (is (seq (:evaluation-reasons evaluation)))))

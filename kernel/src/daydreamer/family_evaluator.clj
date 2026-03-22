@@ -31,6 +31,9 @@
 (def ^:private allowed-keep-decisions
   #{:keep-hot :archive-cold :keep-exemplar})
 
+(def ^:private allowed-promotion-decisions
+  #{:stay-provisional :promote-durable})
+
 (def ^:private system-prompt
   (str
    "You evaluate a completed daydream family plan after it has already been produced.\n\n"
@@ -41,6 +44,7 @@
    "- desirability: one of positive, mixed, negative\n"
    "- retention_class: one of hot-cues, cold-provenance, payload-exemplar\n"
    "- keep_decision: one of keep-hot, archive-cold, keep-exemplar\n"
+   "- promotion_decision: one of stay-provisional, promote-durable\n"
    "- evaluation_reasons: array of 1-3 short snake_case strings\n\n"
    "Prefer payload-exemplar only when the plan contains reusable structured material."
    " Prefer archive-cold when the plan should remain recorded but not stay hot in retrieval."))
@@ -50,6 +54,7 @@
    :desirability "positive"
    :retention_class "payload-exemplar"
    :keep_decision "keep-exemplar"
+   :promotion_decision "promote-durable"
    :evaluation_reasons ["reusable_reframe_payload" "psychologically_coherent"]})
 
 (defn- normalize-text
@@ -146,6 +151,11 @@
                                        (:keep_decision raw))
                                    allowed-keep-decisions
                                    (:keep-decision default-evaluation)))
+        (assoc :promotion-decision
+               (allowed-or-default (or (:promotion-decision raw)
+                                       (:promotion_decision raw))
+                                   allowed-promotion-decisions
+                                   (:promotion-decision default-evaluation)))
         (assoc :evaluation-reasons
                (let [reasons (normalize-reasons (or (:evaluation-reasons raw)
                                                     (:evaluation_reasons raw)))]
@@ -235,6 +245,7 @@
              :desirability :positive
              :retention-class :hot-cues
              :keep-decision :keep-hot
+             :promotion-decision :stay-provisional
              :evaluation-reasons [:mock_attentional_surface]
              :evaluation-source :mock-llm}
     :rationalization {:realism :plausible
@@ -247,6 +258,10 @@
                                                       [:episode-payload :reframe-facts]))
                                        :keep-exemplar
                                        :keep-hot)
+                      :promotion-decision (if (seq (get-in family-plan
+                                                           [:episode-payload :reframe-facts]))
+                                            :promote-durable
+                                            :stay-provisional)
                       :evaluation-reasons [:mock_psychological_coherence]
                       :evaluation-source :mock-llm}
     :reversal {:realism :counterfactual
@@ -259,9 +274,14 @@
                                                [:episode-payload :input-facts]))
                                 :keep-exemplar
                                 :keep-hot)
+               :promotion-decision (if (seq (get-in family-plan
+                                                    [:episode-payload :input-facts]))
+                                     :promote-durable
+                                     :stay-provisional)
                :evaluation-reasons [:mock_counterfactual_material]
                :evaluation-source :mock-llm}
-    {:evaluation-reasons [:mock_default]
+    {:promotion-decision :stay-provisional
+     :evaluation-reasons [:mock_default]
      :evaluation-source :mock-llm}))
 
 (defn build-family-evaluator

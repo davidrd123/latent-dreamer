@@ -981,6 +981,7 @@
                :desirability :positive
                :retention-class :hot-cues
                :keep-decision :keep-hot
+               :promotion-decision :stay-provisional
                :payload-cluster payload-cluster
                :evaluation-source :heuristic
                :evaluation-reasons [:pleasant_seed
@@ -993,6 +994,7 @@
                         :keep-decision (if (seq (:reframe-facts payload))
                                          :keep-exemplar
                                          :keep-hot)
+                        :promotion-decision :stay-provisional
                         :payload-cluster payload-cluster
                         :evaluation-source :heuristic
                         :evaluation-reasons (cond-> [:hope_reframe]
@@ -1006,6 +1008,7 @@
                  :keep-decision (if (seq (:input-facts payload))
                                   :keep-exemplar
                                   :keep-hot)
+                 :promotion-decision :stay-provisional
                  :payload-cluster payload-cluster
                  :evaluation-source :heuristic
                  :evaluation-reasons (cond-> [:counterfactual_reopened]
@@ -1015,25 +1018,33 @@
        :desirability :mixed
        :retention-class :hot-cues
        :keep-decision :keep-hot
+       :promotion-decision :stay-provisional
        :payload-cluster payload-cluster
        :evaluation-source :heuristic
        :evaluation-reasons [:default_family_evaluation]})))
 
 (defn- family-plan-evaluation-support-indices
-  [{:keys [realism desirability retention-class keep-decision payload-cluster
+  [{:keys [realism desirability retention-class keep-decision promotion-decision payload-cluster
            evaluation-source]}]
   (cond-> [(keyword "realism" (name realism))
            (keyword "desirability" (name desirability))
            (keyword "retention" (name retention-class))
            (keyword "keep" (name keep-decision))
+           (keyword "promotion" (name promotion-decision))
            (keyword "evaluation-source" (name evaluation-source))]
     payload-cluster
     (conj [:payload-cluster payload-cluster])))
 
 (defn- family-plan-admission-status
-  [{:keys [keep-decision]}]
-  (if (= :archive-cold keep-decision)
+  [{:keys [keep-decision promotion-decision]}]
+  (cond
+    (= :archive-cold keep-decision)
     :trace
+
+    (= :promote-durable promotion-decision)
+    :durable
+
+    :else
     :provisional))
 
 (defn- family-plan-evaluation-fact
@@ -1048,6 +1059,7 @@
    :desirability (:desirability evaluation)
    :retention-class (:retention-class evaluation)
    :keep-decision (:keep-decision evaluation)
+   :promotion-decision (:promotion-decision evaluation)
    :admission-status (family-plan-admission-status evaluation)
    :evaluation-source (:evaluation-source evaluation)
    :payload-cluster (:payload-cluster evaluation)

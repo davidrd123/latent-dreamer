@@ -111,12 +111,14 @@ and "deserves future influence":
   a promoted episode becomes reusable only after recent eviction
 - same-family reuse is now tracked, and repeated same-family reuse
   can flag `:same-family-loop` to suppress reentry
+- external family evaluators can now return an explicit
+  promotion decision; heuristic mode stays conservative, but
+  evaluator-backed rationalization/reversal plans can enter as
+  `:durable` without the old manual test hack
 
 ### Next after this
 
 - define the declarative effect vocabulary / executor boundary
-- use evaluator output to widen promotion beyond the current
-  cross-family reuse path
 - add the remaining anti-residue flags (`:backfired`, `:stale`,
   `:contradicted`) and stronger consolidation policy
 - only then build verified paths and generic `:clojure-fn`
