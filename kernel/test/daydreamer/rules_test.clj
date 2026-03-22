@@ -236,6 +236,39 @@
     (is (= "registry-dispatch" (:surface-summary result)))
     (is (= [{:op :test/noop}] (:effects result)))))
 
+(deftest execute-rule-runs-call-supplied-effect-validator
+  (let [bindings {'?context-id :cx-2
+                  '?failed-goal-id :g-failed
+                  '?emotion-id :e-shame
+                  '?emotion-strength 0.25}
+        rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:executor-id :sample/dispatch
+                                      :effect-ops [:test/noop]}})]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"custom effect validation failed"
+                          (rules/execute-rule
+                           rule
+                           {:bindings bindings
+                            :executor-registry
+                            {:sample/dispatch
+                             (fn [{:keys [rule]}]
+                               {:consequents [{:context-id :cx-2
+                                               :failed-goal-id :g-failed
+                                               :emotion-id :e-shame
+                                               :emotion-strength 0.25
+                                               :selection-policy :failed_goal_negative_emotion}]
+                                :confidence (double (:plausibility rule))
+                                :reason "registry-dispatch"
+                                :aux-indices []
+                                :surface-summary nil
+                                :effects [{:op :test/noop}]})}
+                            :effect-validator
+                            (fn [{:keys [effect]}]
+                              (when-not (contains? effect :goal-id)
+                                (throw (ex-info "custom effect validation failed"
+                                                {:effect effect}))))})))))
+
 (deftest execute-rule-rejects-unsupported-effect-op
   (let [bindings {'?context-id :cx-2
                   '?failed-goal-id :g-failed

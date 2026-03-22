@@ -957,6 +957,33 @@
             :mutation/log]
            (mapv :op (:effects effect-program))))))
 
+(deftest roving-plan-effects-rejects-invalid-effect-payload
+  (let [[world root-id] (world-with-root)
+        [world pleasant-episode-id] (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :calm {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :sunlight {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])]
+    (with-redefs [daydreamer.goal-families/roving-effect-program
+                  (fn [_world _payload]
+                    [{:op :goal/set-next-context
+                      :context-ref :branch-context}])]
+      (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                            #"missing required key"
+                            (families/roving-plan-effects
+                             world
+                             {:goal-id roving-goal-id
+                              :context-id context-id}))))))
+
 (deftest same-family-loop-flagged-roving-episode-is-not-used-as-seed
   (let [[world root-id] (world-with-root)
         [world flagged-episode-id]
@@ -2825,6 +2852,63 @@
             :mutation/log-rationalization]
            (mapv :op (:effects effect-program))))))
 
+(deftest rationalization-plan-effects-rejects-invalid-effect-payload
+  (let [[world root-id] (world-with-root)
+        [world trigger-context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        frame-id :rf-zone-mercy
+        frame-facts [guide-fact
+                     {:fact/type :rationalization
+                      :fact/id :zone_is_mercy}
+                     {:fact/type :rationalization
+                      :fact/id :delay_is_faith}]
+        world (-> world
+                  (cx/assert-fact trigger-context-id {:fact/type :goal
+                                                      :goal-id failed-goal-id
+                                                      :top-level-goal failed-goal-id
+                                                      :status :failed
+                                                      :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :emotion
+                                                      :emotion-id emotion-id
+                                                      :strength 0.82
+                                                      :valence :negative
+                                                      :affect :dread})
+                  (cx/assert-fact trigger-context-id {:fact/type :dependency
+                                                      :from-id emotion-id
+                                                      :to-id failed-goal-id})
+                  (cx/assert-fact trigger-context-id
+                                  (rationalization-frame-fact frame-id
+                                                              failed-goal-id
+                                                              0.91
+                                                              frame-facts)))
+        [world rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.82
+          :main-motiv :e-dread})
+        context-id (get-in world [:goals rationalization-goal-id :next-cx])]
+    (with-redefs [daydreamer.goal-families/rationalization-effect-program
+                  (fn [_payload]
+                    [{:op :mutation/log-rationalization
+                      :source-context-id context-id
+                      :trigger-context-id trigger-context-id
+                      :context-ref :branch-context
+                      :failed-goal-id failed-goal-id
+                      :frame-id frame-id
+                      :from-diversion :rationalization/diversion}])]
+      (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                            #"missing required key"
+                            (families/rationalization-plan-effects
+                             world
+                             {:goal-id rationalization-goal-id
+                              :context-id context-id
+                              :trigger-context-id trigger-context-id
+                              :failed-goal-id failed-goal-id}))))))
+
 (deftest rationalization-plan-dispatch-emits-afterglow-consequent-with-diverted-strength
   (let [[world root-id] (world-with-root)
         [world trigger-context-id] (cx/sprout world root-id)
@@ -2933,6 +3017,49 @@
            (get-in effect-program [:effects 0 :input-facts])))
     (is (= 2
            (count (get-in effect-program [:effects 0 :branches]))))))
+
+(deftest reversal-plan-effects-rejects-invalid-effect-payload
+  (let [[world root-id] (world-with-root)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        [world reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})]
+    (with-redefs [daydreamer.goal-families/reversal-effect-program
+                  (fn [_world _payload]
+                    [{:op :reversal/execute-branches
+                      :old-context-id old-context-id
+                      :old-top-level-goal-id old-top-level-goal-id
+                      :new-context-id (get-in world [:goals reversal-goal-id :next-cx])
+                      :new-top-level-goal-id reversal-goal-id
+                      :selection-policy gf-rules/reverse-leaf-policy
+                      :rule-provenance {:rule-path [:goal-family/reversal-plan-dispatch]
+                                        :edge-path []}
+                      :branches [{:old-context-id old-context-id
+                                  :leaf-goal-id old-top-level-goal-id
+                                  :ordering 1.0}]}])]
+      (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                            #"missing required key"
+                            (families/reversal-plan-effects
+                             world
+                             {:goal-id reversal-goal-id
+                              :old-context-id old-context-id
+                              :old-top-level-goal-id old-top-level-goal-id
+                              :failed-goal-id old-top-level-goal-id
+                              :trigger-emotion-id emotion-id
+                              :trigger-emotion-strength 0.7
+                              :new-context-id (get-in world [:goals reversal-goal-id :next-cx])
+                              :new-top-level-goal-id reversal-goal-id
+                              :input-facts [counterfactual-fact]}))))))
 
 (deftest reversal-plan-effects-returns-nil-when-no-executable-branches
   (let [[world root-id] (world-with-root)

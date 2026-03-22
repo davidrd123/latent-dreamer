@@ -149,10 +149,186 @@
    :goal-family/rationalization-plan-dispatch rationalization-plan-dispatch-executor
    :goal-family/reversal-plan-dispatch reversal-plan-dispatch-executor})
 
+(def ^:private missing-effect-value ::missing-effect-value)
+
+(defn- vector-of-maps?
+  [value]
+  (and (vector? value)
+       (every? map? value)))
+
+(defn- require-effect-keys!
+  [rule effect required-keys]
+  (doseq [key required-keys]
+    (let [value (get effect key missing-effect-value)]
+      (when (or (= missing-effect-value value)
+                (nil? value))
+        (throw (ex-info "Typed family effect is missing required key(s)"
+                        {:rule-id (:id rule)
+                         :effect effect
+                         :missing-key key
+                         :required-keys required-keys}))))))
+
+(defn- validate-effect-predicate!
+  [rule effect key predicate expected]
+  (let [value (get effect key missing-effect-value)]
+    (when (and (not= missing-effect-value value)
+               (not (predicate value)))
+      (throw (ex-info "Typed family effect key failed validation"
+                      {:rule-id (:id rule)
+                       :effect effect
+                       :key key
+                       :value value
+                       :expected expected})))))
+
+(def ^:private family-effect-specs
+  {:context/sprout
+   {:required [:source-context-id :ref]
+    :predicates {:ref [keyword? "keyword symbolic ref"]}}
+
+   :fact/assert
+   {:required [:context-ref :fact]
+    :predicates {:context-ref [keyword? "keyword context ref"]
+                 :fact [map? "fact map"]}}
+
+   :facts/assert-many
+   {:required [:context-ref :facts]
+    :predicates {:context-ref [keyword? "keyword context ref"]
+                 :facts [vector-of-maps? "vector of fact maps"]}}
+
+   :episode/reminding
+   {:required [:episode-id :retrieval-opts :result-key]
+    :predicates {:retrieval-opts [map? "retrieval options map"]
+                 :result-key [keyword? "keyword result key"]}}
+
+   :episode/assert-retrieval-hits
+   {:required [:context-ref
+               :goal-id
+               :selection-policy
+               :rule-provenance
+               :from-reminding
+               :result-key]
+    :predicates {:context-ref [keyword? "keyword context ref"]
+                 :selection-policy [keyword? "keyword selection policy"]
+                 :rule-provenance [map? "rule provenance map"]
+                 :from-reminding [keyword? "keyword result key"]
+                 :result-key [keyword? "keyword result key"]}}
+
+   :episodes/note-family-uses
+   {:required [:context-ref
+               :goal-id
+               :target-family
+               :selection-policy
+               :rule-provenance
+               :from-reminding
+               :result-key]
+    :predicates {:context-ref [keyword? "keyword context ref"]
+                 :target-family [keyword? "keyword family"]
+                 :selection-policy [keyword? "keyword selection policy"]
+                 :rule-provenance [map? "rule provenance map"]
+                 :from-reminding [keyword? "keyword result key"]
+                 :result-key [keyword? "keyword result key"]}}
+
+   :episodes/resolve-use-outcomes
+   {:required [:context-ref
+               :goal-id
+               :target-family
+               :rule-provenance
+               :from-uses
+               :result-key]
+    :predicates {:context-ref [keyword? "keyword context ref"]
+                 :target-family [keyword? "keyword family"]
+                 :rule-provenance [map? "rule provenance map"]
+                 :from-uses [keyword? "keyword result key"]
+                 :result-key [keyword? "keyword result key"]}}
+
+   :context/set-ordering
+   {:required [:context-ref :ordering]
+    :predicates {:context-ref [keyword? "keyword context ref"]
+                 :ordering [number? "numeric ordering"]}}
+
+   :goal/set-next-context
+   {:required [:goal-id :context-ref]
+    :predicates {:context-ref [keyword? "keyword context ref"]}}
+
+   :mutation/log
+   {:required [:family
+               :source-context-id
+               :context-ref
+               :from-reminding
+               :from-promotions]
+    :predicates {:family [keyword? "keyword family"]
+                 :context-ref [keyword? "keyword context ref"]
+                 :from-reminding [keyword? "keyword result key"]
+                 :from-promotions [keyword? "keyword result key"]}}
+
+   :rationalization/divert-emotion
+   {:required [:context-ref
+               :goal-id
+               :trigger-context-id
+               :failed-goal-id
+               :frame
+               :result-key]
+    :predicates {:context-ref [keyword? "keyword context ref"]
+                 :frame [map? "selected frame map"]
+                 :result-key [keyword? "keyword result key"]}}
+
+   :rationalization/assert-afterglow
+   {:required [:context-id
+               :context-ref
+               :goal-id
+               :failed-goal-id
+               :frame-id
+               :rule-provenance
+               :from-diversion
+               :result-key]
+    :predicates {:context-ref [keyword? "keyword context ref"]
+                 :rule-provenance [map? "rule provenance map"]
+                 :from-diversion [keyword? "keyword result key"]
+                 :result-key [keyword? "keyword result key"]}}
+
+   :mutation/log-rationalization
+   {:required [:source-context-id
+               :trigger-context-id
+               :context-ref
+               :failed-goal-id
+               :frame-id
+               :reframe-facts
+               :from-diversion]
+    :predicates {:context-ref [keyword? "keyword context ref"]
+                 :reframe-facts [vector-of-maps? "vector of reframe fact maps"]
+                 :from-diversion [keyword? "keyword result key"]}}
+
+   :reversal/execute-branches
+   {:required [:old-context-id
+               :old-top-level-goal-id
+               :new-context-id
+               :new-top-level-goal-id
+               :selection-policy
+               :rule-provenance
+               :branches
+               :result-key]
+    :predicates {:selection-policy [keyword? "keyword selection policy"]
+                 :rule-provenance [map? "rule provenance map"]
+                 :branches [vector-of-maps? "vector of branch maps"]
+                 :result-key [keyword? "keyword result key"]}}})
+
+(defn- validate-family-effect!
+  [{:keys [rule effect]}]
+  (let [{:keys [required predicates]} (get family-effect-specs (:op effect))]
+    (when-not (contains? family-effect-specs (:op effect))
+      (throw (ex-info "No validator registered for typed family effect op"
+                      {:rule-id (:id rule)
+                       :effect effect
+                       :known-ops (sort (keys family-effect-specs))})))
+    (require-effect-keys! rule effect required)
+    (doseq [[key [predicate expected]] predicates]
+      (validate-effect-predicate! rule effect key predicate expected))))
+
 (defn- family-rule-call-base
   [world]
   {:world world
-   :executor-registry (family-executor-registry)})
+   :executor-registry (family-executor-registry)
+   :effect-validator validate-family-effect!})
 
 (defn- fact-consumer-rule?
   [fact-type rule]

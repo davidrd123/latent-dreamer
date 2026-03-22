@@ -903,7 +903,8 @@
     result
     (let [effects (:effects result)
           declared-ops (get-in rule [:executor :spec :effect-ops])
-          allowed-ops (set declared-ops)]
+          allowed-ops (set declared-ops)
+          effect-validator (:effect-validator call)]
       (when-not (vector? effects)
         (throw (ex-info "RuleResultV1 :effects must be a vector"
                         {:rule-id (:id rule)
@@ -934,7 +935,17 @@
                            :call call
                            :effect effect
                            :allowed-ops allowed-ops
-                           :result result}))))
+                           :result result})))
+        (when effect-validator
+          (when-not (ifn? effect-validator)
+            (throw (ex-info "RuleCallV1 :effect-validator must be callable"
+                            {:rule-id (:id rule)
+                             :call call
+                             :effect-validator effect-validator})))
+          (effect-validator {:rule rule
+                             :call call
+                             :result result
+                             :effect effect})))
       result)))
 
 (defn- validate-consequents!

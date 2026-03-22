@@ -184,6 +184,9 @@ Status update, 2026-03-22 late:
 - `instantiate-rule` remains as a compatibility wrapper
 - `execute-rule` now includes minimal effect-program validation
   (`:effects` vector, map entries, keyword `:op`, allowed op set)
+- `execute-rule` now also runs a call-supplied effect validator so the
+  current family runtime can reject malformed payloads before local
+  effect application
 - `:goal-family/roving-plan-dispatch` is now the first actual
   `:clojure-fn` vertical slice, but effect application still stays local
   in `goal_families.clj`
@@ -193,8 +196,9 @@ Status update, 2026-03-22 late:
 - `:goal-family/reversal-plan-dispatch` is now the third actual
   `:clojure-fn` vertical slice, using a composite branch effect while
   local kernel code still applies the mutation
-- the next Step 2 pressure point is effect-contract tightening, not
-  more family extraction
+- the current Step 2 pressure point is no longer family extraction; it
+  is shrinking the bespoke local effect runtime now that op payload
+  validation is live at the `execute-rule` boundary
 
 ### Step 3: LLM-backed evaluator pilot
 

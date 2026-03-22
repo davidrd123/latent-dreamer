@@ -124,6 +124,9 @@ Implemented first pass:
 - `execute-rule` now performs minimal effect validation:
   `:effects` must be a vector of maps, each effect must declare a
   keyword `:op`, and rule-declared `:effect-ops` are enforced
+- `execute-rule` now also runs a call-supplied effect validator so the
+  current family runtime can reject malformed op payloads before local
+  kernel application
 - `:goal-family/roving-plan-dispatch` is now the first real
   `:clojure-fn` vertical slice: the rule dispatches through
   `execute-rule`, returns a typed effect program, and local kernel code
@@ -134,6 +137,9 @@ Implemented first pass:
 - `:goal-family/reversal-plan-dispatch` now runs through the same seam
   as a composite branch program, with local kernel code still applying
   the multi-branch reversal effect
+- the first op-specific payload validation now exists for the current
+  family effect vocabulary, so the Step 2 contract is no longer just
+  “vector of ops” but “declared ops with validated payload shape”
 - first effect ops are:
   `:context/sprout`, `:fact/assert`, `:episode/reminding`,
   `:episode/assert-retrieval-hits`, `:episodes/note-family-uses`,

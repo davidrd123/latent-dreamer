@@ -176,6 +176,9 @@ The first honest Step 2 slices are now in code:
 - `execute-rule` now also rejects malformed `:effects` at a narrow
   shape level: effect programs must be vectors of maps with keyword
   `:op`, and rule-declared `:effect-ops` are enforced
+- `execute-rule` now also runs a call-supplied effect validator, so
+  the current family runtime can reject malformed op payloads before
+  any local kernel effect application happens
 - `goal_family_rules.clj` now marks
   `:goal-family/roving-plan-dispatch` and
   `:goal-family/rationalization-plan-dispatch` and
@@ -183,6 +186,11 @@ The first honest Step 2 slices are now in code:
 - `goal_families.clj` now routes roving, rationalization, and reversal
   dispatch through that rule executor, while leaving
   `apply-family-effects` local
+- the first op-specific payload checks are now live for the current
+  family effect vocabulary (`:context/sprout`, `:fact/assert`,
+  `:facts/assert-many`, `:episode/reminding`,
+  `:episodes/*`, rationalization diversion/afterglow/log, reversal
+  branch execution)
 - reversal currently uses a named composite branch op rather than a
   generic shared effect runtime
 
@@ -197,10 +205,9 @@ The first honest Step 2 slices are now in code:
   `:succeeded` / `:failed` split and let those outcomes
   drive stronger promotion/demotion decisions
 - continue the declarative effect vocabulary / executor boundary
-  by adding `execute-rule` in `rules.clj`, then route
-  `goal_families.clj` through it before extracting more families;
-  family migration is now complete, so the next executor move is
-  tighter effect validation and a less ad hoc local effect runtime
+  by keeping all three family dispatch rules on `execute-rule` while
+  tightening op-specific effect validation and shrinking the bespoke
+  local effect runtime
 - widen anti-residue from evaluator annotations to stronger
   downstream demotion / contradiction detection
 - strengthen consolidation policy beyond the current first-pass
