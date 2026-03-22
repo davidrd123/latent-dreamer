@@ -745,6 +745,7 @@
             :desirability/positive
             :retention/hot-cues
             :keep/keep-hot
+            :evaluation-source/heuristic
             [:payload-cluster
              [:family/roving roving-goal-id :pleasant_episode_seed]]]
            (:support-indices family-plan)))
@@ -754,6 +755,7 @@
             :desirability :positive
             :retention-class :hot-cues
             :keep-decision :keep-hot
+            :evaluation-source :heuristic
             :payload-cluster [:family/roving
                               roving-goal-id
                               :pleasant_episode_seed]
@@ -779,6 +781,7 @@
              :desirability/positive
              :retention/hot-cues
              :keep/keep-hot
+             :evaluation-source/heuristic
              [:payload-cluster
               [:family/roving roving-goal-id :pleasant_episode_seed]]
              roving-goal-id
@@ -798,6 +801,7 @@
                     :desirability :positive
                     :retention-class :hot-cues
                     :keep-decision :keep-hot
+                    :evaluation-source :heuristic
                     :payload-cluster [:family/roving
                                       roving-goal-id
                                       :pleasant_episode_seed]
@@ -847,6 +851,75 @@
              :retention-reason :hot-cue-fresh
              :retention-age 0}]
            hits))))
+
+(deftest run-family-plan-can-archive-family-memory-via-external-evaluator
+  (let [[world root-id] (world-with-root)
+        [world pleasant-episode-id]
+        (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :calm
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :sunlight
+                                          {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])
+        archive-evaluator (fn [_family-plan _default-evaluation]
+                            {:realism :plausible
+                             :desirability :negative
+                             :retention-class :cold-provenance
+                             :keep-decision :archive-cold
+                             :evaluation-reasons [:mock_archive_review]
+                             :evaluation-source :mock-llm})
+        [world family-plan]
+        (families/run-family-plan world
+                                  {:goal-id roving-goal-id
+                                   :context-id context-id
+                                   :family-evaluator archive-evaluator})
+        family-episode-id (:family-episode-id family-plan)
+        stored-episode (get-in world [:episodes family-episode-id])
+        branch-context-id (:roving_branch_context (:selection family-plan))]
+    (is (= {:realism :plausible
+            :desirability :negative
+            :retention-class :cold-provenance
+            :keep-decision :archive-cold
+            :evaluation-source :mock-llm
+            :payload-cluster [:family/roving
+                              roving-goal-id
+                              :pleasant_episode_seed]
+            :evaluation-reasons [:mock_archive_review]}
+           (:evaluation family-plan)))
+    (is (= [] (:retrieval-indices family-plan)))
+    (is (= :cold-provenance (:retention-class stored-episode)))
+    (is (= :archive-cold (:keep-decision stored-episode)))
+    (is (= :mock-llm (get-in stored-episode [:evaluation :evaluation-source])))
+    (is (not (contains? (get-in world [:episode-index :calm] #{})
+                        family-episode-id)))
+    (is (not (contains? (get-in world [:episode-index :sunlight] #{})
+                        family-episode-id)))
+    (is (contains? (cx/visible-facts world branch-context-id)
+                   {:fact/type :episode-evaluation
+                    :episode-id family-episode-id
+                    :family :roving
+                    :family-goal-id roving-goal-id
+                    :source-rule :goal-family/roving-plan-dispatch
+                    :selection-policy :pleasant_episode_seed
+                    :realism :plausible
+                    :desirability :negative
+                    :retention-class :cold-provenance
+                    :keep-decision :archive-cold
+                    :evaluation-source :mock-llm
+                    :payload-cluster [:family/roving
+                                      roving-goal-id
+                                      :pleasant_episode_seed]
+                    :evaluation-reasons [:mock_archive_review]}))))
 
 (deftest stored-rationalization-family-plan-episode-feeds-later-roving
   (let [[world root-id] (world-with-root)
@@ -933,6 +1006,7 @@
             :desirability :positive
             :retention-class :payload-exemplar
             :keep-decision :keep-exemplar
+            :evaluation-source :heuristic
             :payload-cluster [:family/rationalization
                               rationalization-goal-id
                               frame-id]
