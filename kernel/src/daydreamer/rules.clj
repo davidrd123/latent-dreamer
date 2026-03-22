@@ -328,6 +328,24 @@
                          (comp pr-str :rule-path)))
           vec))))
 
+(defn bridge-paths
+  ([graph start-rule-id target-rule-id]
+   (bridge-paths graph
+                 start-rule-id
+                 target-rule-id
+                 {:min-depth 2
+                  :max-depth 4}))
+  ([graph start-rule-id target-rule-id {:keys [min-depth max-depth]
+                                        :or {min-depth 2
+                                             max-depth 4}}]
+   (->> (reachable-paths graph start-rule-id {:max-depth max-depth})
+        (filter #(= target-rule-id
+                    (last (:rule-path %))))
+        (filter #(<= min-depth
+                     (:depth %)
+                     max-depth))
+        vec)))
+
 (defn remove-rules
   [rules rule-ids]
   (let [rule-id-set (set rule-ids)]

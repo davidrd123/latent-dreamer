@@ -315,3 +315,25 @@
            (mapv :rule-path (:removed-paths delta))))
     (is (= []
            (:preserved-paths delta)))))
+
+(deftest bridge-paths-require-an-explicit-two-hop-bridge
+  (let [graph (rules/build-connection-graph
+               [bridge-source-rule
+                bridge-target-rule
+                bridge-terminal-rule])]
+    (is (= [[:test/source :test/target :test/terminal]]
+           (mapv :rule-path
+                 (rules/bridge-paths graph
+                                     :test/source
+                                     :test/terminal))))
+    (is (= []
+           (rules/bridge-paths graph
+                               :test/source
+                               :test/target)))
+    (is (= [[:test/source :test/target]]
+           (mapv :rule-path
+                 (rules/bridge-paths graph
+                                     :test/source
+                                     :test/target
+                                     {:min-depth 1
+                                      :max-depth 2}))))))

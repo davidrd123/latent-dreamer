@@ -922,6 +922,21 @@
     (is (= []
            (:preserved-paths delta)))))
 
+(deftest planning-rule-graph-has-no-multi-hop-bridges-yet
+  (let [graph (rules/build-connection-graph (families/planning-rules))]
+    (is (= []
+           (rules/bridge-paths graph
+                               :goal-family/roving-plan-request
+                               :goal-family/roving-plan-dispatch)))
+    (is (= []
+           (rules/bridge-paths graph
+                               :goal-family/roving-plan-request
+                               :goal-family/rationalization-plan-dispatch)))
+    (is (= []
+           (rules/bridge-paths graph
+                               :goal-family/rationalization-plan-request
+                               :goal-family/reversal-plan-dispatch)))))
+
 (deftest rationalization-plan-sprouts-and-asserts-reframe-facts
   (let [[world root-id] (world-with-root)
         [world trigger-context-id] (cx/sprout world root-id)
