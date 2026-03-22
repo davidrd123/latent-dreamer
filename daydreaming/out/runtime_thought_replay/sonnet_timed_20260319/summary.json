@@ -1,0 +1,17 @@
+{
+  "trace_path": "out/puppet_knows_autonomous.json",
+  "provider": "anthropic",
+  "model": "claude-sonnet-4-6",
+  "temperature": 0.5,
+  "start_cycle": 1,
+  "max_cycles": 6,
+  "processed_cycles": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "output_dir": "daydreaming/out/runtime_thought_replay/sonnet_timed_20260319"
+}

@@ -209,6 +209,27 @@ button.primary{
   font-family:var(--fm);font-size:.82rem;color:var(--dim);
   background:rgba(255,255,255,0.04);padding:2px 6px;border-radius:4px;
 }
+.thought-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.thought-tag{
+  display:inline-flex;align-items:center;
+  padding:3px 8px;border-radius:999px;
+  font-size:.72rem;letter-spacing:.02em;
+  background:rgba(201,168,76,0.12);color:var(--accent);
+  border:1px solid rgba(201,168,76,0.16);
+}
+.thought-residue{
+  margin-top:8px;font-size:.82rem;line-height:1.45;color:rgba(228,221,208,0.82);
+}
+.thought-detail{
+  margin-top:8px;font-size:.76rem;line-height:1.5;color:var(--dim);
+}
+.thought-detail strong{color:var(--text);font-weight:600}
+.thought-route{margin-top:6px}
+.thought-hints{margin-top:6px}
+.model-chip{
+  display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;
+  background:rgba(94,96,206,0.12);color:#a8afff;border:1px solid rgba(94,96,206,0.18);
+}
 
 /* Bottom row: D + E side by side */
 .bottom-row{
@@ -302,7 +323,7 @@ button.primary{
       </section>
 
       <section class="panel panel-e">
-        <div class="panel-head"><h2>Thought Stream</h2><div class="hint">deterministic narration</div></div>
+        <div class="panel-head"><h2>Thought Stream</h2><div class="hint" id="thoughtHint">deterministic narration</div></div>
         <div class="panel-body" id="thoughtBody"></div>
       </section>
     </div>
@@ -312,6 +333,7 @@ button.primary{
 <div id="tooltip"></div>
 
 <script id="trace-data" type="application/json">__EMBEDDED_TRACE__</script>
+<script id="runtime-thought-data" type="application/json">__EMBEDDED_RUNTIME_THOUGHT__</script>
 <script>
 // ─── Constants ─────────────────────────────────────────
 const GOAL_COLORS = {
@@ -341,6 +363,7 @@ let trace = null, cycles = [], currentIndex = 0;
 let playing = false, timer = null, speedIndex = 2;
 let bumpData = {}, bumpMax = 0.1, bumpTypes = [];
 let orbEls = {}, thoughtEls = [];
+let runtimeThought = null, runtimeThoughtByCycle = {};
 
 // ─── DOM refs ──────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -353,13 +376,28 @@ const landscapeEl = $('landscape'), bumpChartEl = $('bumpChart');
 const bumpLegendEl = $('bumpLegend');
 const timelineEl = $('timelineWrap');
 const branchBody = $('branchBody'), branchHint = $('branchHint');
-const thoughtBody = $('thoughtBody');
+const thoughtBody = $('thoughtBody'), thoughtHint = $('thoughtHint');
 const tooltipEl = $('tooltip');
 
 // ─── Utilities ─────────────────────────────────────────
 function humanize(id) { return (id||'').replace(/^[sng]\d+_/,'').replace(/_/g,' '); }
 function clamp(v,lo,hi) { return Math.max(lo,Math.min(hi,v)); }
 function num(v) { return Number(v||0); }
+function escapeHtml(text) {
+  return String(text ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+function shortModelLabel(model) {
+  if (!model) return '';
+  return model
+    .replace(/^claude-/, '')
+    .replace(/-\d{8}$/,'')
+    .replace(/-/g,' ');
+}
 
 function defaultPos(i, total) {
   const angle = (i / total) * Math.PI * 2 - Math.PI/2;
@@ -395,6 +433,15 @@ function smoothPath(pts) {
     d+=` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
   }
   return d;
+}
+
+function configureRuntimeThought(data) {
+  runtimeThought = data && typeof data === 'object' ? data : null;
+  runtimeThoughtByCycle = {};
+  const beats = runtimeThought?.beats || [];
+  beats.forEach(row => {
+    if (row && row.cycle != null) runtimeThoughtByCycle[row.cycle] = row;
+  });
 }
 
 // ─── Tooltip ───────────────────────────────────────────
@@ -688,9 +735,30 @@ function createThoughts() {
     el.className = 'thought';
     const prev = i>0?cycles[i-1]:null;
     const mode = c.selected_goal?.planning_type||'imaginary';
-    el.innerHTML = `
-      <div class="thought-head"><span>Cycle ${c.cycle}</span><span>${mode}</span></div>
-      <div class="thought-body">${narrateCycle(c, prev)}</div>`;
+    const beatRow = runtimeThoughtByCycle[c.cycle];
+    const beat = beatRow?.beat;
+    const rightMeta = [mode];
+    if (beatRow?.model) rightMeta.push(`<span class="model-chip">${escapeHtml(shortModelLabel(beatRow.model))}</span>`);
+    if (beat) {
+      const moodTags = (beat.mood_tags || []).map(tag => `<span class="thought-tag">${escapeHtml(tag)}</span>`).join('');
+      const routeReasons = (beatRow.route_reasons || []).map(reason => humanize(reason)).join(', ');
+      const detailBits = [];
+      if (beat.image_hint) detailBits.push(`<div class="thought-hints"><strong>Image</strong>: ${escapeHtml(beat.image_hint)}</div>`);
+      if (beat.audio_hint) detailBits.push(`<div class="thought-hints"><strong>Audio</strong>: ${escapeHtml(beat.audio_hint)}</div>`);
+      if (c.chosen_node_id) detailBits.push(`<div class="thought-route"><span class="node-ref">${escapeHtml(c.chosen_node_id)}</span></div>`);
+      if (routeReasons) detailBits.push(`<div class="thought-route"><strong>Route</strong>: ${escapeHtml(routeReasons)}</div>`);
+      if (beatRow.elapsed_seconds != null) detailBits.push(`<div class="thought-route"><strong>Latency</strong>: ${escapeHtml(Number(beatRow.elapsed_seconds).toFixed(2))}s</div>`);
+      el.innerHTML = `
+        <div class="thought-head"><span>Cycle ${c.cycle}</span><span>${rightMeta.join(' · ')}</span></div>
+        <div class="thought-body">${escapeHtml(beat.thought_beat_text || '')}</div>
+        ${moodTags ? `<div class="thought-tags">${moodTags}</div>` : ''}
+        ${beat.residue_summary ? `<div class="thought-residue">${escapeHtml(beat.residue_summary)}</div>` : ''}
+        ${detailBits.length ? `<div class="thought-detail">${detailBits.join('')}</div>` : ''}`;
+    } else {
+      el.innerHTML = `
+        <div class="thought-head"><span>Cycle ${c.cycle}</span><span>${rightMeta.join(' · ')}</span></div>
+        <div class="thought-body">${narrateCycle(c, prev)}</div>`;
+    }
     thoughtBody.appendChild(el);
     thoughtEls.push(el);
   });
@@ -808,8 +876,17 @@ function loadTrace(data) {
   // Meta
   const seed = data.seed||'—';
   const started = data.started_at||'';
-  metaEl.textContent = `${cycles.length} cycles · seed ${seed}${started?' · '+started:''}`;
+  const thoughtSummary = runtimeThought?.summary || {};
+  const modelUsageCounts = thoughtSummary.model_usage_counts || {};
+  const modelUsageText = Object.entries(modelUsageCounts).map(([model,count]) => `${shortModelLabel(model)} × ${count}`).join(' · ');
+  metaEl.textContent = `${cycles.length} cycles · seed ${seed}${started?' · '+started:''}${modelUsageText ? ' · ' + modelUsageText : ''}`;
   cycleTotalEl.textContent = cycles.length;
+  if (Object.keys(runtimeThoughtByCycle).length) {
+    const routingPolicy = thoughtSummary.routing_policy || 'fixed';
+    thoughtHint.textContent = routingPolicy === 'fixed' ? 'runtime thought beats' : `runtime thought beats · ${humanize(routingPolicy)}`;
+  } else {
+    thoughtHint.textContent = 'deterministic narration';
+  }
 
   // Prepare data
   prepareBump();
@@ -830,6 +907,14 @@ function loadTrace(data) {
 function init() {
   speedLabel.textContent = SPEED_LABELS[speedIndex];
   setupDrop();
+
+  try {
+    const thoughtEl = document.getElementById('runtime-thought-data');
+    const thoughtRaw = thoughtEl?.textContent?.trim();
+    if (thoughtRaw && thoughtRaw.length > 2 && !thoughtRaw.startsWith('__')) {
+      configureRuntimeThought(JSON.parse(thoughtRaw));
+    }
+  } catch(e) {}
 
   // Try embedded trace
   try {

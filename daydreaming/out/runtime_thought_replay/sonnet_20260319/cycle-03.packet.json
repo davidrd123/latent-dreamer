@@ -1,0 +1,160 @@
+{
+  "packet_type": "RuntimeThoughtBeatV1",
+  "cycle": 3,
+  "selected_goal": {
+    "id": "g-8",
+    "goal_type": "reversal",
+    "strength": 0.64496,
+    "planning_type": "imaginary",
+    "situation_id": "s1_seeing_through",
+    "reasons": []
+  },
+  "chosen_node_id": "n01_notice_seams",
+  "active_indices": [
+    "perception",
+    "awareness",
+    "seam",
+    "fingerprint",
+    "cardboard",
+    "stage_light",
+    "emotion:neg",
+    "ritual",
+    "sincerity",
+    "non_directed_light",
+    "performance",
+    "honesty",
+    "wall",
+    "emotion:pos"
+  ],
+  "situation": {
+    "id": "s1_seeing_through",
+    "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n",
+    "place": "checkpoint",
+    "activation": 1.0,
+    "threat": 0.26999999999999996,
+    "hope": 0.56,
+    "waiting": 0.18,
+    "ripeness": 0.9600000000000002,
+    "grief": 0.18000000000000002,
+    "anger": 0.13,
+    "indices": [
+      "perception",
+      "awareness",
+      "seam",
+      "fingerprint",
+      "cardboard",
+      "stage_light",
+      "emotion:neg"
+    ],
+    "external": false,
+    "directed_target": "the_set"
+  },
+  "retrieved_fragments": [
+    {
+      "node_id": "n02_corridor_repeat",
+      "episode_id": null,
+      "retrieval_score": 6.0,
+      "overlap": [
+        "perception",
+        "awareness",
+        "seam",
+        "wall",
+        "cardboard",
+        "stage_light"
+      ],
+      "threshold": 2
+    },
+    {
+      "node_id": "n01_notice_seams",
+      "episode_id": null,
+      "retrieval_score": 5.0,
+      "overlap": [
+        "perception",
+        "awareness",
+        "seam",
+        "fingerprint",
+        "sincerity"
+      ],
+      "threshold": 2
+    }
+  ],
+  "top_competing_goals": [
+    {
+      "id": "g-8",
+      "goal_type": "reversal",
+      "strength": 0.64496,
+      "planning_type": "imaginary",
+      "situation_id": "s1_seeing_through",
+      "reasons": [
+        "counterfactual_pressure",
+        "failed_plan",
+        "inferred_scene"
+      ]
+    },
+    {
+      "id": "g-5",
+      "goal_type": "rationalization",
+      "strength": 0.5718,
+      "planning_type": "imaginary",
+      "situation_id": "s1_seeing_through",
+      "reasons": [
+        "failed_pressure",
+        "negative_affect"
+      ]
+    },
+    {
+      "id": "g-7",
+      "goal_type": "rehearsal",
+      "strength": 0.474,
+      "planning_type": "real",
+      "situation_id": "s2_the_mission",
+      "reasons": [
+        "anticipation",
+        "waiting_goal"
+      ]
+    }
+  ],
+  "branch_events": [
+    {
+      "family": "reversal",
+      "source_context": "cx-2",
+      "target_context": "cx-40",
+      "fact_ids": [
+        "performance_is_admitted",
+        "s4_the_ring"
+      ],
+      "fact_types": [
+        "counterfactual",
+        "situation"
+      ],
+      "episode_ids": []
+    }
+  ],
+  "selection": {
+    "goal_family": "reversal",
+    "policy": "highest_score",
+    "reasons": [
+      "retrieval:5",
+      "situation_match",
+      "return_pressure"
+    ],
+    "active_indices": [
+      "ritual",
+      "sincerity",
+      "non_directed_light",
+      "performance",
+      "honesty"
+    ],
+    "branch_context": "cx-40",
+    "visible_fact_ids": [
+      "performance_is_admitted",
+      "s1_seeing_through",
+      "s3_the_edge",
+      "s4_the_ring"
+    ]
+  },
+  "emotional_state": [],
+  "feedback_applied": null,
+  "serendipity_bias": null,
+  "previous_residue_summary": "The seam-is-honesty argument collapsed again under direct light, and the fingerprint in the clay now feels like evidence against the story rather than for it."
+}

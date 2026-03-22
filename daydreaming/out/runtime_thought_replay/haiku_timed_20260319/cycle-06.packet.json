@@ -1,0 +1,165 @@
+{
+  "packet_type": "RuntimeThoughtBeatV1",
+  "cycle": 6,
+  "selected_goal": {
+    "id": "g-8",
+    "goal_type": "reversal",
+    "strength": 0.745752,
+    "planning_type": "imaginary",
+    "situation_id": "s1_seeing_through",
+    "reasons": []
+  },
+  "chosen_node_id": "n01_notice_seams",
+  "active_indices": [
+    "perception",
+    "awareness",
+    "seam",
+    "fingerprint",
+    "cardboard",
+    "stage_light",
+    "emotion:neg",
+    "ritual",
+    "sincerity",
+    "non_directed_light",
+    "performance",
+    "honesty",
+    "urgency",
+    "timer",
+    "explosive",
+    "choice"
+  ],
+  "situation": {
+    "id": "s1_seeing_through",
+    "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n",
+    "place": "checkpoint",
+    "activation": 1.0,
+    "threat": 0.28159999999999996,
+    "hope": 0.5488000000000001,
+    "waiting": 0.1764,
+    "ripeness": 1.0,
+    "grief": 0.2534,
+    "anger": 0.0276,
+    "indices": [
+      "perception",
+      "awareness",
+      "seam",
+      "fingerprint",
+      "cardboard",
+      "stage_light",
+      "emotion:neg"
+    ],
+    "external": false,
+    "directed_target": "the_set"
+  },
+  "retrieved_fragments": [
+    {
+      "node_id": "n01_notice_seams",
+      "episode_id": null,
+      "retrieval_score": 6.0,
+      "overlap": [
+        "perception",
+        "awareness",
+        "seam",
+        "fingerprint",
+        "explosive",
+        "sincerity"
+      ],
+      "threshold": 2
+    },
+    {
+      "node_id": "n04_spotlight_choices",
+      "episode_id": null,
+      "retrieval_score": 6.0,
+      "overlap": [
+        "urgency",
+        "timer",
+        "explosive",
+        "sincerity",
+        "stage_light",
+        "choice"
+      ],
+      "threshold": 3
+    }
+  ],
+  "top_competing_goals": [
+    {
+      "id": "g-8",
+      "goal_type": "reversal",
+      "strength": 0.745752,
+      "planning_type": "imaginary",
+      "situation_id": "s1_seeing_through",
+      "reasons": [
+        "counterfactual_pressure",
+        "failed_plan",
+        "inferred_scene"
+      ]
+    },
+    {
+      "id": "g-7",
+      "goal_type": "rehearsal",
+      "strength": 0.5401400000000001,
+      "planning_type": "real",
+      "situation_id": "s2_the_mission",
+      "reasons": [
+        "anticipation",
+        "waiting_goal"
+      ]
+    },
+    {
+      "id": "g-18",
+      "goal_type": "rehearsal",
+      "strength": 0.48434000000000005,
+      "planning_type": "real",
+      "situation_id": "s4_the_ring",
+      "reasons": [
+        "anticipation",
+        "waiting_goal",
+        "honest_place"
+      ]
+    }
+  ],
+  "branch_events": [
+    {
+      "family": "reversal",
+      "source_context": "cx-2",
+      "target_context": "cx-42",
+      "fact_ids": [
+        "performance_is_admitted",
+        "s4_the_ring"
+      ],
+      "fact_types": [
+        "counterfactual",
+        "situation"
+      ],
+      "episode_ids": []
+    }
+  ],
+  "selection": {
+    "goal_family": "reversal",
+    "policy": "highest_score",
+    "reasons": [
+      "retrieval:6",
+      "situation_match",
+      "return_pressure",
+      "recent_penalty"
+    ],
+    "active_indices": [
+      "ritual",
+      "sincerity",
+      "non_directed_light",
+      "performance",
+      "honesty"
+    ],
+    "branch_context": "cx-42",
+    "visible_fact_ids": [
+      "performance_is_admitted",
+      "s1_seeing_through",
+      "s3_the_edge",
+      "s4_the_ring"
+    ]
+  },
+  "emotional_state": [],
+  "feedback_applied": null,
+  "serendipity_bias": null,
+  "previous_residue_summary": "He sees through the artifice but the urgency remains genuine; the admission lodged in his throat now extends into the very structure of the mission itself."
+}

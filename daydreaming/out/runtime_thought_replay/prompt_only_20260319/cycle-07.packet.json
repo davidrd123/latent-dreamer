@@ -1,0 +1,135 @@
+{
+  "packet_type": "RuntimeThoughtBeatV1",
+  "cycle": 7,
+  "selected_goal": {
+    "id": "g-7",
+    "goal_type": "rehearsal",
+    "strength": 0.7651400000000002,
+    "planning_type": "real",
+    "situation_id": "s2_the_mission",
+    "reasons": []
+  },
+  "chosen_node_id": "n13_countdown_clock",
+  "active_indices": [
+    "urgency",
+    "timer",
+    "explosive",
+    "sincerity",
+    "mission",
+    "bridge",
+    "emotion:pos",
+    "perception",
+    "awareness",
+    "seam",
+    "fingerprint"
+  ],
+  "situation": {
+    "id": "s2_the_mission",
+    "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n",
+    "place": "street",
+    "activation": 0.940544,
+    "threat": 0.32931499999999997,
+    "hope": 0.8498879999999999,
+    "waiting": 0.944152,
+    "ripeness": 0.6879560000000001,
+    "grief": 0.075272,
+    "anger": 0.09409000000000001,
+    "indices": [
+      "urgency",
+      "timer",
+      "explosive",
+      "sincerity",
+      "mission",
+      "bridge",
+      "emotion:pos"
+    ],
+    "external": true,
+    "directed_target": null
+  },
+  "retrieved_fragments": [
+    {
+      "node_id": "n01_notice_seams",
+      "episode_id": null,
+      "retrieval_score": 6.0,
+      "overlap": [
+        "perception",
+        "awareness",
+        "seam",
+        "fingerprint",
+        "explosive",
+        "sincerity"
+      ],
+      "threshold": 2
+    },
+    {
+      "node_id": "n03_mission_walk",
+      "episode_id": null,
+      "retrieval_score": 5.0,
+      "overlap": [
+        "urgency",
+        "timer",
+        "mission",
+        "sincerity",
+        "bridge"
+      ],
+      "threshold": 2
+    }
+  ],
+  "top_competing_goals": [
+    {
+      "id": "g-7",
+      "goal_type": "rehearsal",
+      "strength": 0.7651400000000002,
+      "planning_type": "real",
+      "situation_id": "s2_the_mission",
+      "reasons": [
+        "anticipation",
+        "waiting_goal",
+        "mission_escape"
+      ]
+    },
+    {
+      "id": "g-32",
+      "goal_type": "roving",
+      "strength": 0.6887005714285714,
+      "planning_type": "imaginary",
+      "situation_id": "s3_the_edge",
+      "reasons": [
+        "overload",
+        "distraction",
+        "fatigue_escape"
+      ]
+    },
+    {
+      "id": "g-18",
+      "goal_type": "rehearsal",
+      "strength": 0.61634,
+      "planning_type": "real",
+      "situation_id": "s4_the_ring",
+      "reasons": [
+        "anticipation",
+        "waiting_goal",
+        "honest_place"
+      ]
+    }
+  ],
+  "branch_events": [],
+  "selection": {
+    "goal_family": null,
+    "policy": "highest_score",
+    "reasons": [
+      "retrieval:5",
+      "goal_match",
+      "situation_match",
+      "local:association",
+      "return_pressure"
+    ],
+    "active_indices": [],
+    "branch_context": null,
+    "visible_fact_ids": []
+  },
+  "emotional_state": [],
+  "feedback_applied": null,
+  "serendipity_bias": null,
+  "previous_residue_summary": null
+}

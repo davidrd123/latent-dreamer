@@ -1,18 +1,32 @@
 # Current Sprint
 
-Last updated: 2026-03-16
+Last updated: 2026-03-21
 
 ---
 
 ## Objective
 
-Answer the Level 3 question: **does this feel like a mind at work?**
+**Is cognition legible on stage, and does residue writeback change
+the next trace?**
 
-The supply pilot passed. The bridge tests passed. The architectural
-seams are identified. The most important unanswered question is no
-longer about material supply or traversal dynamics — it's whether
-the runtime output reads as a person thinking rather than a system
-operating.
+Two gates, both required:
+
+1. **Stage gate:** runtime thought beats read as a person thinking,
+   not as a system report with better labels.
+2. **Architecture gate:** the feedback loop produces a structurally
+   different trace than running without feedback — evidence that
+   persistent kernel state earns its keep beyond LLM prose style.
+
+Gate 1 alone is too weak — a plain LLM rewrite could pass it. Gate 2
+is what distinguishes this from memory-augmented generation.
+
+## Context
+
+The supply pilot passed. The bridge tests passed. Three threads
+(thought beats, provocations, generation pipeline) converge into
+one loop — see `37-plan-of-attack.md` for the strategic framing.
+The most important unanswered question is no longer about material
+supply or traversal dynamics.
 
 ## Primary Target
 
@@ -41,10 +55,14 @@ RuntimeThoughtBeatV1:
 - Stage consumes the rendered beat (narration, audio, visualization)
 - Kernel receives at most a tiny distilled residue, not full prose
 
-**Status:** RuntimeThoughtBeatV1 replay is working. Haiku at
-~3.3s/cycle (default), Sonnet at ~7.6s/cycle (escalation for
-complex cycles). Operator routing produces visible quality
+**Status (2026-03-20):** RuntimeThoughtBeatV1 replay is working.
+Haiku at ~3.3s/cycle (default), Sonnet at ~7.6s/cycle (escalation
+for complex cycles). Operator routing produces visible quality
 differences. The narration inhabits the cognitive events.
+
+Known tension: the LLM generates richer inner life than the kernel's
+events justify. The narration is partly disconnected from actual
+cognitive computation. The feedback loop is the fix.
 
 **Next step:** The feedback loop experiment. Feed the narration
 back as a new episode. Run another cycle. Does retrieval change?
@@ -52,9 +70,8 @@ This tests whether accumulation matters — the D9 question in
 miniature.
 
 **Success condition:**
-The cognitive trace, with thought beats, reads as a person thinking.
-Not as a system report with better labels. AND: the feedback loop
-produces a different trace than running without feedback.
+Both gates pass. Stage legibility AND structural divergence with
+feedback. If only gate 1 passes, the kernel isn't earning its keep.
 
 ## Secondary Targets (parallel, not blocking)
 

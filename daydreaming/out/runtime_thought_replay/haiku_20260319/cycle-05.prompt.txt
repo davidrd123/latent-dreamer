@@ -1,0 +1,153 @@
+RuntimeThoughtBeatV1 packet:
+
+{
+  "packet_type": "RuntimeThoughtBeatV1",
+  "cycle": 5,
+  "selected_goal": {
+    "id": "g-7",
+    "goal_type": "rehearsal",
+    "strength": 0.639,
+    "planning_type": "real",
+    "situation_id": "s2_the_mission",
+    "reasons": []
+  },
+  "chosen_node_id": "n04_spotlight_choices",
+  "active_indices": [
+    "urgency",
+    "timer",
+    "explosive",
+    "sincerity",
+    "mission",
+    "bridge",
+    "emotion:pos",
+    "perception",
+    "awareness",
+    "seam",
+    "wall",
+    "cardboard",
+    "stage_light"
+  ],
+  "situation": {
+    "id": "s2_the_mission",
+    "description": "The mission is urgent. The timer is real. The explosives are real. But the mission is happening inside a model.\n",
+    "place": "street",
+    "activation": 0.6432,
+    "threat": 0.33949999999999997,
+    "hope": 0.7856,
+    "waiting": 0.9124,
+    "ripeness": 0.6044,
+    "grief": 0.0776,
+    "anger": 0.097,
+    "indices": [
+      "urgency",
+      "timer",
+      "explosive",
+      "sincerity",
+      "mission",
+      "bridge",
+      "emotion:pos"
+    ],
+    "external": true,
+    "directed_target": null
+  },
+  "retrieved_fragments": [
+    {
+      "node_id": "n02_corridor_repeat",
+      "episode_id": null,
+      "retrieval_score": 6.0,
+      "overlap": [
+        "perception",
+        "awareness",
+        "seam",
+        "wall",
+        "cardboard",
+        "stage_light"
+      ],
+      "threshold": 2
+    },
+    {
+      "node_id": "n01_notice_seams",
+      "episode_id": null,
+      "retrieval_score": 5.0,
+      "overlap": [
+        "perception",
+        "awareness",
+        "seam",
+        "explosive",
+        "sincerity"
+      ],
+      "threshold": 2
+    }
+  ],
+  "top_competing_goals": [
+    {
+      "id": "g-7",
+      "goal_type": "rehearsal",
+      "strength": 0.639,
+      "planning_type": "real",
+      "situation_id": "s2_the_mission",
+      "reasons": [
+        "anticipation",
+        "waiting_goal",
+        "mission_escape"
+      ]
+    },
+    {
+      "id": "g-32",
+      "goal_type": "roving",
+      "strength": 0.6260571428571429,
+      "planning_type": "imaginary",
+      "situation_id": "s3_the_edge",
+      "reasons": [
+        "overload",
+        "distraction",
+        "fatigue_escape"
+      ]
+    },
+    {
+      "id": "g-8",
+      "goal_type": "reversal",
+      "strength": 0.6076,
+      "planning_type": "imaginary",
+      "situation_id": "s1_seeing_through",
+      "reasons": [
+        "counterfactual_pressure",
+        "failed_plan",
+        "inferred_scene",
+        "fatigue"
+      ]
+    }
+  ],
+  "branch_events": [],
+  "selection": {
+    "goal_family": null,
+    "policy": "highest_score",
+    "reasons": [
+      "retrieval:5",
+      "goal_match",
+      "situation_match",
+      "return_pressure"
+    ],
+    "active_indices": [],
+    "branch_context": null,
+    "visible_fact_ids": []
+  },
+  "emotional_state": [],
+  "feedback_applied": null,
+  "serendipity_bias": null,
+  "previous_residue_summary": "The reversal is complete: honesty now lives in the thing he cannot say, and every moment he doesn't say it becomes another small ritual of betrayal."
+}
+
+Return JSON matching this example shape exactly:
+
+{
+  "thought_beat_text": "He tells himself the delay is caution, not fear, but the explanation keeps catching on the memory it is trying to pass around.",
+  "mood_tags": [
+    "guarded",
+    "self_dividing",
+    "pressurized"
+  ],
+  "residue_summary": "Delay recast as prudence, but the old accusation stays active.",
+  "image_hint": "hand stalled over an object that would force contact",
+  "audio_hint": "contained tension with a held metallic hum underneath"
+}

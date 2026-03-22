@@ -1,0 +1,39 @@
+{
+  "trace_path": "out/puppet_knows_autonomous.json",
+  "provider": "anthropic",
+  "model": "claude-haiku-4-5-20251001",
+  "routing_policy": "haiku_default",
+  "escalation_model": "claude-sonnet-4-6",
+  "escalation_goals": [
+    "reversal"
+  ],
+  "temperature": 0.5,
+  "start_cycle": 1,
+  "max_cycles": 12,
+  "processed_cycles": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "model_usage_counts": {
+    "claude-haiku-4-5-20251001": 2,
+    "claude-sonnet-4-6": 10
+  },
+  "route_reason_counts": {
+    "goal_family:reversal": 6,
+    "goal_family_change": 9,
+    "branch_event": 6
+  },
+  "elapsed_seconds_total": 87.717,
+  "elapsed_seconds_avg": 7.31,
+  "output_dir": "daydreaming/out/runtime_thought_replay/routed_20260319"
+}

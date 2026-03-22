@@ -1,0 +1,167 @@
+{
+  "packet_type": "RuntimeThoughtBeatV1",
+  "cycle": 12,
+  "selected_goal": {
+    "id": "g-8",
+    "goal_type": "reversal",
+    "strength": 0.7291755600000001,
+    "planning_type": "imaginary",
+    "situation_id": "s1_seeing_through",
+    "reasons": []
+  },
+  "chosen_node_id": "n06_overhead_set_edge",
+  "active_indices": [
+    "perception",
+    "awareness",
+    "seam",
+    "fingerprint",
+    "cardboard",
+    "stage_light",
+    "emotion:neg",
+    "ritual",
+    "sincerity",
+    "non_directed_light",
+    "performance",
+    "honesty",
+    "edge",
+    "void",
+    "backstage",
+    "darkness",
+    "silence"
+  ],
+  "situation": {
+    "id": "s1_seeing_through",
+    "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n",
+    "place": "checkpoint",
+    "activation": 1.0,
+    "threat": 0.303152,
+    "hope": 0.5378240000000001,
+    "waiting": 0.172872,
+    "ripeness": 1.0,
+    "grief": 0.36579799999999996,
+    "anger": 0.0,
+    "indices": [
+      "perception",
+      "awareness",
+      "seam",
+      "fingerprint",
+      "cardboard",
+      "stage_light",
+      "emotion:neg"
+    ],
+    "external": false,
+    "directed_target": "the_set"
+  },
+  "retrieved_fragments": [
+    {
+      "node_id": "n06_overhead_set_edge",
+      "episode_id": null,
+      "retrieval_score": 6.0,
+      "overlap": [
+        "edge",
+        "void",
+        "backstage",
+        "darkness",
+        "stage_light",
+        "awareness"
+      ],
+      "threshold": 3
+    },
+    {
+      "node_id": "n07_backstage_headlights",
+      "episode_id": null,
+      "retrieval_score": 6.0,
+      "overlap": [
+        "edge",
+        "void",
+        "backstage",
+        "darkness",
+        "non_directed_light",
+        "silence"
+      ],
+      "threshold": 3
+    }
+  ],
+  "top_competing_goals": [
+    {
+      "id": "g-8",
+      "goal_type": "reversal",
+      "strength": 0.7291755600000001,
+      "planning_type": "imaginary",
+      "situation_id": "s1_seeing_through",
+      "reasons": [
+        "counterfactual_pressure",
+        "failed_plan",
+        "inferred_scene"
+      ]
+    },
+    {
+      "id": "g-30",
+      "goal_type": "rationalization",
+      "strength": 0.72285314,
+      "planning_type": "imaginary",
+      "situation_id": "s4_the_ring",
+      "reasons": [
+        "failed_pressure",
+        "negative_affect"
+      ]
+    },
+    {
+      "id": "g-18",
+      "goal_type": "rehearsal",
+      "strength": 0.7016456000000001,
+      "planning_type": "real",
+      "situation_id": "s4_the_ring",
+      "reasons": [
+        "anticipation",
+        "waiting_goal",
+        "honest_place"
+      ]
+    }
+  ],
+  "branch_events": [
+    {
+      "family": "reversal",
+      "source_context": "cx-2",
+      "target_context": "cx-48",
+      "fact_ids": [
+        "performance_is_admitted",
+        "s4_the_ring"
+      ],
+      "fact_types": [
+        "counterfactual",
+        "situation"
+      ],
+      "episode_ids": []
+    }
+  ],
+  "selection": {
+    "goal_family": "reversal",
+    "policy": "highest_score",
+    "reasons": [
+      "retrieval:6",
+      "goal_match",
+      "situation_match",
+      "return_pressure",
+      "recent_penalty"
+    ],
+    "active_indices": [
+      "ritual",
+      "sincerity",
+      "non_directed_light",
+      "performance",
+      "honesty"
+    ],
+    "branch_context": "cx-48",
+    "visible_fact_ids": [
+      "performance_is_admitted",
+      "s1_seeing_through",
+      "s3_the_edge",
+      "s4_the_ring"
+    ]
+  },
+  "emotional_state": [],
+  "feedback_applied": null,
+  "serendipity_bias": null,
+  "previous_residue_summary": "The backstage dark offered a kind of honesty he wasn't ready to refuse, and that refusal to refuse will follow him back toward the ring."
+}

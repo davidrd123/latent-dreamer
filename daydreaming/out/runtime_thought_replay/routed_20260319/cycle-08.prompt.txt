@@ -1,0 +1,182 @@
+RuntimeThoughtBeatV1 packet:
+
+{
+  "packet_type": "RuntimeThoughtBeatV1",
+  "cycle": 8,
+  "selected_goal": {
+    "id": "g-8",
+    "goal_type": "reversal",
+    "strength": 0.77473344,
+    "planning_type": "imaginary",
+    "situation_id": "s1_seeing_through",
+    "reasons": []
+  },
+  "chosen_node_id": "n01_notice_seams",
+  "active_indices": [
+    "perception",
+    "awareness",
+    "seam",
+    "fingerprint",
+    "cardboard",
+    "stage_light",
+    "emotion:neg",
+    "ritual",
+    "sincerity",
+    "non_directed_light",
+    "performance",
+    "honesty",
+    "explosive",
+    "urgency",
+    "timer",
+    "mission",
+    "rooftop"
+  ],
+  "situation": {
+    "id": "s1_seeing_through",
+    "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n",
+    "place": "checkpoint",
+    "activation": 1.0,
+    "threat": 0.28315199999999996,
+    "hope": 0.5378240000000001,
+    "waiting": 0.172872,
+    "ripeness": 1.0,
+    "grief": 0.285798,
+    "anger": 0.0,
+    "indices": [
+      "perception",
+      "awareness",
+      "seam",
+      "fingerprint",
+      "cardboard",
+      "stage_light",
+      "emotion:neg"
+    ],
+    "external": false,
+    "directed_target": "the_set"
+  },
+  "retrieved_fragments": [
+    {
+      "node_id": "n01_notice_seams",
+      "episode_id": null,
+      "retrieval_score": 6.0,
+      "overlap": [
+        "perception",
+        "awareness",
+        "seam",
+        "fingerprint",
+        "explosive",
+        "sincerity"
+      ],
+      "threshold": 2
+    },
+    {
+      "node_id": "n13_countdown_clock",
+      "episode_id": null,
+      "retrieval_score": 6.0,
+      "overlap": [
+        "urgency",
+        "timer",
+        "explosive",
+        "mission",
+        "sincerity",
+        "rooftop"
+      ],
+      "threshold": 2
+    }
+  ],
+  "top_competing_goals": [
+    {
+      "id": "g-8",
+      "goal_type": "reversal",
+      "strength": 0.77473344,
+      "planning_type": "imaginary",
+      "situation_id": "s1_seeing_through",
+      "reasons": [
+        "counterfactual_pressure",
+        "failed_plan",
+        "inferred_scene"
+      ]
+    },
+    {
+      "id": "g-18",
+      "goal_type": "rehearsal",
+      "strength": 0.6031286,
+      "planning_type": "real",
+      "situation_id": "s4_the_ring",
+      "reasons": [
+        "anticipation",
+        "waiting_goal",
+        "honest_place"
+      ]
+    },
+    {
+      "id": "g-7",
+      "goal_type": "rehearsal",
+      "strength": 0.6018928,
+      "planning_type": "real",
+      "situation_id": "s2_the_mission",
+      "reasons": [
+        "anticipation",
+        "waiting_goal"
+      ]
+    }
+  ],
+  "branch_events": [
+    {
+      "family": "reversal",
+      "source_context": "cx-2",
+      "target_context": "cx-43",
+      "fact_ids": [
+        "performance_is_admitted",
+        "s4_the_ring"
+      ],
+      "fact_types": [
+        "counterfactual",
+        "situation"
+      ],
+      "episode_ids": []
+    }
+  ],
+  "selection": {
+    "goal_family": "reversal",
+    "policy": "highest_score",
+    "reasons": [
+      "retrieval:6",
+      "situation_match",
+      "return_pressure",
+      "recent_penalty"
+    ],
+    "active_indices": [
+      "ritual",
+      "sincerity",
+      "non_directed_light",
+      "performance",
+      "honesty"
+    ],
+    "branch_context": "cx-43",
+    "visible_fact_ids": [
+      "performance_is_admitted",
+      "s1_seeing_through",
+      "s3_the_edge",
+      "s4_the_ring"
+    ]
+  },
+  "emotional_state": [],
+  "feedback_applied": null,
+  "serendipity_bias": null,
+  "previous_residue_summary": "Snake is holding the mission and the seam simultaneously, and the countdown is not waiting for him to decide which one is more real."
+}
+
+Return JSON matching this example shape exactly:
+
+{
+  "thought_beat_text": "He tells himself the delay is caution, not fear, but the explanation keeps catching on the memory it is trying to pass around.",
+  "mood_tags": [
+    "guarded",
+    "self_dividing",
+    "pressurized"
+  ],
+  "residue_summary": "Delay recast as prudence, but the old accusation stays active.",
+  "image_hint": "hand stalled over an object that would force contact",
+  "audio_hint": "contained tension with a held metallic hum underneath"
+}

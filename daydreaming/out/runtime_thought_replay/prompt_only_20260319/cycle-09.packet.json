@@ -1,0 +1,145 @@
+{
+  "packet_type": "RuntimeThoughtBeatV1",
+  "cycle": 9,
+  "selected_goal": {
+    "id": "g-32",
+    "goal_type": "roving",
+    "strength": 0.7118276457142858,
+    "planning_type": "imaginary",
+    "situation_id": "s3_the_edge",
+    "reasons": []
+  },
+  "chosen_node_id": "n07_backstage_headlights",
+  "active_indices": [
+    "edge",
+    "void",
+    "backstage",
+    "darkness",
+    "wall",
+    "non_directed_light",
+    "emotion:neg",
+    "fingerprint",
+    "explosive",
+    "sincerity",
+    "honesty",
+    "performance",
+    "crowd"
+  ],
+  "situation": {
+    "id": "s3_the_edge",
+    "description": "The wall is also the edge of the set. Beyond it there is no geography, only backstage. Escape is stepping into nothing.\n",
+    "place": "checkpoint",
+    "activation": 0.30464,
+    "threat": 0.503358,
+    "hope": 0.203664,
+    "waiting": 0.057623999999999995,
+    "ripeness": 0.45194,
+    "grief": 0.22581599999999996,
+    "anger": 0.11290799999999998,
+    "indices": [
+      "edge",
+      "void",
+      "backstage",
+      "darkness",
+      "wall",
+      "non_directed_light",
+      "emotion:neg"
+    ],
+    "external": true,
+    "directed_target": null
+  },
+  "retrieved_fragments": [
+    {
+      "node_id": "n07_backstage_headlights",
+      "episode_id": null,
+      "retrieval_score": 5.0,
+      "overlap": [
+        "edge",
+        "void",
+        "backstage",
+        "darkness",
+        "non_directed_light"
+      ],
+      "threshold": 3
+    },
+    {
+      "node_id": "n10_honest_ring",
+      "episode_id": null,
+      "retrieval_score": 5.0,
+      "overlap": [
+        "honesty",
+        "crowd",
+        "performance",
+        "sincerity",
+        "non_directed_light"
+      ],
+      "threshold": 3
+    }
+  ],
+  "top_competing_goals": [
+    {
+      "id": "g-32",
+      "goal_type": "roving",
+      "strength": 0.7118276457142858,
+      "planning_type": "imaginary",
+      "situation_id": "s3_the_edge",
+      "reasons": [
+        "overload",
+        "distraction",
+        "fatigue_escape"
+      ]
+    },
+    {
+      "id": "g-18",
+      "goal_type": "rehearsal",
+      "strength": 0.6583414,
+      "planning_type": "real",
+      "situation_id": "s4_the_ring",
+      "reasons": [
+        "anticipation",
+        "waiting_goal",
+        "honest_place"
+      ]
+    },
+    {
+      "id": "g-30",
+      "goal_type": "rationalization",
+      "strength": 0.61892306,
+      "planning_type": "imaginary",
+      "situation_id": "s4_the_ring",
+      "reasons": [
+        "failed_pressure",
+        "negative_affect"
+      ]
+    }
+  ],
+  "branch_events": [
+    {
+      "family": "roving",
+      "source_context": "cx-33",
+      "target_context": "cx-44",
+      "fact_ids": [],
+      "fact_types": [],
+      "episode_ids": [
+        "ep-3"
+      ]
+    }
+  ],
+  "selection": {
+    "goal_family": "roving",
+    "policy": "highest_score",
+    "reasons": [
+      "retrieval:5",
+      "goal_match",
+      "situation_match",
+      "return_pressure"
+    ],
+    "active_indices": [],
+    "branch_context": "cx-44",
+    "visible_fact_ids": []
+  },
+  "emotional_state": [],
+  "feedback_applied": null,
+  "serendipity_bias": null,
+  "previous_residue_summary": null
+}

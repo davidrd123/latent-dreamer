@@ -1,0 +1,23 @@
+{
+  "trace_path": "out/puppet_knows_autonomous.json",
+  "provider": "prompt-only",
+  "model": null,
+  "temperature": 0.5,
+  "start_cycle": 1,
+  "max_cycles": 12,
+  "processed_cycles": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "output_dir": "daydreaming/out/runtime_thought_replay/prompt_only_20260319"
+}

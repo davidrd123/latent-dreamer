@@ -50,6 +50,9 @@ Rules:
 - Treat `current-sprint.md` as the authoritative source for the active
   sprint.
 - Treat `dashboard.md` as the broader map, not the sprint contract.
+- If a newer note materially changes the objective, success criteria, or
+  scope, update `current-sprint.md` — don't leave it stale while treating
+  the newer note as the de facto contract.
 - Do not rely on another agent's summary by itself for consequential
   claims. Verify against artifacts.
 - For sprint-state claims, prefer artifact files such as:

@@ -1,0 +1,182 @@
+RuntimeThoughtBeatV1 packet:
+
+{
+  "packet_type": "RuntimeThoughtBeatV1",
+  "cycle": 2,
+  "selected_goal": {
+    "id": "g-5",
+    "goal_type": "rationalization",
+    "strength": 0.5526000000000001,
+    "planning_type": "imaginary",
+    "situation_id": "s1_seeing_through",
+    "reasons": []
+  },
+  "chosen_node_id": "n02_corridor_repeat",
+  "active_indices": [
+    "perception",
+    "awareness",
+    "seam",
+    "fingerprint",
+    "cardboard",
+    "stage_light",
+    "emotion:neg",
+    "honesty",
+    "clarity",
+    "wall"
+  ],
+  "situation": {
+    "id": "s1_seeing_through",
+    "description": "Snake notices the seams. The foam-core edge. The fingerprint in the clay. He can't unsee it but he can't say it.\n",
+    "place": "checkpoint",
+    "activation": 1.0,
+    "threat": 0.25999999999999995,
+    "hope": 0.56,
+    "waiting": 0.18,
+    "ripeness": 0.9200000000000002,
+    "grief": 0.14,
+    "anger": 0.18,
+    "indices": [
+      "perception",
+      "awareness",
+      "seam",
+      "fingerprint",
+      "cardboard",
+      "stage_light",
+      "emotion:neg"
+    ],
+    "external": false,
+    "directed_target": "the_set"
+  },
+  "retrieved_fragments": [
+    {
+      "node_id": "n02_corridor_repeat",
+      "episode_id": null,
+      "retrieval_score": 6.0,
+      "overlap": [
+        "perception",
+        "awareness",
+        "seam",
+        "wall",
+        "cardboard",
+        "stage_light"
+      ],
+      "threshold": 2
+    },
+    {
+      "node_id": "n01_notice_seams",
+      "episode_id": null,
+      "retrieval_score": 4.0,
+      "overlap": [
+        "perception",
+        "awareness",
+        "seam",
+        "fingerprint"
+      ],
+      "threshold": 2
+    }
+  ],
+  "top_competing_goals": [
+    {
+      "id": "g-5",
+      "goal_type": "rationalization",
+      "strength": 0.5526000000000001,
+      "planning_type": "imaginary",
+      "situation_id": "s1_seeing_through",
+      "reasons": [
+        "failed_pressure",
+        "negative_affect"
+      ]
+    },
+    {
+      "id": "g-8",
+      "goal_type": "reversal",
+      "strength": 0.55072,
+      "planning_type": "imaginary",
+      "situation_id": "s1_seeing_through",
+      "reasons": [
+        "counterfactual_pressure",
+        "failed_plan",
+        "inferred_scene"
+      ]
+    },
+    {
+      "id": "g-7",
+      "goal_type": "rehearsal",
+      "strength": 0.474,
+      "planning_type": "real",
+      "situation_id": "s2_the_mission",
+      "reasons": [
+        "anticipation",
+        "waiting_goal"
+      ]
+    }
+  ],
+  "branch_events": [
+    {
+      "family": "rationalization",
+      "source_context": "cx-38",
+      "target_context": "cx-39",
+      "fact_ids": [
+        "seam_is_honesty"
+      ],
+      "fact_types": [
+        "rationalization"
+      ],
+      "episode_ids": []
+    }
+  ],
+  "selection": {
+    "goal_family": "rationalization",
+    "policy": "highest_score",
+    "reasons": [
+      "retrieval:6",
+      "goal_match",
+      "situation_match",
+      "return_pressure",
+      "recent_penalty"
+    ],
+    "active_indices": [
+      "honesty",
+      "clarity"
+    ],
+    "branch_context": "cx-39",
+    "visible_fact_ids": [
+      "seam_is_honesty"
+    ]
+  },
+  "emotional_state": [
+    {
+      "emotion_id": "s1_seeing_through-autonomous-dread-2",
+      "affect": "dread",
+      "valence": "negative",
+      "strength": 0.24717999999999998,
+      "role": "trigger",
+      "situation_id": "s1_seeing_through"
+    },
+    {
+      "emotion_id": "s1_seeing_through-autonomous-reframe-2-hope",
+      "affect": "hope",
+      "valence": "positive",
+      "strength": 0.09281999999999999,
+      "role": "reframe",
+      "situation_id": "s1_seeing_through"
+    }
+  ],
+  "feedback_applied": null,
+  "serendipity_bias": null,
+  "previous_residue_summary": "The seam recast as honesty rather than flaw, but the looking-away remains unaccounted for."
+}
+
+Return JSON matching this example shape exactly:
+
+{
+  "thought_beat_text": "He tells himself the delay is caution, not fear, but the explanation keeps catching on the memory it is trying to pass around.",
+  "mood_tags": [
+    "guarded",
+    "self_dividing",
+    "pressurized"
+  ],
+  "residue_summary": "Delay recast as prudence, but the old accusation stays active.",
+  "image_hint": "hand stalled over an object that would force contact",
+  "audio_hint": "contained tension with a held metallic hum underneath"
+}
