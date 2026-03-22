@@ -55,6 +55,19 @@ None inside Mueller's retrieval loop. It is a deterministic threshold-counting p
 
 The hybrid question starts only after retrieval, when the system decides which retrieved episode is apt, realistic, or worth expanding.
 
+## Design note: typed retrieval outcomes (ACT-R lesson)
+
+Surfaced by outside review of ACT-R's buffer/retrieval discipline. Mueller's retrieval returns episodes or nothing. A modern implementation should return typed outcome states so that downstream mechanisms (and any LLM judgment sites) can distinguish between different kinds of retrieval failure:
+
+- `:ok` — episodes retrieved above threshold
+- `:none` — no episodes reached threshold
+- `:low-coincidence` — episodes partially matched but fell short of threshold
+- `:ambiguous` — multiple episodes tied with conflicting content
+- `:stale-index` — matched indices reference episodes that may be outdated
+- `:contradictory` — retrieved episodes contain mutually incompatible planning structures
+
+Without typed outcomes, the system cannot tell "no relevant material exists" from "the LLM improvised because retrieval was silent." Failure must be queryable, not silent. This is the ACT-R "state error" principle applied to episodic retrieval.
+
 ## 7. Accumulation story
 
 Strictly speaking, this mechanism does not add durable memory. Marks are reset before return. Its long-term importance is indirect: because the retrieved episodes it returns feed reminding, analogical planning, and serendipity, it determines which accumulated experiences become active in the present.

@@ -51,6 +51,11 @@ RuleV1
  :index-projections {:match [index-projection]
                      :emit [index-projection]}
 
+ ;; Denotational contract — what state change this rule is supposed to accomplish
+ :denotation {:intended-effect keyword-or-description
+              :failure-modes [keyword]
+              :validation-fn fn-or-nil}
+
  ;; Runtime behavior
  :executor {:kind #{:instantiate :clojure-fn :llm-backed}
             :spec any}
@@ -69,16 +74,18 @@ Design intent by field:
 
 - `:antecedent-schema` is what must match for the rule to become applicable.
 - `:consequent-schema` is the declared shape of what the rule produces.
+- `:denotation` is what state change the rule is supposed to accomplish. This is the layer between "what shape does the output have" and "how is the output produced." Without it, an LLM can return something schema-valid that doesn't do what the rule is for. For `:instantiate` rules, the denotation IS the schema. For `:llm-backed` rules, it's the contract the validator checks against. Surfaced by outside architecture review (semantic attachment literature, Dornhege et al.).
 - `:executor` is how the rule produces it at runtime.
 - `:index-projections` make retrieval and storage explicit rather than implicit.
 - `:graph-cache` is derived. It can be rebuilt from the schemas and should not become the source of truth.
 
-The crucial discipline is:
+The three-layer discipline is:
 
-- `:consequent-schema` must stay structural and declared up front.
+- `:consequent-schema` must stay structural and declared up front. The graph is computed from it.
+- `:denotation` specifies the intended effect and what would count as a bad but schema-valid result.
 - `:executor` may be declarative, procedural, or LLM-backed.
 
-That means the graph can remain valid even when some rules generate contextual content.
+That means the graph can remain valid even when some rules generate contextual content, and the denotational contract catches LLM outputs that are formally correct but cognitively wrong.
 
 ### Pattern conventions
 

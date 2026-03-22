@@ -57,10 +57,16 @@ First-pass trace. This stays at Mueller's mechanism level. It describes the acci
 - surprise emotion changes later concern selection
 - a verified serendipitous plan can become a new analogical plan and later a stored episode
 
-## Judgment-heavy links in this chain
+## Candidate hybrid annotations
 
-- step 4: serendipity recognition judges whether accidental salience is concern-relevant
-- step 6: path verification judges whether a structural path yields a coherent and useful plan
+| Step | Integration pattern | What the LLM would do |
+| --- | --- | --- |
+| 3 | **LLM-as-evaluator** (optional) | Evaluate whether a reminded episode deserves attentional promotion |
+| 4 | **LLM-as-evaluator** | Judge whether accidental salience is concern-relevant before committing to graph search |
+| 6 | **LLM-as-evaluator** + **Co-routine judgment** | Score path usefulness; soften verification where literal unification is too brittle |
+| 7 | **Rule-with-LLM-consequent** (if the verified path includes LLM-backed rules) | Generate contextual content for plan nodes along the verified path |
+
+Steps 1-2, 5, 8-9 remain purely structural. Steps 4 and 6 are serial (serendipity recognition must find a path before verification begins). Step 3 is inside the reminding recursion — Clojure owns that loop, LLM evaluates at each step.
 
 ## Why this chain matters
 

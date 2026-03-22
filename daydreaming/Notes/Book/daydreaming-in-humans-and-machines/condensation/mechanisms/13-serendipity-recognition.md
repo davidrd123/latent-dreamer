@@ -79,6 +79,16 @@ If retrieval learning is added (e.g., Ori-style Q-value reranking or co-occurren
 
 The point of serendipity is not "find something relevant." It is "discover that this salient thing connects to the concern through a specific rule path that can be verified and reused."
 
+## Open question: descriptor rigidity (Copycat/Metacat challenge)
+
+Surfaced by outside review. Hofstadter's Copycat/Metacat systems argue that representation change is often the hard part of creative discovery, not path-finding over fixed representations. Copycat's core idea: high-level analogy emerges from fluid, context-sensitive concepts, not from searching a fixed graph.
+
+The challenge to Mueller-style serendipity: the rule-graph assumes the right descriptors already exist. If antecedent/consequent schemas are too fixed, serendipity becomes "find another route in the same map" rather than "redraw the map." Mutation over scene elements is not the same as conceptual slippage.
+
+This is not a reason to abandon graph-based serendipity. It is a reason to watch whether the system's creative discoveries are limited by descriptor vocabulary. If they are, the response is not to make the graph adaptive (that kills novel-path discovery) but to enrich the descriptor vocabulary — potentially through LLM-assisted schema generation when new rules are created.
+
+Scaling note: useful creative paths likely cluster around 2-4 hops. Beyond that, verification cost and semantic drift dominate. More rules + sparse typed connectivity = better bridges. More rules + dense sloppy connectivity = graph soup.
+
 ## 9. Upstream triggers / downstream triggers
 
 Upstream:

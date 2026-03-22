@@ -29,3 +29,17 @@ One-page summary over the full 19-mechanism set. This compresses each card to th
 - [chain-trace-a.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/condensation/chain-trace-a.md) for the goal-directed planning / analogy path
 - [chain-trace-b.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/condensation/chain-trace-b.md) for the accident-driven reminding / serendipity path
 - [rule-connection-graph.md](/Users/daviddickinson/Projects/Lora/latent-dreamer/daydreaming/Notes/Book/daydreaming-in-humans-and-machines/condensation/rule-connection-graph.md) for the shared substrate under planning, serendipity, and mutation
+
+## Evaluation ladder
+
+Staged behavioral criteria for the rule-engine build. Each level subsumes the previous. Surfaced by outside architecture review.
+
+**Level 1: Traceable rule firing.** Rules fire with explicit provenance — which antecedents matched, which bindings, which context. Testable on a small hand-authored rule set against existing benchmarks.
+
+**Level 2: Intervention sensitivity.** On a toy bridge task, deleting a specific rule degrades the behavior the rule was supposed to enable. If removing a rule doesn't change anything, the provenance story is decorative.
+
+**Level 3: Bridge discovery.** The system finds a 2-4 hop path between a current concern and a salient cue that embedding retrieval would not find. The path is explicit and verifiable.
+
+**Level 4: Cross-session write-back transfer.** A rule or episode created in session 1 changes reachable behavior in session 2 WITHOUT the session 1 trace being re-pasted into context. If this doesn't work, accumulation is memory theater.
+
+The north star is Level 4. But Level 1 comes first.

@@ -68,10 +68,26 @@ First-pass trace. This stays at Mueller's mechanism level. It is a faithful exec
 - planning grows a context tree and a planning tree
 - successful or otherwise storable runs add episodes plus stored realism/desirability metadata to long-term episodic memory
 
-## Judgment-heavy links in this chain
+## Candidate hybrid annotations
 
-- step 6: analogy aptness and repair-vs-reject live inside mechanism 09
-- step 10: realism/desirability/similarity and goal-deactivation review live inside mechanism 18
+| Step | Integration pattern | What the LLM would do |
+| --- | --- | --- |
+| 6 | **LLM-as-evaluator** + **Co-routine judgment** | Judge analogy aptness; decide repair-vs-reject at mismatch sites |
+| 7 | **Rule-with-LLM-consequent** | For daydreaming-goal rules whose consequents are procedural, generate the scenario content |
+| 10 | **LLM-as-evaluator** | Score realism, desirability, similarity; recommend goal deactivation |
+| 11 | **LLM-as-content-generator** | Generate extra semantic indices or richer episode summaries at storage time |
+
+Steps 1-5, 8-9 remain purely structural. The judgment links are serial within this chain (6 must complete before 7, 10 before 11), so LLM latency accumulates.
+
+## Daydreaming-goal branch (not shown in main trace)
+
+When a concern terminates with failure, a side chain activates:
+
+1. **Concern termination -> Emotion generation** (mechanism 15) — structural sign/strength, LLM-as-evaluator for realism and attribution
+2. **Emotion generation -> Daydreaming goal activation** (mechanism 16) — structural threshold dispatch, 6/7 families fully deterministic
+3. **Daydreaming goal activation -> Strategy-specific planning** (mechanisms 17/19) — LLM-as-content-generator for rationalization reframes, LLM-as-evaluator for repair-target ordering
+
+This branch re-enters the main trace at step 2 (Planner -> Rule application) when the new daydreaming concern wins the scheduler.
 
 ## Why this chain matters
 
