@@ -73,8 +73,10 @@ Implemented in the first pass:
   as that evidence by itself
 - repeated failed same-family attributed use can now auto-flag
   `:stale` and demote a previously durable episode back to
-  `:provisional`; a stale episode does not re-promote automatically
-  until a later explicit clearing policy exists
+  `:provisional`; one later cross-family success does not re-promote it
+  automatically
+- repeated later cross-family success can now clear `:stale` and let
+  durable admission be re-earned through evidence
 - inert rule-access scaffolding is now in code:
   `world[:rule-access]` with `:accessible` / `:frontier` /
   `:quarantined`

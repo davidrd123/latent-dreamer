@@ -20,6 +20,7 @@
 (def ^:private same-family-provenance-max 0.75)
 (def ^:private same-family-loop-threshold 2)
 (def ^:private stale-same-family-failed-use-threshold 2)
+(def ^:private stale-rehabilitation-success-threshold 2)
 (def ^:private valid-episode-use-outcomes
   #{:succeeded :failed :backfired :contradicted})
 
@@ -344,6 +345,39 @@
                         (assoc :episode-id (:episode-id flag-record)))))
        true])))
 
+(defn clear-episode-flag
+  "Clear an active anti-residue flag from an episode.
+
+  Returns `[world cleared?]` and is idempotent when the flag is already absent."
+  [world episode-id flag clear-record]
+  (let [episode (episode-or-throw world episode-id)
+        current-flags (set (:anti-residue-flags episode))]
+    (if-not (contains? current-flags flag)
+      [world false]
+      [(-> world
+           (update-in [:episodes episode-id :anti-residue-flags]
+                      (fn [flags]
+                        (->> flags
+                             (remove #{flag})
+                             vec)))
+           (update-in [:episodes episode-id :anti-residue-history]
+                      (fnil conj [])
+                      (cond-> {:flag flag
+                               :cycle (:cycle world)
+                               :action :cleared}
+                        (:reason clear-record)
+                        (assoc :reason (:reason clear-record))
+
+                        (:source-family clear-record)
+                        (assoc :source-family (:source-family clear-record))
+
+                        (:target-family clear-record)
+                        (assoc :target-family (:target-family clear-record))
+
+                        (:episode-id clear-record)
+                        (assoc :episode-id (:episode-id clear-record)))))
+       true])))
+
 (defn note-episode-use
   "Record attributed use of an episode by a later family plan.
 
@@ -473,6 +507,12 @@
   (->> (:promotion-evidence episode)
        (filter #(= :cross-family-use-success (:type %)))
        last))
+
+(defn- qualifying-promotion-evidence-count
+  [episode]
+  (->> (:promotion-evidence episode)
+       (filter #(= :cross-family-use-success (:type %)))
+       count))
 
 (defn- same-family-failed-use-count
   [use-history]
@@ -660,6 +700,14 @@
   (and (durable-candidate? episode)
        (some? (qualifying-promotion-evidence episode))))
 
+(defn- stale-rehabilitation-ready?
+  [episode]
+  (and (contains? (set (:anti-residue-flags episode)) :stale)
+       (empty? (set/intersection #{:backfired :contradicted}
+                                 (set (:anti-residue-flags episode))))
+       (>= (qualifying-promotion-evidence-count episode)
+           stale-rehabilitation-success-threshold)))
+
 (defn reconcile-episode-admission
   "Promote or demote an episode according to the current evidence and flags.
 
@@ -667,6 +715,15 @@
   the applied status change."
   [world episode-id]
   (let [episode (episode-or-throw world episode-id)
+        [world _stale-cleared?]
+        (if (stale-rehabilitation-ready? episode)
+          (clear-episode-flag world
+                              episode-id
+                              :stale
+                              {:reason :cross-family-rehabilitation
+                               :episode-id episode-id})
+          [world false])
+        episode (episode-or-throw world episode-id)
         current-status (:admission-status episode :durable)
         promotion-evidence (qualifying-promotion-evidence episode)
         hard-failure? (seq (set/intersection #{:backfired :contradicted}

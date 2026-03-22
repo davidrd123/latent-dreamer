@@ -47,8 +47,9 @@ As the system accumulates episodes, rules, and graph connections:
   for negative evidence rather than plain successful reuse
 - repeated failed same-family attributed use can now auto-flag
   `:stale` and demote a durable episode back to `:provisional`;
-  stale currently blocks automatic re-promotion until some later
-  clearing/rehabilitation policy exists
+  one later cross-family success does not re-promote it automatically
+- repeated later cross-family success can now clear `:stale`, so a
+  durable role can be re-earned through evidence rather than fiat
 - world state now carries a dynamic `:rule-access` registry with
   `:accessible` / `:frontier` / `:quarantined` statuses, separate from
   the structural rule graph

@@ -146,8 +146,11 @@ and "deserves future influence":
 - repeated failed same-family attributed use can now auto-flag
   `:stale` and demote a `:durable` episode back to `:provisional`
   without waiting for evaluator annotation; while `:stale` remains
-  present, later cross-family success evidence does not re-promote it
+  present, one later cross-family success does not re-promote it
   automatically
+- repeated later cross-family success can now rehabilitate a `:stale`
+  episode by clearing the stale flag and letting durable status be
+  re-earned through evidence rather than evaluator judgment
 - world state now carries an inert `:rule-access` registry with
   `:accessible` / `:frontier` / `:quarantined` statuses derived
   from rule provenance deployment roles
