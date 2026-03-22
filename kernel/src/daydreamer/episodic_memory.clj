@@ -715,8 +715,10 @@
   the applied status change."
   [world episode-id]
   (let [episode (episode-or-throw world episode-id)
+        current-status (:admission-status episode :durable)
         [world _stale-cleared?]
-        (if (stale-rehabilitation-ready? episode)
+        (if (and (not= :durable current-status)
+                 (stale-rehabilitation-ready? episode))
           (clear-episode-flag world
                               episode-id
                               :stale
