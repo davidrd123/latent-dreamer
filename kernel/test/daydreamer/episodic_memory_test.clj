@@ -379,6 +379,79 @@
            transition))
     (is (= :provisional (:admission-status episode-after)))))
 
+(deftest stale-flag-blocks-re-promotion-from-later-cross-family-success
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id
+                                               :retention-class :payload-exemplar
+                                               :keep-decision :keep-exemplar
+                                               :admission-status :durable
+                                               :provenance {:source :family-plan
+                                                            :family :rationalization}})
+        world (epmem/store-episode world episode-id :shared-frame {:plan? true})
+        [world same-family-use-1]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :seed
+                                 :goal-id :g-1
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/rationalization-plan-dispatch})
+        [world _]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id same-family-use-1)
+                                           {:outcome :failed
+                                            :reason :frame-did-not-hold})
+        [world same-family-use-2]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :seed
+                                 :goal-id :g-2
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/rationalization-plan-dispatch})
+        [world _]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id same-family-use-2)
+                                           {:outcome :failed
+                                            :reason :frame-did-not-hold})
+        [world demotion]
+        (epmem/reconcile-episode-admission world episode-id)
+        [world cross-family-use]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :reminded
+                                 :goal-id :g-3
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :roving
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/roving-plan-dispatch})
+        [world cross-family-outcome]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id cross-family-use)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        [world promotion-attempt]
+        (epmem/reconcile-episode-admission world episode-id)
+        episode (get-in world [:episodes episode-id])]
+    (is (= :stale-use-demotion (:reason demotion)))
+    (is (:evidence-recorded? cross-family-outcome))
+    (is (nil? promotion-attempt))
+    (is (= :provisional (:admission-status episode)))
+    (is (contains? (set (:anti-residue-flags episode)) :stale))))
+
 (deftest same-family-loop-flag-blocks-same-family-reentry
   (let [[world root-id] (world-with-root)
         [world episode-id] (epmem/add-episode world

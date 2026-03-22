@@ -66,7 +66,8 @@ Implemented in the first pass:
   (`:cross-family-use-success`) rather than raw retrieval alone
 - repeated failed same-family attributed use can now auto-flag
   `:stale` and demote a previously durable episode back to
-  `:provisional`
+  `:provisional`; a stale episode does not re-promote automatically
+  until a later explicit clearing policy exists
 - inert rule-access scaffolding is now in code:
   `world[:rule-access]` with `:accessible` / `:frontier` /
   `:quarantined`

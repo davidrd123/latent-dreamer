@@ -648,7 +648,7 @@
   (and (= :provisional (:admission-status episode))
        (= :payload-exemplar (:retention-class episode))
        (= :keep-exemplar (:keep-decision episode))
-       (empty? (set/intersection #{:backfired :contradicted}
+       (empty? (set/intersection #{:backfired :contradicted :stale}
                                  (set (:anti-residue-flags episode))))))
 
 (defn eligible-for-promotion?

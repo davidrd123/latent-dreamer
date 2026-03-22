@@ -42,7 +42,9 @@ As the system accumulates episodes, rules, and graph connections:
   attributed use/outcome when a stored family-plan episode actually
   shapes the later branch
 - repeated failed same-family attributed use can now auto-flag
-  `:stale` and demote a durable episode back to `:provisional`
+  `:stale` and demote a durable episode back to `:provisional`;
+  stale currently blocks automatic re-promotion until some later
+  clearing/rehabilitation policy exists
 - world state now carries a dynamic `:rule-access` registry with
   `:accessible` / `:frontier` / `:quarantined` statuses, separate from
   the structural rule graph

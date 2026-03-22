@@ -138,7 +138,9 @@ and "deserves future influence":
   can flag `:same-family-loop` to suppress reentry
 - repeated failed same-family attributed use can now auto-flag
   `:stale` and demote a `:durable` episode back to `:provisional`
-  without waiting for evaluator annotation
+  without waiting for evaluator annotation; while `:stale` remains
+  present, later cross-family success evidence does not re-promote it
+  automatically
 - world state now carries an inert `:rule-access` registry with
   `:accessible` / `:frontier` / `:quarantined` statuses derived
   from rule provenance deployment roles
