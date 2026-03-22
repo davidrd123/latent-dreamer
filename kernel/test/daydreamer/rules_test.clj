@@ -92,6 +92,31 @@
             [:antecedent-schema 0 :status]
             :succeeded))
 
+(def bridge-terminal-rule
+  {:id :test/terminal
+   :rule-kind :planning
+   :mueller-mode :both
+   :antecedent-schema [{:fact/type :concern-trigger
+                        :goal-id '?failed-goal-id
+                        :emotion-id '?emotion-id}]
+   :consequent-schema [{:fact/type :repair-step
+                        :goal-id '?failed-goal-id
+                        :emotion-id '?emotion-id
+                        :step :test-repair}]
+   :plausibility 0.4
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :bridge-to-repair-step
+                :failure-modes []
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors []
+                :kernel-status :proposed
+                :notes "Synthetic terminal rule for path-search tests."}})
+
 (deftest instantiate-rule-substitutes-bindings
   (testing "RuleV1 validation accepts a complete instantiate rule"
     (is (true? (rules/valid-rule? sample-rule))))
@@ -198,3 +223,73 @@
            (mapv :to-rule (get (:outgoing graph) :test/source))))
     (is (nil? (get (:outgoing graph) :test/target)))
     (is (nil? (get (:incoming graph) :test/source)))))
+
+(deftest graph-query-helpers-explain-bounded-paths
+  (let [graph (rules/build-connection-graph
+               [bridge-source-rule
+                bridge-target-rule
+                bridge-terminal-rule])
+        paths (rules/reachable-paths graph :test/source {:max-depth 3})]
+    (is (= [{:from-rule :test/source
+             :to-rule :test/target
+             :from-projection {:fact/type :goal
+                               :goal-id '?goal-id
+                               :status :failed
+                               :activation-context '?context-id}
+             :to-projection {:fact/type :goal
+                             :goal-id '?failed-goal-id
+                             :status :failed
+                             :activation-context '?context-id}
+             :bindings {}
+             :shared-keys #{:goal-id :status :activation-context}
+             :edge-kind :goal-decomposition}]
+           (rules/outgoing-edges graph :test/source)))
+    (is (= [{:from-rule :test/target
+             :to-rule :test/terminal
+             :from-projection {:fact/type :concern-trigger
+                               :goal-id '?failed-goal-id
+                               :emotion-id '?emotion-id}
+             :to-projection {:fact/type :concern-trigger
+                             :goal-id '?failed-goal-id
+                             :emotion-id '?emotion-id}
+             :bindings {}
+             :shared-keys #{:goal-id :emotion-id}
+             :edge-kind :state-transition}]
+           (rules/incoming-edges graph :test/terminal)))
+    (is (= [[:test/source :test/target]
+            [:test/source :test/target :test/terminal]]
+           (mapv :rule-path paths)))
+    (is (= {:rule-path [:test/source :test/target :test/terminal]
+            :edges [{:from-rule :test/source
+                     :to-rule :test/target
+                     :from-projection {:fact/type :goal
+                                       :goal-id '?goal-id
+                                       :status :failed
+                                       :activation-context '?context-id}
+                     :to-projection {:fact/type :goal
+                                     :goal-id '?failed-goal-id
+                                     :status :failed
+                                     :activation-context '?context-id}
+                     :bindings {}
+                     :shared-keys #{:goal-id :status :activation-context}
+                     :edge-kind :goal-decomposition}
+                    {:from-rule :test/target
+                     :to-rule :test/terminal
+                     :from-projection {:fact/type :concern-trigger
+                                       :goal-id '?failed-goal-id
+                                       :emotion-id '?emotion-id}
+                     :to-projection {:fact/type :concern-trigger
+                                     :goal-id '?failed-goal-id
+                                     :emotion-id '?emotion-id}
+                     :bindings {}
+                     :shared-keys #{:goal-id :emotion-id}
+                     :edge-kind :state-transition}]
+            :fact-types [:goal :concern-trigger]
+            :edge-kinds [:goal-decomposition :state-transition]
+            :shared-keys [#{:goal-id :status :activation-context}
+                          #{:goal-id :emotion-id}]}
+           (dissoc (rules/explain-path graph
+                                       [:test/source
+                                        :test/target
+                                        :test/terminal])
+                   :depth)))))

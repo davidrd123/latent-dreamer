@@ -265,6 +265,69 @@
      :outgoing (group-by :from-rule edges)
      :incoming (group-by :to-rule edges)}))
 
+(defn outgoing-edges
+  [graph rule-id]
+  (vec (get-in graph [:outgoing rule-id] [])))
+
+(defn incoming-edges
+  [graph rule-id]
+  (vec (get-in graph [:incoming rule-id] [])))
+
+(defn explain-path
+  [graph rule-path]
+  (let [rule-path (vec rule-path)
+        edge-pairs (partition 2 1 rule-path)
+        edges (mapv (fn [[from-rule to-rule]]
+                      (some (fn [edge]
+                              (when (= to-rule (:to-rule edge))
+                                edge))
+                            (outgoing-edges graph from-rule)))
+                    edge-pairs)]
+    (when (every? some? edges)
+      {:rule-path rule-path
+       :edges edges
+       :fact-types (mapv (comp :fact/type :from-projection) edges)
+       :edge-kinds (mapv :edge-kind edges)
+       :shared-keys (mapv :shared-keys edges)})))
+
+(defn reachable-paths
+  ([graph start-rule-id]
+   (reachable-paths graph start-rule-id {:max-depth 3}))
+  ([graph start-rule-id {:keys [max-depth]
+                         :or {max-depth 3}}]
+   (letfn [(walk-paths [current-rule-id current-path visited remaining-depth]
+             (if (<= remaining-depth 0)
+               []
+               (mapcat (fn [edge]
+                         (let [next-rule-id (:to-rule edge)
+                               next-path (conj current-path next-rule-id)
+                               explained (explain-path graph next-path)]
+                           (if (contains? visited next-rule-id)
+                             (if explained
+                               [explained]
+                               [])
+                             (let [descendants (walk-paths next-rule-id
+                                                           next-path
+                                                           (conj visited next-rule-id)
+                                                           (dec remaining-depth))]
+                               (cond-> []
+                                 explained
+                                 (conj explained)
+
+                                 (seq descendants)
+                                 (into descendants))))))
+                       (outgoing-edges graph current-rule-id))))]
+     (->> (walk-paths start-rule-id
+                      [start-rule-id]
+                      #{start-rule-id}
+                      max-depth)
+          (map (fn [path]
+                 (assoc path :depth (dec (count (:rule-path path))))))
+          distinct
+          (sort-by (juxt :depth
+                         (comp pr-str :rule-path)))
+          vec))))
+
 (defn instantiate-rule
   [rule bindings]
   (validate-rule! rule)
