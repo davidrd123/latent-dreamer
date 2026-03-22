@@ -136,6 +136,9 @@ and "deserves future influence":
   a promoted episode becomes reusable only after recent eviction
 - same-family reuse is now tracked, and repeated same-family reuse
   can flag `:same-family-loop` to suppress reentry
+- repeated failed same-family attributed use can now auto-flag
+  `:stale` and demote a `:durable` episode back to `:provisional`
+  without waiting for evaluator annotation
 - world state now carries an inert `:rule-access` registry with
   `:accessible` / `:frontier` / `:quarantined` statuses derived
   from rule provenance deployment roles
@@ -165,7 +168,12 @@ The reviews now make the next two abstractions explicit:
   broader coverage, richer outcome resolution beyond simple
   success/failure/backfire/contradiction, and active frontier-opening
   behavior beyond the current inert scaffolding are still missing. The
-  evaluator is a gate or veto, not the sole authority.
+  evaluator is a gate or veto, not the sole authority. Review `13`
+  sharpens the same guardrail from the higher level: growth should sit
+  on top of typed cross-phase artifacts like use/outcome evidence and
+  frontier admission, not bypass them. Review `14` sharpens the next
+  hardening split inside that substrate: `retrieved` vs `used` vs
+  `vindicated`, and `advisory` vs `admissible`.
 - **Step 2:** the executor seam belongs in `rules.clj` as
   `execute-rule`, not as growing local effect machinery inside
   `goal_families.clj`.

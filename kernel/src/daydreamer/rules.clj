@@ -978,7 +978,11 @@
                          :actual-count (count effects)
                          :effect-schema effect-schema
                          :effects effects})))
-      (when-not (seq (match-antecedent-schema effect-schema effects bindings))
+      (when-not (reduce (fn [current-bindings [pattern effect]]
+                          (when current-bindings
+                            (match-fact-pattern pattern effect current-bindings)))
+                        bindings
+                        (map vector effect-schema effects))
         (throw (ex-info "RuleResultV1 effects do not satisfy effect-schema"
                         {:rule-id (:id rule)
                          :bindings bindings

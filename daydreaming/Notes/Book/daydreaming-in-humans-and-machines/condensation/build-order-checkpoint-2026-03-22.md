@@ -64,6 +64,9 @@ Implemented in the first pass:
   old same-family reuse wrapper
 - cross-family success now promotes via explicit use evidence
   (`:cross-family-use-success`) rather than raw retrieval alone
+- repeated failed same-family attributed use can now auto-flag
+  `:stale` and demote a previously durable episode back to
+  `:provisional`
 - inert rule-access scaffolding is now in code:
   `world[:rule-access]` with `:accessible` / `:frontier` /
   `:quarantined`
@@ -81,6 +84,9 @@ Still missing inside step 1:
   (`used by which family, for which goal, with what later result`)
 - promotion driven by structural evidence PLUS outcome evidence,
   with the evaluator acting as gate/veto rather than sole authority
+- cleaner evidence/authority semantics:
+  `retrieved` vs `used` vs `vindicated`, and evaluator output as
+  advisory/gating input rather than direct admission authority
 - rule accessibility state derived from durable evidence, not from
   provisional storage or evaluator opinion alone; current family
   rules all still start as authored-core
@@ -89,6 +95,10 @@ Still missing inside step 1:
 - stronger downstream flagging / demotion beyond evaluator annotation
 - contradiction/backfire detection from later evidence instead of
   only evaluator judgment
+- review 13 guardrail: keep growth grounded in typed cross-phase
+  artifacts (use/outcome, evaluation, retrieval aftermath, frontier
+  admission) rather than adding more family-wrapper rules or letting
+  evaluators bypass the substrate
 
 ### 2. Executor boundary with declarative effects
 
@@ -129,7 +139,9 @@ Implemented first pass:
   kernel application
 - `execute-rule` now also validates a rule-declared `:effect-schema`,
   so `:clojure-fn` family dispatch rules declare their expected
-  ordered effect shape rather than only an allowed op set
+  ordered effect shape rather than only an allowed op set; this check
+  is now actually order-sensitive rather than treating the effect
+  program as an unordered fact bag
 - `rules.clj` now also owns the generic effect-program
   reduction/threading scaffold via `apply-effects`; family code still
   owns op semantics, symbolic refs, and world mutation handlers

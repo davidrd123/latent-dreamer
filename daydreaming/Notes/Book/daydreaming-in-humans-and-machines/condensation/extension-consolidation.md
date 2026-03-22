@@ -41,6 +41,8 @@ As the system accumulates episodes, rules, and graph connections:
 - stored rationalization and reversal reopen paths now also record
   attributed use/outcome when a stored family-plan episode actually
   shapes the later branch
+- repeated failed same-family attributed use can now auto-flag
+  `:stale` and demote a durable episode back to `:provisional`
 - world state now carries a dynamic `:rule-access` registry with
   `:accessible` / `:frontier` / `:quarantined` statuses, separate from
   the structural rule graph
@@ -91,6 +93,11 @@ nor accessibility. It is **episode use with attributed outcomes**:
 Once that evidence exists cleanly, promotion to `:durable`,
 anti-residue flags, and future rule accessibility become ordinary
 state transitions rather than ad hoc retrieval heuristics.
+
+Review 13 reinforces the same architectural rule from the larger
+trajectory: growth should sit on top of these typed cross-phase
+artifacts and frontier admission, not bypass them through family-local
+shortcuts or evaluator fiat.
 
 The kernel now has the first real version of that substrate, but only
 on the roving cross-family path plus the stored rationalization /

@@ -364,6 +364,41 @@
                                 :effects [{:op :test/noop
                                            :goal-id :g-other}]})}})))))
 
+(deftest execute-rule-rejects-effect-schema-order-mismatch
+  (let [bindings {'?context-id :cx-2
+                  '?failed-goal-id :g-failed
+                  '?emotion-id :e-shame
+                  '?emotion-strength 0.25}
+        rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:executor-id :sample/dispatch
+                                      :effect-ops [:test/a :test/b]}}
+                    :effect-schema [{:op :test/a
+                                     :goal-id '?failed-goal-id}
+                                    {:op :test/b
+                                     :context-id '?context-id}])]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"effects do not satisfy effect-schema"
+                          (rules/execute-rule
+                           rule
+                           {:bindings bindings
+                            :executor-registry
+                            {:sample/dispatch
+                             (fn [{:keys [rule]}]
+                               {:consequents [{:context-id :cx-2
+                                               :failed-goal-id :g-failed
+                                               :emotion-id :e-shame
+                                               :emotion-strength 0.25
+                                               :selection-policy :failed_goal_negative_emotion}]
+                                :confidence (double (:plausibility rule))
+                                :reason "effect-schema-order-mismatch"
+                                :aux-indices []
+                                :surface-summary nil
+                                :effects [{:op :test/b
+                                           :context-id :cx-2}
+                                          {:op :test/a
+                                           :goal-id :g-failed}]})}})))))
+
 (deftest apply-effects-threads-world-and-effect-state
   (let [[world effect-state]
         (rules/apply-effects

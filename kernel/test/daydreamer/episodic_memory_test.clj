@@ -320,6 +320,65 @@
              :target-rule :goal-family/roving-plan-dispatch}]
            (:promotion-history episode)))))
 
+(deftest repeated-failed-same-family-use-flags-stale-and-demotes-durable-episode
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id
+                                               :admission-status :durable
+                                               :provenance {:source :family-plan
+                                                            :family :rationalization}})
+        world (epmem/store-episode world episode-id :shared-frame {:plan? true})
+        [world use-1]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :seed
+                                 :goal-id :g-1
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/rationalization-plan-dispatch})
+        [world outcome-1]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id use-1)
+                                           {:outcome :failed
+                                            :reason :frame-did-not-hold})
+        [world use-2]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :seed
+                                 :goal-id :g-2
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/rationalization-plan-dispatch})
+        [world outcome-2]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id use-2)
+                                           {:outcome :failed
+                                            :reason :frame-did-not-hold})
+        episode-before (get-in world [:episodes episode-id])
+        [world transition]
+        (epmem/reconcile-episode-admission world episode-id)
+        episode-after (get-in world [:episodes episode-id])]
+    (is (false? (:flagged? outcome-1)))
+    (is (true? (:flagged? outcome-2)))
+    (is (= 2 (get-in episode-before [:outcome-stats :failed-use-count])))
+    (is (= #{:same-family-loop :stale}
+           (set (:anti-residue-flags episode-before))))
+    (is (= {:episode-id episode-id
+            :from-status :durable
+            :to-status :provisional
+            :reason :stale-use-demotion}
+           transition))
+    (is (= :provisional (:admission-status episode-after)))))
+
 (deftest same-family-loop-flag-blocks-same-family-reentry
   (let [[world root-id] (world-with-root)
         [world episode-id] (epmem/add-episode world

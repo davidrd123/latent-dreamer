@@ -19,6 +19,7 @@
 (def ^:private payload-exemplar-cluster-cap 2)
 (def ^:private same-family-provenance-max 0.75)
 (def ^:private same-family-loop-threshold 2)
+(def ^:private stale-same-family-failed-use-threshold 2)
 (def ^:private valid-episode-use-outcomes
   #{:succeeded :failed :backfired :contradicted})
 
@@ -473,6 +474,21 @@
        (filter #(= :cross-family-use-success (:type %)))
        last))
 
+(defn- same-family-failed-use-count
+  [use-history]
+  (->> use-history
+       (filter #(and (= :resolved (:status %))
+                     (= :failed (:outcome %))
+                     (= (:source-family %) (:target-family %))))
+       count))
+
+(defn- successful-use-count
+  [use-history]
+  (->> use-history
+       (filter #(and (= :resolved (:status %))
+                     (= :succeeded (:outcome %))))
+       count))
+
 (defn resolve-episode-use-outcome
   "Resolve a previously recorded episode use with an attributed outcome.
 
@@ -525,6 +541,7 @@
                                       resolved-record
                                       record))
                                   use-history))
+            resolved-use-history (vec (get-in world [:episodes episode-id :use-history]))
             world (update-in world
                              [:episodes episode-id :outcome-stats]
                              (fnil merge {:successful-use-count 0
@@ -559,6 +576,17 @@
                                    (fnil + 0) 1)
                         (assoc-in [:episodes episode-id :outcome-stats :last-contradiction-cycle]
                                   (:cycle world))))
+            stale-risk? (and (= :failed outcome-type)
+                             (= (:source-family resolved-record)
+                                (:target-family resolved-record))
+                             (>= (same-family-failed-use-count resolved-use-history)
+                                 stale-same-family-failed-use-threshold)
+                             (zero? (successful-use-count resolved-use-history))
+                             (not (seq (set/intersection #{:backfired :contradicted}
+                                                         (set (:anti-residue-flags
+                                                               (get-in world
+                                                                       [:episodes episode-id]
+                                                                       {})))))))
             [world evidence-record]
             (if (and (= :succeeded outcome-type)
                      (not= (:source-family use-record)
@@ -575,8 +603,8 @@
                                           :goal-id (:goal-id use-record)})
               [world nil])
             [world flagged?]
-            (case outcome-type
-              :backfired
+            (cond
+              (= :backfired outcome-type)
               (flag-episode world
                             episode-id
                             :backfired
@@ -585,7 +613,7 @@
                              :target-family (:target-family use-record)
                              :episode-id episode-id})
 
-              :contradicted
+              (= :contradicted outcome-type)
               (flag-episode world
                             episode-id
                             :contradicted
@@ -594,6 +622,16 @@
                              :target-family (:target-family use-record)
                              :episode-id episode-id})
 
+              stale-risk?
+              (flag-episode world
+                            episode-id
+                            :stale
+                            {:reason :same-family-failed-use-threshold
+                             :source-family (:source-family use-record)
+                             :target-family (:target-family use-record)
+                             :episode-id episode-id})
+
+              :else
               [world false])]
         [world {:use-id use-id
                 :episode-id episode-id
@@ -646,6 +684,19 @@
                   :from-status :durable
                   :to-status :provisional
                   :reason :outcome-driven-demotion})])
+
+      (and (= :durable current-status)
+           (contains? (set (:anti-residue-flags episode)) :stale))
+      (let [[world demoted?]
+            (demote-episode world
+                            episode-id
+                            {:to-status :provisional
+                             :reason :stale-use-demotion})]
+        [world (when demoted?
+                 {:episode-id episode-id
+                  :from-status :durable
+                  :to-status :provisional
+                  :reason :stale-use-demotion})])
 
       (eligible-for-promotion? episode)
       (let [[world promoted?]
