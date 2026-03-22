@@ -110,6 +110,20 @@
                                                 (assoc options
                                                        :director-max-output-tokens
                                                        (Long/parseLong value))))
+        "--thought-feedback" (let [[_ value & more] args]
+                               (recur more (assoc options :thought-mode
+                                                  (keyword value))))
+        "--thought-model" (let [[_ value & more] args]
+                            (recur more (assoc options :thought-model value)))
+        "--thought-temperature" (let [[_ value & more] args]
+                                  (recur more (assoc options
+                                                     :thought-temperature
+                                                     (Double/parseDouble value))))
+        "--thought-max-output-tokens" (let [[_ value & more] args]
+                                        (recur more
+                                               (assoc options
+                                                      :thought-max-output-tokens
+                                                      (Long/parseLong value))))
         "--html-out" (let [[_ value & more] args]
                        (recur more (assoc options :html-out value)))
         "--title" (let [[_ value & more] args]
@@ -206,7 +220,8 @@
   metadata."
   ([] (build-puppet-knows-log {}))
   ([{:keys [benchmark scope-root git-commit cycles director-mode director-model
-            director-temperature director-max-output-tokens]}]
+            director-temperature director-max-output-tokens thought-mode
+            thought-model thought-temperature thought-max-output-tokens]}]
    (let [benchmark (parse-benchmark benchmark)
          scope-root (or scope-root (default-scope-root))
          run-benchmark (case benchmark
@@ -238,6 +253,14 @@
                 :director-model director-model
                 :director-temperature director-temperature
                 :director-max-output-tokens director-max-output-tokens})
+             (when (contains? #{:autonomous
+                                :autonomous-mock-director
+                                :autonomous-director}
+                              benchmark)
+               {:thought-mode thought-mode
+                :thought-model thought-model
+                :thought-temperature thought-temperature
+                :thought-max-output-tokens thought-max-output-tokens})
              (graph-counts graph-path)
              (when cycles
                {:cycles cycles}))))))
@@ -305,7 +328,9 @@
   path."
   ([] (write-benchmark-log! {}))
   ([{:keys [benchmark out-path scope-root git-commit cycles director-mode
-            director-model director-temperature director-max-output-tokens]}]
+            director-model director-temperature director-max-output-tokens
+            thought-mode thought-model thought-temperature
+            thought-max-output-tokens]}]
    (let [benchmark (parse-benchmark benchmark)
          out-path (or out-path (default-output-path benchmark))
          output-file (io/file (latent-root) out-path)
@@ -318,7 +343,12 @@
                              :director-model director-model
                              :director-temperature director-temperature
                              :director-max-output-tokens
-                             director-max-output-tokens})
+                             director-max-output-tokens
+                             :thought-mode thought-mode
+                             :thought-model thought-model
+                             :thought-temperature thought-temperature
+                             :thought-max-output-tokens
+                             thought-max-output-tokens})
          log (if (map? payload) (or (:log payload) payload) payload)]
      (.mkdirs (.getParentFile output-file))
      (spit output-file (json/write-str log :escape-unicode false))
@@ -331,7 +361,8 @@
   ([] (write-benchmark-report! {}))
   ([{:keys [benchmark out-path html-out scope-root git-commit render-html? title
             cycles director-mode director-model director-temperature
-            director-max-output-tokens]}]
+            director-max-output-tokens thought-mode thought-model
+            thought-temperature thought-max-output-tokens]}]
    (let [benchmark (parse-benchmark benchmark)
          {:keys [json-path payload]} (write-benchmark-log! {:benchmark benchmark
                                                             :out-path out-path
@@ -343,7 +374,13 @@
                                                             :director-temperature
                                                             director-temperature
                                                             :director-max-output-tokens
-                                                            director-max-output-tokens})
+                                                            director-max-output-tokens
+                                                            :thought-mode thought-mode
+                                                            :thought-model thought-model
+                                                            :thought-temperature
+                                                            thought-temperature
+                                                            :thought-max-output-tokens
+                                                            thought-max-output-tokens})
          html-path (when render-html?
                      (render-report! {:json-path json-path
                                       :html-path (or html-out
@@ -373,7 +410,9 @@
   (try
     (let [{:keys [benchmark out-path html-out render-html? scope-root title
                   cycles print-summary? director-mode director-model
-                  director-temperature director-max-output-tokens]}
+                  director-temperature director-max-output-tokens
+                  thought-mode thought-model thought-temperature
+                  thought-max-output-tokens]}
           (parse-args args)
           {:keys [json-path html-path summaries]}
           (write-benchmark-report! {:benchmark benchmark
@@ -387,7 +426,12 @@
                                     :director-model director-model
                                     :director-temperature director-temperature
                                     :director-max-output-tokens
-                                    director-max-output-tokens})]
+                                    director-max-output-tokens
+                                    :thought-mode thought-mode
+                                    :thought-model thought-model
+                                    :thought-temperature thought-temperature
+                                    :thought-max-output-tokens
+                                    thought-max-output-tokens})]
       (when print-summary?
         (doseq [summary summaries]
           (println summary)

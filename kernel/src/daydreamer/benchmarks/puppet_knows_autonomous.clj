@@ -10,6 +10,7 @@
             [clojure.java.io :as io]
             [clojure.string :as str]
             [daydreamer.director :as director]
+            [daydreamer.runtime-thought :as runtime-thought]
             [daydreamer.benchmarks.puppet-knows :as puppet]
             [daydreamer.benchmarks.puppet-knows-adapter :as adapter]
             [daydreamer.context :as cx]
@@ -755,6 +756,76 @@
              :situation_ids (mapv name (scene-situation-ids snapshot fixture))}
      :situation_descriptions (scene-situation-descriptions fixture snapshot)}))
 
+(defn- runtime-thought-packet
+  [world]
+  (let [snapshot (last (:trace world))
+        fixture (get-in world [:autonomous :fixture])
+        chosen-node-id (:chosen-node-id snapshot)
+        node (get-in fixture [:node-by-id chosen-node-id])
+        goal (:selected-goal snapshot)
+        situation-id (:situation-id goal)
+        situation (get (:situations-state world) situation-id)
+        retrieval-overlap (mapcat :overlap (take 2 (:retrievals snapshot)))
+        allowed-residue-indices (->> (concat retrieval-overlap
+                                             (:indices node)
+                                             (:indices situation)
+                                             (:active-indices snapshot))
+                                     (remove nil?)
+                                     ordered-unique
+                                     (mapv name))]
+    {:packet_type "RuntimeThoughtBeatV1"
+     :cycle (:cycle-num snapshot)
+     :selected_goal {:id (some-> (:id goal) name)
+                     :goal_type (some-> (:goal-type goal) name)
+                     :strength (:strength goal)
+                     :planning_type (some-> (:planning-type goal) name)
+                     :situation_id (some-> situation-id name)}
+     :chosen_node_id chosen-node-id
+     :node_tags (vec (:tags node))
+     :active_indices (mapv name (:active-indices snapshot))
+     :allowed_residue_indices allowed-residue-indices
+     :situation {:id (some-> (:id situation) name)
+                 :description (:description situation)
+                 :place (some-> (:place situation) name)
+                 :activation (:activation situation)
+                 :threat (:threat situation)
+                 :hope (:hope situation)
+                 :waiting (:waiting situation)
+                 :ripeness (:ripeness situation)
+                 :grief (:grief situation)
+                 :anger (:anger situation)
+                 :indices (mapv name (:indices situation))}
+     :retrieved_fragments (mapv (fn [{:keys [node-id retrieval-score overlap threshold]}]
+                                  {:node_id node-id
+                                   :retrieval_score retrieval-score
+                                   :overlap (mapv name overlap)
+                                   :threshold threshold})
+                                (take 2 (:retrievals snapshot)))
+     :top_competing_goals (mapv (fn [candidate]
+                                  {:id (some-> (:id candidate) name)
+                                   :goal_type (some-> (:goal-type candidate) name)
+                                   :strength (:strength candidate)
+                                   :planning_type (some-> (:planning-type candidate) name)
+                                   :situation_id (some-> (:situation-id candidate) name)})
+                                (take 3 (:top-candidates snapshot)))
+     :branch_events (mapv (fn [event]
+                            {:family (some-> (:family event) name)
+                             :source_context (some-> (:source-context event) name)
+                             :target_context (some-> (:target-context event) name)
+                             :fact_ids (mapv name (:fact-ids event))
+                             :fact_types (mapv name (:fact-types event))
+                             :episode_ids (mapv name (:episode-ids event))})
+                          (take 2 (:branch-events snapshot)))
+     :emotional_state (mapv (fn [{:keys [emotion-id affect valence strength role situation-id]}]
+                              {:emotion_id (some-> emotion-id name)
+                               :affect (some-> affect name)
+                               :valence (some-> valence name)
+                               :strength strength
+                               :role (some-> role name)
+                               :situation_id (some-> situation-id name)})
+                            (take 3 (:emotional-state snapshot)))
+     :previous_residue_summary (get-in world [:autonomous :runtime-thought-last :residue-summary])}))
+
 (defn- director-cycle-input
   [world]
   (let [snapshot (last (:trace world))
@@ -769,6 +840,18 @@
      :previous-director-feedback (->> (get world :director-recent-concepts [])
                                       (map name)
                                       vec)}))
+
+(defn- maybe-apply-runtime-thought-feedback
+  [world thought-fn]
+  (if-not thought-fn
+    world
+    (let [packet (runtime-thought-packet world)
+          raw-feedback (thought-fn packet)
+          [world feedback-applied] (runtime-thought/apply-feedback
+                                    world
+                                    packet
+                                    raw-feedback)]
+      (trace/merge-latest-cycle world {:runtime-thought feedback-applied}))))
 
 (defn- apply-family-plan
   [world goal-id]
@@ -974,7 +1057,9 @@
   Returns `{:world world :log reporter-log :summaries [..]}`."
   ([] (run-benchmark {}))
   ([{:keys [cycles scope-root git-commit director-fn director-mode
-            director-model director-temperature director-max-output-tokens]
+            director-model director-temperature director-max-output-tokens
+            thought-fn thought-mode thought-model thought-temperature
+            thought-max-output-tokens]
      :or {cycles 12}}]
    (let [fixture (load-fixture (or scope-root (default-scope-root)))
          director-assets (when director-mode
@@ -990,6 +1075,13 @@
                              :temperature (or director-temperature 0.2)
                              :max-output-tokens (or director-max-output-tokens
                                                     1024)})))
+         thought-fn (or thought-fn
+                        (runtime-thought/build-thought-fn
+                         {:mode thought-mode
+                          :model thought-model
+                          :temperature (or thought-temperature 0.5)
+                          :max-output-tokens (or thought-max-output-tokens
+                                                 400)}))
          {:keys [world seed-state]} (puppet/build-autonomous-world)
          world (assoc world
                       :cycle 0
@@ -999,7 +1091,8 @@
                                    :goal-ids {}
                                    :current-node-id nil
                                    :current-goal-key nil
-                                   :recent-nodes []})]
+                                   :recent-nodes []
+                                   :runtime-thought-last nil})]
      (loop [world world
             remaining cycles
             summaries []]
@@ -1015,6 +1108,7 @@
                                                           (:feedback-path fixture))}))
           :summaries summaries}
          (let [[world summary] (run-autonomous-cycle world)
+               world (maybe-apply-runtime-thought-feedback world thought-fn)
                world (maybe-apply-director-feedback world director-fn)]
            (recur world
                   (dec remaining)

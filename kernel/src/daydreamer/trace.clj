@@ -331,6 +331,7 @@
      "emotion_shifts" (mapv reporter-emotion-shift (:emotion-shifts snapshot))
      "emotional_state" (mapv reporter-emotional-state (:emotional-state snapshot))
      "feedback_applied" (json-value (:feedback-applied snapshot))
+     "runtime_thought" (json-value (:runtime-thought snapshot))
      "serendipity_bias" (:serendipity-bias snapshot)
      "situations" (json-value (:situations snapshot))}))
 
