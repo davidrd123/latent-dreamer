@@ -516,10 +516,53 @@
         rules-by-id (:rules-by-id graph)]
     (is (= #{:goal-family/roving-trigger
              :goal-family/roving-activation
-             :goal-family/reversal-activation
-             :goal-family/rationalization-activation}
+             :goal-family/rationalization-trigger
+             :goal-family/rationalization-activation
+             :goal-family/reversal-activation}
            (set (keys rules-by-id))))
-    (is (= [{:from-rule :goal-family/roving-trigger
+    (is (= [{:from-rule :goal-family/rationalization-trigger
+             :to-rule :goal-family/rationalization-activation
+             :from-projection {:fact/type :goal-family-trigger
+                               :goal-type :rationalization
+                               :trigger-context-id '?context-id
+                               :failed-goal-id '?failed-goal-id
+                               :emotion-id '?emotion-id
+                               :emotion-strength '?emotion-strength
+                               :frame-id '?frame-id
+                               :frame-priority '?frame-priority
+                               :frame-count '?frame-count
+                               :situation-id '?situation-id
+                               :selection-policy :failed_goal_negative_emotion_rationalization_frame
+                               :selection-reasons [:failed_goal
+                                                   :negative_emotion
+                                                   :dependency_link
+                                                   :rationalization_frame]}
+             :to-projection {:fact/type :goal-family-trigger
+                             :goal-type :rationalization
+                             :trigger-context-id '?context-id
+                             :failed-goal-id '?failed-goal-id
+                             :emotion-id '?emotion-id
+                             :emotion-strength '?emotion-strength
+                             :frame-id '?frame-id
+                             :frame-priority '?frame-priority
+                             :frame-count '?frame-count
+                             :situation-id '?situation-id
+                             :selection-policy '?selection-policy
+                             :selection-reasons '?selection-reasons}
+             :bindings {}
+             :shared-keys #{:goal-type
+                            :trigger-context-id
+                            :failed-goal-id
+                            :emotion-id
+                            :emotion-strength
+                            :frame-id
+                            :frame-priority
+                            :frame-count
+                            :situation-id
+                            :selection-policy
+                            :selection-reasons}
+             :edge-kind :state-transition}
+            {:from-rule :goal-family/roving-trigger
              :to-rule :goal-family/roving-activation
              :from-projection {:fact/type :goal-family-trigger
                                :goal-type :roving
@@ -563,7 +606,16 @@
                           [:goal-family/roving-activation :graph-cache :out-edge-bases]))))
     (is (= 4
            (count (get-in rules-by-id
+                          [:goal-family/rationalization-trigger :graph-cache :in-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/rationalization-trigger :graph-cache :out-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
                           [:goal-family/rationalization-activation :graph-cache :in-edge-bases]))))
+    (is (= 0
+           (count (get-in rules-by-id
+                          [:goal-family/rationalization-activation :graph-cache :out-edge-bases]))))
     (is (= 2
            (count (get-in rules-by-id
                           [:goal-family/reversal-activation :graph-cache :in-edge-bases]))))))
