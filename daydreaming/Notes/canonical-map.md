@@ -49,7 +49,7 @@ Last updated: 2026-03-22
 | Doc | What it covers |
 |-----|---------------|
 | [research replies](DeepResearch/2026-03-22/replies/) | Code reviews 03-11: groove risks, executor seam, verified paths, promotion/accessibility |
-| [feedback comparison](../runtime-thought-feedback-comparison.md) | Gate 2 result: writeback diverges traces (Haiku, Sonnet, hybrid) |
+| [feedback comparison](runtime-thought-feedback-comparison.md) | Gate 2 result: writeback diverges traces (Haiku, Sonnet, hybrid) |
 | [GradMem ref](DeepResearch/2026-03-21/refs/GradMem.md) | Gradient-based memory writes — relevance to residue optimization |
 | [5 Pro prompts](Book/daydreaming-in-humans-and-machines/condensation/5pro-visioning-prompt-v2.md) | Visioning prompt (novelty, serendipity, provenance, emotion, accumulation) |
 

@@ -199,7 +199,7 @@ See `condensation/build-order-checkpoint-2026-03-22.md` for full details.
 | Code reviews shaped build order | Done | 2026-03-22 |
 | Mueller-to-kernel mapping verified | Done | 2026-03-22 |
 | Promotion + anti-residue + accessibility | In progress | |
-| Executor boundary (execute-rule) | Not started | |
+| Executor boundary (execute-rule) | In progress (roving effects local) | |
 | First :llm-backed evaluator | Not started | |
 | Verified paths | Not started | |
 | Cross-session write-back transfer (L4) | Not started | |
