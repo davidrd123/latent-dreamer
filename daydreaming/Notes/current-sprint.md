@@ -94,6 +94,10 @@ and path verifier are real.
 - `rationalization-plan-dispatch` now runs through the same
   `execute-rule` seam, so Step 2 has a second real vertical slice
   without moving effect application out of the kernel yet
+- `reversal-plan-dispatch` now runs through the same
+  `execute-rule` seam as a composite branch program, so all three
+  family dispatch rules cross the executor boundary while branch/effect
+  application still stays kernel-local
 
 ### Current subphase: memory ecology hardening
 
@@ -174,11 +178,13 @@ The first honest Step 2 slices are now in code:
   `:op`, and rule-declared `:effect-ops` are enforced
 - `goal_family_rules.clj` now marks
   `:goal-family/roving-plan-dispatch` and
-  `:goal-family/rationalization-plan-dispatch` as `:clojure-fn`
-- `goal_families.clj` now routes both roving and rationalization
+  `:goal-family/rationalization-plan-dispatch` and
+  `:goal-family/reversal-plan-dispatch` as `:clojure-fn`
+- `goal_families.clj` now routes roving, rationalization, and reversal
   dispatch through that rule executor, while leaving
   `apply-family-effects` local
-- `reversal` remains on the validated instantiate path for now
+- reversal currently uses a named composite branch op rather than a
+  generic shared effect runtime
 
 ### Next after this
 
@@ -193,7 +199,8 @@ The first honest Step 2 slices are now in code:
 - continue the declarative effect vocabulary / executor boundary
   by adding `execute-rule` in `rules.clj`, then route
   `goal_families.clj` through it before extracting more families;
-  `reversal` is now the next family move
+  family migration is now complete, so the next executor move is
+  tighter effect validation and a less ad hoc local effect runtime
 - widen anti-residue from evaluator annotations to stronger
   downstream demotion / contradiction detection
 - strengthen consolidation policy beyond the current first-pass

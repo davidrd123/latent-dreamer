@@ -132,6 +132,8 @@
 (declare reversal-sprout-alternative
          roving-plan-dispatch-executor
          rationalization-plan-dispatch-executor
+         reversal-plan-dispatch-executor
+         rationalization-diversion-preview
          apply-rationalization-emotional-diversion
          rationalization-afterglow-fact
          reversal-trigger-facts
@@ -144,7 +146,8 @@
 (defn- family-executor-registry
   []
   {:goal-family/roving-plan-dispatch roving-plan-dispatch-executor
-   :goal-family/rationalization-plan-dispatch rationalization-plan-dispatch-executor})
+   :goal-family/rationalization-plan-dispatch rationalization-plan-dispatch-executor
+   :goal-family/reversal-plan-dispatch reversal-plan-dispatch-executor})
 
 (defn- family-rule-call-base
   [world]
@@ -1782,6 +1785,33 @@
                                                  :hope-situation-id])})
        effect-state])
 
+    :reversal/execute-branches
+    (let [[world branch-results]
+          (reduce (fn [[current-world branch-results] branch]
+                    (let [[next-world sprouted-context-id]
+                          (reversal-sprout-alternative
+                           current-world
+                           {:old-context-id (:old-context-id branch)
+                            :old-top-level-goal-id (:old-top-level-goal-id effect)
+                            :new-context-id (:new-context-id effect)
+                            :new-top-level-goal-id (:new-top-level-goal-id effect)
+                            :ordering (:ordering branch)
+                            :input-facts (:input-facts effect)
+                            :retract-facts (:objective-facts branch)})]
+                      [next-world
+                       (conj branch-results
+                             (assoc branch
+                                    :sprouted-context-id sprouted-context-id
+                                    :rule-provenance (:rule-provenance effect)
+                                    :retracted-fact-ids (mapv fact-id
+                                                              (:objective-facts branch))))]))
+                  [world []]
+                  (:branches effect))]
+      [world
+       (assoc-in effect-state
+                 [:results (:result-key effect)]
+                 {:branch-results (vec branch-results)})])
+
     (throw (ex-info "Unknown family effect op"
                     {:effect effect}))))
 
@@ -2182,6 +2212,41 @@
        :new-context-id new-context-id
        :new-top-level-goal-id new-top-level-goal-id}))))
 
+(defn reversal-plan-effects
+  [world {:keys [goal-id input-facts]
+          :or {input-facts []}
+          :as reversal-target}]
+  (let [plan-request-facts (or (seq (reversal-plan-request-facts world
+                                                                 reversal-target))
+                               (throw (ex-info "REVERSAL needs a planning target"
+                                               {:reversal-target reversal-target})))
+        {:keys [old-context-id old-top-level-goal-id new-context-id
+                new-top-level-goal-id selection-policy rule-provenance
+                effects surface-summary]}
+        (or (first (plan-payloads-from-request-facts world plan-request-facts))
+            (throw (ex-info "REVERSAL needs a plan payload"
+                            {:reversal-target reversal-target
+                             :plan-request-facts plan-request-facts})))
+        effects (mapv (fn [effect]
+                        (if (= :reversal/execute-branches (:op effect))
+                          (assoc effect :input-facts (vec input-facts))
+                          effect))
+                      effects)]
+    (when-not (vector? effects)
+      (throw (ex-info "REVERSAL dispatch must return typed effects"
+                      {:reversal-target reversal-target
+                       :plan-request-facts plan-request-facts})))
+    {:goal-id goal-id
+     :old-context-id old-context-id
+     :old-top-level-goal-id old-top-level-goal-id
+     :new-context-id new-context-id
+     :new-top-level-goal-id new-top-level-goal-id
+     :selection-policy selection-policy
+     :rule-provenance rule-provenance
+     :surface-summary surface-summary
+     :input-facts (vec input-facts)
+     :effects effects}))
+
 (defn- default-plan-context
   [world goal-id]
   (or (when goal-id
@@ -2255,44 +2320,39 @@
   [world {:keys [goal-id trigger-context-id failed-goal-id sprouted-context-id]
           :as plan-state}
    frame]
-  (if-let [trigger-emotion (select-trigger-emotion world
-                                                   trigger-context-id
-                                                   failed-goal-id)]
-    (let [trigger-emotion-id (fact-id trigger-emotion)
-          trigger-strength-before (double (or (:strength trigger-emotion) 0.0))
-          diverted-strength (* trigger-strength-before
-                               gf-rules/rationalization-diversion-scale
-                               (double (or (:priority frame) 0.0)))
-          trigger-strength-after (clamp-strength
-                                  (- trigger-strength-before diverted-strength))
+  (if-let [diversion (rationalization-diversion-preview
+                      world
+                      {:goal-id goal-id
+                       :trigger-context-id trigger-context-id
+                       :failed-goal-id failed-goal-id}
+                      frame)]
+    (let [trigger-emotion (select-trigger-emotion world
+                                                  trigger-context-id
+                                                  failed-goal-id)
           updated-trigger-emotion (assoc trigger-emotion
-                                         :strength trigger-strength-after)
-          hope-strength (clamp-strength diverted-strength)
-          reframe-situation-id (or (:situation-id frame)
-                                   (rationalization-frame-situation-id
-                                    (:reframe-facts frame)))
+                                         :strength (:trigger-emotion-after diversion))
           hope-emotion {:fact/type :emotion
-                        :emotion-id (hope-emotion-id (:frame-id frame))
-                        :strength hope-strength
+                        :emotion-id (:hope-emotion-id diversion)
+                        :strength (:hope-strength diversion)
                         :valence :positive
                         :affect :hope
                         :goal-id goal-id
-                        :source-emotion-id trigger-emotion-id
+                        :source-emotion-id (:trigger-emotion-id diversion)
                         :frame-id (:frame-id frame)
-                        :situation-id reframe-situation-id}
+                        :situation-id (:hope-situation-id diversion)}
           world (-> world
                     (replace-emotion-fact sprouted-context-id
-                                          trigger-emotion-id
+                                          (:trigger-emotion-id diversion)
                                           updated-trigger-emotion)
                     (cx/assert-fact sprouted-context-id hope-emotion)
-                    (assoc-in [:emotions trigger-emotion-id]
+                    (assoc-in [:emotions (:trigger-emotion-id diversion)]
                               (dissoc updated-trigger-emotion :fact/type))
                     (assoc-in [:emotions (:emotion-id hope-emotion)]
                               (dissoc hope-emotion :fact/type)))
           emotion-shifts [(emotion-shift-entry
-                           {:emotion-id trigger-emotion-id
-                            :from-strength trigger-strength-before
-                            :to-strength trigger-strength-after
+                           {:emotion-id (:trigger-emotion-id diversion)
+                            :from-strength (:trigger-emotion-before diversion)
+                            :to-strength (:trigger-emotion-after diversion)
                             :valence (or (:valence trigger-emotion) :negative)
                             :affect (:affect trigger-emotion)
                             :context-id sprouted-context-id
@@ -2300,10 +2360,10 @@
                           (emotion-shift-entry
                            {:emotion-id (:emotion-id hope-emotion)
                             :from-strength 0.0
-                            :to-strength hope-strength
+                            :to-strength (:hope-strength diversion)
                             :valence :positive
                             :affect :hope
-                            :situation-id reframe-situation-id
+                            :situation-id (:hope-situation-id diversion)
                             :context-id sprouted-context-id
                             :role :reframe})]
           emotional-state [(emotion-state-entry updated-trigger-emotion
@@ -2314,12 +2374,12 @@
                                                 sprouted-context-id)]]
       [world (assoc plan-state
                     :diversion-policy gf-rules/rationalization-diversion-policy
-                    :trigger-emotion-id trigger-emotion-id
-                    :trigger-emotion-before trigger-strength-before
-                    :trigger-emotion-after trigger-strength-after
+                    :trigger-emotion-id (:trigger-emotion-id diversion)
+                    :trigger-emotion-before (:trigger-emotion-before diversion)
+                    :trigger-emotion-after (:trigger-emotion-after diversion)
                     :hope-emotion-id (:emotion-id hope-emotion)
-                    :hope-strength hope-strength
-                    :hope-situation-id reframe-situation-id
+                    :hope-strength (:hope-strength diversion)
+                    :hope-situation-id (:hope-situation-id diversion)
                     :emotion-shifts emotion-shifts
                     :emotional-state emotional-state)])
     [world (assoc plan-state
@@ -2344,6 +2404,29 @@
                          :failed-goal-id failed-goal-id
                          :frame-id frame-id
                          :plan-request-facts plan-request-facts})))))
+
+(defn- rationalization-diversion-preview
+  [world {:keys [trigger-context-id failed-goal-id]} frame]
+  (when-let [trigger-emotion (select-trigger-emotion world
+                                                     trigger-context-id
+                                                     failed-goal-id)]
+    (let [trigger-emotion-id (fact-id trigger-emotion)
+          trigger-strength-before (double (or (:strength trigger-emotion) 0.0))
+          diverted-strength (* trigger-strength-before
+                               gf-rules/rationalization-diversion-scale
+                               (double (or (:priority frame) 0.0)))
+          trigger-strength-after (clamp-strength
+                                  (- trigger-strength-before diverted-strength))
+          hope-strength (clamp-strength diverted-strength)
+          reframe-situation-id (or (:situation-id frame)
+                                   (rationalization-frame-situation-id
+                                    (:reframe-facts frame)))]
+      {:trigger-emotion-id trigger-emotion-id
+       :trigger-emotion-before trigger-strength-before
+       :trigger-emotion-after trigger-strength-after
+       :hope-emotion-id (hope-emotion-id (:frame-id frame))
+       :hope-strength hope-strength
+       :hope-situation-id reframe-situation-id})))
 
 (defn- rationalization-effect-program
   [{:keys [goal-id context-id trigger-context-id failed-goal-id ordering
@@ -2421,9 +2504,6 @@
         base-payload (rules/instantiate-template
                       (first (:consequent-schema rule))
                       bindings)
-        affect-proxy (rules/instantiate-template
-                      (second (:consequent-schema rule))
-                      bindings)
         rule-provenance (if request-fact
                           (extend-rule-provenance
                            (:rule-provenance request-fact)
@@ -2434,6 +2514,11 @@
                world
                base-payload
                (:matched-facts call))
+        diversion-preview (rationalization-diversion-preview
+                           world
+                           {:trigger-context-id (:trigger-context-id base-payload)
+                            :failed-goal-id (:failed-goal-id base-payload)}
+                           frame)
         payload (assoc base-payload
                        :frame-id (:frame-id frame)
                        :source-episode-id (:episode-id frame)
@@ -2442,11 +2527,35 @@
                        :reframe-fact-ids (mapv fact-id (:reframe-facts frame))
                        :selection-reasons (:selection-reasons frame)
                        :situation-id (:situation-id frame))
+        affect-state-fact (or (when diversion-preview
+                                {:fact/type :family-affect-state
+                                 :source-family :rationalization
+                                 :goal-id (:goal-id payload)
+                                 :context-id (:context-id payload)
+                                 :failed-goal-id (:failed-goal-id payload)
+                                 :trigger-emotion-id
+                                 (:trigger-emotion-id diversion-preview)
+                                 :trigger-emotion-strength
+                                 (:trigger-emotion-after diversion-preview)
+                                 :frame-id (:frame-id payload)
+                                 :affect :hope
+                                 :transition :reappraised})
+                              {:fact/type :family-affect-state
+                               :source-family :rationalization
+                               :goal-id (:goal-id payload)
+                               :context-id (:context-id payload)
+                               :failed-goal-id (:failed-goal-id payload)
+                               :trigger-emotion-id (:trigger-emotion-id payload)
+                               :trigger-emotion-strength
+                               (:trigger-emotion-strength payload)
+                               :frame-id (:frame-id payload)
+                               :affect :hope
+                               :transition :reappraised})
         effect-program (rationalization-effect-program
                         (assoc payload
                                :frame frame
                                :rule-provenance rule-provenance))]
-    {:consequents [payload affect-proxy]
+    {:consequents [payload affect-state-fact]
      :confidence (double (:plausibility rule))
      :reason (str (or (get-in rule [:denotation :intended-effect])
                       (:id rule)))
@@ -2455,6 +2564,51 @@
                            (name (:selection-policy payload))
                            ":"
                            (:frame-id payload))
+     :effects effect-program}))
+
+(defn- reversal-effect-program
+  [world {:keys [old-context-id old-top-level-goal-id new-context-id
+                 new-top-level-goal-id selection-policy rule-provenance]
+          :as payload}]
+  [{:op :reversal/execute-branches
+    :old-context-id old-context-id
+    :old-top-level-goal-id old-top-level-goal-id
+    :new-context-id new-context-id
+    :new-top-level-goal-id new-top-level-goal-id
+    :selection-policy selection-policy
+    :rule-provenance rule-provenance
+    :branches (reverse-leaf-branches world payload)
+    :result-key :reversal/branches}])
+
+(defn- reversal-plan-dispatch-executor
+  [{:keys [rule call]}]
+  (let [world (:world call)
+        bindings (:bindings call)
+        request-fact (first (:matched-facts call))
+        payload (rules/instantiate-template
+                 (first (:consequent-schema rule))
+                 bindings)
+        affect-proxy (rules/instantiate-template
+                      (second (:consequent-schema rule))
+                      bindings)
+        rule-provenance (if request-fact
+                          (extend-rule-provenance
+                           (:rule-provenance request-fact)
+                           rule
+                           :family-plan-request)
+                          (seed-rule-provenance rule))
+        effect-program (reversal-effect-program
+                        world
+                        (assoc payload :rule-provenance rule-provenance))]
+    {:consequents [payload affect-proxy]
+     :confidence (double (:plausibility rule))
+     :reason (str (or (get-in rule [:denotation :intended-effect])
+                      (:id rule)))
+     :aux-indices []
+     :surface-summary (str "reversal:"
+                           (name (:selection-policy payload))
+                           ":"
+                           (:old-top-level-goal-id payload))
      :effects effect-program}))
 
 (defn- reversal-aftershock-fact
@@ -2547,40 +2701,15 @@
   [world {:keys [input-facts]
           :or {input-facts []}
           :as reversal-target}]
-  (let [plan-request-facts (or (seq (reversal-plan-request-facts world
-                                                                 reversal-target))
-                               (throw (ex-info "REVERSAL needs a planning target"
-                                               {:reversal-target reversal-target})))
-        {:keys [old-context-id old-top-level-goal-id new-context-id
-                new-top-level-goal-id rule-provenance]}
-        (or (first (plan-payloads-from-request-facts world plan-request-facts))
-            (throw (ex-info "REVERSAL needs a plan payload"
-                            {:reversal-target reversal-target
-                             :plan-request-facts plan-request-facts})))
-        reversal-target (assoc reversal-target
-                               :old-context-id old-context-id
-                               :old-top-level-goal-id old-top-level-goal-id
-                               :new-context-id new-context-id
-                               :new-top-level-goal-id new-top-level-goal-id)]
-    (reduce (fn [[current-world branch-results] branch]
-              (let [[next-world sprouted-context-id]
-                    (reversal-sprout-alternative
-                     current-world
-                     {:old-context-id (:old-context-id branch)
-                      :old-top-level-goal-id (:old-top-level-goal-id reversal-target)
-                      :new-context-id (:new-context-id reversal-target)
-                      :new-top-level-goal-id (:new-top-level-goal-id reversal-target)
-                      :ordering (:ordering branch)
-                      :input-facts input-facts
-                      :retract-facts (:objective-facts branch)})]
-                [next-world
-                 (conj branch-results
-                       (assoc branch
-                              :sprouted-context-id sprouted-context-id
-                              :rule-provenance rule-provenance
-                              :retracted-fact-ids (mapv fact-id (:objective-facts branch))))]))
-            [world []]
-            (reverse-leaf-branches world reversal-target))))
+  (let [{:keys [effects]}
+        (reversal-plan-effects world
+                               (assoc reversal-target
+                                      :input-facts input-facts))
+        [world effect-state] (apply-family-effects world effects)]
+    [world
+     (vec (get-in effect-state
+                  [:results :reversal/branches :branch-results]
+                  []))]))
 
 (defn run-family-plan
   "Execute one family plan through the extracted request/dispatch layer.

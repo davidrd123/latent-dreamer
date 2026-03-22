@@ -902,12 +902,19 @@
   (if-not (contains? result :effects)
     result
     (let [effects (:effects result)
-          allowed-ops (set (get-in rule [:executor :spec :effect-ops] []))]
+          declared-ops (get-in rule [:executor :spec :effect-ops])
+          allowed-ops (set declared-ops)]
       (when-not (vector? effects)
         (throw (ex-info "RuleResultV1 :effects must be a vector"
                         {:rule-id (:id rule)
                          :call call
                          :result result})))
+      (when-not (seq declared-ops)
+        (throw (ex-info "RuleResultV1 effects require declared :effect-ops"
+                        {:rule-id (:id rule)
+                         :call call
+                         :result result
+                         :executor (get rule :executor)})))
       (doseq [effect effects]
         (when-not (map? effect)
           (throw (ex-info "RuleResultV1 effect entries must be maps"
@@ -921,8 +928,7 @@
                            :call call
                            :effect effect
                            :result result})))
-        (when (and (seq allowed-ops)
-                   (not (contains? allowed-ops (:op effect))))
+        (when-not (contains? allowed-ops (:op effect))
           (throw (ex-info "RuleResultV1 effect op is not declared for rule"
                           {:rule-id (:id rule)
                            :call call

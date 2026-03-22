@@ -226,8 +226,8 @@
                   :goal-id '?goal-id
                   :context-id '?context-id
                   :failed-goal-id '?failed-goal-id
-                  :trigger-emotion-id '?trigger-emotion-id
-                  :trigger-emotion-strength '?trigger-emotion-strength
+                  :trigger-emotion-id '?afterglow-trigger-emotion-id
+                  :trigger-emotion-strength '?afterglow-trigger-emotion-strength
                   :frame-id '?frame-id
                   :affect :hope
                   :transition :reappraised}]
@@ -423,7 +423,10 @@
     :plausibility 1.0
     :denotation (denotation :dispatch-reversal-plan-request
                             [:missing-family-plan-request])
-    :executor-spec {:request-goal-type :reversal}
+    :executor-kind :clojure-fn
+    :executor-spec {:request-goal-type :reversal
+                    :executor-id :goal-family/reversal-plan-dispatch
+                    :effect-ops [:reversal/execute-branches]}
     :provenance (rule-provenance
                  [:theme-reversal]
                  :partial

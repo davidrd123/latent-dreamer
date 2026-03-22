@@ -131,6 +131,9 @@ Implemented first pass:
 - `:goal-family/rationalization-plan-dispatch` now runs through the
   same seam, using a typed effect program for sprout/assert/diversion/
   afterglow/log while keeping effect application kernel-local
+- `:goal-family/reversal-plan-dispatch` now runs through the same seam
+  as a composite branch program, with local kernel code still applying
+  the multi-branch reversal effect
 - first effect ops are:
   `:context/sprout`, `:fact/assert`, `:episode/reminding`,
   `:episode/assert-retrieval-hits`, `:episodes/note-family-uses`,
@@ -138,13 +141,13 @@ Implemented first pass:
   `:goal/set-next-context`, `:mutation/log`, `:facts/assert-many`,
   `:rationalization/divert-emotion`,
   `:rationalization/assert-afterglow`,
-  `:mutation/log-rationalization`
-- `reversal` still executes procedurally
+  `:mutation/log-rationalization`, `:reversal/execute-branches`
 
 Next seam from review 10:
 - keep `instantiate-rule` as a compatibility wrapper
-- keep effect application local while more vertical slices migrate
-- move `reversal` next
+- keep effect application local while the effect contract tightens
+- next move is not another family migration; it is stronger effect
+  validation and a less bespoke local effect runtime
 - only then widen toward generic effect-schema validation and a shared
   effect runtime
 

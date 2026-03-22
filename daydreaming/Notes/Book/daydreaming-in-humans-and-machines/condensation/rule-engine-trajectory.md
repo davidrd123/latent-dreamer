@@ -190,7 +190,11 @@ Status update, 2026-03-22 late:
 - `:goal-family/rationalization-plan-dispatch` is now the second actual
   `:clojure-fn` vertical slice, still with local kernel effect
   application
-- `reversal` has not migrated yet
+- `:goal-family/reversal-plan-dispatch` is now the third actual
+  `:clojure-fn` vertical slice, using a composite branch effect while
+  local kernel code still applies the mutation
+- the next Step 2 pressure point is effect-contract tightening, not
+  more family extraction
 
 ### Step 3: LLM-backed evaluator pilot
 

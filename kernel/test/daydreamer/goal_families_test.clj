@@ -4,6 +4,7 @@
             [daydreamer.episodic-memory :as episodic]
             [daydreamer.family-evaluator :as family-evaluator]
             [daydreamer.goal-families :as families]
+            [daydreamer.goal-family-rules :as gf-rules]
             [daydreamer.goals :as goals]
             [daydreamer.rules :as rules]))
 
@@ -2823,6 +2824,115 @@
             :goal/set-next-context
             :mutation/log-rationalization]
            (mapv :op (:effects effect-program))))))
+
+(deftest rationalization-plan-dispatch-emits-afterglow-consequent-with-diverted-strength
+  (let [[world root-id] (world-with-root)
+        [world trigger-context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        frame-id :rf-zone-mercy
+        frame-facts [guide-fact
+                     {:fact/type :rationalization
+                      :fact/id :zone_is_mercy}
+                     {:fact/type :rationalization
+                      :fact/id :delay_is_faith}]
+        world (-> world
+                  (cx/assert-fact trigger-context-id {:fact/type :goal
+                                                      :goal-id failed-goal-id
+                                                      :top-level-goal failed-goal-id
+                                                      :status :failed
+                                                      :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :emotion
+                                                      :emotion-id emotion-id
+                                                      :strength 0.82
+                                                      :valence :negative
+                                                      :affect :dread})
+                  (cx/assert-fact trigger-context-id {:fact/type :dependency
+                                                      :from-id emotion-id
+                                                      :to-id failed-goal-id})
+                  (cx/assert-fact trigger-context-id
+                                  (rationalization-frame-fact frame-id
+                                                              failed-goal-id
+                                                              0.91
+                                                              frame-facts)))
+        [world rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.82
+          :main-motiv :e-dread})
+        context-id (get-in world [:goals rationalization-goal-id :next-cx])
+        request-facts (#'daydreamer.goal-families/rationalization-plan-request-facts
+                       world
+                       {:goal-id rationalization-goal-id
+                        :context-id context-id
+                        :trigger-context-id trigger-context-id
+                        :failed-goal-id failed-goal-id})
+        [{:keys [result]}]
+        (rules/matched-rule-applications
+         gf-rules/rationalization-plan-dispatch-rule
+         request-facts
+         {}
+         {:world world
+          :executor-registry (#'daydreamer.goal-families/family-executor-registry)})
+        afterglow-consequent (second (:consequents result))
+        expected-trigger-after (double (-> (- 0.82
+                                              (* 0.82
+                                                 gf-rules/rationalization-diversion-scale
+                                                 0.91))
+                                           (max 0.0)
+                                           (min 1.0)))]
+    (is (= :family-affect-state (:fact/type afterglow-consequent)))
+    (is (= emotion-id (:trigger-emotion-id afterglow-consequent)))
+    (is (= expected-trigger-after
+           (:trigger-emotion-strength afterglow-consequent)))
+    (is (= :hope (:affect afterglow-consequent)))
+    (is (= :reappraised (:transition afterglow-consequent)))))
+
+(deftest reversal-plan-effects-builds-typed-program
+  (let [[world root-id] (world-with-root)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        [world reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})
+        effect-program (families/reversal-plan-effects
+                        world
+                        {:goal-id reversal-goal-id
+                         :old-context-id old-context-id
+                         :old-top-level-goal-id old-top-level-goal-id
+                         :failed-goal-id old-top-level-goal-id
+                         :trigger-emotion-id emotion-id
+                         :trigger-emotion-strength 0.7
+                         :new-context-id (get-in world [:goals reversal-goal-id :next-cx])
+                         :new-top-level-goal-id reversal-goal-id
+                         :input-facts [counterfactual-fact]})]
+    (is (= old-top-level-goal-id
+           (:old-top-level-goal-id effect-program)))
+    (is (= gf-rules/reverse-leaf-policy
+           (:selection-policy effect-program)))
+    (is (= (str "reversal:"
+                (name gf-rules/reverse-leaf-policy)
+                ":"
+                old-top-level-goal-id)
+           (:surface-summary effect-program)))
+    (is (= [:reversal/execute-branches]
+           (mapv :op (:effects effect-program))))
+    (is (= [counterfactual-fact]
+           (get-in effect-program [:effects 0 :input-facts])))
+    (is (= 2
+           (count (get-in effect-program [:effects 0 :branches]))))))
 
 (deftest activate-family-goals-can-dispatch-roving-from-rationalization-afterglow
   (let [[world root-id] (world-with-root)

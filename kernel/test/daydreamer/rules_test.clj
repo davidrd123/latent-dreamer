@@ -292,6 +292,33 @@
                                 :surface-summary "missing-op"
                                 :effects [{:context-ref :branch-context}]})}})))))
 
+(deftest execute-rule-rejects-effects-without-declared-effect-ops
+  (let [bindings {'?context-id :cx-2
+                  '?failed-goal-id :g-failed
+                  '?emotion-id :e-shame
+                  '?emotion-strength 0.25}
+        rule (assoc sample-rule
+                    :executor {:kind :clojure-fn
+                               :spec {:executor-id :sample/dispatch}})]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"require declared :effect-ops"
+                          (rules/execute-rule
+                           rule
+                           {:bindings bindings
+                            :executor-registry
+                            {:sample/dispatch
+                             (fn [{:keys [rule]}]
+                               {:consequents [{:context-id :cx-2
+                                               :failed-goal-id :g-failed
+                                               :emotion-id :e-shame
+                                               :emotion-strength 0.25
+                                               :selection-policy :failed_goal_negative_emotion}]
+                                :confidence (double (:plausibility rule))
+                                :reason "missing-effect-ops"
+                                :aux-indices []
+                                :surface-summary "missing-effect-ops"
+                                :effects [{:op :test/noop}]})}})))))
+
 (deftest execute-rule-rejects-consequent-count-mismatch
   (let [rule (assoc sample-rule
                     :executor {:kind :clojure-fn
