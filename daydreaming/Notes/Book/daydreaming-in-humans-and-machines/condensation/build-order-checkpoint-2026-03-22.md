@@ -127,6 +127,9 @@ Implemented first pass:
 - `execute-rule` now also runs a call-supplied effect validator so the
   current family runtime can reject malformed op payloads before local
   kernel application
+- `rules.clj` now also owns the generic effect-program
+  reduction/threading scaffold via `apply-effects`; family code still
+  owns op semantics, symbolic refs, and world mutation handlers
 - `:goal-family/roving-plan-dispatch` is now the first real
   `:clojure-fn` vertical slice: the rule dispatches through
   `execute-rule`, returns a typed effect program, and local kernel code
@@ -153,7 +156,8 @@ Next seam from review 10:
 - keep `instantiate-rule` as a compatibility wrapper
 - keep effect application local while the effect contract tightens
 - next move is not another family migration; it is stronger effect
-  validation and a less bespoke local effect runtime
+  validation and continuing to pull the generic effect runtime into
+  `rules.clj`
 - only then widen toward generic effect-schema validation and a shared
   effect runtime
 

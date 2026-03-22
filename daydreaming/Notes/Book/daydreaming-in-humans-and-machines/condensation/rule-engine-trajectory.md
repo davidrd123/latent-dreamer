@@ -187,6 +187,9 @@ Status update, 2026-03-22 late:
 - `execute-rule` now also runs a call-supplied effect validator so the
   current family runtime can reject malformed payloads before local
   effect application
+- `rules.clj` now also owns the generic effect-program reduction and
+  state-threading scaffold via `apply-effects`; the concrete family
+  op handlers still live in `goal_families.clj`
 - `:goal-family/roving-plan-dispatch` is now the first actual
   `:clojure-fn` vertical slice, but effect application still stays local
   in `goal_families.clj`
@@ -197,8 +200,9 @@ Status update, 2026-03-22 late:
   `:clojure-fn` vertical slice, using a composite branch effect while
   local kernel code still applies the mutation
 - the current Step 2 pressure point is no longer family extraction; it
-  is shrinking the bespoke local effect runtime now that op payload
-  validation is live at the `execute-rule` boundary
+  is continuing to move the generic effect runtime into `rules.clj`
+  now that op payload validation is live at the `execute-rule`
+  boundary
 
 ### Step 3: LLM-backed evaluator pilot
 

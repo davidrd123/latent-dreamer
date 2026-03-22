@@ -1993,11 +1993,13 @@
 
 (defn- apply-family-effects
   [world effects]
-  (reduce (fn [[current-world effect-state] effect]
-            (apply-family-effect current-world effect effect-state))
-          [world {:context-refs {}
-                  :results {}}]
-          effects))
+  (rules/apply-effects
+   world
+   effects
+   {:effect-handler (fn [{:keys [world effect effect-state]}]
+                      (apply-family-effect world effect effect-state))
+    :initial-effect-state {:context-refs {}
+                           :results {}}}))
 
 (defn- retrieval-hit-fact
   [{:keys [episode-id family-goal-id branch-context-id retrieval-role

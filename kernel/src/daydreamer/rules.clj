@@ -1048,3 +1048,28 @@
                     {:rule-id (:id rule)
                      :executor-kind (get-in rule [:executor :kind])})))
   (execute-rule rule {:bindings bindings}))
+
+(defn apply-effects
+  "Apply a typed effect program through a caller-supplied effect handler.
+
+  The generic runtime owns reduction and effect-state threading; callers still
+  own the concrete op semantics."
+  [world effects {:keys [effect-handler initial-effect-state]}]
+  (when-not (ifn? effect-handler)
+    (throw (ex-info "apply-effects requires a callable :effect-handler"
+                    {:effect-handler effect-handler})))
+  (when-not (vector? effects)
+    (throw (ex-info "apply-effects requires a vector of effects"
+                    {:effects effects})))
+  (reduce (fn [[current-world effect-state] effect]
+            (let [result (effect-handler {:world current-world
+                                          :effect effect
+                                          :effect-state effect-state})]
+              (when-not (and (vector? result)
+                             (= 2 (count result)))
+                (throw (ex-info "Effect handler must return [world effect-state]"
+                                {:effect effect
+                                 :result result})))
+              result))
+          [world (or initial-effect-state {})]
+          effects))

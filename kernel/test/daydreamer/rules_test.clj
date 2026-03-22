@@ -269,6 +269,33 @@
                                 (throw (ex-info "custom effect validation failed"
                                                 {:effect effect}))))})))))
 
+(deftest apply-effects-threads-world-and-effect-state
+  (let [[world effect-state]
+        (rules/apply-effects
+         {:events []}
+         [{:op :test/append
+           :value 1}
+          {:op :test/append
+           :value 2}]
+         {:effect-handler
+          (fn [{:keys [world effect effect-state]}]
+            [(update world :events conj (:value effect))
+             (update effect-state :count (fnil inc 0))])
+          :initial-effect-state {:count 0}})]
+    (is (= {:events [1 2]} world))
+    (is (= {:count 2} effect-state))))
+
+(deftest apply-effects-rejects-malformed-handler-result
+  (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                        #"Effect handler must return"
+                        (rules/apply-effects
+                         {}
+                         [{:op :test/noop}]
+                         {:effect-handler
+                          (fn [_]
+                            {:world {}
+                             :effect-state {}})}))))
+
 (deftest execute-rule-rejects-unsupported-effect-op
   (let [bindings {'?context-id :cx-2
                   '?failed-goal-id :g-failed
