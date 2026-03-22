@@ -57,6 +57,22 @@
   []
   (gf-rules/family-rules))
 
+(defn- family-structural-graph
+  []
+  (rules/build-connection-graph (family-rules)))
+
+(defn- ensure-family-rule-access-registry
+  [world]
+  (rules/sync-rule-access-registry world (family-rules)))
+
+(defn- family-planning-graph
+  [world]
+  (rules/planning-graph world (family-structural-graph)))
+
+(defn- family-serendipity-graph
+  [world]
+  (rules/serendipity-graph world (family-structural-graph)))
+
 (defn- seed-rule-provenance
   [rule]
   {:rule-path [(:id rule)]
@@ -893,7 +909,8 @@
   To keep the kernel deterministic and bounded, activate at most one candidate
   per family per cycle."
   [world]
-  (let [activation-context-id (or (:reality-lookahead world)
+  (let [world (ensure-family-rule-access-registry world)
+        activation-context-id (or (:reality-lookahead world)
                                   (:reality-context world))
         candidates (trigger-dispatch-candidates world)]
     (reduce
@@ -1260,7 +1277,7 @@
     (if (or (<= (count accessible-episode-ids) 1)
             (empty? active-rule-path))
       accessible-episode-ids
-      (let [connection-graph (rules/build-connection-graph (family-rules))]
+      (let [connection-graph (family-planning-graph world)]
         (->> accessible-episode-ids
              (map-indexed
               (fn [idx episode-id]
@@ -1428,7 +1445,7 @@
             (throw (ex-info "ROVING needs a plan payload"
                             {:opts opts
                              :plan-request-facts plan-request-facts})))
-        connection-graph (rules/build-connection-graph (family-rules))
+        connection-graph (family-serendipity-graph world)
         success-intends {:fact/type :intends
                          :from-goal-id goal-id
                          :to-goal-id :rtrue
@@ -1775,6 +1792,13 @@
                   [next-world transition]
                   (episodic/reconcile-episode-admission next-world
                                                         (:episode-id use-record))
+                  episode (get-in next-world [:episodes (:episode-id use-record)])
+                  [next-world _rule-access-transitions]
+                  (rules/reconcile-episode-rule-access next-world
+                                                       (family-rules)
+                                                       episode
+                                                       transition
+                                                       {:branch-context-id branch-context-id})
                   promotion-fact (when (= :durable (:to-status transition))
                                    (episode-promotion-fact
                                     {:episode-id (:episode-id use-record)
@@ -1882,6 +1906,13 @@
               world (cx/assert-fact world branch-context-id outcome-fact)
               [world transition] (episodic/reconcile-episode-admission world
                                                                        episode-id)
+              episode (get-in world [:episodes episode-id])
+              [world _rule-access-transitions]
+              (rules/reconcile-episode-rule-access world
+                                                   (family-rules)
+                                                   episode
+                                                   transition
+                                                   {:branch-context-id branch-context-id})
               promotion-fact (when (= :durable (:to-status transition))
                                (episode-promotion-fact
                                 {:episode-id episode-id
@@ -2329,7 +2360,8 @@
   - optional `:emotion-shifts` / `:emotional-state`
   - optional raw family-specific `:result` / `:branch-results` payloads"
   [world {:keys [goal-id goal-type] :as opts}]
-  (let [goal-type (or goal-type
+  (let [world (ensure-family-rule-access-registry world)
+        goal-type (or goal-type
                       (get-in world [:goals goal-id :goal-type]))]
     (case goal-type
       :reversal

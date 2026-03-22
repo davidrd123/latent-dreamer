@@ -64,6 +64,17 @@ Implemented in the first pass:
   old same-family reuse wrapper
 - cross-family success now promotes via explicit use evidence
   (`:cross-family-use-success`) rather than raw retrieval alone
+- inert rule-access scaffolding is now in code:
+  `world[:rule-access]` with `:accessible` / `:frontier` /
+  `:quarantined`
+- authored family rules initialize as `:accessible`, preserving current
+  planner behavior while making the frontier state real
+- graph views are now split above the structural graph:
+  planning view filters to `:accessible`, serendipity view allows
+  `:accessible ∪ :frontier`
+- durable episode promotion can open frontier rules to
+  `:accessible`, and hard-failure demotion can quarantine non-core
+  rules on the episode's rule path
 
 Still missing inside step 1:
 - broader family coverage for episode-use logs with attributed outcomes
@@ -71,7 +82,8 @@ Still missing inside step 1:
 - promotion driven by structural evidence PLUS outcome evidence,
   with the evaluator acting as gate/veto rather than sole authority
 - rule accessibility state derived from durable evidence, not from
-  provisional storage or evaluator opinion alone
+  provisional storage or evaluator opinion alone; current family
+  rules all still start as authored-core
 - source-type decay / stronger zone-specific consolidation
 - explicit loop-risk metadata shaping retrieval
 - stronger downstream flagging / demotion beyond evaluator annotation

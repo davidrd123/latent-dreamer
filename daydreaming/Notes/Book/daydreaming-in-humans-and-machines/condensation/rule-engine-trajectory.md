@@ -145,6 +145,18 @@ as three separate mechanisms.
 
 This is what prevents the graph from becoming a self-soothing loop machine.
 
+The next honest landing after that substrate is an explicit dynamic
+frontier:
+- `world[:rule-access]`
+- authored-core rules start `:accessible`
+- planning reads an `:accessible` graph view
+- serendipity reads an `:accessible ∪ :frontier` view
+- durable promotion can open frontier rules
+- hard-failure demotion can quarantine non-core rules
+
+That keeps `build-connection-graph` structural while finally restoring
+Mueller's missing "planner frontier" as state rather than graph essence.
+
 ### Step 2: Executor boundary with declarative effects
 
 Only after the memory membrane exists does it make sense to make executors more

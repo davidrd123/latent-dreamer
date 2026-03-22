@@ -125,6 +125,18 @@ and "deserves future influence":
   a promoted episode becomes reusable only after recent eviction
 - same-family reuse is now tracked, and repeated same-family reuse
   can flag `:same-family-loop` to suppress reentry
+- world state now carries an inert `:rule-access` registry with
+  `:accessible` / `:frontier` / `:quarantined` statuses derived
+  from rule provenance deployment roles
+- current authored family rules initialize as `:accessible`, so
+  ordinary planning behavior is unchanged while the frontier
+  scaffolding becomes real
+- planning and serendipity now read different filtered graph views:
+  ordinary roving seed ranking uses planning view, while reminding-side
+  provenance scoring uses serendipity view
+- durable promotion can now open frontier rules to `:accessible`,
+  and hard-failure demotion can quarantine non-core rules touched by
+  an episode's rule path
 - external family evaluators can now return an explicit
   promotion decision; heuristic mode stays conservative, but
   evaluator-backed rationalization/reversal plans can enter as
@@ -140,8 +152,9 @@ The reviews now make the next two abstractions explicit:
   alone. The first real slices are now in code for roving cross-family
   reuse and the stored rationalization/reversal reopen paths, but
   broader coverage, richer outcome resolution beyond simple
-  success/failure/backfire/contradiction, and accessibility are still
-  missing. The evaluator is a gate or veto, not the sole authority.
+  success/failure/backfire/contradiction, and active frontier-opening
+  behavior beyond the current inert scaffolding are still missing. The
+  evaluator is a gate or veto, not the sole authority.
 - **Step 2:** the executor seam belongs in `rules.clj` as
   `execute-rule`, not as growing local effect machinery inside
   `goal_families.clj`.
@@ -151,6 +164,8 @@ The reviews now make the next two abstractions explicit:
 - extend the new use/outcome substrate beyond roving's current
   cross-family slice so promotion, anti-residue, and rule
   accessibility are driven by attributed use records broadly
+- start using the new `:rule-access` registry for non-core/future
+  frontier rules, not just authored-core defaults
 - widen outcome resolution beyond the current simple
   `:succeeded` / `:failed` split and let those outcomes
   drive stronger promotion/demotion decisions

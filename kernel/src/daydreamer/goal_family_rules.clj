@@ -59,10 +59,13 @@
    :in-edge-bases []})
 
 (defn- rule-provenance
-  [book-anchors kernel-status notes]
-  {:book-anchors book-anchors
-   :kernel-status kernel-status
-   :notes notes})
+  ([book-anchors kernel-status notes]
+   (rule-provenance book-anchors kernel-status notes :authored-core))
+  ([book-anchors kernel-status notes deployment-role]
+   {:book-anchors book-anchors
+    :kernel-status kernel-status
+    :notes notes
+    :deployment-role deployment-role}))
 
 (defn- denotation
   [intended-effect failure-modes]

@@ -169,6 +169,10 @@
                 :kernel-status :proposed
                 :notes "Synthetic terminal rule for path-search tests."}})
 
+(defn with-deployment-role
+  [rule deployment-role]
+  (assoc-in rule [:provenance :deployment-role] deployment-role))
+
 (deftest instantiate-rule-substitutes-bindings
   (testing "RuleV1 validation accepts a complete instantiate rule"
     (is (true? (rules/valid-rule? sample-rule))))
@@ -497,3 +501,113 @@
                                      :test/target
                                      {:min-depth 1
                                       :max-depth 2}))))))
+
+(deftest sync-rule-access-registry-derives-default-statuses-from-deployment-role
+  (let [world (rules/sync-rule-access-registry
+               {:cycle 7}
+               [(with-deployment-role bridge-source-rule :authored-core)
+                (with-deployment-role bridge-target-rule :authored-frontier)
+                (with-deployment-role bridge-terminal-rule :induced)])]
+    (is (= {:status :accessible
+            :source :authored-core
+            :opened-cycle 7
+            :opened-by nil
+            :history []}
+           (get-in world [:rule-access :test/source])))
+    (is (= {:status :frontier
+            :source :authored-frontier
+            :opened-cycle nil
+            :opened-by nil
+            :history []}
+           (get-in world [:rule-access :test/target])))
+    (is (= {:status :frontier
+            :source :induced
+            :opened-cycle nil
+            :opened-by nil
+            :history []}
+           (get-in world [:rule-access :test/terminal])))))
+
+(deftest planning-and-serendipity-graphs-filter-by-effective-rule-access
+  (let [graph (rules/build-connection-graph
+               [(with-deployment-role bridge-source-rule :authored-core)
+                (with-deployment-role bridge-target-rule :authored-frontier)
+                (with-deployment-role bridge-terminal-rule :quarantined)])
+        planning (rules/planning-graph {:cycle 0} graph)
+        serendipity (rules/serendipity-graph {:cycle 0} graph)]
+    (is (= [] (rules/outgoing-edges planning :test/source)))
+    (is (= [{:from-rule :test/source
+             :to-rule :test/target
+             :from-projection {:fact/type :goal
+                               :goal-id '?goal-id
+                               :status :failed
+                               :activation-context '?context-id}
+             :to-projection {:fact/type :goal
+                             :goal-id '?failed-goal-id
+                             :status :failed
+                             :activation-context '?context-id}
+             :bindings {}
+             :shared-keys #{:goal-id :status :activation-context}
+             :edge-kind :goal-decomposition}]
+           (rules/outgoing-edges serendipity :test/source)))
+    (is (= [] (rules/outgoing-edges serendipity :test/target)))))
+
+(deftest durable-promotion-opens-frontier-rules-to-accessible
+  (let [graph (rules/build-connection-graph
+               [(with-deployment-role bridge-source-rule :authored-core)
+                (with-deployment-role bridge-target-rule :authored-frontier)])
+        world (rules/sync-rule-access-registry {:cycle 3} graph)
+        episode {:id :ep-frontier
+                 :rule-path [:test/source :test/target]
+                 :anti-residue-flags []}
+        [world transitions]
+        (rules/reconcile-episode-rule-access world
+                                             graph
+                                             episode
+                                             {:to-status :durable}
+                                             {:branch-context-id :cx-17})]
+    (is (= :accessible
+           (get-in world [:rule-access :test/target :status])))
+    (is (= :accessible
+           (get-in world [:rule-access :test/source :status])))
+    (is (= [{:rule-id :test/target
+             :from-status :frontier
+             :to-status :accessible
+             :cycle 3
+             :reason :durable-episode-opened-rule
+             :episode-id :ep-frontier
+             :branch-context-id :cx-17}]
+           transitions))))
+
+(deftest hard-failure-demotion-can-quarantine-noncore-rules
+  (let [graph (rules/build-connection-graph
+               [(with-deployment-role bridge-source-rule :authored-core)
+                (with-deployment-role bridge-target-rule :induced)])
+        world (rules/sync-rule-access-registry {:cycle 5} graph)
+        [world _]
+        (rules/set-rule-access-status world
+                                      graph
+                                      :test/target
+                                      :accessible
+                                      {:reason :durable-episode-opened-rule
+                                       :episode-id :ep-frontier})
+        episode {:id :ep-frontier
+                 :rule-path [:test/source :test/target]
+                 :anti-residue-flags [:contradicted]}
+        [world transitions]
+        (rules/reconcile-episode-rule-access world
+                                             graph
+                                             episode
+                                             {:to-status :provisional}
+                                             {:branch-context-id :cx-22})]
+    (is (= :accessible
+           (get-in world [:rule-access :test/source :status])))
+    (is (= :quarantined
+           (get-in world [:rule-access :test/target :status])))
+    (is (= [{:rule-id :test/target
+             :from-status :accessible
+             :to-status :quarantined
+             :cycle 5
+             :reason :outcome-driven-rule-quarantine
+             :episode-id :ep-frontier
+             :branch-context-id :cx-22}]
+           transitions))))

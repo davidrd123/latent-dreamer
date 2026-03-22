@@ -41,6 +41,13 @@ As the system accumulates episodes, rules, and graph connections:
 - stored rationalization and reversal reopen paths now also record
   attributed use/outcome when a stored family-plan episode actually
   shapes the later branch
+- world state now carries a dynamic `:rule-access` registry with
+  `:accessible` / `:frontier` / `:quarantined` statuses, separate from
+  the structural rule graph
+- planning and serendipity now read filtered graph views above the
+  raw structural graph instead of treating every rule as equally live
+- durable promotion can now open frontier rules, and hard-failure
+  demotion can quarantine non-core rules touched by an episode path
 - The missing piece is broader evaluator discipline, later demotion,
   and downstream evidence that can set or clear these flags.
   The newest review pair sharpens this further:
@@ -86,9 +93,10 @@ anti-residue flags, and future rule accessibility become ordinary
 state transitions rather than ad hoc retrieval heuristics.
 
 The kernel now has the first real version of that substrate, but only
-on the roving cross-family path. The next move is to extend it beyond
-that slice and let richer outcomes than simple success/failure drive
-promotion, demotion, and accessibility.
+on the roving cross-family path plus the stored rationalization /
+reversal reopen paths. The next move is to extend it beyond those
+slices and let richer outcomes than simple success/failure drive
+promotion, demotion, and active frontier movement.
 
 ## Property to preserve
 

@@ -52,6 +52,9 @@
     :aux-indices
     :surface-summary})
 
+(def ^:private rule-access-statuses
+  #{:accessible :frontier :quarantined})
+
 (defn logic-var?
   "Is this a logic variable? Convention: symbols starting with ? like '?target"
   [value]
@@ -545,6 +548,209 @@
   [graph rule-ids]
   (build-connection-graph
    (remove-rules (:rules graph) rule-ids)))
+
+(defn- rules-from-source
+  [graph-or-rules]
+  (cond
+    (vector? graph-or-rules)
+    graph-or-rules
+
+    (map? graph-or-rules)
+    (vec (:rules graph-or-rules))
+
+    :else
+    []))
+
+(defn- deployment-role
+  [rule]
+  (get-in rule [:provenance :deployment-role] :authored-core))
+
+(defn- default-rule-access-status
+  [rule]
+  (case (deployment-role rule)
+    (:authored-core :core) :accessible
+    (:authored-frontier :frontier :induced) :frontier
+    :quarantined :quarantined
+    :accessible))
+
+(defn- default-rule-access-entry
+  [world rule]
+  (let [status (default-rule-access-status rule)
+        source (deployment-role rule)]
+    {:status status
+     :source source
+     :opened-cycle (when (= :accessible status)
+                     (:cycle world))
+     :opened-by nil
+     :history []}))
+
+(defn rule-access-registry
+  "Return the effective rule-access registry for the given structural rule set.
+
+  World state overrides defaults. Rules without explicit world entries derive
+  their status from provenance deployment metadata."
+  [world graph-or-rules]
+  (let [explicit (or (:rule-access world) {})]
+    (reduce (fn [registry rule]
+              (update registry
+                      (:id rule)
+                      #(or %
+                           (default-rule-access-entry world rule))))
+            explicit
+            (rules-from-source graph-or-rules))))
+
+(defn sync-rule-access-registry
+  "Materialize missing default rule-access entries into world state."
+  [world graph-or-rules]
+  (assoc world :rule-access (rule-access-registry world graph-or-rules)))
+
+(defn rule-access-info
+  "Return the effective access entry for a rule in the given structural rule set."
+  [world graph-or-rules rule-id]
+  (get (rule-access-registry world graph-or-rules) rule-id))
+
+(defn accessible-rule-ids
+  [world graph-or-rules]
+  (->> (rule-access-registry world graph-or-rules)
+       (keep (fn [[rule-id entry]]
+               (when (= :accessible (:status entry))
+                 rule-id)))
+       set))
+
+(defn frontier-rule-ids
+  [world graph-or-rules]
+  (->> (rule-access-registry world graph-or-rules)
+       (keep (fn [[rule-id entry]]
+               (when (= :frontier (:status entry))
+                 rule-id)))
+       set))
+
+(defn quarantined-rule-ids
+  [world graph-or-rules]
+  (->> (rule-access-registry world graph-or-rules)
+       (keep (fn [[rule-id entry]]
+               (when (= :quarantined (:status entry))
+                 rule-id)))
+       set))
+
+(defn planning-graph
+  "Filter a structural graph to the planner-visible rule set."
+  [world graph]
+  (graph-without-rules
+   graph
+   (->> (:rules graph)
+        (keep (fn [rule]
+                (let [status (:status (rule-access-info world graph (:id rule)))]
+                  (when (not= :accessible status)
+                    (:id rule)))))
+        vec)))
+
+(defn serendipity-graph
+  "Filter a structural graph to the serendipity-visible rule set.
+
+  Serendipity may traverse `:accessible` and `:frontier` rules, but not
+  `:quarantined` ones."
+  [world graph]
+  (graph-without-rules
+   graph
+   (->> (:rules graph)
+        (keep (fn [rule]
+                (let [status (:status (rule-access-info world graph (:id rule)))]
+                  (when (= :quarantined status)
+                    (:id rule)))))
+        vec)))
+
+(defn- rule-access-reason
+  [to-status]
+  (case to-status
+    :accessible :durable-episode-opened-rule
+    :quarantined :outcome-driven-rule-quarantine
+    :rule-access-transition))
+
+(defn set-rule-access-status
+  "Update a rule's dynamic accessibility status with structured history.
+
+  Returns `[world transition]`, where `transition` is nil when no state change
+  was needed."
+  [world graph-or-rules rule-id to-status transition]
+  (when-not (contains? rule-access-statuses to-status)
+    (throw (ex-info "Unsupported rule access status"
+                    {:rule-id rule-id
+                     :to-status to-status
+                     :allowed-statuses rule-access-statuses})))
+  (let [registry (rule-access-registry world graph-or-rules)
+        current-entry (get registry rule-id)]
+    (when-not current-entry
+      (throw (ex-info "Unknown rule access entry"
+                      {:rule-id rule-id})))
+    (let [from-status (:status current-entry)]
+      (if (= from-status to-status)
+        [world nil]
+        (let [transition-record (cond-> {:rule-id rule-id
+                                         :from-status from-status
+                                         :to-status to-status
+                                         :cycle (:cycle world)
+                                         :reason (or (:reason transition)
+                                                     (rule-access-reason to-status))}
+                                  (:episode-id transition)
+                                  (assoc :episode-id (:episode-id transition))
+
+                                  (:branch-context-id transition)
+                                  (assoc :branch-context-id (:branch-context-id transition)))
+              next-entry (cond-> (assoc current-entry :status to-status)
+                           (= :accessible to-status)
+                           (assoc :opened-cycle (:cycle world)
+                                  :opened-by (:episode-id transition))
+
+                           true
+                           (update :history (fnil conj []) transition-record))]
+          [(assoc-in world [:rule-access rule-id] next-entry)
+           transition-record])))))
+
+(defn reconcile-episode-rule-access
+  "Apply the current episode admission transition to dynamic rule accessibility.
+
+  Durable promotion can open `:frontier` rules. Hard-failure demotion can
+  quarantine non-core rules. Returns `[world transitions]`."
+  [world graph-or-rules episode transition {:keys [branch-context-id]}]
+  (let [rule-path (vec (:rule-path episode))
+        hard-failure? (seq (set/intersection #{:backfired :contradicted}
+                                             (set (:anti-residue-flags episode))))
+        promoted? (= :durable (:to-status transition))
+        demoted? (and (contains? #{:provisional :trace} (:to-status transition))
+                      hard-failure?)]
+    (reduce (fn [[current-world transitions] rule-id]
+              (let [entry (rule-access-info current-world graph-or-rules rule-id)
+                    source (:source entry)
+                    target-status (cond
+                                    (and promoted?
+                                         (= :frontier (:status entry)))
+                                    :accessible
+
+                                    (and demoted?
+                                         (not (contains? #{:authored-core :core} source))
+                                         (contains? #{:accessible :frontier}
+                                                    (:status entry)))
+                                    :quarantined
+
+                                    :else nil)]
+                (if-not target-status
+                  [current-world transitions]
+                  (let [[next-world access-transition]
+                        (set-rule-access-status
+                         current-world
+                         graph-or-rules
+                         rule-id
+                         target-status
+                         {:episode-id (:id episode)
+                          :branch-context-id branch-context-id
+                          :reason (rule-access-reason target-status)})]
+                    [next-world
+                     (cond-> transitions
+                       access-transition
+                       (conj access-transition))]))))
+            [world []]
+            rule-path)))
 
 (defn intervention-delta
   "Evaluation ladder Level 2: intervention sensitivity.
