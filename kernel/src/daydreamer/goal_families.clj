@@ -1771,26 +1771,6 @@
   [effect-state context-ref]
   (get-in effect-state [:context-refs context-ref] context-ref))
 
-(defn- handle-context-sprout
-  [{:keys [world effect effect-state]}]
-  (let [[world sprouted-context-id] (cx/sprout world (:source-context-id effect))]
-    [world (assoc-in effect-state [:context-refs (:ref effect)] sprouted-context-id)]))
-
-(defn- handle-fact-assert
-  [{:keys [world effect effect-state]}]
-  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
-    [(cx/assert-fact world context-id (:fact effect))
-     effect-state]))
-
-(defn- handle-facts-assert-many
-  [{:keys [world effect effect-state]}]
-  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
-    [(reduce (fn [current-world fact]
-               (cx/assert-fact current-world context-id fact))
-             world
-             (:facts effect))
-     effect-state]))
-
 (defn- handle-episode-reminding
   [{:keys [world effect effect-state]}]
   (let [[world reminded-episode-ids]
@@ -1878,20 +1858,6 @@
                {:outcome-facts (vec outcome-facts)
                 :promotion-facts (vec promotion-facts)
                 :promoted-episode-ids (vec promoted-episode-ids)})]))
-
-(defn- handle-context-set-ordering
-  [{:keys [world effect effect-state]}]
-  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
-    [(assoc-in world [:contexts context-id :ordering] (:ordering effect))
-     effect-state]))
-
-(defn- handle-goal-set-next-context
-  [{:keys [world effect effect-state]}]
-  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
-    [(if (contains? (:goals world) (:goal-id effect))
-       (goals/set-next-context world (:goal-id effect) context-id)
-       world)
-     effect-state]))
 
 (defn- handle-rationalization-divert-emotion
   [{:keys [world effect effect-state]}]
@@ -2001,15 +1967,10 @@
 
 (defn- family-effect-handlers
   []
-  {:context/sprout handle-context-sprout
-   :fact/assert handle-fact-assert
-   :facts/assert-many handle-facts-assert-many
-   :episode/reminding handle-episode-reminding
+  {:episode/reminding handle-episode-reminding
    :episode/assert-retrieval-hits handle-episode-assert-retrieval-hits
    :episodes/note-family-uses handle-note-family-uses
    :episodes/resolve-use-outcomes handle-resolve-use-outcomes
-   :context/set-ordering handle-context-set-ordering
-   :goal/set-next-context handle-goal-set-next-context
    :rationalization/divert-emotion handle-rationalization-divert-emotion
    :rationalization/assert-afterglow handle-rationalization-assert-afterglow
    :mutation/log handle-mutation-log

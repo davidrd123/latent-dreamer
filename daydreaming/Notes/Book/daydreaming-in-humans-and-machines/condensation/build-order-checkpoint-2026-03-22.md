@@ -130,8 +130,12 @@ Implemented first pass:
 - `rules.clj` now also owns the generic effect-program
   reduction/threading scaffold via `apply-effects`; family code still
   owns op semantics, symbolic refs, and world mutation handlers
+- `rules.clj` now also owns the first builtin effect handlers:
+  `:context/sprout`, `:fact/assert`, `:facts/assert-many`,
+  `:context/set-ordering`, and `:goal/set-next-context`
 - `goal_families.clj` now exposes those handlers as an explicit
-  op-handler registry instead of a single monolithic dispatcher
+  op-handler registry instead of a single monolithic dispatcher, and
+  now only retains family-semantic handlers
 - `:goal-family/roving-plan-dispatch` is now the first real
   `:clojure-fn` vertical slice: the rule dispatches through
   `execute-rule`, returns a typed effect program, and local kernel code

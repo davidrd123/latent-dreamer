@@ -7,7 +7,9 @@
   of family-specific scans."
   (:require [clojure.set :as set]
             [clojure.string :as str]
-            [clojure.walk :as walk]))
+            [clojure.walk :as walk]
+            [daydreamer.context :as cx]
+            [daydreamer.goals :as goals]))
 
 ;; --- Allowed values for rule fields ---
 ;; These sets define what's valid. A rule with :rule-kind :banana fails validation.
@@ -1049,6 +1051,52 @@
                      :executor-kind (get-in rule [:executor :kind])})))
   (execute-rule rule {:bindings bindings}))
 
+(defn- resolve-effect-context-id
+  [effect-state context-ref]
+  (get-in effect-state [:context-refs context-ref] context-ref))
+
+(defn- handle-context-sprout
+  [{:keys [world effect effect-state]}]
+  (let [[world sprouted-context-id] (cx/sprout world (:source-context-id effect))]
+    [world (assoc-in effect-state [:context-refs (:ref effect)] sprouted-context-id)]))
+
+(defn- handle-fact-assert
+  [{:keys [world effect effect-state]}]
+  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+    [(cx/assert-fact world context-id (:fact effect))
+     effect-state]))
+
+(defn- handle-facts-assert-many
+  [{:keys [world effect effect-state]}]
+  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+    [(reduce (fn [current-world fact]
+               (cx/assert-fact current-world context-id fact))
+             world
+             (:facts effect))
+     effect-state]))
+
+(defn- handle-context-set-ordering
+  [{:keys [world effect effect-state]}]
+  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+    [(assoc-in world [:contexts context-id :ordering] (:ordering effect))
+     effect-state]))
+
+(defn- handle-goal-set-next-context
+  [{:keys [world effect effect-state]}]
+  (let [context-id (resolve-effect-context-id effect-state (:context-ref effect))]
+    [(if (contains? (:goals world) (:goal-id effect))
+       (goals/set-next-context world (:goal-id effect) context-id)
+       world)
+     effect-state]))
+
+(defn- builtin-effect-handlers
+  []
+  {:context/sprout handle-context-sprout
+   :fact/assert handle-fact-assert
+   :facts/assert-many handle-facts-assert-many
+   :context/set-ordering handle-context-set-ordering
+   :goal/set-next-context handle-goal-set-next-context})
+
 (defn apply-effects
   "Apply a typed effect program through a caller-supplied effect handler.
 
@@ -1056,31 +1104,36 @@
   own the concrete op semantics."
   [world effects {:keys [effect-handler effect-handlers initial-effect-state]
                   :as opts}]
-  (when-not (or (ifn? effect-handler)
-                (map? effect-handlers))
-    (throw (ex-info "apply-effects requires :effect-handler or :effect-handlers"
-                    {:effect-handler effect-handler
-                     :effect-handlers effect-handlers})))
+  (when (and (contains? opts :effect-handler)
+             (not (ifn? effect-handler)))
+    (throw (ex-info "apply-effects :effect-handler must be callable"
+                    {:effect-handler effect-handler})))
+  (when (and (contains? opts :effect-handlers)
+             (not (map? effect-handlers)))
+    (throw (ex-info "apply-effects :effect-handlers must be a map"
+                    {:effect-handlers effect-handlers})))
   (when-not (vector? effects)
     (throw (ex-info "apply-effects requires a vector of effects"
                     {:effects effects})))
-  (reduce (fn [[current-world effect-state] effect]
-            (let [handler (or effect-handler
-                              (get effect-handlers (:op effect)))]
-              (when-not (ifn? handler)
-                (throw (ex-info "No effect handler registered for op"
-                                {:effect effect
-                                 :known-ops (sort (keys effect-handlers))})))
-              (let [result (handler {:world current-world
-                                     :effect effect
-                                     :effect-state effect-state})]
-                (when-not (and (vector? result)
-                               (= 2 (count result)))
-                  (throw (ex-info "Effect handler must return [world effect-state]"
+  (let [merged-handlers (merge (builtin-effect-handlers)
+                               (or effect-handlers {}))]
+    (reduce (fn [[current-world effect-state] effect]
+              (let [handler (or effect-handler
+                                (get merged-handlers (:op effect)))]
+                (when-not (ifn? handler)
+                  (throw (ex-info "No effect handler registered for op"
                                   {:effect effect
-                                   :result result})))
-                result)))
-          [world (if (contains? opts :initial-effect-state)
-                   initial-effect-state
-                   {})]
-          effects))
+                                   :known-ops (sort (keys merged-handlers))})))
+                (let [result (handler {:world current-world
+                                       :effect effect
+                                       :effect-state effect-state})]
+                  (when-not (and (vector? result)
+                                 (= 2 (count result)))
+                    (throw (ex-info "Effect handler must return [world effect-state]"
+                                    {:effect effect
+                                     :result result})))
+                  result)))
+            [world (if (contains? opts :initial-effect-state)
+                     initial-effect-state
+                     {})]
+            effects)))

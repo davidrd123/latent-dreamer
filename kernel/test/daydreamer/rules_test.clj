@@ -1,5 +1,7 @@
 (ns daydreamer.rules-test
   (:require [clojure.test :refer [deftest is testing]]
+            [daydreamer.context :as cx]
+            [daydreamer.goals :as goals]
             [daydreamer.rules :as rules]))
 
 (defmacro thrown-with-msg?
@@ -303,6 +305,39 @@
            (fn [{:keys [world effect-state]}]
              [world effect-state])
            :initial-effect-state false}))))
+
+(deftest apply-effects-can-run-builtin-context-and-goal-ops
+  (let [root-id :cx-1
+        world {:id-counter 1
+               :contexts {root-id (assoc (cx/create-context) :id root-id)}
+               :goals {:g-1 (goals/create-goal {:id :g-1
+                                                :goal-type :roving
+                                                :next-cx root-id})}}
+        fact {:fact/type :test/fact
+              :fact/id :f-1}
+        [world effect-state]
+        (rules/apply-effects
+         world
+         [{:op :context/sprout
+           :source-context-id root-id
+           :ref :branch-context}
+          {:op :fact/assert
+           :context-ref :branch-context
+           :fact fact}
+          {:op :context/set-ordering
+           :context-ref :branch-context
+           :ordering 0.75}
+          {:op :goal/set-next-context
+           :goal-id :g-1
+           :context-ref :branch-context}]
+         {})
+        branch-id (get-in effect-state [:context-refs :branch-context])]
+    (is (= :cx-2 branch-id))
+    (is (cx/fact-true? world branch-id fact))
+    (is (= 0.75
+           (get-in world [:contexts branch-id :ordering])))
+    (is (= branch-id
+           (get-in world [:goals :g-1 :next-cx])))))
 
 (deftest apply-effects-rejects-malformed-handler-result
   (is (thrown-with-msg? clojure.lang.ExceptionInfo

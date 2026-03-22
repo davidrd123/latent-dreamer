@@ -190,6 +190,9 @@ Status update, 2026-03-22 late:
 - `rules.clj` now also owns the generic effect-program reduction and
   state-threading scaffold via `apply-effects`; the concrete family
   op handlers still live in `goal_families.clj`
+- `rules.clj` now also owns the first builtin effect handlers for
+  context/fact/goal mutation, while `goal_families.clj` keeps only the
+  family-semantic handlers
 - `goal_families.clj` now exposes those handlers as an explicit
   op-handler registry instead of a monolithic local dispatcher
 - `:goal-family/roving-plan-dispatch` is now the first actual
