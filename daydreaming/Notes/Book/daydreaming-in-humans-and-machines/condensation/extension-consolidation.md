@@ -35,6 +35,10 @@ As the system accumulates episodes, rules, and graph connections:
     those flags are asserted as typed `:episode-flag` facts
 - The missing piece is broader evaluator discipline, later demotion,
   and downstream evidence that can set or clear these flags.
+  The newest review pair sharpens this further:
+  promotion should require both structural evidence and attributed
+  outcome evidence. The evaluator can veto or permit promotion, but
+  should not be the sole authority.
 
 **Cue zone separation:**
 - Content cues drive retrieval and reminding.
@@ -50,12 +54,28 @@ As the system accumulates episodes, rules, and graph connections:
 - Cheap rationalization resurrection via `:serendipity? true` is now disabled.
 
 **What remains open:**
+- episode use with attributed outcomes as the unifying substrate for:
+  promotion, anti-residue, and rule accessibility
 - Using the new `:same-family-loop` flag as a broader consolidation signal
 - Stronger evaluator-gated promotion criteria and later demotion
 - Stronger downstream contradiction / backfire detection
 - Stronger source-type decay and cluster caps
 - Graph hygiene for larger, less toy rule sets
 - Re-evaluation of stored material after later contradiction or success
+
+## Current design clarification
+
+The missing abstraction is not promotion by itself, nor anti-residue,
+nor accessibility. It is **episode use with attributed outcomes**:
+
+- episode X was used by family Y
+- for goal G
+- in cycle C
+- with later outcome O
+
+Once that evidence exists cleanly, promotion to `:durable`,
+anti-residue flags, and future rule accessibility become ordinary
+state transitions rather than ad hoc retrieval heuristics.
 
 ## Property to preserve
 

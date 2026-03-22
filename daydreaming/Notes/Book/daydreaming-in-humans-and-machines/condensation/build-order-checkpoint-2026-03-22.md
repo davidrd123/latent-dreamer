@@ -56,6 +56,12 @@ Implemented in the first pass:
   asserted as typed `:episode-flag` facts into branch contexts
 
 Still missing inside step 1:
+- episode-use logs with attributed outcomes (`used by which family,
+  for which goal, with what later result`)
+- promotion driven by structural evidence PLUS outcome evidence,
+  with the evaluator acting as gate/veto rather than sole authority
+- rule accessibility state derived from durable evidence, not from
+  provisional storage or evaluator opinion alone
 - source-type decay / stronger zone-specific consolidation
 - explicit loop-risk metadata shaping retrieval
 - stronger downstream flagging / demotion beyond evaluator annotation
@@ -96,6 +102,13 @@ Implemented first pass:
   `:episodes/promote-cross-family`, `:context/set-ordering`,
   `:goal/set-next-context`, `:mutation/log`
 - `rationalization` and `reversal` still execute procedurally
+
+Next seam from review 10:
+- add `execute-rule` in `rules.clj`
+- keep `instantiate-rule` as a compatibility wrapper
+- validate RuleResultV1 shape, consequent-schema satisfaction, and
+  denotational validation before outputs are admitted
+- route `goal_families.clj` through that runtime boundary
 
 ### 3. First `:llm-backed` pilot as episode evaluator
 
@@ -182,7 +195,7 @@ Rule fires
 | **Cross-family promotion to durable** | **Done** |
 | **Evaluator-gated durable promotion** | **First pass done** |
 | **Same-family-loop anti-residue flag** | **First pass done** |
-| **Other anti-residue flags** | **Not done** |
+| **Other anti-residue flags** | **First pass done via evaluator seam** |
 | **Effect vocabulary** | **First pass done on roving** |
 | **:llm-backed evaluator pilot** | **First pass done (post-plan evaluator seam)** |
 | **Verified paths** | **Not done** |
@@ -197,3 +210,6 @@ Rule fires
 - `replies/07-executor-seam-5pro.md` — symbolic refs, consequent-schema vs effect-schema
 - `replies/08-verified-paths-5pro.md` — progressive binding first, episode skeleton, code delta
 - `replies/09-episode-loop-risks-5pro.md` — minimum patch set for the memory membrane
+- `replies/10-executor-boundary-5pro.md` — `execute-rule`, RuleResultV1 validation, denotation contract
+- `replies/11a-promo-loose-5pro.md` — promotion needs structural + outcome evidence; evaluator is gate/veto
+- `replies/11b-promo-prompt-5pro.md` — episode use with attributed outcomes as the missing abstraction

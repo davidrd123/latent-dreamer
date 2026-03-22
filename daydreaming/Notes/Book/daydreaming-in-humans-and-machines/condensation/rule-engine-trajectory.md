@@ -133,6 +133,16 @@ The remaining gap inside Step 1 is not "promotion exists or not."
 It is whether promotion is evaluator-gated and whether anti-residue
 signals can demote or suppress loops.
 
+The newer review stack sharpens this again: the missing substrate is
+**episode use with attributed outcomes**. Promotion, anti-residue, and
+later rule accessibility should all be downstream of:
+- an episode being used
+- by a named family / goal / context
+- with a later resolved outcome
+
+That is cleaner than treating promotion, demotion, and accessibility
+as three separate mechanisms.
+
 This is what prevents the graph from becoming a self-soothing loop machine.
 
 ### Step 2: Executor boundary with declarative effects
@@ -146,6 +156,16 @@ powerful. The next architectural step is an effect vocabulary:
 
 This is the point where `:clojure-fn` stops being "opaque world mutation with a
 pretty wrapper" and becomes a real contract.
+
+The current `roving` effect program in `goal_families.clj` is now best read as
+the first local experiment, not the final seam. Review 10 makes the next move
+clear: the executor boundary belongs in `rules.clj` as `execute-rule`, with:
+- runtime shape validation
+- consequent-schema validation
+- denotational validation
+- `instantiate-rule` retained only as a compatibility wrapper
+
+Only after that seam is real should more family plans be extracted.
 
 ### Step 3: LLM-backed evaluator pilot
 

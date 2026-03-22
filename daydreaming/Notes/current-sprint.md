@@ -122,10 +122,22 @@ and "deserves future influence":
   can already suppress later retrieval (`:contradicted`,
   `:backfired`) or down-rank it (`:stale`)
 
+The reviews now make the next two abstractions explicit:
+- **Step 1:** promotion / anti-residue / accessibility should be
+  driven by **episode use with attributed outcomes**, not by retrieval
+  alone. The evaluator is a gate or veto, not the sole authority.
+- **Step 2:** the executor seam belongs in `rules.clj` as
+  `execute-rule`, not as growing local effect machinery inside
+  `goal_families.clj`.
+
 ### Next after this
 
+- add `note-episode-use` / `resolve-episode-use-outcome` style
+  evidence logging so promotion, anti-residue, and rule
+  accessibility are driven by attributed use records
 - continue the declarative effect vocabulary / executor boundary
-  from `roving` into `rationalization` and later `reversal`
+  by adding `execute-rule` in `rules.clj`, then route
+  `goal_families.clj` through it before extracting more families
 - widen anti-residue from evaluator annotations to stronger
   downstream demotion / contradiction detection
 - strengthen consolidation policy beyond the current first-pass
