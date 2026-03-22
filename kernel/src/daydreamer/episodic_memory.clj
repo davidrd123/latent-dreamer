@@ -211,6 +211,12 @@
       :else
       nil)))
 
+(defn episode-provenance-info
+  "Return structural provenance overlap info for one stored episode."
+  [world episode-id retrieval-opts]
+  (some-> (get-in world [:episodes episode-id])
+          (provenance-bonus-info retrieval-opts)))
+
 (defn retrieve-episodes
   "Retrieve episodes by coincidence counting over indices.
 

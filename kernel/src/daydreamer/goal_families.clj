@@ -1508,24 +1508,56 @@
      world
      candidates)))
 
+(defn- goal-rule-provenance
+  [world goal-id]
+  (get-in world [:goals goal-id :rule-provenance]))
+
+(defn- ranked-roving-episode-ids
+  [world goal-id candidate-episode-ids]
+  (let [candidate-episode-ids (vec candidate-episode-ids)
+        rule-provenance (goal-rule-provenance world goal-id)
+        active-rule-path (vec (:rule-path rule-provenance))
+        active-edge-path (vec (:edge-path rule-provenance))]
+    (if (or (<= (count candidate-episode-ids) 1)
+            (empty? active-rule-path))
+      candidate-episode-ids
+      (let [connection-graph (rules/build-connection-graph (family-rules))]
+        (->> candidate-episode-ids
+             (map-indexed
+              (fn [idx episode-id]
+                (let [bonus-info (episodic/episode-provenance-info
+                                  world
+                                  episode-id
+                                  {:connection-graph connection-graph
+                                   :active-rule-path active-rule-path
+                                   :active-edge-path active-edge-path})
+                      provenance-bonus (double
+                                        (or (:provenance-bonus bonus-info)
+                                            0.0))]
+                  {:episode-id episode-id
+                   :candidate-index idx
+                   :provenance-bonus provenance-bonus
+                   :provenance-bridge-depth
+                   (or (:provenance-bridge-depth bonus-info) 0)})))
+             (sort-by (juxt (comp - :provenance-bonus)
+                            (comp - :provenance-bridge-depth)
+                            :candidate-index
+                            (comp str :episode-id)))
+             (mapv :episode-id))))))
+
 (defn- choose-roving-episode-id
-  [world {:keys [episode-id episode-ids]}]
+  [world {:keys [goal-id episode-id episode-ids]}]
   (cond
     episode-id
     episode-id
 
-    (seq episode-ids)
-    (first episode-ids)
-
-    (seq (:roving-episodes world))
-    (first (:roving-episodes world))
-
     :else
-    nil))
-
-(defn- goal-rule-provenance
-  [world goal-id]
-  (get-in world [:goals goal-id :rule-provenance]))
+    (let [candidate-episode-ids (or (seq episode-ids)
+                                    (seq (:roving-episodes world))
+                                    [])]
+      (first (ranked-roving-episode-ids world
+                                        goal-id
+                                        candidate-episode-ids)))))
 
 (defn- plan-request-facts-from-ready-facts
   [rule ready-facts]

@@ -234,6 +234,33 @@
     (is (= [3.0 2.0]
            (mapv :effective-marks results)))))
 
+(deftest episode-provenance-info-detects-episode-to-active-bridges
+  (let [[world root-id] (world-with-root)
+        [world episode-id]
+        (epmem/add-episode world
+                           {:rule :deep-memory
+                            :context-id root-id
+                            :rule-path [:test/source]})
+        connection-graph
+        (rules/build-connection-graph
+         [(graph-rule :test/source :source-state :bridge-state)
+          (graph-rule :test/bridge :bridge-state :target-state)
+          (graph-rule :test/terminal :target-state :terminal-state)])
+        info (epmem/episode-provenance-info
+              world
+              episode-id
+              {:connection-graph connection-graph
+               :active-rule-path [:test/terminal]})]
+    (is (= {:provenance-bonus 2.0
+            :provenance-reason :graph-bridge
+            :provenance-bridge-depth 2
+            :provenance-bridge-path [:test/source
+                                     :test/bridge
+                                     :test/terminal]
+            :provenance-bridge-direction :episode-to-active
+            :provenance-bridge-count 1}
+           info))))
+
 (deftest recent-index-and-episode-bounds
   (let [[world _] (world-with-root)
         world (reduce epmem/add-recent-index

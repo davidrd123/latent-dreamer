@@ -638,6 +638,55 @@
                                        :family-plan-request)
              rule-provenance)))))
 
+(deftest roving-plan-prefers-a-graph-connected-seed-episode
+  (let [[world root-id] (world-with-root)
+        [world unrelated-episode-id]
+        (episodic/add-episode world
+                              {:rule :unrelated-memory
+                               :rule-path [:test/unrelated]})
+        [world connected-episode-id]
+        (episodic/add-episode world
+                              {:rule :reversal-memory
+                               :rule-path [:goal-family/reversal-plan-dispatch]})
+        world (assoc world :roving-episodes [unrelated-episode-id
+                                             connected-episode-id])
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        world (assoc-in world
+                        [:goals roving-goal-id :rule-provenance]
+                        {:rule-path [:goal-family/reversal-plan-request
+                                     :goal-family/reversal-plan-dispatch
+                                     :goal-family/reversal-aftershock-to-roving
+                                     :goal-family/roving-activation]
+                         :edge-path [{:from-rule :goal-family/reversal-plan-request
+                                      :to-rule :goal-family/reversal-plan-dispatch
+                                      :fact-type :family-plan-request
+                                      :edge-kind :state-transition}
+                                     {:from-rule :goal-family/reversal-plan-dispatch
+                                      :to-rule :goal-family/reversal-aftershock-to-roving
+                                      :fact-type :family-affect-state
+                                      :edge-kind :state-transition}
+                                     {:from-rule :goal-family/reversal-aftershock-to-roving
+                                      :to-rule :goal-family/roving-activation
+                                      :fact-type :goal-family-trigger
+                                      :edge-kind :state-transition}]})
+        roving-context-id (get-in world [:goals roving-goal-id :next-cx])
+        [_world family-plan]
+        (families/run-family-plan world
+                                  {:goal-id roving-goal-id
+                                   :context-id roving-context-id})
+        roving-result (:result family-plan)]
+    (is (= connected-episode-id
+           (:episode-id roving-result)))
+    (is (= :pleasant_episode_seed
+           (:selection-policy roving-result)))))
+
 (deftest rationalization-activation-candidates-detect-framed-failures
   (let [[world root-id] (world-with-root)
         [world context-id] (cx/sprout world root-id)
