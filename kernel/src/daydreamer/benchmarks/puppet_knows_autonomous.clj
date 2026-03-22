@@ -17,6 +17,7 @@
             [daydreamer.context :as cx]
             [daydreamer.control :as control]
             [daydreamer.episodic-memory :as episodic]
+            [daydreamer.family-evaluator :as family-evaluator]
             [daydreamer.goal-families :as families]
             [daydreamer.goals :as goals]
             [daydreamer.trace :as trace]))
@@ -848,12 +849,15 @@
         context-id (or (goals/get-next-context world goal-id)
                        (:reality-lookahead world)
                        (:reality-context world))
+        family-evaluator-fn (get-in world [:autonomous :family-evaluator-fn])
         [world opts]
         (if (= :rationalization goal-type)
           (seed-autonomous-rationalization-bridge world goal-id context-id)
           [world {:context-id context-id}])
         opts (merge {:goal-id goal-id
                      :context-id context-id}
+                    (when family-evaluator-fn
+                      {:family-evaluator family-evaluator-fn})
                     opts
                     (case goal-type
                       :reversal {:ordering 0.9}
@@ -972,7 +976,7 @@
 (defn- benchmark-adapter
   [fixture metadata-overrides]
   {:init-world
-   (fn [_config]
+   (fn [config]
      (let [{:keys [world seed-state]} (puppet/build-autonomous-world)]
        {:world (assoc world
                       :cycle 0
@@ -983,7 +987,8 @@
                                    :current-node-id nil
                                    :current-goal-key nil
                                    :recent-nodes []
-                                   :runtime-thought-last nil})}))
+                                   :runtime-thought-last nil
+                                   :family-evaluator-fn (:family-evaluator-fn config)})}))
    :run-cycle run-autonomous-cycle
    :thought-packet runtime-thought-packet
    :director-input director-cycle-input
@@ -1002,7 +1007,9 @@
             director-model director-temperature director-max-output-tokens
             thought-fn thought-mode thought-model thought-temperature
             thought-max-output-tokens thought-routing-policy
-            thought-escalation-model thought-escalation-goals]
+            thought-escalation-model thought-escalation-goals
+            family-evaluator-fn family-evaluator-mode family-evaluator-model
+            family-evaluator-temperature family-evaluator-max-output-tokens]
      :or {cycles 12}}]
    (let [fixture (load-fixture (or scope-root (default-scope-root)))
          director-assets (when director-mode
@@ -1028,16 +1035,28 @@
                           :routing-policy (or thought-routing-policy :fixed)
                           :escalation-model thought-escalation-model
                           :escalation-goals thought-escalation-goals}))
+         family-evaluator-fn
+         (or family-evaluator-fn
+             (family-evaluator/build-family-evaluator
+              {:mode family-evaluator-mode
+               :model family-evaluator-model
+               :temperature (or family-evaluator-temperature 0.1)
+               :max-output-tokens (or family-evaluator-max-output-tokens
+                                      250)}))
          adapter (benchmark-adapter
                   fixture
                   {:git_commit git-commit
                    :feedback_path (case director-mode
                                     :mock "live:mock-director"
                                     :gemini "live:gemini-director"
-                                    (:feedback-path fixture))})]
+                                    (:feedback-path fixture))
+                   :family_evaluator_mode (or family-evaluator-mode
+                                              (when family-evaluator-fn
+                                                :custom))})]
      (conductor/run-session adapter
                             {:cycles cycles
                              :thought-fn thought-fn
+                             :family-evaluator-fn family-evaluator-fn
                              :director-fn director-fn
                              :git-commit git-commit}))))
 

@@ -153,3 +153,27 @@
            (:recent-episodes world)))
     (is (= 12
            (count summaries)))))
+
+(deftest run-benchmark-can-apply-external-family-evaluator
+  (let [archive-evaluator (fn [_family-plan _default-evaluation]
+                            {:realism :plausible
+                             :desirability :negative
+                             :retention-class :cold-provenance
+                             :keep-decision :archive-cold
+                             :evaluation-reasons [:mock_archive_review]
+                             :evaluation-source :mock-llm})
+        {:keys [world]} (autonomous/run-benchmark {:cycles 2
+                                                   :family-evaluator-fn archive-evaluator})
+        family-plan-episodes (->> (:episodes world)
+                                  vals
+                                  (filter #(= :family-plan
+                                              (get-in % [:provenance :source])))
+                                  vec)]
+    (is (seq family-plan-episodes))
+    (is (every? #(= :mock-llm
+                    (get-in % [:evaluation :evaluation-source]))
+                family-plan-episodes))
+    (is (every? #(= :archive-cold (:keep-decision %))
+                family-plan-episodes))
+    (is (every? #(= :cold-provenance (:retention-class %))
+                family-plan-episodes))))

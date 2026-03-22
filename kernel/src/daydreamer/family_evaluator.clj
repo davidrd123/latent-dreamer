@@ -274,26 +274,27 @@
          model default-model
          temperature default-temperature
          max-output-tokens default-max-output-tokens}}]
-  (case mode
-    :heuristic
-    nil
+  (let [mode (or mode :heuristic)]
+    (case mode
+      :heuristic
+      nil
 
-    :mock
-    (fn [family-plan default-evaluation]
-      (normalize-family-evaluation (mock-family-evaluator family-plan
-                                                          default-evaluation)
-                                   default-evaluation))
+      :mock
+      (fn [family-plan default-evaluation]
+        (normalize-family-evaluation (mock-family-evaluator family-plan
+                                                            default-evaluation)
+                                     default-evaluation))
 
-    :anthropic
-    (fn [family-plan default-evaluation]
-      (normalize-family-evaluation
-       (call-family-evaluator family-plan
-                              default-evaluation
-                              {:api-key api-key
-                               :model model
-                               :temperature temperature
-                               :max-output-tokens max-output-tokens})
-       default-evaluation))
+      :anthropic
+      (fn [family-plan default-evaluation]
+        (normalize-family-evaluation
+         (call-family-evaluator family-plan
+                                default-evaluation
+                                {:api-key api-key
+                                 :model model
+                                 :temperature temperature
+                                 :max-output-tokens max-output-tokens})
+         default-evaluation))
 
-    (throw (ex-info "Unknown family evaluator mode"
-                    {:mode mode}))))
+      (throw (ex-info "Unknown family evaluator mode"
+                      {:mode mode})))))
