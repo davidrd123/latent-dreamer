@@ -60,8 +60,12 @@ As the system accumulates episodes, rules, and graph connections:
   raw structural graph instead of treating every rule as equally live
 - durable promotion can now open frontier rules, and hard-failure
   demotion can quarantine non-core rules touched by an episode path
+- later durable evidence can now reopen explicitly quarantined
+  non-core rules to `:frontier`, so quarantine is no longer purely
+  one-way
 - The missing piece is broader evaluator discipline, later demotion,
-  and downstream evidence that can set or clear these flags.
+  and downstream evidence that can set or clear these flags across a
+  fuller reopening / rehabilitation policy.
   The newest review pair sharpens this further:
   promotion should require both structural evidence and attributed
   outcome evidence. The evaluator can veto or permit promotion, but

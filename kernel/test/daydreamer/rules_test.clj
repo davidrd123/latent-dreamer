@@ -1161,3 +1161,59 @@
              :episode-id :ep-frontier
              :branch-context-id :cx-22}]
            transitions))))
+
+(deftest later-durable-evidence-can-reopen-quarantined-noncore-rules-to-frontier
+  (let [graph (rules/build-connection-graph
+               [(with-deployment-role bridge-source-rule :authored-core)
+                (with-deployment-role bridge-target-rule :induced)])
+        world (rules/sync-rule-access-registry {:cycle 7} graph)
+        [world _]
+        (rules/set-rule-access-status world
+                                      graph
+                                      :test/target
+                                      :accessible
+                                      {:reason :durable-episode-opened-rule
+                                       :episode-id :ep-initial})
+        [world _]
+        (rules/reconcile-episode-rule-access world
+                                             graph
+                                             {:id :ep-failed
+                                              :rule-path [:test/source :test/target]
+                                              :anti-residue-flags [:contradicted]}
+                                             {:to-status :provisional}
+                                             {:branch-context-id :cx-quarantine})
+        [world transitions]
+        (rules/reconcile-episode-rule-access world
+                                             graph
+                                             {:id :ep-rehab
+                                              :rule-path [:test/source :test/target]
+                                              :anti-residue-flags []}
+                                             {:to-status :durable}
+                                             {:branch-context-id :cx-reopen})]
+    (is (= :frontier
+           (get-in world [:rule-access :test/target :status])))
+    (is (= [{:rule-id :test/target
+             :from-status :quarantined
+             :to-status :frontier
+             :cycle 7
+             :reason :durable-evidence-reopened-rule
+             :episode-id :ep-rehab
+             :branch-context-id :cx-reopen}]
+           transitions))))
+
+(deftest durable-evidence-does-not-reopen-default-quarantined-unknown-role-rules
+  (let [graph (rules/build-connection-graph
+               [(with-deployment-role bridge-source-rule :authored-core)
+                (with-deployment-role bridge-target-rule :typo-frontier)])
+        world (rules/sync-rule-access-registry {:cycle 8} graph)
+        [world transitions]
+        (rules/reconcile-episode-rule-access world
+                                             graph
+                                             {:id :ep-rehab
+                                              :rule-path [:test/source :test/target]
+                                              :anti-residue-flags []}
+                                             {:to-status :durable}
+                                             {:branch-context-id :cx-reopen})]
+    (is (= :quarantined
+           (get-in world [:rule-access :test/target :status])))
+    (is (= [] transitions))))

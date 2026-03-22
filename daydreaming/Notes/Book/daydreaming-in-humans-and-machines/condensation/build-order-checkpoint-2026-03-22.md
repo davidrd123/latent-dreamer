@@ -91,6 +91,9 @@ Implemented in the first pass:
 - durable episode promotion can open frontier rules to
   `:accessible`, and hard-failure demotion can quarantine non-core
   rules on the episode's rule path
+- later durable evidence can now reopen explicitly quarantined
+  non-core rules to `:frontier`, so quarantine is no longer purely
+  one-way
 
 Still missing inside step 1:
 - broader family coverage for episode-use logs with attributed outcomes
@@ -101,7 +104,7 @@ Still missing inside step 1:
   `retrieved` vs `used` vs `vindicated`, and evaluator output as
   advisory/gating input rather than direct admission authority
 - broader vindication policy beyond the first pending-same-family
-  source-use path, plus explicit quarantine reopening / rehabilitation
+  source-use path, plus fuller quarantine reopening / rehabilitation
 - rule accessibility state derived from durable evidence, not from
   provisional storage or evaluator opinion alone; current family
   rules all still start as authored-core

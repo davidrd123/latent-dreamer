@@ -166,6 +166,9 @@ and "deserves future influence":
 - durable promotion can now open frontier rules to `:accessible`,
   and hard-failure demotion can quarantine non-core rules touched by
   an episode's rule path
+- later durable evidence can now reopen explicitly quarantined
+  non-core rules to `:frontier`; quarantine is no longer purely
+  one-way, though broader reopening policy is still missing
 - external family evaluators can now return an explicit
   promotion decision; heuristic mode stays conservative, and that
   evaluator output is now advisory/gating input rather than direct
@@ -193,8 +196,8 @@ The reviews now make the next two abstractions explicit:
   hardening split inside that substrate: `retrieved` vs `used` vs
   `vindicated`, and `advisory` vs `admissible`. The substrate now has
   the first real later-vindication path for pending same-family source
-  uses, but broader vindication policy and quarantine reopening are
-  still missing.
+  uses, but broader vindication policy and quarantine reopening policy
+  are still missing.
 - **Step 2:** the executor seam belongs in `rules.clj` as
   `execute-rule`, not as growing local effect machinery inside
   `goal_families.clj`.

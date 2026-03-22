@@ -704,8 +704,15 @@
   [to-status]
   (case to-status
     :accessible :durable-episode-opened-rule
+    :frontier :durable-evidence-reopened-rule
     :quarantined :outcome-driven-rule-quarantine
     :rule-access-transition))
+
+(defn- transition-quarantined?
+  [entry]
+  (boolean
+   (some #(= :quarantined (:to-status %))
+         (:history entry))))
 
 (defn set-rule-access-status
   "Update a rule's dynamic accessibility status with structured history.
@@ -765,6 +772,12 @@
               (let [entry (rule-access-info current-world graph-or-rules rule-id)
                     source (:source entry)
                     target-status (cond
+                                    (and promoted?
+                                         (= :quarantined (:status entry))
+                                         (not (contains? #{:authored-core :core} source))
+                                         (transition-quarantined? entry))
+                                    :frontier
+
                                     (and promoted?
                                          (= :frontier (:status entry)))
                                     :accessible
