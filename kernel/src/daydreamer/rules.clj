@@ -328,6 +328,41 @@
                          (comp pr-str :rule-path)))
           vec))))
 
+(defn remove-rules
+  [rules rule-ids]
+  (let [rule-id-set (set rule-ids)]
+    (->> rules
+         (remove #(contains? rule-id-set (:id %)))
+         vec)))
+
+(defn graph-without-rules
+  [graph rule-ids]
+  (build-connection-graph
+   (remove-rules (:rules graph) rule-ids)))
+
+(defn intervention-delta
+  ([graph start-rule-id rule-ids]
+   (intervention-delta graph start-rule-id rule-ids {:max-depth 3}))
+  ([graph start-rule-id rule-ids opts]
+   (let [rule-ids (vec (sort-by str (set rule-ids)))
+         before-paths (reachable-paths graph start-rule-id opts)
+         after-graph (graph-without-rules graph rule-ids)
+         after-paths (reachable-paths after-graph start-rule-id opts)
+         after-path-set (->> after-paths
+                             (map :rule-path)
+                             set)]
+     {:removed-rule-ids rule-ids
+      :before-paths before-paths
+      :after-paths after-paths
+      :removed-paths (->> before-paths
+                          (remove #(contains? after-path-set
+                                              (:rule-path %)))
+                          vec)
+      :preserved-paths (->> before-paths
+                            (filter #(contains? after-path-set
+                                                (:rule-path %)))
+                            vec)})))
+
 (defn instantiate-rule
   [rule bindings]
   (validate-rule! rule)

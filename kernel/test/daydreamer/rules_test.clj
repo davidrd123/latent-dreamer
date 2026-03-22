@@ -293,3 +293,25 @@
                                         :test/target
                                         :test/terminal])
                    :depth)))))
+
+(deftest intervention-delta-removing-bridge-rule-breaks-terminal-reachability
+  (let [graph (rules/build-connection-graph
+               [bridge-source-rule
+                bridge-target-rule
+                bridge-terminal-rule])
+        delta (rules/intervention-delta graph
+                                        :test/source
+                                        [:test/target]
+                                        {:max-depth 3})]
+    (is (= [:test/target]
+           (:removed-rule-ids delta)))
+    (is (= [[:test/source :test/target]
+            [:test/source :test/target :test/terminal]]
+           (mapv :rule-path (:before-paths delta))))
+    (is (= []
+           (mapv :rule-path (:after-paths delta))))
+    (is (= [[:test/source :test/target]
+            [:test/source :test/target :test/terminal]]
+           (mapv :rule-path (:removed-paths delta))))
+    (is (= []
+           (:preserved-paths delta)))))

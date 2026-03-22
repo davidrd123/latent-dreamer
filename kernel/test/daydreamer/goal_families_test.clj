@@ -902,6 +902,26 @@
            (count (get-in rules-by-id
                           [:goal-family/reversal-plan-dispatch :graph-cache :in-edge-bases]))))))
 
+(deftest planning-rule-intervention-removes-rationalization-dispatch-path
+  (let [graph (rules/build-connection-graph (families/planning-rules))
+        delta (rules/intervention-delta
+               graph
+               :goal-family/rationalization-plan-request
+               [:goal-family/rationalization-plan-dispatch]
+               {:max-depth 2})]
+    (is (= [:goal-family/rationalization-plan-dispatch]
+           (:removed-rule-ids delta)))
+    (is (= [[:goal-family/rationalization-plan-request
+             :goal-family/rationalization-plan-dispatch]]
+           (mapv :rule-path (:before-paths delta))))
+    (is (= []
+           (mapv :rule-path (:after-paths delta))))
+    (is (= [[:goal-family/rationalization-plan-request
+             :goal-family/rationalization-plan-dispatch]]
+           (mapv :rule-path (:removed-paths delta))))
+    (is (= []
+           (:preserved-paths delta)))))
+
 (deftest rationalization-plan-sprouts-and-asserts-reframe-facts
   (let [[world root-id] (world-with-root)
         [world trigger-context-id] (cx/sprout world root-id)
