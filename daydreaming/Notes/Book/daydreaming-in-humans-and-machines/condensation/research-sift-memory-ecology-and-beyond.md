@@ -20,7 +20,10 @@ Prompts and replies covered:
 | 10 | Executor boundary | `replies/10-executor-boundary-5pro.md` |
 | 11a | Promotion (loose) | `replies/11a-promo-loose-5pro.md` |
 | 11b | Promotion (prompted) | `replies/11b-promo-prompt-5pro.md` |
-| 13 | Beyond Mueller Q1-3 | `replies/13-beyond-1_3.md` |
+| 13a | Beyond Mueller Q1-3 | `replies/13-beyond-1_3.md` |
+| 13b | Beyond Mueller Q4-6 | `replies/13-beyond-4_6.md` |
+| 13c | Beyond Mueller Q7-8 | `replies/13-beyond-7_8.md` |
+| 13d | Beyond Mueller all 8 | `replies/13-beyond-all.md` |
 
 Also incorporates: Mueller source verification (`dd_epis.cl`, `dd_ri.cl`, `dd_rule2.cl`).
 
@@ -214,28 +217,83 @@ Also incorporates: Mueller source verification (`dd_epis.cl`, `dd_ri.cl`, `dd_ru
 - Induce from repeated cross-family transitions, not broad planning rules
 - Lower blast radius
 
+### Directed daydreaming (from 13 Q4, replies 4-6 and all-8)
+
+**Brief constrains concern-space and admissibility, not operator family** — provisional
+- Brief should strongly constrain: which concerns dominate, which episodes are in play, which scenes are admissible
+- Brief should weakly constrain: family priors, mutation temperature, serendipity thresholds
+- Brief should NOT hard-select the operator at every step
+- "Brief constrains concern/situation space" = daydream-like. "Operator label directly controls generation" = structured prompting.
+- Mueller explicitly excluded directed vs. undirected from his theory. This is our extension.
+- Outside support: fMRI study showing goal-directed simulation couples default+control networks. Incubation study (N=200, β=0.38) showing mind wandering during incubation predicts creative improvement. N=1309 study: deliberate mind wandering positively associated with creativity.
+
+### DSPy write optimization (from 13 Q5, replies 4-6 and all-8)
+
+**Optimize later usefulness + hygiene, NOT trace divergence** — provisional
+- Four metric families: write coverage/reconstruction, retrieval quality (retrieve→chosen→success ratios), epistemic hygiene (penalize contradiction/backfire/stale/loop), efficiency/compression
+- Token-space reconstruction target: kernel-relevant state (concern, family, world anchors, evaluation flags), not prose
+- No published DSPy work on write-side memory optimization specifically
+- Mem0 warning: graph-memory added only ~2% over base memory. Don't fetishize graph at expense of write/read discipline.
+- GradMem gives the right slogan ("writing should be evaluated, not one-shot dumped"), not the right literal method
+- **Sequencing: don't optimize until the membrane is stronger.** A DSPy pass on a leaky ecology learns to exploit the leaks.
+
+### Developmental trajectory (from 13 Q6, replies 4-6 and all-8)
+
+**Style = stable history-caused retrieval/control bias that transfers to held-out probes and beats seed drift** — parked
+- This is a repo extension, not Mueller reconstruction
+- The control experiment: multiple replicas, same start, controlled seeds, divergent histories, identical held-out probes. Compare within-condition and between-condition variance.
+- Seed noise is real — divergence alone proves nothing. Cheap. Meaningful divergence is hard.
+- Human expertise is compressive, not additive (~66 days to automaticity). Development = different control surfaces from compressed experience.
+- Concrete metrics: family-choice distribution + KL divergence, cue-type usage, same-family vs cross-family reuse, promotion/demotion rates, serendipity path topology, motif concentration, response profile on identical probes
+- "If the system just remembers more, that is drift, not development."
+
+### Accessibility frontier as growth (from 13 Q7, replies 7-8 and all-8)
+
+**Mueller's frontier is access restructuring, not Soar-style automatic compilation** — provisional
+- Mueller's mechanism: reindex latent structure so future thought can reach it. Closer to "chunking + verification-based learning + deferred reliance" than plain chunking.
+- Soar warning: without explanation-based summarization, chunking degrades. Soar 9.4 learned 1263 rules; Soar 9.6 with EBBS learned 8 general rules for the same task. Discipline matters.
+- ACT-R warning: production compilation proliferates specialized rules. Risk is over-specialization and dead compiled rules, not frontier discovery.
+- Soar has proto-staged-admission: chunks from numeric-preference decisions are deferred until "sufficient accumulated experience." Closest lit match to our `:frontier → :accessible`.
+- Our `:frontier / :accessible / :quarantined` registry is "cleaner than either" (5T confidence 85%)
+- The ladder: candidate path → verified → provisional episode witness → durable episode evidence → frontier rule opened. Failure: opened rule → loop/backfire/contradiction → quarantine.
+- "The missing abstraction is still episode use with attributed outcomes."
+
+### Multi-model routing as cognitive economics (from 13 Q8, replies 7-8 and all-8)
+
+**Route on internal ambiguity and stakes, not family label** — provisional
+- Nelson & Narens monitoring/control is the right framework: monitoring estimates state, control allocates resources
+- FAtiMA is the architectural ancestor (metacognitive layer), not Mueller
+- Route to Reason: 60%+ token reduction, beats best single model. BEST-Route: 60% cost reduction, <1% perf drop. Budget-constrained contextual bandit formulation (EMNLP 2025).
+- Our distinctive advantage: kernel can monitor PROCESS state, not just input difficulty
+- Six monitoring features: verification ambiguity, retrieval ambiguity, memory-risk signals, emotional pressure/competition, action criticality, budget/history
+- Monitor vector: `[stakes, verification-ambiguity, retrieval-ambiguity, memory-risk, affective-pressure, budget]`
+- Control output: `{model, reasoning_strategy, n_samples, max_tokens}`
+- Phase 1: typed lexicographic policy (hand-authored). Phase 2: contextual bandit (learned from telemetry).
+- "Reversal family" is a lossy proxy. Real triggers: verification_level, open_obligation_count, binding_conflict_count, retrieval_margin, threshold_slack, anti_residue_flag_count, pending transitions.
+
 ---
 
 ## Deferred / Speculative
 
-### Directed daydreaming (Q4)
-- "Constrain the question, not the surprise"
-- One-end anchored search
-- Awaiting Q4-6 reply
+### Ephemeral descriptor-slippage workspace (from 13 Q1)
+- Copycat import: temporary descriptor rewrites queryable during path search
+- Not admitted into permanent graph unless validated
+- Concrete Clojure shape proposed
+- **Status: parked** — interesting but requires heterogeneous graph first
 
-### DSPy optimization of write/read (Q5)
-- GradMem insight: optimize HOW you write
+### DSPy implementation (from 13 Q5)
 - The write interface is already a DSPy signature
-- Awaiting Q4-6 reply
+- But: don't optimize until membrane is solid
+- **Status: parked** — deferred until memory ecology fully stable
 
-### Developmental trajectory (Q6)
-- Measurable divergence between instances
-- Distribution over goal families, motif neighborhoods, edge kinds
-- Awaiting Q4-6 reply
+### Developmental measurement harness (from 13 Q6)
+- Clone-style longitudinal protocol designed
+- Metrics identified (family KL divergence, motif concentration, etc.)
+- **Status: parked** — research program, not implementable until accumulation is running
 
-### Accessibility frontier as growth (Q7)
-- Serendipity discovers frontier rules → verification promotes → planner's repertoire grows
-- Awaiting Q7-8 reply
+### All-8 reply build order for beyond-Mueller directions
+- Proposed: 2+7 (evaluators + accessibility) → 1 tiny corridor → 5 write optimization → 8 routing → 3 rule creation → 6 developmental measurement → 4 directed daydreaming
+- **Status: provisional** — good prioritization, but depends on current build order completing first
 
 ### Multi-model routing as metacognition (Q8)
 - Kernel controls routing based on structural difficulty
@@ -263,3 +321,9 @@ Which durable docs should absorb which findings:
 | Evaluator rollout order | `build-order-checkpoint` | Pending |
 | Induced rule ladder | `build-order-checkpoint` or `rule-engine-trajectory.md` | Parked |
 | Density guardrail | `rule-connection-graph.md` | Parked |
+| Directed daydreaming framing | `beyond-mueller-detailed.md` Q4 | Provisional |
+| DSPy write metrics (4 families) | `beyond-mueller-detailed.md` Q5 | Parked |
+| Developmental control experiment | `beyond-mueller-detailed.md` Q6 | Parked |
+| Soar chunking warnings + EBBS | `rule-engine-trajectory.md` | Provisional |
+| Accessibility ladder (candidate→verified→durable→opened) | `rule-connection-graph.md` or `build-order-checkpoint` | Provisional |
+| Routing monitor vector + lexicographic policy | New doc or `build-order-checkpoint` | Provisional |
