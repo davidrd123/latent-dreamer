@@ -767,6 +767,44 @@
            (count (get-in rules-by-id
                           [:goal-family/reversal-activation :graph-cache :out-edge-bases]))))))
 
+(deftest planning-rules-register-cleanly-with-roving-plan-edge
+  (let [graph (rules/build-connection-graph (families/planning-rules))
+        rules-by-id (:rules-by-id graph)]
+    (is (= #{:goal-family/roving-plan-request
+             :goal-family/roving-plan-dispatch}
+           (set (keys rules-by-id))))
+    (is (= [{:from-rule :goal-family/roving-plan-request
+             :to-rule :goal-family/roving-plan-dispatch
+             :from-projection {:fact/type :family-plan-request
+                               :goal-type :roving
+                               :goal-id '?goal-id
+                               :context-id '?context-id
+                               :episode-id '?episode-id
+                               :ordering '?ordering
+                               :selection-policy :pleasant_episode_seed}
+             :to-projection {:fact/type :family-plan-request
+                             :goal-type :roving
+                             :goal-id '?goal-id
+                             :context-id '?context-id
+                             :episode-id '?episode-id
+                             :ordering '?ordering
+                             :selection-policy '?selection-policy}
+             :bindings {}
+             :shared-keys #{:goal-type
+                            :goal-id
+                            :context-id
+                            :episode-id
+                            :ordering
+                            :selection-policy}
+             :edge-kind :state-transition}]
+           (:edges graph)))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/roving-plan-request :graph-cache :out-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/roving-plan-dispatch :graph-cache :in-edge-bases]))))))
+
 (deftest rationalization-plan-sprouts-and-asserts-reframe-facts
   (let [[world root-id] (world-with-root)
         [world trigger-context-id] (cx/sprout world root-id)

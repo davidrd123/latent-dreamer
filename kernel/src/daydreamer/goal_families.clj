@@ -74,6 +74,68 @@
 (def ^:private rationalization-diversion-scale
   0.35)
 
+(def ^:private roving-plan-request-rule
+  {:id :goal-family/roving-plan-request
+   :rule-kind :planning
+   :mueller-mode :plan-only
+   :antecedent-schema [{:goal-type :roving
+                        :goal-id '?goal-id
+                        :context-id '?context-id
+                        :episode-id '?episode-id
+                        :ordering '?ordering}]
+   :consequent-schema [{:fact/type :family-plan-request
+                        :goal-type :roving
+                        :goal-id '?goal-id
+                        :context-id '?context-id
+                        :episode-id '?episode-id
+                        :ordering '?ordering
+                        :selection-policy roving-plan-policy}]
+   :plausibility 1.0
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :emit-roving-plan-request
+                :failure-modes [:missing-seed-episode
+                                :missing-planning-context]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:requires-episode? true
+                     :requires-context? true}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-roving]
+                :kernel-status :partial
+                :notes "Graphable request fact for roving branch planning."}})
+
+(def ^:private roving-plan-dispatch-rule
+  {:id :goal-family/roving-plan-dispatch
+   :rule-kind :planning
+   :mueller-mode :plan-only
+   :antecedent-schema [{:fact/type :family-plan-request
+                        :goal-type :roving
+                        :goal-id '?goal-id
+                        :context-id '?context-id
+                        :episode-id '?episode-id
+                        :ordering '?ordering
+                        :selection-policy '?selection-policy}]
+   :consequent-schema [{:goal-id '?goal-id
+                        :context-id '?context-id
+                        :episode-id '?episode-id
+                        :ordering '?ordering
+                        :selection-policy '?selection-policy}]
+   :plausibility 1.0
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :dispatch-roving-plan-request
+                :failure-modes [:missing-family-plan-request]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:request-goal-type :roving}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-roving]
+                :kernel-status :partial
+                :notes "Consumes a roving plan request into the current bounded plan payload."}})
+
 (def ^:private roving-trigger-rule
   {:id :goal-family/roving-trigger
    :rule-kind :inference
@@ -347,14 +409,20 @@
    reversal-trigger-rule
    reversal-activation-rule])
 
+(defn planning-rules
+  "Return the currently extracted RuleV1 planning slices."
+  []
+  [roving-plan-request-rule
+   roving-plan-dispatch-rule])
+
 (declare reversal-sprout-alternative
          reversal-trigger-facts
          retract-facts
          instantiate-rationalization-trigger)
 
-(defn- trigger-consumer-rule?
-  [rule]
-  (= :goal-family-trigger
+(defn- fact-consumer-rule?
+  [fact-type rule]
+  (= fact-type
      (get-in rule [:antecedent-schema 0 :fact/type])))
 
 (defn- activation-candidates-from-trigger-facts
@@ -362,7 +430,7 @@
   (->> trigger-facts
        (mapcat (fn [trigger-fact]
                  (->> (activation-rules)
-                      (filter trigger-consumer-rule?)
+                      (filter (partial fact-consumer-rule? :goal-family-trigger))
                       (keep (fn [rule]
                               (when-let [match (first (rules/match-rule rule
                                                                         [trigger-fact]))]
@@ -387,6 +455,26 @@
   (->> (activation-candidates-from-trigger-facts trigger-facts)
        (filter #(= goal-type (:goal-type %)))
        (mapv #(dissoc % :goal-type))))
+
+(defn- plan-payloads-from-request-facts
+  [request-facts]
+  (->> request-facts
+       (mapcat (fn [request-fact]
+                 (->> (planning-rules)
+                      (filter (partial fact-consumer-rule? :family-plan-request))
+                      (keep (fn [rule]
+                              (when-let [match (first (rules/match-rule rule
+                                                                        [request-fact]))]
+                                (assoc (-> (rules/instantiate-rule rule
+                                                                   (:bindings match))
+                                           :consequents
+                                           first)
+                                       :goal-type (:goal-type request-fact))))))))
+       (sort-by (juxt (comp str :goal-type)
+                      (comp str :goal-id)
+                      (comp str :context-id)
+                      (comp str :episode-id)))
+       vec))
 
 (defn- top-level-owner
   [fact]
@@ -1021,17 +1109,41 @@
     :else
     nil))
 
+(defn- instantiate-roving-plan-request
+  [goal-id context-id episode-id ordering]
+  (-> (rules/instantiate-rule roving-plan-request-rule
+                              {'?goal-id goal-id
+                               '?context-id context-id
+                               '?episode-id episode-id
+                               '?ordering ordering})
+      :consequents
+      first))
+
+(defn- roving-plan-request-facts
+  [world {:keys [goal-id context-id ordering]
+          :or {ordering 1.0}
+          :as opts}]
+  (when-let [episode-id (choose-roving-episode-id world opts)]
+    [(instantiate-roving-plan-request goal-id
+                                      context-id
+                                      episode-id
+                                      ordering)]))
+
 (defn roving-plan
   "Sprout a side-channel context and seed it with a pleasant episode reminder.
 
   The episode reminding cascade is the heavy lifter here; this plan mostly
   creates a fresh branch, invokes episodic memory, and records the result."
-  [world {:keys [goal-id context-id ordering]
-          :or {ordering 1.0}
+  [world {:keys [goal-id context-id]
           :as opts}]
-  (let [episode-id (or (choose-roving-episode-id world opts)
-                       (throw (ex-info "ROVING needs a pleasant episode"
-                                       {:opts opts})))
+  (let [plan-request-facts (or (seq (roving-plan-request-facts world opts))
+                               (throw (ex-info "ROVING needs a pleasant episode"
+                                               {:opts opts})))
+        {:keys [episode-id ordering selection-policy]}
+        (or (first (plan-payloads-from-request-facts plan-request-facts))
+            (throw (ex-info "ROVING needs a plan payload"
+                            {:opts opts
+                             :plan-request-facts plan-request-facts})))
         [world sprouted-context-id] (cx/sprout world context-id)
         success-intends {:fact/type :intends
                          :from-goal-id goal-id
@@ -1057,7 +1169,7 @@
             :episode-id episode-id
             :reminded-episode-ids (vec reminded-episode-ids)
             :active-indices (vec (:recent-indices world))
-            :selection-policy roving-plan-policy}]))
+            :selection-policy selection-policy}]))
 
 (defn- apply-rationalization-emotional-diversion
   [world {:keys [goal-id trigger-context-id failed-goal-id sprouted-context-id]
