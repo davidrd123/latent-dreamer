@@ -163,6 +163,51 @@
                 :kernel-status :partial
                 :notes "Second extracted RuleV1 slice from goal_families activation logic."}})
 
+(def ^:private reversal-activation-rule
+  {:id :goal-family/reversal-activation
+   :rule-kind :inference
+   :mueller-mode :inference-only
+   :antecedent-schema [{:fact/type :goal
+                        :goal-id '?failed-goal-id
+                        :top-level-goal '?old-top-level-goal-id
+                        :status :failed
+                        :activation-context '?old-context-id}
+                       {:fact/type :emotion
+                        :emotion-id '?emotion-id
+                        :strength '?emotion-strength}]
+   :consequent-schema [{:old-context-id '?old-context-id
+                        :old-top-level-goal-id '?old-top-level-goal-id
+                        :failed-goal-id '?failed-goal-id
+                        :context-depth '?context-depth
+                        :emotion-pressure '?emotion-pressure
+                        :failure-count '?failure-count
+                        :selection-policy '?selection-policy
+                        :selection-reasons '?selection-reasons
+                        :emotion-id '?emotion-id
+                        :emotion-strength '?emotion-strength
+                        :activation-policy :failed_goal_negative_emotion
+                        :activation-reasons [:failed_goal
+                                             :negative_emotion
+                                             :reversal_candidate]
+                        :situation-id '?situation-id}]
+   :plausibility reversal-emotion-threshold
+   :index-projections {:match []
+                       :emit []}
+   :denotation {:intended-effect :activate-reversal-daydream-goal
+                :failure-modes [:emotion-below-threshold
+                                :missing-negative-emotion
+                                :missing-failed-leaf]
+                :validation-fn nil}
+   :executor {:kind :instantiate
+              :spec {:emotion-threshold reversal-emotion-threshold
+                     :requires-negative-emotion? true
+                     :requires-failed-leaf? true}}
+   :graph-cache {:out-edge-bases []
+                 :in-edge-bases []}
+   :provenance {:book-anchors [:theme-reversal]
+                :kernel-status :partial
+                :notes "Third extracted RuleV1 slice from goal_families activation logic."}})
+
 (declare reversal-sprout-alternative
          retract-facts)
 
@@ -334,18 +379,23 @@
                                                           negative-emotion-fact?)]
                  (let [emotion-strength (double (or (:strength emotion-fact) 0.0))]
                    (when (> emotion-strength reversal-emotion-threshold)
-                     (cond-> (assoc candidate
-                                    :emotion-id (fact-id emotion-fact)
-                                    :emotion-strength emotion-strength
-                                    :activation-policy :failed_goal_negative_emotion
-                                    :activation-reasons [:failed_goal
-                                                         :negative_emotion
-                                                         :reversal_candidate])
-                       (some? (primary-situation-id world (:old-context-id candidate)))
-                       (assoc :situation-id
-                              (primary-situation-id
-                               world
-                               (:old-context-id candidate)))))))))
+                     (-> (rules/instantiate-rule
+                          reversal-activation-rule
+                          {'?old-context-id (:old-context-id candidate)
+                           '?old-top-level-goal-id (:old-top-level-goal-id candidate)
+                           '?failed-goal-id (:failed-goal-id candidate)
+                           '?context-depth (:context-depth candidate)
+                           '?emotion-pressure (:emotion-pressure candidate)
+                           '?failure-count (:failure-count candidate)
+                           '?selection-policy (:selection-policy candidate)
+                           '?selection-reasons (:selection-reasons candidate)
+                           '?emotion-id (fact-id emotion-fact)
+                           '?emotion-strength emotion-strength
+                           '?situation-id (primary-situation-id
+                                           world
+                                           (:old-context-id candidate))})
+                         :consequents
+                         first))))))
        (sort-by (juxt (comp - :emotion-strength)
                       (comp str :old-context-id)
                       (comp str :failed-goal-id)))

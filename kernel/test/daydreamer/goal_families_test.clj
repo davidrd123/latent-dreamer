@@ -296,6 +296,51 @@
       (is (= (first candidates)
              (families/select-reversal-leaf world))))))
 
+(deftest reversal-activation-candidates-detect-failed-goal-negative-emotion
+  (let [[world root-id] (world-with-root)
+        [world context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        world (-> world
+                  (cx/assert-fact context-id state-fact)
+                  (cx/assert-fact context-id {:fact/type :goal
+                                              :goal-id failed-goal-id
+                                              :top-level-goal failed-goal-id
+                                              :status :failed
+                                              :activation-context context-id})
+                  (cx/assert-fact context-id {:fact/type :emotion
+                                              :emotion-id emotion-id
+                                              :strength 0.82
+                                              :valence :negative}))
+        candidates (families/reversal-activation-candidates world)
+        selected-leaf (families/select-reversal-leaf world)]
+    (is (= [{:old-context-id context-id
+             :old-top-level-goal-id failed-goal-id
+             :failed-goal-id failed-goal-id
+             :context-depth 1
+             :emotion-pressure 0.82
+             :failure-count 1
+             :selection-policy :emotion_then_depth
+             :selection-reasons [:failed_leaf :negative_emotion :deep_context]
+             :emotion-id emotion-id
+             :emotion-strength 0.82
+             :activation-policy :failed_goal_negative_emotion
+             :activation-reasons [:failed_goal
+                                  :negative_emotion
+                                  :reversal_candidate]
+             :situation-id :s1_seeing_through}]
+           candidates))
+    (is (= selected-leaf
+           (select-keys (first candidates)
+                        [:old-context-id
+                         :old-top-level-goal-id
+                         :failed-goal-id
+                         :context-depth
+                         :emotion-pressure
+                         :failure-count
+                         :selection-policy
+                         :selection-reasons])))))
+
 (deftest reverse-undo-cause-candidates-rank-stored-counterfactuals
   (let [[world root-id] (world-with-root)
         [world old-context-id old-top-level-goal-id _ _]

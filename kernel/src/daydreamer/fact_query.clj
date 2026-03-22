@@ -3,8 +3,7 @@
 
   Facts remain plain Clojure maps keyed by `:fact/type`, so this namespace
   gives the rule substrate a reusable query layer without introducing a second
-  state model."
-  (:require [clojure.set :as set]))
+  state model.")
 
 (defn fact-type?
   [fact expected]
