@@ -1059,7 +1059,8 @@
   ([{:keys [cycles scope-root git-commit director-fn director-mode
             director-model director-temperature director-max-output-tokens
             thought-fn thought-mode thought-model thought-temperature
-            thought-max-output-tokens]
+            thought-max-output-tokens thought-routing-policy
+            thought-escalation-model thought-escalation-goals]
      :or {cycles 12}}]
    (let [fixture (load-fixture (or scope-root (default-scope-root)))
          director-assets (when director-mode
@@ -1081,7 +1082,10 @@
                           :model thought-model
                           :temperature (or thought-temperature 0.5)
                           :max-output-tokens (or thought-max-output-tokens
-                                                 400)}))
+                                                 400)
+                          :routing-policy (or thought-routing-policy :fixed)
+                          :escalation-model thought-escalation-model
+                          :escalation-goals thought-escalation-goals}))
          {:keys [world seed-state]} (puppet/build-autonomous-world)
          world (assoc world
                       :cycle 0

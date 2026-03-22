@@ -21,6 +21,9 @@
 (def ^:private default-max-output-tokens
   400)
 
+(def ^:private default-routing-policy
+  :fixed)
+
 (def ^:private system-prompt
   (str
    "You realize one beat of runtime inner life from a cognitive cycle packet.\n\n"
@@ -134,6 +137,33 @@
        "\n\nReturn JSON matching this example shape exactly:\n\n"
        (json-string output-example)))
 
+(defn- parse-csv-set
+  [raw]
+  (->> (str/split (or raw "") #",")
+       (map str/trim)
+       (filter seq)
+       set))
+
+(defn- route-model-for-packet
+  [packet {:keys [routing-policy base-model escalation-model escalation-goals]}]
+  (let [routing-policy (or routing-policy default-routing-policy)
+        goal-type (or (get-in packet [:selected_goal :goal_type])
+                      (get-in packet [:selected-goal :goal-type]))
+        branch-events (or (:branch_events packet)
+                          (:branch-events packet))
+        escalation-goals (or escalation-goals #{})]
+    (if (= routing-policy :fixed)
+      [base-model []]
+      (let [reasons (cond-> []
+                      (and goal-type (contains? escalation-goals goal-type))
+                      (conj (str "goal_family:" goal-type))
+
+                      (and (seq branch-events)
+                           goal-type
+                           (contains? escalation-goals goal-type))
+                      (conj "branch_event"))]
+        [(if (seq reasons) escalation-model base-model) reasons]))))
+
 (defn call-runtime-thought
   "Call Anthropic with the runtime thought packet and return raw JSON."
   ([packet]
@@ -210,19 +240,33 @@
 
 (defn build-thought-fn
   "Return a runtime thought function for the requested mode, or nil."
-  [{:keys [mode model temperature max-output-tokens api-key]
+  [{:keys [mode model temperature max-output-tokens api-key routing-policy
+           escalation-model escalation-goals]
     :or {model default-model
          temperature default-temperature
-         max-output-tokens default-max-output-tokens}}]
+         max-output-tokens default-max-output-tokens
+         routing-policy default-routing-policy}}]
   (case mode
     nil nil
     :mock mock-runtime-thought
     :anthropic
     (fn [packet]
-      (call-runtime-thought packet {:api-key api-key
-                                    :model model
-                                    :temperature temperature
-                                    :max-output-tokens max-output-tokens}))
+      (let [escalation-model (or escalation-model model)
+            escalation-goals (cond
+                               (set? escalation-goals) escalation-goals
+                               (string? escalation-goals) (parse-csv-set escalation-goals)
+                               :else #{})
+            [selected-model route-reasons]
+            (route-model-for-packet packet
+                                    {:routing-policy routing-policy
+                                     :base-model model
+                                     :escalation-model escalation-model
+                                     :escalation-goals escalation-goals})]
+        (assoc (call-runtime-thought packet {:api-key api-key
+                                             :model selected-model
+                                             :temperature temperature
+                                             :max-output-tokens max-output-tokens})
+               :route-reasons route-reasons)))
     (throw (ex-info "Unsupported runtime thought mode"
                     {:mode mode}))))
 
@@ -262,6 +306,7 @@
                        vec)]
     {:provider (or (:provider raw-feedback) :unknown)
      :model (normalize-text (:model raw-feedback))
+     :route-reasons (vec (or (:route-reasons raw-feedback) []))
      :thought-beat-text (or (normalize-text (:thought_beat_text raw-feedback))
                             (normalize-text (:thought-beat-text raw-feedback))
                             "")

@@ -124,6 +124,18 @@
                                                (assoc options
                                                       :thought-max-output-tokens
                                                       (Long/parseLong value))))
+        "--thought-routing-policy" (let [[_ value & more] args]
+                                     (recur more (assoc options
+                                                        :thought-routing-policy
+                                                        (keyword value))))
+        "--thought-escalation-model" (let [[_ value & more] args]
+                                       (recur more (assoc options
+                                                          :thought-escalation-model
+                                                          value)))
+        "--thought-escalation-goals" (let [[_ value & more] args]
+                                       (recur more (assoc options
+                                                          :thought-escalation-goals
+                                                          value)))
         "--html-out" (let [[_ value & more] args]
                        (recur more (assoc options :html-out value)))
         "--title" (let [[_ value & more] args]
@@ -221,7 +233,9 @@
   ([] (build-puppet-knows-log {}))
   ([{:keys [benchmark scope-root git-commit cycles director-mode director-model
             director-temperature director-max-output-tokens thought-mode
-            thought-model thought-temperature thought-max-output-tokens]}]
+            thought-model thought-temperature thought-max-output-tokens
+            thought-routing-policy thought-escalation-model
+            thought-escalation-goals]}]
    (let [benchmark (parse-benchmark benchmark)
          scope-root (or scope-root (default-scope-root))
          run-benchmark (case benchmark
@@ -260,7 +274,10 @@
                {:thought-mode thought-mode
                 :thought-model thought-model
                 :thought-temperature thought-temperature
-                :thought-max-output-tokens thought-max-output-tokens})
+                :thought-max-output-tokens thought-max-output-tokens
+                :thought-routing-policy thought-routing-policy
+                :thought-escalation-model thought-escalation-model
+                :thought-escalation-goals thought-escalation-goals})
              (graph-counts graph-path)
              (when cycles
                {:cycles cycles}))))))
@@ -330,7 +347,8 @@
   ([{:keys [benchmark out-path scope-root git-commit cycles director-mode
             director-model director-temperature director-max-output-tokens
             thought-mode thought-model thought-temperature
-            thought-max-output-tokens]}]
+            thought-max-output-tokens thought-routing-policy
+            thought-escalation-model thought-escalation-goals]}]
    (let [benchmark (parse-benchmark benchmark)
          out-path (or out-path (default-output-path benchmark))
          output-file (io/file (latent-root) out-path)
@@ -348,7 +366,10 @@
                              :thought-model thought-model
                              :thought-temperature thought-temperature
                              :thought-max-output-tokens
-                             thought-max-output-tokens})
+                             thought-max-output-tokens
+                             :thought-routing-policy thought-routing-policy
+                             :thought-escalation-model thought-escalation-model
+                             :thought-escalation-goals thought-escalation-goals})
          log (if (map? payload) (or (:log payload) payload) payload)]
      (.mkdirs (.getParentFile output-file))
      (spit output-file (json/write-str log :escape-unicode false))
@@ -362,7 +383,9 @@
   ([{:keys [benchmark out-path html-out scope-root git-commit render-html? title
             cycles director-mode director-model director-temperature
             director-max-output-tokens thought-mode thought-model
-            thought-temperature thought-max-output-tokens]}]
+            thought-temperature thought-max-output-tokens
+            thought-routing-policy thought-escalation-model
+            thought-escalation-goals]}]
    (let [benchmark (parse-benchmark benchmark)
          {:keys [json-path payload]} (write-benchmark-log! {:benchmark benchmark
                                                             :out-path out-path
@@ -380,7 +403,13 @@
                                                             :thought-temperature
                                                             thought-temperature
                                                             :thought-max-output-tokens
-                                                            thought-max-output-tokens})
+                                                            thought-max-output-tokens
+                                                            :thought-routing-policy
+                                                            thought-routing-policy
+                                                            :thought-escalation-model
+                                                            thought-escalation-model
+                                                            :thought-escalation-goals
+                                                            thought-escalation-goals})
          html-path (when render-html?
                      (render-report! {:json-path json-path
                                       :html-path (or html-out
@@ -412,7 +441,8 @@
                   cycles print-summary? director-mode director-model
                   director-temperature director-max-output-tokens
                   thought-mode thought-model thought-temperature
-                  thought-max-output-tokens]}
+                  thought-max-output-tokens thought-routing-policy
+                  thought-escalation-model thought-escalation-goals]}
           (parse-args args)
           {:keys [json-path html-path summaries]}
           (write-benchmark-report! {:benchmark benchmark
@@ -431,7 +461,13 @@
                                     :thought-model thought-model
                                     :thought-temperature thought-temperature
                                     :thought-max-output-tokens
-                                    thought-max-output-tokens})]
+                                    thought-max-output-tokens
+                                    :thought-routing-policy
+                                    thought-routing-policy
+                                    :thought-escalation-model
+                                    thought-escalation-model
+                                    :thought-escalation-goals
+                                    thought-escalation-goals})]
       (when print-summary?
         (doseq [summary summaries]
           (println summary)
