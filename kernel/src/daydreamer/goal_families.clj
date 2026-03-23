@@ -884,20 +884,25 @@
                              provenance (:provenance episode)
                              selection (:selection provenance)
                              payload (:payload episode)
+                             admission-status (:admission-status episode)
                              counterfactual-facts (vec (:input-facts payload []))
                              retracted-fact-ids (set (:reversal_leaf_retracted_facts selection))
                              retracted-match? (seq (set/intersection retracted-fact-ids
-                                                                     (set visible-indices)))]
+                                                                     (set visible-indices)))
+                             candidate-rank (case admission-status
+                                              :durable 1
+                                              :provisional 2
+                                              nil)]
                          (when (and (= :family-plan (:source provenance))
                                     (= :reversal (:family provenance))
-                                    (= :durable (:admission-status episode))
+                                    candidate-rank
                                     (failure-cause-matches-leaf?
                                      {:goal-id (or (:reversal_counterfactual_goal selection)
                                                    (:goal-id episode))}
                                      reversal-leaf)
                                     retracted-match?
                                     (seq counterfactual-facts))
-                           {:candidate-rank 1
+                           {:candidate-rank candidate-rank
                             :cause-id (:episode-id hit)
                             :goal-id (or (:reversal_counterfactual_goal selection)
                                          (:goal-id episode))
@@ -910,6 +915,8 @@
                             :selection-reasons (cond-> [:stored_reversal_episode
                                                         :matching_failed_goal
                                                         :matching_retracted_fact]
+                                                 (= :provisional admission-status)
+                                                 (conj :provisional_source_trial)
                                                  (:provenance-reason hit)
                                                  (conj (:provenance-reason hit))
                                                  (> (count counterfactual-facts) 1)

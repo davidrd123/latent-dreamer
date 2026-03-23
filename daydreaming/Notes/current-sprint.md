@@ -313,6 +313,12 @@ Current read:
   run is seeing the world episode store on most cycles, including some
   provisional family-plan episodes, but those hits are still not being
   converted into source-use / promotion / flag movement
+- the first bootstrap on-ramp is now real for stored reversal sources:
+  matching `:provisional` reversal family-plan episodes can compete as
+  lower-ranked trial candidates, but the live Puppet Knows soak still
+  stays on authored `:stored_failure_cause` counterfactuals, so that
+  on-ramp is not yet producing real family-plan use history in the
+  benchmark world
 - rule-access gating is now live in activation, planning, and the
   first frontier bridge, but the current benchmark run does not yet
   produce meaningful quarantine/reopening movement

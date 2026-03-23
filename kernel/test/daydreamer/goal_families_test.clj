@@ -492,6 +492,51 @@
       (is (= :stored_priority
              (:counterfactual-policy selected-cause))))))
 
+(deftest reverse-undo-cause-candidates-rank-explicit-causes-ahead-of-provisional-stored-counterfactuals
+  (let [[world root-id] (world-with-root)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        explicit-cause (failure-cause-fact :fc-wall-open
+                                           old-top-level-goal-id
+                                           0.9
+                                           [counterfactual-fact])
+        world (cx/assert-fact world old-context-id explicit-cause)
+        [world initial-reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})
+        [world initial-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id initial-reversal-goal-id
+                                   :family-evaluator family-evaluator/mock-family-evaluator})
+        stored-episode-id (:family-episode-id initial-family-plan)
+        world (-> world
+                  (cx/assert-fact old-context-id counterfactual-fact)
+                  (cx/assert-fact old-context-id leaf-objective-a))
+        reversal-leaf {:old-context-id old-context-id
+                       :old-top-level-goal-id old-top-level-goal-id
+                       :failed-goal-id old-top-level-goal-id}
+        candidates (families/reverse-undo-cause-candidates world reversal-leaf)
+        stored-candidate (second candidates)]
+    (is (= :provisional
+           (get-in world [:episodes stored-episode-id :admission-status])))
+    (is (= [:fc-wall-open stored-episode-id]
+           (mapv :cause-id candidates)))
+    (is (= [0 2]
+           (mapv :candidate-rank candidates)))
+    (is (= :stored_reversal_episode
+           (:selection-policy stored-candidate)))
+    (is (some #{:provisional_source_trial}
+              (:selection-reasons stored-candidate)))))
+
 (deftest roving-activation-candidates-detect-failed-goal-negative-emotion
   (let [[world root-id] (world-with-root)
         [world context-id] (cx/sprout world root-id)
@@ -2301,6 +2346,87 @@
     (is (= :family-evaluation-backfired
            (:outcome-reason latest-use-record)))
     (is (= [] post-candidates))))
+
+(deftest provisional-reversal-source-episode-can-bootstrap-pending-use
+  (let [[world root-id] (world-with-root)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        explicit-cause (failure-cause-fact :fc-wall-open
+                                           old-top-level-goal-id
+                                           0.9
+                                           [counterfactual-fact])
+        world (cx/assert-fact world old-context-id explicit-cause)
+        [world initial-reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})
+        [world initial-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id initial-reversal-goal-id
+                                   :family-evaluator family-evaluator/mock-family-evaluator})
+        stored-episode-id (:family-episode-id initial-family-plan)
+        world (-> world
+                  (cx/retract-fact old-context-id explicit-cause)
+                  (cx/assert-fact old-context-id counterfactual-fact)
+                  (cx/assert-fact old-context-id leaf-objective-a))
+        reversal-leaf {:old-context-id old-context-id
+                       :old-top-level-goal-id old-top-level-goal-id
+                       :failed-goal-id old-top-level-goal-id}
+        candidates (families/reverse-undo-cause-candidates world reversal-leaf)
+        selected-cause (families/reverse-undo-causes world reversal-leaf)
+        [world later-reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.72
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.68})
+        [world later-family-plan]
+        (families/run-family-plan world
+                                  {:goal-id later-reversal-goal-id})
+        stored-episode (get-in world [:episodes stored-episode-id])]
+    (is (= [stored-episode-id]
+           (mapv :cause-id candidates)))
+    (is (= [2]
+           (mapv :candidate-rank candidates)))
+    (is (some #{:provisional_source_trial}
+              (:selection-reasons (first candidates))))
+    (is (= [counterfactual-fact]
+           (:input-facts selected-cause)))
+    (is (= stored-episode-id
+           (:counterfactual-cause-id selected-cause)))
+    (is (= :stored_reversal_episode
+           (get-in later-family-plan [:selection :reversal_counterfactual_policy])))
+    (is (= stored-episode-id
+           (get-in later-family-plan [:selection :reversal_counterfactual_source])))
+    (is (some #{:provisional_source_trial}
+              (get-in later-family-plan [:selection :reversal_counterfactual_reasons])))
+    (is (= [stored-episode-id]
+           (mapv :episode-id
+                 (get-in later-family-plan
+                         [:result :episode-use-records]))))
+    (is (= [:pending]
+           (mapv :status
+                 (get-in later-family-plan
+                         [:result :episode-use-records]))))
+    (is (= [] (get-in later-family-plan
+                      [:result :episode-outcome-facts])))
+    (is (= [] (get-in later-family-plan
+                      [:result :promotion-facts])))
+    (is (= :provisional (:admission-status stored-episode)))))
 
 (deftest rationalization-activation-candidates-detect-framed-failures
   (let [[world root-id] (world-with-root)
