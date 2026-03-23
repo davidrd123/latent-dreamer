@@ -298,7 +298,7 @@ The first honest Step 2 slices are now in code:
 hardened membrane:
 
 - 12-cycle regression return: **clean but only partly informative**
-- 50-cycle soak: **partial**
+- 50-cycle soak: **partial, improved after benchmark pressure retune**
 
 Current read:
 
@@ -312,14 +312,19 @@ Current read:
 - rule-access gating is now live in activation, planning, and the
   first frontier bridge, but the current benchmark run does not yet
   produce meaningful quarantine/reopening movement
-- the 50-cycle soak drifts into a long rehearsal-dominant loop after
-  cycle 13, so the run is membrane-correct but not yet a strong
-  end-to-end read on promotion/vindication dynamics
+- the first benchmark-pressure retune broke the earlier rehearsal lock:
+  post-cycle-13 activity now stays mixed across reversal, roving,
+  rehearsal, and repercussions, so the soak is more informative than
+  the first return
+- even after that retune, the soak is still more useful as a runtime /
+  pressure read than as a deep memory-membrane read, because the run is
+  not yet generating visible use-history / promotion / flag dynamics in
+  the live benchmark world
 
 Treat the benchmark result as:
 
 - a **runtime/seam regression pass**
-- a **partial membrane integration read**
+- a **partial but improving membrane integration read**
 - not yet a decisive architecture verdict on long-run memory ecology
 
 ### Deferred parallel fronts

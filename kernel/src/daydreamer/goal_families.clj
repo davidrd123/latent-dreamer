@@ -3120,89 +3120,93 @@
       :roving
       (let [context-id (or (:context-id opts)
                            (default-plan-context world goal-id))
-            [world roving-result] (roving-plan world
-                                               (assoc opts
-                                                      :goal-id goal-id
-                                                      :context-id context-id))]
-        (if-not roving-result
+            roving-opts (assoc opts
+                               :goal-id goal-id
+                               :context-id context-id)]
+        (if-not (seq (roving-plan-request-facts world roving-opts))
           [world nil]
-          (store-family-plan-episode
-           world
-           (maybe-apply-family-evaluator
-            {:family :roving
-             :sprouted-context-ids [(:sprouted-context-id roving-result)]
-             :rule-provenance (:rule-provenance roving-result)
-             :retrieval-indices (:active-indices roving-result)
-             :support-indices [(keyword "family" "roving")
-                               goal-id
-                               (:selection-policy roving-result)]
-             :selection {:goal_family :roving
-                         :family_goal_id goal-id
-                         :roving_selection_policy (:selection-policy roving-result)
-                         :roving_seed_episode (:episode-id roving-result)
-                         :roving_reminded_episodes (:reminded-episode-ids roving-result)
-                         :roving_active_indices (:active-indices roving-result)
-                         :roving_branch_context (:sprouted-context-id roving-result)}
-             :result roving-result}
-            (:family-evaluator opts)))))
+          (let [[world roving-result] (roving-plan world roving-opts)]
+            (if-not roving-result
+              [world nil]
+              (store-family-plan-episode
+               world
+               (maybe-apply-family-evaluator
+                {:family :roving
+                 :sprouted-context-ids [(:sprouted-context-id roving-result)]
+                 :rule-provenance (:rule-provenance roving-result)
+                 :retrieval-indices (:active-indices roving-result)
+                 :support-indices [(keyword "family" "roving")
+                                   goal-id
+                                   (:selection-policy roving-result)]
+                 :selection {:goal_family :roving
+                             :family_goal_id goal-id
+                             :roving_selection_policy (:selection-policy roving-result)
+                             :roving_seed_episode (:episode-id roving-result)
+                             :roving_reminded_episodes (:reminded-episode-ids roving-result)
+                             :roving_active_indices (:active-indices roving-result)
+                             :roving_branch_context (:sprouted-context-id roving-result)}
+                 :result roving-result}
+                (:family-evaluator opts)))))))
 
       :rationalization
       (let [context-id (or (:context-id opts)
                            (default-plan-context world goal-id))
-            [world rationalization-result]
-            (rationalization-plan
-             world
-             (assoc opts
-                    :goal-id goal-id
-                    :context-id context-id
-                    :trigger-context-id (or (:trigger-context-id opts)
-                                            (get-in world [:goals goal-id :trigger-context-id]))
-                    :failed-goal-id (or (:failed-goal-id opts)
-                                        (get-in world [:goals goal-id :trigger-failed-goal-id]))
-                    :frame-id (or (:frame-id opts)
-                                  (get-in world [:goals goal-id :trigger-frame-id]))))]
-        (if-not rationalization-result
+            rationalization-opts
+            (assoc opts
+                   :goal-id goal-id
+                   :context-id context-id
+                   :trigger-context-id (or (:trigger-context-id opts)
+                                           (get-in world [:goals goal-id :trigger-context-id]))
+                   :failed-goal-id (or (:failed-goal-id opts)
+                                       (get-in world [:goals goal-id :trigger-failed-goal-id]))
+                   :frame-id (or (:frame-id opts)
+                                 (get-in world [:goals goal-id :trigger-frame-id])))]
+        (if-not (seq (rationalization-plan-request-facts world rationalization-opts))
           [world nil]
-          (let [[world family-plan]
-                (store-family-plan-episode
-                 world
-                 (maybe-apply-family-evaluator
-                  {:family :rationalization
-                   :sprouted-context-ids [(:sprouted-context-id rationalization-result)]
-                   :rule-provenance (:rule-provenance rationalization-result)
-                   :episode-payload {:reframe-facts (:reframe-facts rationalization-result)
-                                     :frame-id (:frame-id rationalization-result)
-                                     :frame-goal-id (:frame-goal-id rationalization-result)
-                                     :hope-situation-id (:hope-situation-id rationalization-result)}
-                   :retrieval-indices (concat (:reframe-fact-ids rationalization-result)
-                                              [(:hope-situation-id rationalization-result)])
-                   :support-indices [(keyword "family" "rationalization")
-                                     goal-id
-                                     (:selection-policy rationalization-result)
-                                     (:frame-id rationalization-result)]
-                   :selection {:goal_family :rationalization
-                               :family_goal_id goal-id
-                               :rationalization_selection_policy (:selection-policy rationalization-result)
-                               :rationalization_source_episode (:source-episode-id rationalization-result)
-                               :rationalization_frame_id (:frame-id rationalization-result)
-                               :rationalization_frame_goal (:frame-goal-id rationalization-result)
-                               :rationalization_frame_reasons (:selection-reasons rationalization-result)
-                               :rationalization_reframe_fact_ids (:reframe-fact-ids rationalization-result)
-                               :rationalization_branch_context (:sprouted-context-id rationalization-result)
-                               :rationalization_diversion_policy (:diversion-policy rationalization-result)
-                               :rationalization_trigger_emotion_id (:trigger-emotion-id rationalization-result)
-                               :rationalization_trigger_emotion_before (:trigger-emotion-before rationalization-result)
-                               :rationalization_trigger_emotion_after (:trigger-emotion-after rationalization-result)
-                               :rationalization_hope_emotion_id (:hope-emotion-id rationalization-result)
-                               :rationalization_hope_strength (:hope-strength rationalization-result)
-                               :rationalization_hope_situation (:hope-situation-id rationalization-result)}
-                   :emotion-shifts (:emotion-shifts rationalization-result)
-                   :emotional-state (:emotional-state rationalization-result)
-                   :result rationalization-result}
-                  (:family-evaluator opts)))
-                [world family-plan]
-                (record-family-plan-source-episode-use world family-plan)]
-            [world family-plan])))
+          (let [[world rationalization-result]
+                (rationalization-plan world rationalization-opts)]
+            (if-not rationalization-result
+              [world nil]
+              (let [[world family-plan]
+                    (store-family-plan-episode
+                     world
+                     (maybe-apply-family-evaluator
+                      {:family :rationalization
+                       :sprouted-context-ids [(:sprouted-context-id rationalization-result)]
+                       :rule-provenance (:rule-provenance rationalization-result)
+                       :episode-payload {:reframe-facts (:reframe-facts rationalization-result)
+                                         :frame-id (:frame-id rationalization-result)
+                                         :frame-goal-id (:frame-goal-id rationalization-result)
+                                         :hope-situation-id (:hope-situation-id rationalization-result)}
+                       :retrieval-indices (concat (:reframe-fact-ids rationalization-result)
+                                                  [(:hope-situation-id rationalization-result)])
+                       :support-indices [(keyword "family" "rationalization")
+                                         goal-id
+                                         (:selection-policy rationalization-result)
+                                         (:frame-id rationalization-result)]
+                       :selection {:goal_family :rationalization
+                                   :family_goal_id goal-id
+                                   :rationalization_selection_policy (:selection-policy rationalization-result)
+                                   :rationalization_source_episode (:source-episode-id rationalization-result)
+                                   :rationalization_frame_id (:frame-id rationalization-result)
+                                   :rationalization_frame_goal (:frame-goal-id rationalization-result)
+                                   :rationalization_frame_reasons (:selection-reasons rationalization-result)
+                                   :rationalization_reframe_fact_ids (:reframe-fact-ids rationalization-result)
+                                   :rationalization_branch_context (:sprouted-context-id rationalization-result)
+                                   :rationalization_diversion_policy (:diversion-policy rationalization-result)
+                                   :rationalization_trigger_emotion_id (:trigger-emotion-id rationalization-result)
+                                   :rationalization_trigger_emotion_before (:trigger-emotion-before rationalization-result)
+                                   :rationalization_trigger_emotion_after (:trigger-emotion-after rationalization-result)
+                                   :rationalization_hope_emotion_id (:hope-emotion-id rationalization-result)
+                                   :rationalization_hope_strength (:hope-strength rationalization-result)
+                                   :rationalization_hope_situation (:hope-situation-id rationalization-result)}
+                       :emotion-shifts (:emotion-shifts rationalization-result)
+                       :emotional-state (:emotional-state rationalization-result)
+                       :result rationalization-result}
+                      (:family-evaluator opts)))
+                    [world family-plan]
+                    (record-family-plan-source-episode-use world family-plan)]
+                [world family-plan])))))
 
       [world nil])))
 

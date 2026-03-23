@@ -154,6 +154,36 @@
     (is (= 12
            (count summaries)))))
 
+(deftest fatigue-adjustment-saturates-repeated-rehearsal-on-the-same-situation
+  (let [candidate {:situation-id :s4_the_ring
+                   :goal-type :rehearsal
+                   :strength 0.7
+                   :reasons [:anticipation :waiting_goal]}
+        situations {:s4_the_ring {:id :s4_the_ring
+                                  :visits 2
+                                  :indices [:ritual :honesty :performance]}}
+        world {:autonomous {:current-goal-key [:s4_the_ring :rehearsal]}}
+        adjusted (#'autonomous/fatigue-adjustment candidate situations world)]
+    (is (< (:strength adjusted)
+           (:strength candidate)))
+    (is (some #{:rehearsal_saturation}
+              (:reasons adjusted)))))
+
+(deftest fatigue-adjustment-saturates-repeated-repercussions-on-the-same-situation
+  (let [candidate {:situation-id :s3_the_edge
+                   :goal-type :repercussions
+                   :strength 0.65
+                   :reasons [:external_threat :what_follows]}
+        situations {:s3_the_edge {:id :s3_the_edge
+                                  :visits 3
+                                  :indices [:edge :void :backstage]}}
+        world {:autonomous {:current-goal-key [:s3_the_edge :repercussions]}}
+        adjusted (#'autonomous/fatigue-adjustment candidate situations world)]
+    (is (< (:strength adjusted)
+           (:strength candidate)))
+    (is (some #{:repercussions_saturation}
+              (:reasons adjusted)))))
+
 (deftest run-benchmark-can-apply-external-family-evaluator
   (let [archive-evaluator (fn [_family-plan _default-evaluation]
                             {:realism :plausible

@@ -84,7 +84,7 @@ Lane 1: Sprint (RuntimeThoughtBeatV1)             ← active project target
 Lane 2: Deep Build (kernel rule engine)            ← where the architecture lives
   ├── Memory ecology: promotion logic, anti-residue, accessibility frontier
   ├── Executor boundary: execute-rule in rules.clj, declarative effects
-  ├── Puppet Knows re-entry: 12-cycle clean, 50-cycle partial (rehearsal-dominant after cycle 13)
+  ├── Puppet Knows re-entry: 12-cycle clean, 50-cycle partial but improved after pressure retune
   ├── First :llm-backed pilot as episode evaluator
   └── See build-order-checkpoint-2026-03-22.md
 

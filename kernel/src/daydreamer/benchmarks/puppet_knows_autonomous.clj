@@ -270,6 +270,26 @@
           (update :strength #(clamp01 (+ (double %) (min 0.26 (* visits 0.06)))))
           (update :reasons conj :fatigue_escape))
 
+      (and (= (:situation-id candidate) current-situation-id)
+           (= (:goal-type candidate) :rehearsal)
+           (= current-goal-type :rehearsal)
+           (>= visits 2))
+      (-> candidate
+          (update :strength #(clamp01 (- (double %)
+                                         (+ 0.12
+                                            (* (max 0 (- visits 2)) 0.05)))))
+          (update :reasons conj :rehearsal_saturation))
+
+      (and (= (:situation-id candidate) current-situation-id)
+           (= (:goal-type candidate) :repercussions)
+           (= current-goal-type :repercussions)
+           (>= visits 3))
+      (-> candidate
+          (update :strength #(clamp01 (- (double %)
+                                         (+ 0.14
+                                            (* (max 0 (- visits 3)) 0.05)))))
+          (update :reasons conj :repercussions_saturation))
+
       (and (not= (:situation-id candidate) current-situation-id)
            (= (:goal-type candidate) :rehearsal)
            (contains? #{:rationalization :reversal} current-goal-type)

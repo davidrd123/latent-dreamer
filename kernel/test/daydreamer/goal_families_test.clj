@@ -749,6 +749,25 @@
     (is (= :frontier
            (get-in world [:rule-access :goal-family/roving-plan-dispatch :status])))))
 
+(deftest run-family-plan-returns-nil-for-roving-with-no-pleasant-episode
+  (let [[world root-id] (world-with-root)
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])
+        [world family-plan]
+        (families/run-family-plan world
+                                  {:goal-id roving-goal-id
+                                   :goal-type :roving
+                                   :context-id context-id})]
+    (is (nil? family-plan))
+    (is (empty? (:mutation-events world)))))
+
 (deftest roving-plan-uses-graph-bridge-depth-to-retrieve-cross-family-memory
   (let [[world root-id] (world-with-root)
         [world pleasant-episode-id]
@@ -3120,6 +3139,48 @@
     (is (= :frontier
            (get-in world
                    [:rule-access :goal-family/rationalization-plan-dispatch :status])))))
+
+(deftest run-family-plan-returns-nil-for-rationalization-with-no-matching-frame
+  (let [[world root-id] (world-with-root)
+        [world trigger-context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-dread
+        world (-> world
+                  (cx/assert-fact trigger-context-id {:fact/type :goal
+                                                      :goal-id failed-goal-id
+                                                      :top-level-goal failed-goal-id
+                                                      :status :failed
+                                                      :activation-context trigger-context-id})
+                  (cx/assert-fact trigger-context-id {:fact/type :emotion
+                                                      :emotion-id emotion-id
+                                                      :strength 0.82
+                                                      :valence :negative
+                                                      :affect :dread})
+                  (cx/assert-fact trigger-context-id {:fact/type :dependency
+                                                      :from-id emotion-id
+                                                      :to-id failed-goal-id}))
+        [world rationalization-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :rationalization
+          :planning-type :imaginary
+          :strength 0.82
+          :main-motiv emotion-id
+          :trigger-context-id trigger-context-id
+          :trigger-failed-goal-id failed-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.82})
+        context-id (get-in world [:goals rationalization-goal-id :next-cx])
+        [world family-plan]
+        (families/run-family-plan world
+                                  {:goal-id rationalization-goal-id
+                                   :goal-type :rationalization
+                                   :context-id context-id
+                                   :trigger-context-id trigger-context-id
+                                   :failed-goal-id failed-goal-id})]
+    (is (nil? family-plan))
+    (is (empty? (:mutation-events world)))))
 
 (deftest rationalization-plan-effects-builds-typed-program
   (let [[world root-id] (world-with-root)
