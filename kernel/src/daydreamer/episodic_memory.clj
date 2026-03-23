@@ -40,7 +40,7 @@
            plan-threshold reminding-threshold children descendants
            provenance rule-path edge-path payload evaluation
            retention-class keep-decision cycle-created admission-status
-           anti-residue-flags]
+           anti-residue-flags promotion-eligible? promotion-basis]
     :or {id :ep-1
          indices #{}
          plan-threshold 0
@@ -97,6 +97,12 @@
 
       (seq anti-residue-flags)
       (assoc :anti-residue-flags (vec anti-residue-flags))
+
+      (some? promotion-eligible?)
+      (assoc :promotion-eligible? promotion-eligible?)
+
+      promotion-basis
+      (assoc :promotion-basis promotion-basis)
 
       (some? cycle-created)
       (assoc :cycle-created cycle-created))))
@@ -733,8 +739,10 @@
 (defn- durable-candidate?
   [episode]
   (and (= :provisional (:admission-status episode))
-       (= :payload-exemplar (:retention-class episode))
-       (= :keep-exemplar (:keep-decision episode))
+       (if (contains? episode :promotion-eligible?)
+         (:promotion-eligible? episode)
+         (and (= :payload-exemplar (:retention-class episode))
+              (= :keep-exemplar (:keep-decision episode))))
        (empty? (set/intersection #{:backfired :contradicted :stale}
                                  (set (:anti-residue-flags episode))))))
 

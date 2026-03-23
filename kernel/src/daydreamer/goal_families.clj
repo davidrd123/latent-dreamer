@@ -1331,6 +1331,27 @@
                  (:reversal_counterfactual_source selection)]
       [:family (:family family-plan) (:family_goal_id selection)])))
 
+(defn- family-plan-promotion-structure
+  [family-plan]
+  (let [payload (:episode-payload family-plan)]
+    (case (:family family-plan)
+      :rationalization
+      (if (seq (:reframe-facts payload))
+        {:promotion-eligible? true
+         :promotion-basis :reframe-facts}
+        {:promotion-eligible? false
+         :promotion-basis :none})
+
+      :reversal
+      (if (seq (:input-facts payload))
+        {:promotion-eligible? true
+         :promotion-basis :input-facts}
+        {:promotion-eligible? false
+         :promotion-basis :none})
+
+      {:promotion-eligible? false
+       :promotion-basis :none})))
+
 (defn- family-plan-evaluation
   [family-plan]
   (let [payload (:episode-payload family-plan)
@@ -1467,6 +1488,7 @@
         edge-path (vec (:edge-path rule-provenance))
         goal-id (:family_goal_id selection)
         context-id (family-plan-branch-context-id family-plan)
+        promotion-structure (family-plan-promotion-structure family-plan)
         evaluation (or (:evaluation family-plan)
                        (family-plan-evaluation family-plan))
         admission-status (family-plan-admission-status evaluation)
@@ -1492,6 +1514,8 @@
                                   :admission-status admission-status
                                   :retention-class (:retention-class evaluation)
                                   :keep-decision (:keep-decision evaluation)
+                                  :promotion-eligible? (:promotion-eligible? promotion-structure)
+                                  :promotion-basis (:promotion-basis promotion-structure)
                                   :evaluation evaluation
                                   :content-indices (set retrieval-indices)
                                   :provenance-indices (set rule-path)

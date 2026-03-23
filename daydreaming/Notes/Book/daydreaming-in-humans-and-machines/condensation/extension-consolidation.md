@@ -48,6 +48,10 @@ As the system accumulates episodes, rules, and graph connections:
 - repeated later cross-family success can now vindicate those pending
   same-family source uses without adding fresh promotion evidence of
   its own
+- family-plan episodes now also carry a kernel-owned structural
+  promotion basis (`:reframe-facts`, `:input-facts`, or `:none`), so
+  later durable promotion eligibility is no longer authored by the
+  evaluator's retention labels alone
 - repeated failed same-family attributed use can now auto-flag
   `:stale` and demote a durable episode back to `:provisional`;
   one later cross-family success does not re-promote it automatically

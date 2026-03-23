@@ -75,6 +75,10 @@ Implemented in the first pass:
 - repeated cross-family success now promotes via explicit use evidence
   (`:cross-family-use-success`); raw roving reminding no longer counts
   as that evidence by itself
+- family-plan episodes now also carry a kernel-owned structural
+  promotion basis (`:reframe-facts`, `:input-facts`, or `:none`);
+  later durable promotion eligibility reads that basis instead of
+  evaluator-authored `:retention-class` / `:keep-decision` labels
 - repeated failed same-family attributed use can now auto-flag
   `:stale` and demote a previously durable episode back to
   `:provisional`; one later cross-family success does not re-promote it
@@ -111,8 +115,9 @@ Implemented in the first pass:
 Still missing inside step 1:
 - broader family coverage for episode-use logs with attributed outcomes
   (`used by which family, for which goal, with what later result`)
-- promotion driven by structural evidence PLUS outcome evidence,
-  with the evaluator acting as gate/veto rather than sole authority
+- broader structural evidence policy beyond the current kernel-owned
+  family-plan promotion basis, still with the evaluator acting as
+  gate/veto rather than sole authority
 - cleaner evidence/authority semantics:
   `retrieved` vs `used` vs `vindicated`, and evaluator output as
   advisory/gating input rather than direct admission authority

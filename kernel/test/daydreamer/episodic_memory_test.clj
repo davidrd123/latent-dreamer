@@ -243,6 +243,97 @@
            (mapv #(dissoc % :evidence-order)
                  (:promotion-evidence episode))))))
 
+(deftest promotion-eligibility-is-kernel-owned-not-evaluator-label-owned
+  (let [[world root-id] (world-with-root)
+        [world kernel-ineligible-id] (epmem/add-episode world
+                                                        {:rule :roving-plan
+                                                         :context-id root-id
+                                                         :promotion-eligible? false
+                                                         :promotion-basis :none
+                                                         :retention-class :payload-exemplar
+                                                         :keep-decision :keep-exemplar
+                                                         :admission-status :provisional})
+        [world ineligible-use-1] (epmem/note-episode-use world
+                                                         kernel-ineligible-id
+                                                         {:reason :family-plan-use
+                                                          :use-role :reminded
+                                                          :goal-id :g-1
+                                                          :branch-context-id root-id
+                                                          :source-family :roving
+                                                          :target-family :rationalization
+                                                          :source-rule :goal-family/roving-plan-dispatch
+                                                          :target-rule :goal-family/rationalization-plan-dispatch})
+        [world _] (epmem/resolve-episode-use-outcome world
+                                                     kernel-ineligible-id
+                                                     (:use-id ineligible-use-1)
+                                                     {:outcome :succeeded
+                                                      :reason :cross-family-family-plan-success})
+        [world ineligible-use-2] (epmem/note-episode-use world
+                                                         kernel-ineligible-id
+                                                         {:reason :family-plan-use
+                                                          :use-role :reminded
+                                                          :goal-id :g-2
+                                                          :branch-context-id root-id
+                                                          :source-family :roving
+                                                          :target-family :rationalization
+                                                          :source-rule :goal-family/roving-plan-dispatch
+                                                          :target-rule :goal-family/rationalization-plan-dispatch})
+        [world _] (epmem/resolve-episode-use-outcome world
+                                                     kernel-ineligible-id
+                                                     (:use-id ineligible-use-2)
+                                                     {:outcome :succeeded
+                                                      :reason :cross-family-family-plan-success})
+        [world ineligible-transition]
+        (epmem/reconcile-episode-admission world kernel-ineligible-id)
+        [world kernel-eligible-id] (epmem/add-episode world
+                                                      {:rule :rationalization-plan
+                                                       :context-id root-id
+                                                       :promotion-eligible? true
+                                                       :promotion-basis :reframe-facts
+                                                       :retention-class :hot-cues
+                                                       :keep-decision :keep-hot
+                                                       :admission-status :provisional})
+        [world eligible-use-1] (epmem/note-episode-use world
+                                                       kernel-eligible-id
+                                                       {:reason :family-plan-use
+                                                        :use-role :reminded
+                                                        :goal-id :g-3
+                                                        :branch-context-id root-id
+                                                        :source-family :rationalization
+                                                        :target-family :roving
+                                                        :source-rule :goal-family/rationalization-plan-dispatch
+                                                        :target-rule :goal-family/roving-plan-dispatch})
+        [world _] (epmem/resolve-episode-use-outcome world
+                                                     kernel-eligible-id
+                                                     (:use-id eligible-use-1)
+                                                     {:outcome :succeeded
+                                                      :reason :cross-family-family-plan-success})
+        [world eligible-use-2] (epmem/note-episode-use world
+                                                       kernel-eligible-id
+                                                       {:reason :family-plan-use
+                                                        :use-role :reminded
+                                                        :goal-id :g-4
+                                                        :branch-context-id root-id
+                                                        :source-family :rationalization
+                                                        :target-family :roving
+                                                        :source-rule :goal-family/rationalization-plan-dispatch
+                                                        :target-rule :goal-family/roving-plan-dispatch})
+        [world _] (epmem/resolve-episode-use-outcome world
+                                                     kernel-eligible-id
+                                                     (:use-id eligible-use-2)
+                                                     {:outcome :succeeded
+                                                      :reason :cross-family-family-plan-success})
+        [_world eligible-transition]
+        (epmem/reconcile-episode-admission world kernel-eligible-id)]
+    (is (nil? ineligible-transition))
+    (is (= :provisional
+           (get-in world [:episodes kernel-ineligible-id :admission-status])))
+    (is (= {:episode-id kernel-eligible-id
+            :from-status :provisional
+            :to-status :durable
+            :reason :cross-family-use-success}
+           eligible-transition))))
+
 (deftest resolve-episode-use-outcome-is-idempotent-for-already-resolved-use
   (let [[world root-id] (world-with-root)
         [world episode-id] (epmem/add-episode world

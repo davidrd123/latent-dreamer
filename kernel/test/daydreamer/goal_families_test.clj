@@ -1165,6 +1165,42 @@
                                       :pleasant_episode_seed]
                     :evaluation-reasons [:mock_archive_review]}))))
 
+(deftest evaluator-retention-labels-do-not-author-promotion-eligibility
+  (let [[world root-id] (world-with-root)
+        [world pleasant-episode-id]
+        (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :calm
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :sunlight
+                                          {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])
+        exemplar-evaluator (fn [_family-plan default-evaluation]
+                             (assoc default-evaluation
+                                    :retention-class :payload-exemplar
+                                    :keep-decision :keep-exemplar
+                                    :evaluation-source :mock-llm))
+        [world family-plan]
+        (families/run-family-plan world
+                                  {:goal-id roving-goal-id
+                                   :context-id context-id
+                                   :family-evaluator exemplar-evaluator})
+        family-episode-id (:family-episode-id family-plan)
+        stored-episode (get-in world [:episodes family-episode-id])]
+    (is (= :payload-exemplar (:retention-class stored-episode)))
+    (is (= :keep-exemplar (:keep-decision stored-episode)))
+    (is (false? (:promotion-eligible? stored-episode)))
+    (is (= :none (:promotion-basis stored-episode)))))
+
 (deftest evaluator-promotion-decision-does-not-open-frontier-rules-at-store-time
   (let [family-rules* (->> (families/family-rules)
                            (mapv (fn [rule]

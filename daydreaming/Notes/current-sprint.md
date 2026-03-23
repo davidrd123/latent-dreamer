@@ -190,6 +190,11 @@ and "deserves future influence":
 - family-plan episodes no longer enter as `:durable` from evaluator
   opinion alone; durable admission and frontier opening now require
   later use/outcome reconciliation
+- durable eligibility for stored family-plan episodes is now keyed to
+  a kernel-owned promotion basis (`:reframe-facts`,
+  `:input-facts`, or `:none`) rather than evaluator-authored
+  retention labels, so the evaluator can still request hot/cold
+  storage policy without authoring structural promotion class
 - evaluator-backed anti-residue flags now persist on episodes,
   assert typed `:episode-flag` facts into branch contexts, and
   can already suppress later retrieval (`:contradicted`,
