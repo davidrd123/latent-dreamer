@@ -106,7 +106,8 @@ meaningful, structured situations.
 The membrane substrate (admission tiers, anti-residue flags,
 promotion chain, executor boundary) is in a good resting state.
 Assay A is frozen as a regression. The next steps follow the
-three-level stack above.
+three-level stack above, and the active benchmark-side branch is now
+the first mechanistic Graffito microfixture on typed fact-space.
 
 ### What is already true
 
@@ -405,22 +406,7 @@ The new narrow membrane fixture benchmark now closes the next proof gap:
   stored reversal episode is reused often enough to trip a live
   `:same-family-loop` flag, so the fixture has already crossed from
   Level 1 / Level 2 into a first narrow Level 3 membrane movement
-- so the benchmark ladder is now:
-
-  ```
-  Puppet Knows         runtime/seam regression (authored-dominant, stays)
-  Assay A (current)    L1/L2 + first flag (same-family-loop) — PASSED
-  Fixed-chain test     direct promotion/access proof with clean evidence — PASSED
-  Assay B (future)     cross-family-use-success -> durable -> frontier open
-  Graffito miniworld   typed fact-space benchmark (after situation model work)
-  ```
-
-Assay A is now frozen as the narrow L1/L2 + first-flag regression.
-What still remains unproven live is the positive promotion path:
-cross-family evidence accumulation, durable promotion, and frontier
-opening from naturally produced evidence rather than a handcrafted
-test chain. That belongs in Assay B as a sibling fixture, not by
-bloating Assay A.
+- Assay A is now frozen as the narrow L1/L2 + first-flag regression.
 
 That sibling fixture now exists:
 
@@ -452,12 +438,40 @@ Puppet Knows         runtime/seam regression (authored-dominant, stays)
 Assay A              L1/L2 + first flag (same-family-loop) — PASSED
 Fixed-chain test     direct promotion/access proof with clean evidence — PASSED
 Assay B              live cross-family success -> durable -> frontier open — PASSED
-Graffito miniworld   typed fact-space benchmark (after situation model work)
+Graffito microfixture first typed-fact kernel slice — PASSED
+Graffito miniworld   richer typed fact-space benchmark (next)
 ```
 
-The next design energy should pivot toward the Graffito kernel brief
-(`experiential-design/24-graffito-kernel-brief.md`) and the richer
-situation model it requires. See the 5 Pro research sift at
+The first Graffito microfixture now exists:
+
+- `kernel/src/daydreamer/benchmarks/graffito_microfixture.clj` is the
+  first kernel-facing Graffito slice built from
+  `experiential-design/24-graffito-kernel-brief.md`
+- it stays deliberately mechanistic:
+  - Grandma's apartment as a typed rationalization context
+  - night mural crisis as a typed reversal context
+  - typed fact categories for actors, relationships, obligations,
+    artifacts, exposure, recent events, and derived appraisal
+- the live result is now:
+  - `activate-family-goals` picks the expected families from richer
+    typed material
+  - apartment rationalization stores an honest family-plan episode with
+    typed reframe facts
+  - mural reversal stores an honest family-plan episode with a typed
+    counterfactual cause
+  - a mural-context retrieval probe can see the stored apartment
+    rationalization episode through shared typed facts, not just flat
+    pressure labels
+
+So the next design energy should stay in the Graffito kernel branch,
+but still in the mechanistic frame:
+
+- extend the microfixture slightly or add a sibling microfixture
+- keep asking activation / retrieval / family-choice / provenance
+  questions
+- do not jump straight to creative-output evaluation yet
+
+See the 5 Pro research sift at
 `condensation/research-sift-cold-start-and-situation-model.md` for
 the outside-knowledge foundation.
 
