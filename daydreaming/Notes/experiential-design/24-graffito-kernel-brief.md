@@ -95,6 +95,11 @@ Those variables belong to Tony's state in the world, not to the
 situation itself. Situations provide the inputs. Tony carries the
 processing across scenes.
 
+Treat those values as transient organism state, not as learned
+capability. They can rise or fall across nearby cycles, but durable
+"Tony can do this now" accumulation should not become a sticky float in
+the same map.
+
 The appraisal summary still matters. The current family scheduler can
 continue to read values like `:threat`, `:hope`, `:anger`, `:grief`,
 and scheduler state like `:waiting`. But those should increasingly be
@@ -107,6 +112,15 @@ re-run appraisal on the same situation. Rationalization changes
 meaning. Rehearsal changes control and agency. The same mural crisis
 should be able to read as threat before support and challenge after
 support, without inventing a new stimulus.
+
+If those support or rehearsal gains later become durable capability,
+the clean path in this repo is the memory membrane:
+
+- support or rehearsal episodes get stored
+- repeated successful reuse promotes them
+- promotion opens frontier rules or lowers access thresholds
+- only later, if needed, do you crystallize explicit learned
+  capability facts
 
 ## Minimal Situation Schema V1
 

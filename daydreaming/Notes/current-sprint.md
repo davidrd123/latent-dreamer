@@ -440,6 +440,7 @@ Fixed-chain test     direct promotion/access proof with clean evidence — PASSE
 Assay B              live cross-family success -> durable -> frontier open — PASSED
 Graffito Slice 1     typed retrieval + honest family-plan storage — PASSED
 Graffito Slice 2     persistent Tony state + same-situation reappraisal — PASSED
+Graffito Slice 3     rehearsal-driven control shift + same-situation reappraisal — PASSED
 Graffito miniworld   richer typed fact-space benchmark (next)
 ```
 
@@ -450,10 +451,14 @@ The first Graffito kernel slices now exist:
   `experiential-design/24-graffito-kernel-brief.md`
 - `kernel/src/daydreamer/benchmarks/graffito_regulation_slice.clj`
   is the second slice built on the same brief
+- `kernel/src/daydreamer/benchmarks/graffito_rehearsal_slice.clj`
+  is the third slice built on the same brief
 - they stay deliberately mechanistic:
   - Slice 1: Grandma's apartment + mural crisis
   - Slice 2: world-level Tony state + same mural reappraisal after
     apartment support
+  - Slice 3: authored apartment rehearsal routine + same mural
+    reappraisal after the control shift
   - typed fact categories now include actors, relationships,
     obligations, artifacts, person-object relations, exposure, recent
     events, cross-layer correspondence, and derived appraisal
@@ -462,6 +467,9 @@ The first Graffito kernel slices now exist:
     with `:sensory-load`, `:entrainment`, `:felt-agency`, and
     `:perceived-control`, then derives readable regulation/appraisal
     labels from that state plus situation inputs
+  - those Tony-state values are treated as transient organism state,
+    not learned capability. Accumulation stays routed to the memory
+    membrane rather than turning into sticky character floats
 - the live result is now:
   - `activate-family-goals` picks the expected families from richer
     typed material
@@ -474,6 +482,12 @@ The first Graffito kernel slices now exist:
     reruns appraisal on the same mural facts so the selected family
     flips from reversal/threat to rationalization/challenge without
     adding a new family
+  - Slice 3 keeps the same mural overload cue family fixed again, but
+    now uses one authored apartment rehearsal routine to raise
+    entrainment / agency / control, then reruns appraisal on the same
+    mural facts so the later family choice flips without treating
+    rehearsal as a new top-level scheduler or as permanent learned
+    state
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:
