@@ -1,7 +1,9 @@
 (ns daydreamer.benchmarks.graffito-miniworld-test
   (:require [clojure.test :refer [deftest is testing]]
             [daydreamer.benchmarks.graffito-miniworld :as mini]
-            [daydreamer.context :as cx]))
+            [daydreamer.context :as cx]
+            [daydreamer.goal-families :as families]
+            [daydreamer.rules :as rules]))
 
 (deftest build-world-seeds-three-situations-and-initial-threat-read
   (let [world (mini/build-world)
@@ -135,3 +137,23 @@
       (is (= :durable (:admission-status promoted-episode)))
       (is (>= (count distinct-cross-use-ids) 2))
       (is (>= (count (:promotion-evidence promoted-episode)) 2)))))
+
+(deftest twenty-cycle-miniworld-opens-frontier-bridge-rule-entry
+  (let [{:keys [world]} (mini/run-miniworld {:cycles 20})
+        entry (rules/rule-access-info
+               world
+               (families/family-rules)
+               :goal-family/reversal-aftershock-to-rationalization)]
+    (testing "the promoted frontier-path Graffito episode opens the expected rule-access entry"
+      (is (= :accessible (:status entry)))
+      (is (= :authored-frontier (:source entry)))
+      (is (= 9 (:opened-cycle entry)))
+      (is (= :ep-24 (:opened-by entry)))
+      (is (= [{:rule-id :goal-family/reversal-aftershock-to-rationalization
+               :from-status :frontier
+               :to-status :accessible
+               :cycle 9
+               :reason :durable-episode-opened-rule
+               :episode-id :ep-24
+               :branch-context-id :cx-3}]
+             (:history entry))))))
