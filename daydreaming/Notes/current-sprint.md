@@ -219,8 +219,9 @@ The reviews now make the next two abstractions explicit:
   hardening split inside that substrate: `retrieved` vs `used` vs
   `vindicated`, and `advisory` vs `admissible`. The substrate now has
   the first real later-vindication path for pending same-family source
-  uses, but broader vindication policy and quarantine reopening policy
-  are still missing.
+  uses, and quarantine reopening is now real for explicitly
+  quarantined non-core rules; broader vindication policy beyond the
+  current source/stale/loop paths is still missing.
 - **Step 2:** the executor seam belongs in `rules.clj` as
   `execute-rule`, not as growing local effect machinery inside
   `goal_families.clj`.
@@ -290,6 +291,36 @@ The first honest Step 2 slices are now in code:
   promotion + flag membrane
 - only then build verified paths and generic `:clojure-fn`
   dispatch
+
+### Benchmark re-entry
+
+`Puppet Knows` benchmark re-entry is now partially executed against the
+hardened membrane:
+
+- 12-cycle regression return: **clean but only partly informative**
+- 50-cycle soak: **partial**
+
+Current read:
+
+- the benchmark now runs cleanly under the Step 1 / Step 2 contract
+- stored family-plan episodes remain `:provisional` at store time in
+  the live family-plan path
+- the benchmark does **not** yet exercise much of the new
+  use/outcome/promotion substrate: no family-plan episode accumulated
+  use history, promotion evidence, or anti-residue flags in the 12- or
+  50-cycle returns
+- rule-access gating is now live in activation, planning, and the
+  first frontier bridge, but the current benchmark run does not yet
+  produce meaningful quarantine/reopening movement
+- the 50-cycle soak drifts into a long rehearsal-dominant loop after
+  cycle 13, so the run is membrane-correct but not yet a strong
+  end-to-end read on promotion/vindication dynamics
+
+Treat the benchmark result as:
+
+- a **runtime/seam regression pass**
+- a **partial membrane integration read**
+- not yet a decisive architecture verdict on long-run memory ecology
 
 ### Deferred parallel fronts
 

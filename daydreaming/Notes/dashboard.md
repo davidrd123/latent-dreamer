@@ -84,6 +84,7 @@ Lane 1: Sprint (RuntimeThoughtBeatV1)             ← active project target
 Lane 2: Deep Build (kernel rule engine)            ← where the architecture lives
   ├── Memory ecology: promotion logic, anti-residue, accessibility frontier
   ├── Executor boundary: execute-rule in rules.clj, declarative effects
+  ├── Puppet Knows re-entry: 12-cycle clean, 50-cycle partial (rehearsal-dominant after cycle 13)
   ├── First :llm-backed pilot as episode evaluator
   └── See build-order-checkpoint-2026-03-22.md
 
@@ -150,9 +151,7 @@ See `condensation/build-order-checkpoint-2026-03-22.md` for full details.
 
 | Component | Priority | Blocked by |
 |-----------|----------|------------|
-| Promotion to :durable | High | Episode-use attribution |
-| Anti-residue flags | High | Detection logic |
-| Rule accessibility frontier | High | Promotion logic |
+| Benchmark re-entry with visible membrane dynamics | High | Benchmark behavior still too narrow |
 | execute-rule in rules.clj | Medium | Nothing |
 | :llm-backed evaluator | Medium | Executor boundary |
 | Verified paths | Lower | Graph heterogeneity |
@@ -198,8 +197,9 @@ See `condensation/build-order-checkpoint-2026-03-22.md` for full details.
 | Connection graph with real edges | Done | 2026-03-22 |
 | Code reviews shaped build order | Done | 2026-03-22 |
 | Mueller-to-kernel mapping verified | Done | 2026-03-22 |
-| Promotion + anti-residue + accessibility | In progress | |
-| Executor boundary (execute-rule) | In progress (roving effects local) | |
+| Promotion + anti-residue + accessibility | Substantially real | 2026-03-22 |
+| Executor boundary (execute-rule) | Substantially real | 2026-03-22 |
+| Puppet Knows benchmark re-entry | Partial | 2026-03-22 |
 | First :llm-backed evaluator | Not started | |
 | Verified paths | Not started | |
 | Cross-session write-back transfer (L4) | Not started | |
