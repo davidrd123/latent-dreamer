@@ -112,6 +112,7 @@
       (is (integer? (:dynamic-reversal-candidate-cycles run-summary)))
       (is (pos? (:cross-family-source-candidate-cycles run-summary)))
       (is (pos? (:cross-family-source-win-cycles run-summary)))
+      (is (>= (:distinct-cross-family-source-episode-count run-summary) 2))
       (is (>= (:episodes-with-cross-family-use-history run-summary) 2))
       (is (>= (:episodes-with-promotion-history run-summary) 2))
       (is (>= (:durable-episode-count run-summary) 2))
@@ -184,3 +185,23 @@
       (is (seq non-frontier-promoted))
       (is (every? #(= :durable (:admission-status %))
                   cross-family-promoted)))))
+
+(deftest fifty-cycle-miniworld-stays-legible-in-parking-lot-laps
+  (let [{:keys [run-summary]} (mini/run-miniworld {:cycles 50})
+        family-counts (:family-counts run-summary)
+        situation-counts (:situation-counts run-summary)]
+    (testing "the longer autonomous run stays active without collapsing to one family or one source"
+      (is (>= (:cycle-count run-summary) 50))
+      (is (>= (get family-counts :rationalization 0) 20))
+      (is (>= (get family-counts :reversal 0) 10))
+      (is (>= (get family-counts :rehearsal 0) 10))
+      (is (>= (get situation-counts :graffito_night_mural 0) 20))
+      (is (>= (get situation-counts :graffito_grandma_apartment 0) 10))
+      (is (>= (get situation-counts :graffito_street_overload 0) 10))
+      (is (>= (:reappraisal-flips run-summary) 10))
+      (is (>= (:challenge-mural-cycles run-summary) 20))
+      (is (>= (:cross-family-source-win-cycles run-summary) 10))
+      (is (>= (:distinct-cross-family-source-episode-count run-summary) 2))
+      (is (>= (:episodes-with-promotion-history run-summary) 2))
+      (is (>= (:durable-episode-count run-summary) 2))
+      (is (pos? (:rule-access-transition-count run-summary))))))

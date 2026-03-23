@@ -1466,6 +1466,10 @@
         cross-family-source-win-cycles
         (count (filter :cross-family-source-won?
                        cycle-summaries))
+        distinct-cross-family-source-episode-count
+        (count (->> cycle-summaries
+                    (keep :cross-family-source-episode-id)
+                    distinct))
         dynamic-rationalization-candidate-cycles
         (count (filter #(and (= :rationalization (:selected-family %))
                              (:dynamic-source-visible? %))
@@ -1505,6 +1509,8 @@
      :dynamic-source-win-cycles dynamic-source-win-cycles
      :cross-family-source-candidate-cycles cross-family-source-candidate-cycles
      :cross-family-source-win-cycles cross-family-source-win-cycles
+     :distinct-cross-family-source-episode-count
+     distinct-cross-family-source-episode-count
      :dynamic-rationalization-candidate-cycles dynamic-rationalization-candidate-cycles
      :dynamic-reversal-candidate-cycles dynamic-reversal-candidate-cycles
      :rule-access-transition-count rule-access-transition-count

@@ -530,13 +530,25 @@ The first Graffito kernel slices now exist:
     cross-family reuse, promotion, and frontier opening at all; it is
     how the miniworld broadens beyond these two rehearsal-targeted
     rationalization paths into additional distinct cross-family families
+  - longer "parking lot laps" now clarify the dynamic picture:
+    - at `50` cycles the miniworld stays non-collapsed
+      (`:rationalization 25`, `:reversal 13`, `:rehearsal 12`)
+    - at `100` cycles it is still active
+      (`:rationalization 50`, `:reversal 26`, `:rehearsal 24`), but the
+      tail has settled into a narrow repeating pattern centered on the
+      second durable rationalization episode rather than continuing to
+      discover new cross-family paths
+    - so the immediate lesson from longer runs is not "the miniworld is
+      dead"; it is "the current ecology is stable but becoming too
+      periodic," which strengthens the case for the next reusable move
+      being minimal kernel rehearsal rather than more benchmark-local
+      bridge invention
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:
 
-- keep the miniworld running longer and inspect whether retrieval,
-  provenance, and later reread remain legible when the three scenes
-  interact over time
+- keep the miniworld running longer as a baseline observation harness,
+  but do not mistake more laps alone for the next architectural step
 - watch for the first honest bridge from transient Tony-state shifts
   into membrane-mediated accumulation, rather than inventing sticky
   learned-capability floats
