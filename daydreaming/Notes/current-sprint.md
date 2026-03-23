@@ -215,12 +215,18 @@ The first honest Step 2 slices are now in code:
   so the family dispatch rules no longer declare only allowed op sets;
   they declare the expected ordered effect shape as part of the rule
   contract
+- `:effect-schema` is now closed at the top level for current
+  `:clojure-fn` rules: undeclared effect keys fail at the executor
+  boundary instead of drifting silently past the rule contract
 - `rules.clj` now owns the generic effect-program reduction/threading
   scaffold through `apply-effects`; `goal_families.clj` still owns the
   concrete family op handlers
 - `rules.clj` now also owns the first builtin effect handlers:
   `:context/sprout`, `:fact/assert`, `:facts/assert-many`,
   `:context/set-ordering`, and `:goal/set-next-context`
+- builtin `:goal/set-next-context` now fails closed on unknown goals,
+  and the family whole-program validator now rejects duplicate
+  symbolic producers across `:ref` / `:result-key`
 - `goal_families.clj` no longer applies family effects through one
   monolithic `case`; the local runtime is now an explicit op-handler
   registry dispatched by `rules/apply-effects`, and it now only keeps

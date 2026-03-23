@@ -193,12 +193,18 @@ Status update, 2026-03-22 late:
 - `execute-rule` now also validates rule-declared `:effect-schema`
   vectors, so the current `:clojure-fn` family rules declare an
   expected effect shape instead of only an allowed op list
+- the current family dispatch `:effect-schema` checks are now closed
+  at the top level, so undeclared effect keys fail at the boundary
+  instead of drifting past the rule contract
 - `rules.clj` now also owns the generic effect-program reduction and
   state-threading scaffold via `apply-effects`; the concrete family
   op handlers still live in `goal_families.clj`
 - `rules.clj` now also owns the first builtin effect handlers for
   context/fact/goal mutation, while `goal_families.clj` keeps only the
   family-semantic handlers
+- builtin `:goal/set-next-context` now fails closed on unknown goals,
+  and the family whole-program validator now rejects duplicate
+  symbolic producers across `:ref` / `:result-key`
 - `goal_families.clj` now exposes those handlers as an explicit
   op-handler registry instead of a monolithic local dispatcher
 - `:goal-family/roving-plan-dispatch` is now the first actual

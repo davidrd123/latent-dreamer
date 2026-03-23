@@ -164,12 +164,18 @@ Implemented first pass:
   ordered effect shape rather than only an allowed op set; this check
   is now actually order-sensitive rather than treating the effect
   program as an unordered fact bag
+- that `:effect-schema` check is now also closed at the top level for
+  current family dispatch rules: undeclared effect keys fail at the
+  executor boundary instead of drifting past the rule contract
 - `rules.clj` now also owns the generic effect-program
   reduction/threading scaffold via `apply-effects`; family code still
   owns op semantics, symbolic refs, and world mutation handlers
 - `rules.clj` now also owns the first builtin effect handlers:
   `:context/sprout`, `:fact/assert`, `:facts/assert-many`,
   `:context/set-ordering`, and `:goal/set-next-context`
+- builtin `:goal/set-next-context` now fails closed on unknown goals,
+  and the family whole-program validator now rejects duplicate
+  symbolic producers across `:ref` / `:result-key`
 - `goal_families.clj` now exposes those handlers as an explicit
   op-handler registry instead of a single monolithic dispatcher, and
   now only retains family-semantic handlers

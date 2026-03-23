@@ -285,6 +285,8 @@
                      :goal-id '?goal-id
                      :failed-goal-id '?failed-goal-id
                      :frame-id '?frame-id
+                     :fallback-trigger-emotion-id '?trigger-emotion-id
+                     :fallback-trigger-emotion-strength '?trigger-emotion-strength
                      :rule-provenance '?rule-provenance
                      :from-diversion :rationalization/diversion
                      :result-key :rationalization/afterglow}

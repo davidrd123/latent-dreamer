@@ -3094,58 +3094,27 @@
     (is (= :reappraised (:transition afterglow-consequent)))))
 
 (deftest rationalization-plan-effects-rejects-missing-producer-wiring
-  (let [[world root-id] (world-with-root)
-        [world trigger-context-id] (cx/sprout world root-id)
-        failed-goal-id :g-failed
-        emotion-id :e-dread
-        frame-id :rf-zone-mercy
-        frame-facts [guide-fact
-                     {:fact/type :rationalization
-                      :fact/id :zone_is_mercy}
-                     {:fact/type :rationalization
-                      :fact/id :delay_is_faith}]
-        world (-> world
-                  (cx/assert-fact trigger-context-id {:fact/type :goal
-                                                      :goal-id failed-goal-id
-                                                      :top-level-goal failed-goal-id
-                                                      :status :failed
-                                                      :activation-context trigger-context-id})
-                  (cx/assert-fact trigger-context-id {:fact/type :emotion
-                                                      :emotion-id emotion-id
-                                                      :strength 0.82
-                                                      :valence :negative
-                                                      :affect :dread})
-                  (cx/assert-fact trigger-context-id {:fact/type :dependency
-                                                      :from-id emotion-id
-                                                      :to-id failed-goal-id})
-                  (cx/assert-fact trigger-context-id
-                                  (rationalization-frame-fact frame-id
-                                                              failed-goal-id
-                                                              0.91
-                                                              frame-facts)))
-        [world rationalization-goal-id]
-        (goals/activate-top-level-goal
-         world
-         root-id
-         {:goal-type :rationalization
-          :planning-type :imaginary
-          :strength 0.82
-          :main-motiv :e-dread})
-        context-id (get-in world [:goals rationalization-goal-id :next-cx])
-        original-rationalization-effect-program
-        @#'daydreamer.goal-families/rationalization-effect-program]
-    (with-redefs [daydreamer.goal-families/rationalization-effect-program
-                  (fn [payload]
-                    (-> (original-rationalization-effect-program payload)
-                        (update 0 assoc :from-diversion :rationalization/diversion)))]
-      (is (thrown-with-msg? clojure.lang.ExceptionInfo
-                            #"missing prior result-key"
-                            (families/rationalization-plan-effects
-                             world
-                             {:goal-id rationalization-goal-id
-                              :context-id context-id
-                              :trigger-context-id trigger-context-id
-                              :failed-goal-id failed-goal-id}))))))
+  (let [[_world root-id] (world-with-root)
+        validator @#'daydreamer.goal-families/validate-family-effect-program!]
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo
+                          #"missing prior result-key"
+                          (validator
+                           {:rule {:id :goal-family/rationalization-plan-dispatch}
+                            :result {:effects [{:op :context/sprout
+                                                :source-context-id root-id
+                                                :ref :branch-context}
+                                               {:op :rationalization/assert-afterglow
+                                                :context-id root-id
+                                                :context-ref :branch-context
+                                                :goal-id :g-1
+                                                :failed-goal-id :g-failed
+                                                :frame-id :rf-1
+                                                :fallback-trigger-emotion-id :e-1
+                                                :fallback-trigger-emotion-strength 0.5
+                                                :rule-provenance {:rule-path []
+                                                                  :edge-path []}
+                                                :from-diversion :rationalization/diversion
+                                                :result-key :rationalization/afterglow}]}})))))
 
 (deftest rationalization-plan-effects-rejects-duplicate-symbolic-producers
   (let [[world root-id] (world-with-root)

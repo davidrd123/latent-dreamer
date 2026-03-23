@@ -1008,6 +1008,27 @@
                          :actual-count (count effects)
                          :effect-schema effect-schema
                          :effects effects})))
+      (when-let [key-mismatch
+                 (first
+                  (keep-indexed
+                   (fn [idx [pattern effect]]
+                     (let [expected-keys (set (keys pattern))
+                           actual-keys (set (keys effect))]
+                       (when (not= expected-keys actual-keys)
+                         {:effect-index idx
+                          :expected-keys (sort expected-keys)
+                          :actual-keys (sort actual-keys)
+                          :missing-keys (sort (set/difference expected-keys actual-keys))
+                          :unexpected-keys (sort (set/difference actual-keys expected-keys))
+                          :pattern pattern
+                          :effect effect})))
+                   (map vector effect-schema effects)))]
+        (throw (ex-info "RuleResultV1 effects do not satisfy closed effect-schema"
+                        {:rule-id (:id rule)
+                         :bindings bindings
+                         :effect-schema effect-schema
+                         :effects effects
+                         :key-mismatch key-mismatch})))
       (when-not (reduce (fn [current-bindings [pattern effect]]
                           (when current-bindings
                             (match-fact-pattern pattern effect current-bindings)))
