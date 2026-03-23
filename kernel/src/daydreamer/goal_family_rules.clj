@@ -418,7 +418,8 @@
     :provenance (rule-provenance
                  [:theme-reversal :theme-rationalization]
                  :proposed
-                 "Cross-family bridge from reversal's counterfactual aftershock into a rationalization trigger when a reframing frame is available.")}))
+                 "Cross-family bridge from reversal's counterfactual aftershock into a rationalization trigger when a reframing frame is available."
+                 :authored-frontier)}))
 
 (def reversal-plan-request-rule
   (planning-rule

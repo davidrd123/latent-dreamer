@@ -714,6 +714,12 @@
    (some #(= :quarantined (:to-status %))
          (:history entry))))
 
+(defn- latest-quarantine-transition
+  [entry]
+  (->> (:history entry)
+       (filter #(= :quarantined (:to-status %)))
+       last))
+
 (defn set-rule-access-status
   "Update a rule's dynamic accessibility status with structured history.
 
@@ -771,11 +777,15 @@
     (reduce (fn [[current-world transitions] rule-id]
               (let [entry (rule-access-info current-world graph-or-rules rule-id)
                     source (:source entry)
+                    quarantine-transition (latest-quarantine-transition entry)
                     target-status (cond
                                     (and promoted?
                                          (= :quarantined (:status entry))
                                          (not (contains? #{:authored-core :core} source))
-                                         (transition-quarantined? entry))
+                                         (transition-quarantined? entry)
+                                         (some? (:episode-id quarantine-transition))
+                                         (not= (:episode-id quarantine-transition)
+                                               (:id episode)))
                                     :frontier
 
                                     (and promoted?

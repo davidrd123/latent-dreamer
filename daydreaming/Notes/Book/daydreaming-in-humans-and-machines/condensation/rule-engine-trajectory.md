@@ -156,6 +156,10 @@ frontier:
 - serendipity reads an `:accessible ∪ :frontier` view
 - durable promotion can open frontier rules
 - hard-failure demotion can quarantine non-core rules
+- `:goal-family/reversal-aftershock-to-rationalization` is now the
+  first live `:authored-frontier` bridge, and cross-family trigger
+  emission reads the serendipity-filtered access view instead of raw
+  bridge lists
 
 That keeps `build-connection-graph` structural while finally restoring
 Mueller's missing "planner frontier" as state rather than graph essence.

@@ -74,6 +74,15 @@
   [world]
   (rules/serendipity-graph world (family-structural-graph)))
 
+(defn- active-cross-family-rules
+  [world]
+  (let [allowed-rule-ids (->> (:rules (family-serendipity-graph world))
+                              (map :id)
+                              set)]
+    (->> (cross-family-rules)
+         (filter #(contains? allowed-rule-ids (:id %)))
+         vec)))
+
 (defn- seed-rule-provenance
   [rule]
   {:rule-path [(:id rule)]
@@ -1156,7 +1165,7 @@
   (->> (keys (:contexts world))
        (mapcat (fn [context-id]
                  (let [facts (cx/visible-facts world context-id)]
-                   (->> (cross-family-rules)
+                   (->> (active-cross-family-rules world)
                         (mapcat (fn [rule]
                                   (->> (rules/match-rule rule facts)
                                        (keep (fn [{:keys [bindings matched-facts]}]

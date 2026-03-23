@@ -94,12 +94,19 @@ Implemented in the first pass:
 - graph views are now split above the structural graph:
   planning view filters to `:accessible`, serendipity view allows
   `:accessible ∪ :frontier`
+- `:goal-family/reversal-aftershock-to-rationalization` now starts as
+  the first real `:authored-frontier` bridge rule, not just a
+  documented future case
+- actual cross-family trigger emission now reads that access split
+  instead of walking the raw bridge-rule list, so quarantining a
+  frontier bridge suppresses the handoff in runtime behavior
 - durable episode promotion can open frontier rules to
   `:accessible`, and hard-failure demotion can quarantine non-core
   rules on the episode's rule path
 - later durable evidence can now reopen explicitly quarantined
   non-core rules to `:frontier`, so quarantine is no longer purely
-  one-way
+  one-way; reopening now requires later durable evidence from a
+  different episode than the one that quarantined the rule
 
 Still missing inside step 1:
 - broader family coverage for episode-use logs with attributed outcomes

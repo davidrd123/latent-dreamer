@@ -63,11 +63,16 @@ As the system accumulates episodes, rules, and graph connections:
   the structural rule graph
 - planning and serendipity now read filtered graph views above the
   raw structural graph instead of treating every rule as equally live
+- `:goal-family/reversal-aftershock-to-rationalization` is now the
+  first real `:authored-frontier` bridge rule, and cross-family trigger
+  emission respects that split in actual runtime behavior rather than
+  only in graph inspection helpers
 - durable promotion can now open frontier rules, and hard-failure
   demotion can quarantine non-core rules touched by an episode path
 - later durable evidence can now reopen explicitly quarantined
   non-core rules to `:frontier`, so quarantine is no longer purely
-  one-way
+  one-way; reopening now requires later durable evidence from a
+  different episode than the quarantine event
 - The missing piece is broader evaluator discipline, later demotion,
   and downstream evidence that can set or clear these flags across a
   fuller reopening / rehabilitation policy.

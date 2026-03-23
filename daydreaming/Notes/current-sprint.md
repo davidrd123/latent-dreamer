@@ -170,12 +170,19 @@ and "deserves future influence":
 - planning and serendipity now read different filtered graph views:
   ordinary roving seed ranking uses planning view, while reminding-side
   provenance scoring uses serendipity view
+- `:goal-family/reversal-aftershock-to-rationalization` now starts as
+  the first real `:authored-frontier` bridge rule instead of just
+  metadata-marked scaffolding
+- cross-family trigger emission now honors that access split in actual
+  runtime behavior: the bridge can fire while frontier-visible to
+  serendipity, and quarantining it now suppresses that handoff
 - durable promotion can now open frontier rules to `:accessible`,
   and hard-failure demotion can quarantine non-core rules touched by
   an episode's rule path
 - later durable evidence can now reopen explicitly quarantined
   non-core rules to `:frontier`; quarantine is no longer purely
-  one-way, though broader reopening policy is still missing
+  one-way, and reopening now requires later durable evidence from a
+  different episode than the one that quarantined the rule
 - external family evaluators can now return an explicit
   promotion decision; heuristic mode stays conservative, and that
   evaluator output is now advisory/gating input rather than direct

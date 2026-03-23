@@ -3786,7 +3786,77 @@
     (is (= expected-rule-provenance
            (:rule-provenance activation-event)))
     (is (= (:id rationalization-goal)
-           (:goal-id activation-event)))))
+           (:goal-id activation-event)))
+    (is (= :frontier
+           (get-in world
+                   [:rule-access
+                    :goal-family/reversal-aftershock-to-rationalization
+                    :status])))))
+
+(deftest quarantined-frontier-rule-does-not-dispatch-rationalization-from-reversal-aftershock
+  (let [[world root-id] (world-with-root)
+        world (assoc world :reality-context root-id)
+        [world old-context-id old-top-level-goal-id emotion-id]
+        (seed-reversal-bridge-context world root-id)
+        dependency {:fact/type :dependency
+                    :from-id emotion-id
+                    :to-id old-top-level-goal-id}
+        frame-id :rf-reversal-reframe
+        world (-> world
+                  (cx/retract-fact old-context-id dependency)
+                  (cx/assert-fact old-context-id
+                                  (rationalization-frame-fact frame-id
+                                                              old-top-level-goal-id
+                                                              0.76
+                                                              [guide-fact])))
+        world (rules/sync-rule-access-registry world (families/family-rules))
+        [world _]
+        (rules/set-rule-access-status world
+                                      (families/family-rules)
+                                      :goal-family/reversal-aftershock-to-rationalization
+                                      :quarantined
+                                      {:reason :test-quarantine
+                                       :episode-id :ep-test-quarantine})
+        [world reversal-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :reversal
+          :planning-type :imaginary
+          :strength 0.74
+          :main-motiv emotion-id
+          :trigger-context-id old-context-id
+          :trigger-failed-goal-id old-top-level-goal-id
+          :trigger-emotion-id emotion-id
+          :trigger-emotion-strength 0.7})
+        new-context-id (get-in world [:goals reversal-goal-id :next-cx])
+        [world reversal-result]
+        (families/run-family-plan world
+                                  {:goal-id reversal-goal-id
+                                   :old-context-id old-context-id
+                                   :old-top-level-goal-id old-top-level-goal-id
+                                   :failed-goal-id old-top-level-goal-id
+                                   :new-context-id new-context-id
+                                   :new-top-level-goal-id reversal-goal-id
+                                   :input-facts [counterfactual-fact]})
+        world (families/activate-family-goals world)
+        rationalization-goals (->> (vals (:goals world))
+                                   (filter #(= :rationalization (:goal-type %)))
+                                   (remove #(= reversal-goal-id (:id %)))
+                                   vec)
+        rationalization-events (->> (:activation-events world)
+                                    (filter #(= :rationalization (:goal-type %)))
+                                    vec)]
+    (is (some? (:affect-state-fact reversal-result)))
+    (is (= :quarantined
+           (get-in world
+                   [:rule-access
+                    :goal-family/reversal-aftershock-to-rationalization
+                    :status])))
+    (is (= []
+           rationalization-goals))
+    (is (= []
+           rationalization-events))))
 
 (deftest rationalization-plan-extends-bridged-activation-provenance
   (let [[world root-id] (world-with-root)
