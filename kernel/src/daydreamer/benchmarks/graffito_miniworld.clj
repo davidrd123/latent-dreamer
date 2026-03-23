@@ -24,9 +24,9 @@
 
 (def ^:private street-goal-id :g_tony_get_past_the_laughing_line)
 (def ^:private street-leaf-goal-id :g_tony_make_it_to_shelter)
-(def ^:private apartment-goal-id :g_tony_be_seen_rightly)
 (def ^:private mural-threat-goal-id :g_tony_hold_line_at_mural)
 (def ^:private mural-challenge-goal-id :g_tony_make_the_mark_hold)
+(def ^:private apartment-goal-id mural-challenge-goal-id)
 (def ^:private mural-leaf-goal-id :g_tony_stay_unseen)
 
 (def ^:private street-emotion-id :e_tony_mockery_panic)
@@ -171,12 +171,14 @@
    (typed-fact :appraisal :crookedness_can_be_style)])
 
 (def ^:private apartment-reframe-facts
-  [(typed-fact :person-object-relation :tony_trusts_can_lineage)
+  [(typed-fact :cross-layer-correspondence :can_corresponds_to_sensory_capacity)
+   (typed-fact :sensorimotor-input :light_jolt_floods_attention)
+   (typed-fact :sensorimotor-input :noise_fragments_precision)
+   (typed-fact :person-object-relation :tony_trusts_can_lineage)
    (typed-fact :person-object-relation :sketchbook_turns_sprawl_into_sequence)
    (typed-fact :person-object-relation :monk_co_regulates_tony_with_rhythm)
    (typed-fact :cross-layer-correspondence :grandma_counterpart_of_motherload)
    (typed-fact :cross-layer-correspondence :school_counterpart_of_castle)
-   (typed-fact :cross-layer-correspondence :can_corresponds_to_sensory_capacity)
    (typed-fact :artifact-state :can_phase_responsive)
    (typed-fact :appraisal :intensity_can_be_style)
    (typed-fact :appraisal :creation_restores_control)])
@@ -582,6 +584,13 @@
    :strength (clamp01 strength)
    :reasons (vec reasons)})
 
+(defn- candidate-origin-keyword
+  [origin]
+  (cond
+    (keyword? origin) origin
+    (string? origin) (keyword origin)
+    :else nil))
+
 (defn- apply-fatigue-adjustment
   [world candidate]
   (let [recent (get-in world [:graffito-miniworld :recent-choices] [])
@@ -960,9 +969,13 @@
                                    []))
         winner-origin (or (get-in family-plan [:selection :rationalization_frame_winner_origin])
                           (get-in family-plan [:selection :reversal_counterfactual_winner_origin]))
-        dynamic-source-candidate-count (count (filter #(= "dynamic" (:origin %))
+        dynamic-source-candidate-count (count (filter #(= :dynamic
+                                                          (candidate-origin-keyword
+                                                           (:origin %)))
                                                       source-candidates))
-        authored-source-candidate-count (count (filter #(= "authored" (:origin %))
+        authored-source-candidate-count (count (filter #(= :authored
+                                                           (candidate-origin-keyword
+                                                            (:origin %)))
                                                        source-candidates))
         summary {:cycle (:cycle world)
                  :selected-situation-id (:situation-id chosen-candidate)
@@ -986,7 +999,8 @@
                  :dynamic-source-candidate-count dynamic-source-candidate-count
                  :authored-source-candidate-count authored-source-candidate-count
                  :dynamic-source-visible? (pos? dynamic-source-candidate-count)
-                 :dynamic-source-won? (= "dynamic" winner-origin)
+                 :dynamic-source-won? (= :dynamic
+                                         (candidate-origin-keyword winner-origin))
                  :frame-id (get-in family-plan [:selection :rationalization_frame_id])
                  :source-id (get-in family-plan [:selection :reversal_counterfactual_source])
                  :rule-provenance (:rule-provenance family-plan)
