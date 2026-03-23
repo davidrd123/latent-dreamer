@@ -591,6 +591,59 @@
     (string? origin) (keyword origin)
     :else nil))
 
+(defn- summarize-preplan-source-candidates
+  [candidates]
+  {:source-candidate-count (count candidates)
+   :dynamic-source-candidate-count (count (filter #(= :dynamic
+                                                      (candidate-origin-keyword
+                                                       (:candidate-origin %)))
+                                                  candidates))
+   :authored-source-candidate-count (count (filter #(= :authored
+                                                       (candidate-origin-keyword
+                                                        (:candidate-origin %)))
+                                                   candidates))
+   :top-source-candidates
+   (mapv (fn [candidate]
+           {:origin (candidate-origin-keyword (:candidate-origin candidate))
+            :rank (:candidate-rank candidate)
+            :goal-id (:goal-id candidate)
+            :frame-id (:frame-id candidate)
+            :episode-id (:episode-id candidate)
+            :priority (:priority candidate)
+            :selection-policy (:selection-policy candidate)
+            :selection-reasons (:selection-reasons candidate)})
+         (take 4 candidates))})
+
+(defn- mural-rationalization-preplan-race
+  [world goal-id]
+  (let [goal (get-in world [:goals goal-id])
+        trigger-context-id (:trigger-context-id goal)
+        failed-goal-id (:trigger-failed-goal-id goal)
+        candidates (families/rationalization-frame-candidates
+                    world
+                    {:trigger-context-id trigger-context-id
+                     :failed-goal-id failed-goal-id})]
+    (assoc (summarize-preplan-source-candidates candidates)
+           :trigger-context-id trigger-context-id
+           :failed-goal-id failed-goal-id)))
+
+(defn- maybe-withdraw-authored-mural-frame
+  [world chosen-candidate goal-id]
+  (if-not (= :mural-rationalization (:operator-key chosen-candidate))
+    [world {:authored-source-withdrawn? false}]
+    (let [preplan-race (mural-rationalization-preplan-race world goal-id)
+          dynamic-visible? (pos? (:dynamic-source-candidate-count preplan-race))]
+      [(cond-> world
+         dynamic-visible?
+         (cx/retract-fact (mural-context-id world)
+                          (rationalization-frame-fact mural-challenge-frame-id
+                                                      mural-challenge-goal-id
+                                                      0.9
+                                                      mural-challenge-reframe-facts)))
+       (assoc preplan-race
+              :dynamic-source-visible? dynamic-visible?
+              :authored-source-withdrawn? dynamic-visible?)])))
+
 (defn- apply-fatigue-adjustment
   [world candidate]
   (let [recent (get-in world [:graffito-miniworld :recent-choices] [])
@@ -955,6 +1008,9 @@
         appraisal-before (get-in world [:graffito-miniworld :mural-projection :appraisal-mode])
         regulation-before (get-in world [:graffito-miniworld :mural-projection :regulation-mode])
         world (append-cycle world (trace-cycle-base world chosen-candidate top-candidates))
+        [world preplan-race] (maybe-withdraw-authored-mural-frame world
+                                                                  chosen-candidate
+                                                                  goal-id)
         [world family-plan] (families/run-family-plan world {:goal-id (:goal-id chosen-candidate)})
         world (-> world
                   (update-tony-and-object-state (:operator-key chosen-candidate))
@@ -1001,6 +1057,7 @@
                  :dynamic-source-visible? (pos? dynamic-source-candidate-count)
                  :dynamic-source-won? (= :dynamic
                                          (candidate-origin-keyword winner-origin))
+                 :preplan-race preplan-race
                  :frame-id (get-in family-plan [:selection :rationalization_frame_id])
                  :source-id (get-in family-plan [:selection :reversal_counterfactual_source])
                  :rule-provenance (:rule-provenance family-plan)
@@ -1017,7 +1074,8 @@
         :tony-state-after (:tony-state-after summary)
         :mural-appraisal-before appraisal-before
         :mural-appraisal-after appraisal-after
-        :reappraisal-flip? (:reappraisal-flip? summary)}})
+        :reappraisal-flip? (:reappraisal-flip? summary)
+        :preplan-race preplan-race}})
      summary]))
 
 (defn- execute-rehearsal-candidate

@@ -502,12 +502,17 @@ The first Graffito kernel slices now exist:
   - the miniworld now exposes accumulation-facing run summary counters
     directly in code: stored episodes, use-history, promotion-history,
     anti-residue flags, and dynamic source-race visibility
-  - on the current 20-cycle first pass, the first accumulation on-ramp
-    is now visible: `8` dynamic source candidate cycles (all
-    rationalization-side), but still `0` dynamic wins, `0` use-history,
-    `0` promotion-history, and `0` flags. So the next honest question
-    is no longer whether Graffito episodes can enter a later race; it is
-    how they start winning and feeding the membrane
+  - on the current 20-cycle first pass, the first live Graffito
+    membrane movement is now visible:
+    - `8` dynamic source candidate cycles, all rationalization-side
+    - `8` dynamic source wins
+    - `4` episodes with use-history
+    - `4` episodes with anti-residue flags (`:same-family-loop`)
+    - still `0` promotion-history and `0` durable episodes
+  - so the next honest question is no longer whether Graffito episodes
+    can enter or win a later race; it is how the miniworld produces a
+    real cross-family Graffito reuse path that can feed promotion rather
+    than only same-family loop defense
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:

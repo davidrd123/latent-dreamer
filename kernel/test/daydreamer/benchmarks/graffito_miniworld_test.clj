@@ -95,10 +95,11 @@
     (testing "accumulation observability is explicit even before durable skill movement appears"
       (is (integer? (:episodes-with-use-history run-summary)))
       (is (integer? (:episodes-with-promotion-history run-summary)))
-      (is (integer? (:episodes-with-flags run-summary)))
+      (is (pos? (:episodes-with-use-history run-summary)))
+      (is (pos? (:episodes-with-flags run-summary)))
       (is (integer? (:durable-episode-count run-summary)))
       (is (integer? (:provisional-episode-count run-summary)))
       (is (pos? (:dynamic-source-candidate-cycles run-summary)))
-      (is (integer? (:dynamic-source-win-cycles run-summary)))
+      (is (pos? (:dynamic-source-win-cycles run-summary)))
       (is (pos? (:dynamic-rationalization-candidate-cycles run-summary)))
       (is (integer? (:dynamic-reversal-candidate-cycles run-summary))))))
