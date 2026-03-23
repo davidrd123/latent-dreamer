@@ -68,15 +68,45 @@ but connection works.
 
 ---
 
+## Evaluation framing
+
+Non-collapsed dynamics are the minimum proof that the kernel is
+alive, not the whole destination. The membrane is one of the key
+mechanisms that makes those dynamics possible. Graffito is the
+first serious test of whether those same dynamics can operate over
+meaningful psychological state rather than toy pressure maps. The
+job is not to choose between kernel dynamics and rich material; it
+is to verify the dynamics on progressively richer material without
+losing mechanistic clarity.
+
+Three-level stack, in order:
+
+1. **Mechanism integrity** — unit tests, fixed-chain proof, Assay A,
+   Assay B. Does each piece work? Do the pieces connect?
+2. **Behavioral dynamics** — extended autonomous runs, observed.
+   Does the system stay non-collapsed? Does retrieval diversify?
+   Do flags change later behavior? Are cycles path-dependent?
+3. **Meaningful domain adequacy** — Graffito microfixtures with typed
+   facts, relationships, objects, tensions. Do the same dynamics
+   still work when the state has real psychological structure? Does
+   rationalization find a reframe that's *about* something? Does
+   reversal find a counterfactual that's structurally meaningful?
+
+"Does this feel like a mind?" is the guiding question. The answer
+lives in the dynamics, but dynamics on toy material are not the full
+claim. The full claim is: history-sensitive inner dynamics over
+meaningful, structured situations.
+
+---
+
 ## Current Objective
 
-**Option A is active:** rule connection graph + memory ecology
-discipline.
+**Memory ecology discipline + progressive benchmark ladder.**
 
-The graph itself is no longer the only frontier. The immediate
-risk is that family-plan output enters reusable memory too early
-and too uniformly, creating grooves before the executor boundary
-and path verifier are real.
+The membrane substrate (admission tiers, anti-residue flags,
+promotion chain, executor boundary) is in a good resting state.
+Assay A is frozen as a regression. The next steps follow the
+three-level stack above.
 
 ### What is already true
 
@@ -376,16 +406,60 @@ The new narrow membrane fixture benchmark now closes the next proof gap:
   `:same-family-loop` flag, so the fixture has already crossed from
   Level 1 / Level 2 into a first narrow Level 3 membrane movement
 - so the benchmark ladder is now:
-  - Puppet Knows: runtime/seam regression, still authored-dominant
-  - membrane fixture: live Level 1 / Level 2 membrane integration
-  - fixed-chain episode test: direct promotion/access proof when handed
-    clean evidence
 
-What still remains unproven live is Level 3 movement inside a benchmark:
-promotion, broader demotion/rehabilitation, and frontier opening from
-naturally produced cross-family evidence rather than a handcrafted test
-chain. The fixture now proves one real flag path, but not yet the full
-promotion/access loop.
+  ```
+  Puppet Knows         runtime/seam regression (authored-dominant, stays)
+  Assay A (current)    L1/L2 + first flag (same-family-loop) — PASSED
+  Fixed-chain test     direct promotion/access proof with clean evidence — PASSED
+  Assay B (future)     cross-family-use-success -> durable -> frontier open
+  Graffito miniworld   typed fact-space benchmark (after situation model work)
+  ```
+
+Assay A is now frozen as the narrow L1/L2 + first-flag regression.
+What still remains unproven live is the positive promotion path:
+cross-family evidence accumulation, durable promotion, and frontier
+opening from naturally produced evidence rather than a handcrafted
+test chain. That belongs in Assay B as a sibling fixture, not by
+bloating Assay A.
+
+That sibling fixture now exists:
+
+- `kernel/src/daydreamer/benchmarks/membrane_assay_b.clj` is the
+  deterministic positive-evidence assay built on top of Assay A's
+  two-situation world
+- it suppresses the ordinary rationalization trigger in situation A so
+  the live `:goal-family/reversal-aftershock-to-rationalization`
+  frontier bridge becomes the on-ramp for a stored rationalization
+  episode
+- the deterministic cycle sequence is:
+  - authored reversal in situation B
+  - dynamic reversal in situation A
+  - bridged rationalization in situation A
+  - first cross-family success probe in situation B
+  - second cross-family success probe in situation B
+- the live result is now:
+  - a bridged rationalization family-plan episode is stored with the
+    real frontier bridge in its `:rule-path`
+  - two later cross-family successes are recorded through the real
+    episode-use / outcome / admission chain
+  - that episode promotes from `:provisional` to `:durable`
+  - the seeded frontier bridge opens from `:frontier` to `:accessible`
+
+So the benchmark ladder is now:
+
+```
+Puppet Knows         runtime/seam regression (authored-dominant, stays)
+Assay A              L1/L2 + first flag (same-family-loop) — PASSED
+Fixed-chain test     direct promotion/access proof with clean evidence — PASSED
+Assay B              live cross-family success -> durable -> frontier open — PASSED
+Graffito miniworld   typed fact-space benchmark (after situation model work)
+```
+
+The next design energy should pivot toward the Graffito kernel brief
+(`experiential-design/24-graffito-kernel-brief.md`) and the richer
+situation model it requires. See the 5 Pro research sift at
+`condensation/research-sift-cold-start-and-situation-model.md` for
+the outside-knowledge foundation.
 
 ### Deferred parallel fronts
 
