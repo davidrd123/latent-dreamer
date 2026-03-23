@@ -496,9 +496,13 @@ The first Graffito kernel slices now exist:
     -> mural crisis`) instead of a hand-sequenced slice
   - on the current 20-cycle deterministic run, the kernel visits all
     three situations, uses all three live families/operators
-    (`:rationalization 10`, `:reversal 6`, `:rehearsal 4`), stores 16
-    family-plan episodes, and produces 6 autonomous reread flips with
+    (`:rationalization 10`, `:reversal 6`, `:rehearsal 4`), stores 20
+    family-plan episodes, and produces 5 autonomous reread flips with
     8 challenge-reading mural cycles
+  - the Graffito control delta is still authored in the benchmark, but
+    rehearsal is no longer only benchmark-local glue: rehearsal
+    provenance, source-use, and episode storage now flow through the
+    kernel family-plan path
   - the miniworld now exposes accumulation-facing run summary counters
     directly in code: stored episodes, use-history, promotion-history,
     anti-residue flags, and dynamic source-race visibility
@@ -540,15 +544,18 @@ The first Graffito kernel slices now exist:
       discover new cross-family paths
     - so the immediate lesson from longer runs is not "the miniworld is
       dead"; it is "the current ecology is stable but becoming too
-      periodic," which strengthens the case for the next reusable move
-      being minimal kernel rehearsal rather than more benchmark-local
-      bridge invention
+      periodic," which is exactly why minimal kernel rehearsal was the
+      right next reusable move instead of more benchmark-local bridge
+      invention
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:
 
 - keep the miniworld running longer as a baseline observation harness,
   but do not mistake more laps alone for the next architectural step
+- use the new kernel-owned rehearsal seam as the reusable baseline for
+  the next family-ecology move, rather than adding more benchmark-local
+  rehearsal glue
 - watch for the first honest bridge from transient Tony-state shifts
   into membrane-mediated accumulation, rather than inventing sticky
   learned-capability floats

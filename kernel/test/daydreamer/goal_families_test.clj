@@ -1066,6 +1066,87 @@
                    [:provenance-episode-index
                     :goal-family/roving-plan-dispatch])))))
 
+(deftest run-family-plan-kernelizes-authored-rehearsal-routine-with-source-use
+  (let [[world root-id] (world-with-root)
+        [world context-id] (cx/sprout world root-id)
+        [world source-episode-id]
+        (episodic/add-episode
+         world
+         {:rule :goal-family/rationalization-plan-dispatch
+          :goal-id :g-source
+          :context-id context-id
+          :realism :plausible
+          :desirability :positive
+          :admission-status :provisional
+          :retention-class :payload-exemplar
+          :keep-decision :keep-exemplar
+          :promotion-eligible? true
+          :promotion-basis :reframe-facts
+          :content-indices #{:monk_counts_a_holdable_beat}
+          :provenance-indices #{:goal-family/rationalization-plan-request
+                                :goal-family/rationalization-plan-dispatch}
+          :support-indices #{:family/rationalization
+                             :g-source
+                             :stored_rationalization_frame}
+          :provenance {:source :family-plan
+                       :family :rationalization
+                       :selection {:rationalization_frame_id :rf-test}}
+          :rule-path [:goal-family/rationalization-plan-request
+                      :goal-family/rationalization-plan-dispatch]
+          :payload {:reframe-facts [guide-fact]
+                    :frame-id :rf-test
+                    :frame-goal-id :g-source}})
+        [world family-plan]
+        (families/run-family-plan
+         world
+         {:goal-type :rehearsal
+          :goal-id :rt-counted-stroke
+          :context-id context-id
+          :routine-id :rt-counted-stroke
+          :operator-id :op-counted-stroke
+          :precondition-ids [:monk_counts_a_holdable_beat
+                             :sketchbook_holds_the_mark]
+          :selection-reasons [:support_need :rhythm_routine :control_repair]
+          :routine-fact-ids [:monk_counts_a_holdable_beat
+                             :sketchbook_holds_the_mark]
+          :source-episode-id source-episode-id
+          :source-use-role :rehearsal-support-source
+          :source-use-outcome {:outcome :succeeded
+                               :reason :rehearsal-regulation-success}
+          :episode-payload {:situation-id :graffito_grandma_apartment}})
+        family-episode-id (:family-episode-id family-plan)
+        stored-episode (get-in world [:episodes family-episode-id])
+        source-episode (get-in world [:episodes source-episode-id])
+        recorded-use (last (:use-history source-episode))]
+    (is (= :rehearsal (:family family-plan)))
+    (is (= (expected-rule-provenance :goal-family/rehearsal-plan-request
+                                     :goal-family/rehearsal-plan-dispatch
+                                     :family-plan-request)
+           (:rule-provenance family-plan)))
+    (is (= :authored_rehearsal_routine
+           (get-in family-plan [:selection :rehearsal_selection_policy])))
+    (is (= context-id
+           (get-in family-plan [:selection :rehearsal_context])))
+    (is (= source-episode-id
+           (get-in family-plan [:selection :rehearsal_source_episode])))
+    (is (= family-episode-id
+           (get-in family-plan [:selection :family_plan_episode_id])))
+    (is (= :provisional (:admission-status family-plan)))
+    (is (= :payload-exemplar (:retention-class stored-episode)))
+    (is (= [:goal-family/rehearsal-plan-request
+            :goal-family/rehearsal-plan-dispatch]
+           (:rule-path stored-episode)))
+    (is (= #{:monk_counts_a_holdable_beat
+             :sketchbook_holds_the_mark}
+           (:content-indices stored-episode)))
+    (is (= :rehearsal-support-source (:use-role recorded-use)))
+    (is (= :rationalization (:source-family recorded-use)))
+    (is (= :rehearsal (:target-family recorded-use)))
+    (is (= :succeeded
+           (get-in family-plan [:result :episode-source-outcome :outcome])))
+    (is (= []
+           (get-in family-plan [:result :episode-source-rule-access-transitions])))))
+
 (deftest stored-roving-family-plan-episode-is-retrievable-by-structure
   (let [[world root-id] (world-with-root)
         [world pleasant-episode-id]
@@ -2825,6 +2906,8 @@
              :goal-family/roving-plan-dispatch
              :goal-family/rationalization-plan-request
              :goal-family/rationalization-plan-dispatch
+             :goal-family/rehearsal-plan-request
+             :goal-family/rehearsal-plan-dispatch
              :goal-family/reversal-plan-request
              :goal-family/reversal-plan-dispatch}
            (set (keys rules-by-id))))
@@ -2861,6 +2944,36 @@
                             :trigger-emotion-id
                             :trigger-emotion-strength
                             :frame-id
+                            :ordering
+                            :selection-policy}
+             :edge-kind :state-transition}
+            {:from-rule :goal-family/rehearsal-plan-request
+             :to-rule :goal-family/rehearsal-plan-dispatch
+             :from-projection {:fact/type :family-plan-request
+                               :goal-type :rehearsal
+                               :goal-id '?goal-id
+                               :context-id '?context-id
+                               :trigger-context-id '?trigger-context-id
+                               :routine-id '?routine-id
+                               :operator-id '?operator-id
+                               :ordering '?ordering
+                               :selection-policy :authored_rehearsal_routine}
+             :to-projection {:fact/type :family-plan-request
+                             :goal-type :rehearsal
+                             :goal-id '?goal-id
+                             :context-id '?context-id
+                             :trigger-context-id '?trigger-context-id
+                             :routine-id '?routine-id
+                             :operator-id '?operator-id
+                             :ordering '?ordering
+                             :selection-policy '?selection-policy}
+             :bindings {}
+             :shared-keys #{:goal-type
+                            :goal-id
+                            :context-id
+                            :trigger-context-id
+                            :routine-id
+                            :operator-id
                             :ordering
                             :selection-policy}
              :edge-kind :state-transition}
@@ -2937,6 +3050,12 @@
     (is (= 1
            (count (get-in rules-by-id
                           [:goal-family/rationalization-plan-dispatch :graph-cache :in-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/rehearsal-plan-request :graph-cache :out-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/rehearsal-plan-dispatch :graph-cache :in-edge-bases]))))
     (is (= 1
            (count (get-in rules-by-id
                           [:goal-family/reversal-plan-request :graph-cache :out-edge-bases]))))

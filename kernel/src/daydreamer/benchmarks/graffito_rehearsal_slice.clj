@@ -407,9 +407,10 @@
       (assoc-in [:graffito-rehearsal-slice :objects] rehearsed-object-state)))
 
 (defn run-apartment-rehearsal-cycle
-  "Run one authored apartment rehearsal routine. This is intentionally
-  benchmark-local: it proves rehearsal can change Tony's embodied control
-  without introducing a full rehearsal planner yet."
+  "Run one authored apartment rehearsal routine. The control delta remains
+  benchmark-local here on purpose: the slice proves rehearsal can change
+  Tony's embodied control without pretending the kernel already owns a full
+  rehearsal planner."
   [world]
   (when-not (rehearsal-routine-ready? world)
     (throw (ex-info "Graffito Slice 3 expected authored rehearsal preconditions"

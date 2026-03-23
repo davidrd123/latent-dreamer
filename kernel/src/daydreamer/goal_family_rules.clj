@@ -44,6 +44,9 @@
 (def rationalization-plan-policy
   :stored_rationalization_frame)
 
+(def rehearsal-plan-policy
+  :authored_rehearsal_routine)
+
 (def rationalization-diversion-policy
   :divert_emot_to_tlg_bridge)
 
@@ -508,6 +511,64 @@
                  :partial
                  "Consumes a reversal plan request into the current bounded plan payload.")}))
 
+(def rehearsal-plan-request-rule
+  (planning-rule
+   {:id :goal-family/rehearsal-plan-request
+    :antecedent [{:fact/type :family-plan-ready
+                  :goal-type :rehearsal
+                  :goal-id '?goal-id
+                  :context-id '?context-id
+                  :trigger-context-id '?trigger-context-id
+                  :routine-id '?routine-id
+                  :operator-id '?operator-id
+                  :ordering '?ordering}]
+    :consequent [{:fact/type :family-plan-request
+                  :goal-type :rehearsal
+                  :goal-id '?goal-id
+                  :context-id '?context-id
+                  :trigger-context-id '?trigger-context-id
+                  :routine-id '?routine-id
+                  :operator-id '?operator-id
+                  :ordering '?ordering
+                  :selection-policy rehearsal-plan-policy}]
+    :plausibility 1.0
+    :denotation (denotation :emit-rehearsal-plan-request
+                            [:missing-authored-routine
+                             :missing-planning-context])
+    :executor-spec {:requires-context? true}
+    :provenance (rule-provenance
+                 [:theme-rehearsal]
+                 :partial
+                 "Graphable request fact for authored rehearsal routine planning.")}))
+
+(def rehearsal-plan-dispatch-rule
+  (planning-rule
+   {:id :goal-family/rehearsal-plan-dispatch
+    :antecedent [{:fact/type :family-plan-request
+                  :goal-type :rehearsal
+                  :goal-id '?goal-id
+                  :context-id '?context-id
+                  :trigger-context-id '?trigger-context-id
+                  :routine-id '?routine-id
+                  :operator-id '?operator-id
+                  :ordering '?ordering
+                  :selection-policy '?selection-policy}]
+    :consequent [{:goal-id '?goal-id
+                  :context-id '?context-id
+                  :trigger-context-id '?trigger-context-id
+                  :routine-id '?routine-id
+                  :operator-id '?operator-id
+                  :ordering '?ordering
+                  :selection-policy '?selection-policy}]
+    :plausibility 1.0
+    :denotation (denotation :dispatch-rehearsal-plan-request
+                            [:missing-family-plan-request])
+    :executor-spec {:request-goal-type :rehearsal}
+    :provenance (rule-provenance
+                 [:theme-rehearsal]
+                 :partial
+                 "Consumes an authored rehearsal plan request into the current bounded plan payload.")}))
+
 (def roving-trigger-rule
   (inference-rule
    {:id :goal-family/roving-trigger
@@ -773,7 +834,9 @@
    rationalization-plan-request-rule
    rationalization-plan-dispatch-rule
    reversal-plan-request-rule
-   reversal-plan-dispatch-rule])
+   reversal-plan-dispatch-rule
+   rehearsal-plan-request-rule
+   rehearsal-plan-dispatch-rule])
 
 (defn cross-family-rules
   "Return the currently extracted cross-family handoff rules."

@@ -1365,6 +1365,7 @@
     :rationalization (get-in family-plan
                              [:selection :rationalization_branch_context])
     :reversal (get-in family-plan [:selection :reversal_branch_context])
+    :rehearsal (get-in family-plan [:selection :rehearsal_context])
     nil))
 
 (defn- family-plan-retrieval-indices
@@ -1389,6 +1390,7 @@
       :roving (:roving_selection_policy selection)
       :rationalization (:rationalization_selection_policy selection)
       :reversal (:reversal_target_policy selection)
+      :rehearsal (:rehearsal_selection_policy selection)
       nil)))
 
 (defn- family-plan-payload-cluster
@@ -1404,6 +1406,9 @@
       :reversal [:family/reversal
                  (:family_goal_id selection)
                  (:reversal_counterfactual_source selection)]
+      :rehearsal [:family/rehearsal
+                  (:family_goal_id selection)
+                  (:rehearsal_routine_id selection)]
       [:family (:family family-plan) (:family_goal_id selection)])))
 
 (defn- family-plan-promotion-structure
@@ -1472,6 +1477,22 @@
                  :evaluation-reasons (cond-> [:counterfactual_reopened]
                                        (seq (:input-facts payload))
                                        (conj :reusable_counterfactual_payload))}
+      :rehearsal {:realism :plausible
+                  :desirability :positive
+                  :retention-class (if (seq (:routine-fact-ids payload))
+                                     :payload-exemplar
+                                     :hot-cues)
+                  :keep-decision (if (seq (:routine-fact-ids payload))
+                                   :keep-exemplar
+                                   :keep-hot)
+                  :promotion-decision :stay-provisional
+                  :anti-residue-flags []
+                  :payload-cluster payload-cluster
+                  :evaluation-source :heuristic
+                  :evaluation-reasons (cond-> [:embodied_control_routine
+                                               :supportive_regulation]
+                                        (seq (:routine-fact-ids payload))
+                                        (conj :reusable_routine_payload))}
       {:realism :imaginary
        :desirability :mixed
        :retention-class :hot-cues
@@ -1780,6 +1801,29 @@
         :emotion-strength emotion-strength
         :rule-provenance (goal-rule-provenance world goal-id)}])))
 
+(defn- rehearsal-plan-ready-facts
+  [world {:keys [goal-id
+                 context-id
+                 trigger-context-id
+                 routine-id
+                 operator-id
+                 ordering]
+          :or {ordering 1.0}}]
+  (let [goal-id (or goal-id routine-id)]
+    (when (and goal-id
+               context-id
+               routine-id
+               operator-id)
+      [{:fact/type :family-plan-ready
+        :goal-type :rehearsal
+        :goal-id goal-id
+        :context-id context-id
+        :trigger-context-id (or trigger-context-id context-id)
+        :routine-id routine-id
+        :operator-id operator-id
+        :ordering ordering
+        :rule-provenance (goal-rule-provenance world goal-id)}])))
+
 (defn- rationalization-plan-ready-facts
   [world {:keys [goal-id context-id trigger-context-id failed-goal-id frame-id ordering]
           :or {ordering 1.0}}]
@@ -1861,6 +1905,12 @@
    gf-rules/roving-plan-request-rule
    (roving-plan-ready-facts world opts)))
 
+(defn- rehearsal-plan-request-facts
+  [world opts]
+  (plan-request-facts-from-ready-facts
+   gf-rules/rehearsal-plan-request-rule
+   (rehearsal-plan-ready-facts world opts)))
+
 (defn roving-plan-effects
   "Build the first typed effect program for roving plan execution.
 
@@ -1887,6 +1937,28 @@
        :rule-provenance rule-provenance
        :surface-summary surface-summary
        :effects effects})))
+
+(defn rehearsal-plan-effects
+  "Build the minimal typed payload for an authored rehearsal routine.
+
+  This is intentionally smaller than the other families: the kernel owns the
+  family request/dispatch provenance, source-use bookkeeping, and episode
+  storage, while the benchmark still owns the concrete Tony/object state delta."
+  [world {:keys [goal-id context-id]
+          :as opts}]
+  (let [plan-request-facts (or (seq (rehearsal-plan-request-facts world opts))
+                               (throw (ex-info "REHEARSAL needs an authored routine"
+                                               {:opts opts})))
+        payload (first (plan-payloads-from-request-facts world plan-request-facts))]
+    (when payload
+      {:goal-id goal-id
+       :context-id context-id
+       :trigger-context-id (:trigger-context-id payload)
+       :routine-id (:routine-id payload)
+       :operator-id (:operator-id payload)
+       :ordering (:ordering payload)
+       :selection-policy (:selection-policy payload)
+       :rule-provenance (:rule-provenance payload)})))
 
 (defn- roving-effect-program
   [world {:keys [goal-id context-id episode-id ordering selection-policy rule-provenance]}]
@@ -2366,21 +2438,23 @@
           [world [] [] []]
           use-records))
 
-(defn- immediate-family-plan-source-outcome
+(defn- family-plan-source-outcome
   [family-plan]
-  (let [evaluation (:evaluation family-plan)
-        flags (set (:anti-residue-flags evaluation))]
-    (cond
-      (contains? flags :contradicted)
-      {:outcome :contradicted
-       :reason :family-evaluation-contradicted}
+  (or (:source-use-outcome family-plan)
+      (get-in family-plan [:result :source-use-outcome])
+      (let [evaluation (:evaluation family-plan)
+            flags (set (:anti-residue-flags evaluation))]
+        (cond
+          (contains? flags :contradicted)
+          {:outcome :contradicted
+           :reason :family-evaluation-contradicted}
 
-      (contains? flags :backfired)
-      {:outcome :backfired
-       :reason :family-evaluation-backfired}
+          (contains? flags :backfired)
+          {:outcome :backfired
+           :reason :family-evaluation-backfired}
 
-      :else
-      nil)))
+          :else
+          nil))))
 
 (defn- family-plan-source-episode
   [family-plan]
@@ -2396,6 +2470,13 @@
                                   [:selection :reversal_counterfactual_source])]
       {:episode-id episode-id
        :use-role :counterfactual-source})
+
+    :rehearsal
+    (when-let [episode-id (get-in family-plan
+                                  [:selection :rehearsal_source_episode])]
+      {:episode-id episode-id
+       :use-role (or (get-in family-plan [:selection :rehearsal_source_use_role])
+                     :support-source)})
 
     nil))
 
@@ -2427,10 +2508,10 @@
                          :goal-id goal-id
                          :rule-provenance rule-provenance})
               world (cx/assert-fact world branch-context-id use-fact)
-              outcome-spec (immediate-family-plan-source-outcome family-plan)
-              [world outcome-fact promotion-fact]
+              outcome-spec (family-plan-source-outcome family-plan)
+              [world outcome-fact promotion-fact transition rule-access-transitions]
               (if-not outcome-spec
-                [world nil nil]
+                [world nil nil nil []]
                 (let [[world _outcome-info]
                       (episodic/resolve-episode-use-outcome world
                                                             episode-id
@@ -2449,7 +2530,7 @@
                       [world transition] (episodic/reconcile-episode-admission world
                                                                                episode-id)
                       episode (get-in world [:episodes episode-id])
-                      [world _rule-access-transitions]
+                      [world rule-access-transitions]
                       (rules/reconcile-episode-rule-access world
                                                            (family-rules)
                                                            episode
@@ -2466,7 +2547,7 @@
                       world (if promotion-fact
                               (cx/assert-fact world branch-context-id promotion-fact)
                               world)]
-                  [world outcome-fact promotion-fact]))
+                  [world outcome-fact promotion-fact transition rule-access-transitions]))
               recorded-use-record (or (last (get-in world [:episodes episode-id :use-history]))
                                       use-record)]
           [world
@@ -2474,6 +2555,10 @@
                    :result
                    (fn [result]
                      (-> (or result {})
+                         (assoc :episode-source-outcome outcome-spec)
+                         (assoc :episode-source-admission-transition transition)
+                         (assoc :episode-source-rule-access-transitions
+                                (vec rule-access-transitions))
                          (update :episode-use-records (fnil conj []) recorded-use-record)
                          (update :episode-use-facts (fnil conj []) use-fact)
                          (update :episode-outcome-facts (fnil into [])
@@ -3286,6 +3371,74 @@
                     [world family-plan]
                     (record-family-plan-source-episode-use world family-plan)]
                 [world family-plan])))))
+
+      :rehearsal
+      (let [goal-id (or goal-id (:routine-id opts))
+            context-id (or (:context-id opts)
+                           (default-plan-context world goal-id))
+            rehearsal-opts
+            (assoc opts
+                   :goal-id goal-id
+                   :context-id context-id
+                   :trigger-context-id (or (:trigger-context-id opts)
+                                           context-id))]
+        (if-not (seq (rehearsal-plan-request-facts world rehearsal-opts))
+          [world nil]
+          (if-let [rehearsal-result (rehearsal-plan-effects world rehearsal-opts)]
+            (let [routine-fact-ids (->> (or (:routine-fact-ids opts)
+                                            (:retrieval-indices opts)
+                                            (:precondition-ids opts)
+                                            [])
+                                        (keep identity)
+                                        distinct
+                                        vec)
+                  support-indices (->> (concat [(keyword "family" "rehearsal")
+                                                goal-id
+                                                (:selection-policy rehearsal-result)
+                                                (:routine-id rehearsal-result)
+                                                (:operator-id rehearsal-result)]
+                                               (:support-indices opts))
+                                       (keep identity)
+                                       distinct
+                                       vec)
+                  payload (merge {:routine-id (:routine-id rehearsal-result)
+                                  :operator-id (:operator-id rehearsal-result)
+                                  :routine-fact-ids routine-fact-ids}
+                                 (:episode-payload opts))
+                  selection {:goal_family :rehearsal
+                             :family_goal_id goal-id
+                             :rehearsal_selection_policy (:selection-policy rehearsal-result)
+                             :rehearsal_context context-id
+                             :rehearsal_trigger_context (:trigger-context-id rehearsal-result)
+                             :rehearsal_routine_id (:routine-id rehearsal-result)
+                             :rehearsal_operator_id (:operator-id rehearsal-result)
+                             :rehearsal_precondition_ids (vec (:precondition-ids opts))
+                             :rehearsal_selection_reasons (vec (:selection-reasons opts))
+                             :rehearsal_source_episode (:source-episode-id opts)
+                             :rehearsal_source_use_role (or (:source-use-role opts)
+                                                            :support-source)}
+                  [world family-plan]
+                  (store-family-plan-episode
+                   world
+                   (maybe-apply-family-evaluator
+                    {:family :rehearsal
+                     :rule-provenance (:rule-provenance rehearsal-result)
+                     :episode-payload payload
+                     :retrieval-indices routine-fact-ids
+                     :support-indices support-indices
+                     :selection selection
+                     :source-use-outcome (:source-use-outcome opts)
+                     :result (merge rehearsal-result
+                                    (select-keys opts [:selection-reasons
+                                                       :source-episode-id
+                                                       :source-use-role
+                                                       :source-use-outcome]))
+                     :sprouted-context-ids [context-id]}
+                    (:family-evaluator opts)))
+                  [world family-plan]
+                  (record-family-plan-source-episode-use world family-plan)]
+              [world family-plan])
+            [world nil])))
 
       [world nil])))
 

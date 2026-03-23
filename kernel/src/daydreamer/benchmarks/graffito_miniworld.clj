@@ -5,8 +5,9 @@
   evaluation. The world is still small and typed: street overload, apartment
   support, mural crisis. Tony carries a transient regulation state across
   cycles. The benchmark reruns appraisal every cycle, lets the kernel execute
-  live families where they exist, and uses one benchmark-local rehearsal
-  routine where the kernel does not yet provide a rehearsal planner."
+  live families where they exist, and now routes rehearsal provenance,
+  source-use, and episode storage through the kernel while keeping the
+  Graffito-specific control delta benchmark-local."
   (:require [daydreamer.context :as cx]
             [daydreamer.episodic-memory :as episodic]
             [daydreamer.goal-families :as families]
@@ -815,49 +816,6 @@
             :cross-family-source-episode-id (:episode-id selected))
      selected]))
 
-(defn- apply-cross-family-rehearsal-use
-  [world selected-source]
-  (if-not selected-source
-    [world nil nil nil []]
-    (let [episode-id (:episode-id selected-source)
-          episode (get-in world [:episodes episode-id])
-          branch-context-id (apartment-context-id world)
-          [world use-info]
-          (episodic/note-episode-use
-           world
-           episode-id
-           {:reason :graffito-cross-family-rehearsal-use
-            :use-role :rehearsal-support-source
-            :goal-id rehearsal-routine-id
-            :branch-context-id branch-context-id
-            :source-family (get-in episode [:provenance :family])
-            :target-family :rehearsal
-            :source-rule (last (:rule-path episode))
-            :target-rule rehearsal-source-rule-id})
-          [world outcome-info]
-          (if use-info
-            (episodic/resolve-episode-use-outcome
-             world
-             episode-id
-             (:use-id use-info)
-             {:outcome :succeeded
-              :reason :rehearsal-regulation-success})
-            [world nil])
-          [world transition]
-          (if use-info
-            (episodic/reconcile-episode-admission world episode-id)
-            [world nil])
-          episode (get-in world [:episodes episode-id])
-          [world access-transitions]
-          (if use-info
-            (rules/reconcile-episode-rule-access world
-                                                 (families/family-rules)
-                                                 episode
-                                                 transition
-                                                 {:branch-context-id branch-context-id})
-            [world []])]
-      [world use-info outcome-info transition access-transitions])))
-
 (defn- apply-fatigue-adjustment
   [world candidate]
   (let [recent (get-in world [:graffito-miniworld :recent-choices] [])
@@ -1347,8 +1305,32 @@
                   (advance-situations (:operator-key chosen-candidate))
                   (update-recent-choices chosen-candidate)
                   project-mural-appraisal)
-        [world use-info outcome-info transition access-transitions]
-        (apply-cross-family-rehearsal-use world selected-source)
+        [world family-plan]
+        (families/run-family-plan
+         world
+         {:goal-type :rehearsal
+          :goal-id rehearsal-routine-id
+          :context-id (apartment-context-id world)
+          :trigger-context-id (apartment-context-id world)
+          :routine-id rehearsal-routine-id
+          :operator-id rehearsal-operator-id
+          :precondition-ids (sort rehearsal-precondition-ids)
+          :selection-reasons (:reasons chosen-candidate)
+          :routine-fact-ids (sort rehearsal-precondition-ids)
+          :source-episode-id (:episode-id selected-source)
+          :source-use-role :rehearsal-support-source
+          :source-use-outcome (when selected-source
+                                {:outcome :succeeded
+                                 :reason :rehearsal-regulation-success})
+          :episode-payload {:situation-id apartment-situation-id
+                            :routine-id rehearsal-routine-id
+                            :operator-id rehearsal-operator-id}})
+        _ (when-not family-plan
+            (throw (ex-info "Graffito miniworld expected rehearsal family plan to run"
+                            {:cycle (:cycle world)
+                             :candidate chosen-candidate
+                             :cross-family-race cross-family-race})))
+        family-plan-result (:result family-plan)
         appraisal-after (get-in world [:graffito-miniworld :mural-projection :appraisal-mode])
         regulation-after (get-in world [:graffito-miniworld :mural-projection :regulation-mode])
         summary {:cycle (:cycle world)
@@ -1367,8 +1349,9 @@
                  :mural-appraisal-before appraisal-before
                  :mural-appraisal-after appraisal-after
                  :reappraisal-flip? (not= appraisal-before appraisal-after)
-                 :family-plan-episode-id nil
-                 :winner-origin nil
+                 :family-plan-episode-id (:family-episode-id family-plan)
+                 :admission-status (:admission-status family-plan)
+                 :winner-origin (when selected-source :dynamic)
                  :source-candidate-count 0
                  :dynamic-source-candidate-count 0
                  :authored-source-candidate-count 0
@@ -1380,18 +1363,22 @@
                                                 cross-family-race)
                  :cross-family-source-episode-id (:cross-family-source-episode-id
                                                   cross-family-race)
-                 :cross-family-source-won? (boolean use-info)
-                 :cross-family-use-outcome (:outcome outcome-info)
-                 :cross-family-admission-transition transition
-                 :cross-family-access-transitions access-transitions
+                 :cross-family-source-won? (boolean (seq (:episode-use-records family-plan-result)))
+                 :cross-family-use-outcome (get-in family-plan-result
+                                                   [:episode-source-outcome :outcome])
+                 :cross-family-admission-transition (:episode-source-admission-transition
+                                                     family-plan-result)
+                 :cross-family-access-transitions (:episode-source-rule-access-transitions
+                                                   family-plan-result)
                  :stored-episode-count (count (:episodes world))}]
     [(trace/merge-latest-cycle
       world
-      {:episode-use-records (cond-> []
-                              use-info
-                              (conj use-info))
-       :admission-transition transition
-       :rule-access-transitions access-transitions
+      {:selection (:selection family-plan)
+       :rule-provenance (:rule-provenance family-plan)
+       :family-plan-episode-id (:family-episode-id family-plan)
+       :episode-use-records (vec (:episode-use-records family-plan-result))
+       :admission-transition (:episode-source-admission-transition family-plan-result)
+       :rule-access-transitions (:episode-source-rule-access-transitions family-plan-result)
        :graffito_miniworld
        {:operator-id rehearsal-operator-id
         :routine-id rehearsal-routine-id
