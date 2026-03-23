@@ -39,6 +39,10 @@
    :graph-cache {:out-edge-bases [] :in-edge-bases []}
    :provenance {}})
 
+(defn with-deployment-role
+  [rule deployment-role]
+  (assoc-in rule [:provenance :deployment-role] deployment-role))
+
 (deftest create-episode-test
   (is (= {:id :ep-1
           :rule :reversal-plan
@@ -453,6 +457,87 @@
              :source-rule :goal-family/reversal-plan-dispatch
              :target-rule :goal-family/roving-plan-dispatch}]
            (:promotion-history episode)))))
+
+(deftest provisional-family-plan-episode-promotes-and-opens-frontier-rule-from-clean-cross-family-evidence
+  (let [[world root-id] (world-with-root)
+        graph (rules/build-connection-graph
+               [(with-deployment-role
+                  (graph-rule :test/source :situation :goal)
+                  :authored-core)
+                (with-deployment-role
+                  (graph-rule :test/target :goal :concern-trigger)
+                  :authored-frontier)])
+        world (rules/sync-rule-access-registry world graph)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id
+                                               :promotion-eligible? true
+                                               :promotion-basis :reframe-facts
+                                               :admission-status :provisional
+                                               :provenance {:source :family-plan
+                                                            :family :rationalization}
+                                               :rule-path [:test/source :test/target]})
+        [world use-info-1] (epmem/note-episode-use world
+                                                   episode-id
+                                                   {:reason :family-plan-use
+                                                    :use-role :frame-source
+                                                    :goal-id :g-1
+                                                    :branch-context-id root-id
+                                                    :source-family :rationalization
+                                                    :target-family :reversal
+                                                    :source-rule :goal-family/rationalization-plan-dispatch
+                                                    :target-rule :goal-family/reversal-plan-dispatch})
+        [world outcome-info-1] (epmem/resolve-episode-use-outcome world
+                                                                  episode-id
+                                                                  (:use-id use-info-1)
+                                                                  {:outcome :succeeded
+                                                                   :reason :cross-family-family-plan-success})
+        [world first-transition] (epmem/reconcile-episode-admission world episode-id)
+        [world use-info-2] (epmem/note-episode-use world
+                                                   episode-id
+                                                   {:reason :family-plan-use
+                                                    :use-role :frame-source
+                                                    :goal-id :g-2
+                                                    :branch-context-id root-id
+                                                    :source-family :rationalization
+                                                    :target-family :reversal
+                                                    :source-rule :goal-family/rationalization-plan-dispatch
+                                                    :target-rule :goal-family/reversal-plan-dispatch})
+        [world outcome-info-2] (epmem/resolve-episode-use-outcome world
+                                                                  episode-id
+                                                                  (:use-id use-info-2)
+                                                                  {:outcome :succeeded
+                                                                   :reason :cross-family-family-plan-success})
+        [world second-transition] (epmem/reconcile-episode-admission world episode-id)
+        episode (get-in world [:episodes episode-id])
+        [world access-transitions] (rules/reconcile-episode-rule-access world
+                                                                        graph
+                                                                        episode
+                                                                        second-transition
+                                                                        {:branch-context-id root-id})]
+    (is (= :pending (:status use-info-1)))
+    (is (= :succeeded (:outcome outcome-info-1)))
+    (is (:evidence-recorded? outcome-info-1))
+    (is (nil? first-transition))
+    (is (= :pending (:status use-info-2)))
+    (is (= :succeeded (:outcome outcome-info-2)))
+    (is (:evidence-recorded? outcome-info-2))
+    (is (= {:episode-id episode-id
+            :from-status :provisional
+            :to-status :durable
+            :reason :cross-family-use-success}
+           second-transition))
+    (is (= :durable (:admission-status episode)))
+    (is (= :accessible
+           (get-in world [:rule-access :test/target :status])))
+    (is (= [{:rule-id :test/target
+             :from-status :frontier
+             :to-status :accessible
+             :cycle 0
+             :reason :durable-episode-opened-rule
+             :episode-id episode-id
+             :branch-context-id root-id}]
+           access-transitions))))
 
 (deftest reconcile-episode-admission-vindicates-pending-same-family-uses-from-repeated-later-cross-family-evidence
   (let [[world root-id] (world-with-root)

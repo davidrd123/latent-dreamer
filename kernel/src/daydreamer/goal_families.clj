@@ -1029,15 +1029,20 @@
                              provenance (:provenance episode)
                              selection (:selection provenance)
                              payload (:payload episode)
+                             admission-status (:admission-status episode)
                              reframe-facts (vec (:reframe-facts payload []))
                              frame-goal-id (or (:frame-goal-id payload)
-                                               (:rationalization_frame_goal selection))]
+                                               (:rationalization_frame_goal selection))
+                             candidate-rank (case admission-status
+                                              :durable 1
+                                              :provisional 2
+                                              nil)]
                          (when (and (= :family-plan (:source provenance))
                                     (= :rationalization (:family provenance))
-                                    (= :durable (:admission-status episode))
+                                    candidate-rank
                                     (= failed-goal-id frame-goal-id)
                                     (seq reframe-facts))
-                           {:candidate-rank 1
+                           {:candidate-rank candidate-rank
                             :episode-id (:episode-id hit)
                             :frame-id (or (:frame-id payload)
                                           (:rationalization_frame_id selection))
@@ -1052,6 +1057,8 @@
                             :selection-policy :stored_rationalization_episode
                             :selection-reasons (cond-> [:stored_rationalization_episode
                                                         :matching_failed_goal]
+                                                 (= :provisional admission-status)
+                                                 (conj :provisional_source_trial)
                                                  (:provenance-reason hit)
                                                  (conj (:provenance-reason hit))
                                                  (> (count reframe-facts) 1)

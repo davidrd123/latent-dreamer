@@ -34,6 +34,11 @@
       (is (every? vector?
                   (map #(get % "retrieved_episodes")
                        cycles)))
+      (is (every? boolean?
+                  (mapcat #(map (fn [hit]
+                                  (get hit "same_cycle"))
+                                (get % "retrieved_episodes"))
+                          cycles)))
       (is (some seq
                 (map #(get % "sprouted_contexts") cycles))))
     (testing "the run is not stuck in one situation"
@@ -216,7 +221,7 @@
 
 (deftest retrieve-episodic-hits-reads-the-world-episode-store
   (let [[world episode-id]
-        (episodic/add-episode {} {:rule :autonomous-benchmark-probe})
+        (episodic/add-episode {:cycle 3} {:rule :autonomous-benchmark-probe})
         world (-> world
                   (assoc-in [:episodes episode-id :admission-status] :durable)
                   (episodic/store-episode episode-id :honesty {:plan? true :reminding? true})
@@ -227,7 +232,10 @@
     (is (= [episode-id]
            (mapv :episode-id hits)))
     (is (= [:honesty :clarity]
-           (-> hits first :overlap)))))
+           (-> hits first :overlap)))
+    (is (= 3
+           (-> hits first :episode-created-cycle)))
+    (is (true? (-> hits first :same-cycle?)))))
 
 (deftest run-benchmark-can-apply-external-family-evaluator
   (let [archive-evaluator (fn [_family-plan _default-evaluation]

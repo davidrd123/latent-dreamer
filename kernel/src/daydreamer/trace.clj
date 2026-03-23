@@ -363,6 +363,8 @@
                                                          0.0)
                                    "overlap" (json-value (or (:overlap hit) []))
                                    "threshold" (:threshold hit)
+                                   "episode_created_cycle" (:episode-created-cycle hit)
+                                   "same_cycle" (boolean (:same-cycle? hit))
                                    "admission_status" (some-> (:admission-status hit)
                                                               scalar->json)
                                    "provenance_reason" (some-> (:provenance-reason hit)

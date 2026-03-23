@@ -622,6 +622,8 @@
     (->> (episodic/retrieve-episodes world active-indices retrieval-opts)
          (mapv (fn [hit]
                  (let [episode (get-in world [:episodes (:episode-id hit)])
+                       current-cycle (:cycle world)
+                       created-cycle (:cycle-created episode)
                        overlap (->> (get-in episode [:cue-indices :content-indices] [])
                                     (filter active-set)
                                     vec)
@@ -633,7 +635,9 @@
                                  :marks (:marks hit)
                                  :threshold (:threshold hit)
                                  :overlap overlap
-                                 :admission-status (:admission-status hit)}]
+                                 :admission-status (:admission-status hit)
+                                 :episode-created-cycle created-cycle
+                                 :same-cycle? (= current-cycle created-cycle)}]
                    (cond-> base-hit
                      (:provenance-reason hit)
                      (assoc :provenance-reason (:provenance-reason hit))

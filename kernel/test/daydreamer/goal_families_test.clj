@@ -2069,7 +2069,12 @@
     (is (= :provisional (get-in world [:episodes family-episode-id :admission-status])))
     (is (contains? (set (:recent-episodes world)) family-episode-id))
     (is (= [] immediate-candidates))
-    (is (= [] cooled-candidates))))
+    (is (= [family-episode-id]
+           (mapv :episode-id cooled-candidates)))
+    (is (= [2]
+           (mapv :candidate-rank cooled-candidates)))
+    (is (some #{:provisional_source_trial}
+              (:selection-reasons (first cooled-candidates))))))
 
 (deftest stored-reversal-family-plan-episode-feeds-later-roving
   (let [[world root-id] (world-with-root)

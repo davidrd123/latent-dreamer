@@ -311,14 +311,21 @@ Current read:
   50-cycle returns
 - a new `retrieved_episodes` channel now shows that the live 50-cycle
   run is seeing the world episode store on most cycles, including some
-  provisional family-plan episodes, but those hits are still not being
-  converted into source-use / promotion / flag movement
+  provisional family-plan episodes, and the trace now marks whether a
+  hit is same-cycle or genuinely later-cycle
+- in the current 50-cycle tuned soak, provisional episodic hits are
+  still mostly same-cycle self-hits (`8` same-cycle vs `4` later-cycle),
+  so benchmark visibility now outpaces meaningful reuse
 - the first bootstrap on-ramp is now real for stored reversal sources:
   matching `:provisional` reversal family-plan episodes can compete as
   lower-ranked trial candidates, but the live Puppet Knows soak still
   stays on authored `:stored_failure_cause` counterfactuals, so that
   on-ramp is not yet producing real family-plan use history in the
   benchmark world
+- the same provisional-trial on-ramp now exists for stored
+  rationalization sources too, but the live soak still stays on authored
+  rationalization frames, so the benchmark is still not driving the
+  promotion chain through live family-plan reuse
 - rule-access gating is now live in activation, planning, and the
   first frontier bridge, but the current benchmark run does not yet
   produce meaningful quarantine/reopening movement
@@ -336,6 +343,16 @@ Treat the benchmark result as:
 - a **runtime/seam regression pass**
 - a **partial but improving membrane integration read**
 - not yet a decisive architecture verdict on long-run memory ecology
+
+The fixed-chain kernel proof is now stronger than the benchmark proof:
+
+- a committed regression now shows that a provisional, promotion-eligible
+  family-plan episode can accumulate repeated cross-family success
+  evidence, promote to `:durable`, and open a frontier rule when handed
+  clean evidence directly
+- the live benchmark bottleneck is therefore not "the promotion/access
+  chain is broken"; it is "the benchmark still routes mostly through
+  authored fixture sources instead of dynamic family-plan reuse"
 
 ### Deferred parallel fronts
 
