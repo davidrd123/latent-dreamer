@@ -1,71 +1,144 @@
-# daydream-round-03
+# Latent Dreamer
 
-This repository is currently a design workspace for the **dream/narrative layer**.
+A conducted daydreaming instrument. A human performer steers a
+character's inner life while a cognitive engine maintains persistent
+concerns, episodic memory, and involuntary daydreaming between
+interactions. The stage makes that visible through narration, reactive
+music, and eventually real-time video.
 
-The **stage layer** (real-time T2V + MIDI instrument + Lyria) already exists in the
-previous-round codebase (`scope-drd`). Round 03 should stand on that renderer rather
-than re-invent it.
+The architecture is Erik Mueller's DAYDREAMER (1990), reconstructed
+in Clojure with LLM judgment at typed call sites inside the
+structural loops Mueller's system owns.
 
-It contains three distinct things:
+## What exists
 
-1. `daydreamer/`
-   Erik Mueller's original Common Lisp DAYDREAMER source and documentation. This is the architectural ancestor and reference implementation for the emotion-driven control loop, episodic retrieval, mutation, and context branching.
+**Kernel** (`kernel/`) — a Clojure implementation of Mueller's
+cognitive architecture:
 
-2. `daydreaming/Notes/`
-   The active design work for the "conducted daydreaming" adaptation: architecture notes, companion notes, deep-research writeups, and exported Claude chat transcripts from March 12, 2026.
+- Emotion-driven control loop with five daydreaming families
+  (rationalization, reversal, roving, rehearsal, repercussions)
+- Rule engine with typed rules, connection graph, and structural
+  bridge discovery
+- Episodic memory with coincidence-mark retrieval and reminding
+- Memory membrane: admission tiers (trace/provisional/durable),
+  anti-residue flags, evidence-driven promotion, rule accessibility
+  frontier
+- Executor boundary: family plans return declarative effects, kernel
+  validates and applies
+- Runtime thought projection with LLM-generated inner-life prose
+- Writeback loop: generated thought changes future retrieval and
+  cognition
+- Tony character state with sensory regulation (overloaded → bracing
+  → entraining → flowing → creating), reappraisal after family
+  execution
 
-3. `patterns/`
-   Currently empty scratch space.
+**Benchmarks** (`kernel/src/daydreamer/benchmarks/`):
 
-## Start Here
+- Puppet Knows: runtime/seam regression on authored fixture
+- Membrane Assays A and B: live dynamic reuse, same-family-loop flag,
+  cross-family promotion, frontier rule opening
+- Graffito microfixture, regulation slice, rehearsal slice: typed
+  psychological facts drive family selection and retrieval
+- Graffito miniworld: 3-situation autonomous run with persistent Tony
+  state, reappraisal flips, cross-family episode reuse
 
-If you are reopening this repo and need orientation, read in this order:
+**Condensation** (`daydreaming/Notes/Book/`) — Mueller's 19
+mechanisms condensed into implementation-grade cards, verified against
+the original Common Lisp source.
 
-1. [`daydreaming/Notes/home-base.md`](daydreaming/Notes/home-base.md)
-2. [`daydreaming/Notes/focused-source-trace.md`](daydreaming/Notes/focused-source-trace.md)
-3. [`daydreaming/Notes/language-decision-memo.md`](daydreaming/Notes/language-decision-memo.md)
-4. [`daydreaming/Notes/daydream-to-stage-contract.md`](daydreaming/Notes/daydream-to-stage-contract.md)
-5. [`daydreaming/Notes/ProspectiveDesign/v2/conducted-daydreaming-architecture-v2.md`](daydreaming/Notes/ProspectiveDesign/v2/conducted-daydreaming-architecture-v2.md)
-6. [`daydreaming/Notes/ProspectiveDesign/chats/2026-03-12_01-01-48_Claude_Chat_Daydreamer_architecture_split_the_three_systems.md`](daydreaming/Notes/ProspectiveDesign/chats/2026-03-12_01-01-48_Claude_Chat_Daydreamer_architecture_split_the_three_systems.md)
-7. [`daydreaming/Notes/ProspectiveDesign/chats/2026-03-12_01-01-16_Claude_Chat_Building_computational_daydreaming_models_today.md`](daydreaming/Notes/ProspectiveDesign/chats/2026-03-12_01-01-16_Claude_Chat_Building_computational_daydreaming_models_today.md)
-8. [`daydreamer/README.md`](daydreamer/README.md)
+**Research** (`daydreaming/Notes/DeepResearch/`) — prompts and
+replies from external architecture reviews covering cold-start
+bootstrapping, appraisal theory, situation models, regulation
+mechanics.
 
-## Current Canon
+**Graffito** (`daydreaming/vendor/graffito/`) — vendored source
+material for the first creative brief (Mark Friedberg short film).
+Kernel-facing brief at
+`daydreaming/Notes/experiential-design/24-graffito-kernel-brief.md`.
 
-The compressed architecture in `v2` is the most useful single spec in the repo right now.
+## Orientation
 
-- Treat `v2/conducted-daydreaming-architecture-v2.md` as the current architectural baseline.
-- Treat the `v1` docs and exported chats as design lineage and source material.
-- Treat `daydreamer/` as reference code to port ideas from, not as the product codebase.
+Start from the control plane:
 
-## Current State
+1. `daydreaming/Notes/current-sprint.md` — current objective, what's
+   proven, what's next
+2. `daydreaming/Notes/dashboard.md` — broader project map, benchmark
+   ladder, milestone status
+3. `daydreaming/Notes/canonical-map.md` — where everything lives
 
-- This repo does not contain the Scope renderer, palette pipeline, or Lyria runtime.
-- The repo does not yet contain a world bible fixture, dream graph fixture, or traversal runtime.
-- Several appendix-referenced notes mentioned in the design docs live in the previous round (`scope-drd`) rather than here.
+For the architecture:
 
-## What Seems Stable
+4. `daydreaming/Notes/Book/daydreaming-in-humans-and-machines/condensation/architectural-framing.md`
+   — the hybrid Clojure/LLM boundary design
+5. `daydreaming/Notes/Book/daydreaming-in-humans-and-machines/condensation/build-order-checkpoint-2026-03-22.md`
+   — settled build sequence from five rounds of review
 
-- The base product is a fictional persistent audiovisual world first.
-- Autobiographical vault mode is deferred.
-- Biometric input is deferred and should modulate traversal, not unilaterally choose irreversible events.
-- The core split is offline generation -> graph -> real-time traversal -> video/audio rendering.
-- Canonical world state and counterfactual daydream state must stay separate.
+## Running the kernel
 
-## Immediate Next Slice
+```bash
+cd kernel
 
-The next concrete build slice in *this* repo should not be "full engine." It should be:
+# Run all tests
+bb check          # format + lint + test
 
-1. a tiny authored world bible (or a minimal situation set over an existing palette),
-2. a hand-authored dream graph that references palette cells,
-3. a traversal harness that outputs Scope REST + Lyria directives (or a replayable timeline),
-4. a session log format,
-5. optional narration (captions first; voice later).
+# Or individually
+bb test           # 250 tests, ~1350 assertions
+bb format         # cljfmt
+bb lint           # clj-kondo
 
-## Previous Round (Stage Layer)
+# Start nREPL for interactive work
+bb nrepl          # port 7888
+```
 
-Round 02 lives in `scope-drd` and already includes:
+Run a Graffito miniworld:
 
-- Scope real-time video stage + control surface (`video-cli`, REST endpoints)
-- `.palette.yaml` pipeline (64 prompts) + enrichment scripts for Lyria prompts
-- APC Mini MK2 bridge + Lyria RealTime integration notes and reference docs
+```clojure
+(require '[daydreamer.benchmarks.graffito-miniworld :as mini])
+(let [{:keys [cycle-summaries]} (mini/run-miniworld {:cycles 20})]
+  (doseq [s cycle-summaries]
+    (println (:cycle s) (:selected-situation-id s)
+             (:selected-family s) (:reappraisal-flip? s))))
+```
+
+## What is proven
+
+- Inner-life prose from persistent cognitive state (not just a prompt)
+- Feedback loop: generated thought changes later cognition, traces
+  diverge from cycle 4
+- Memory membrane prevents self-reinforcing grooves
+- Same-family loop suppression and cross-family promotion with
+  frontier opening (Assays A and B)
+- Same raw cues produce different behavior after regulation state
+  changes (6 autonomous reappraisal flips in 20 cycles)
+- First cross-family episode reuse on Graffito material
+
+## What is not proven yet
+
+- Cross-session accumulation (the hard falsification test)
+- Full serendipity path verification
+- First real LLM-backed rule evaluation
+- A full staged run with narration, audio, and visuals together
+- Rich authored worlds beyond microfixtures
+
+## The falsification criterion
+
+If a new rule or path discovered in session 1 does not change
+reachable behavior in session 2 without re-pasting the trace, we do
+not yet have anything beyond strong memory-augmented generation.
+
+## Stack
+
+- Kernel: JVM Clojure 1.12, deps.edn, Babashka tasks
+- LLM: Gemini, Claude, or OpenAI via runtime_thought.clj
+- Stage (separate repo): Scope real-time video, APC Mini MK2, Lyria
+  RealTime
+- Python tooling: uv-managed, pyproject.toml
+
+## Previous work
+
+The stage layer (real-time video, MIDI instrument, Lyria integration)
+lives in `scope-drd`. The generation pipeline and L3 traversal from
+earlier rounds are documented in `daydreaming/Notes/` but are no
+longer the primary architecture.
+
+Mueller's original Common Lisp source is in `daydreamer/`.
