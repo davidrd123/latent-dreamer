@@ -6,7 +6,7 @@ concerns, episodic memory, and involuntary daydreaming between
 interactions. The stage makes that visible through narration, reactive
 music, and eventually real-time video.
 
-The architecture is Erik Mueller's DAYDREAMER (1990), reconstructed
+The architecture is Erik Mueller's [DAYDREAMER](https://github.com/eriktmueller/daydreamer) (1990), reconstructed
 in Clojure with LLM judgment at typed call sites inside the
 structural loops Mueller's system owns.
 
@@ -138,3 +138,4 @@ earlier rounds are documented in `daydreaming/Notes/` but are no
 longer the primary architecture.
 
 Mueller's original Common Lisp source is in [`daydreamer/`](daydreamer/).
+His book [*Daydreaming in Humans and Machines*](https://www.amazon.com/gp/product/1478137266/) is the primary theoretical reference.
