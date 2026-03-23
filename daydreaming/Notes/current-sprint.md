@@ -176,6 +176,10 @@ and "deserves future influence":
 - cross-family trigger emission now honors that access split in actual
   runtime behavior: the bridge can fire while frontier-visible to
   serendipity, and quarantining it now suppresses that handoff
+- activation and planning dispatch now also honor the planner-visible
+  access split in actual runtime behavior instead of iterating raw
+  `activation-rules` / `planning-rules`; frontier/quarantined rules
+  are no longer merely hidden in graph views
 - durable promotion can now open frontier rules to `:accessible`,
   and hard-failure demotion can quarantine non-core rules touched by
   an episode's rule path

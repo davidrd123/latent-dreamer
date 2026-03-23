@@ -74,6 +74,26 @@
   [world]
   (rules/serendipity-graph world (family-structural-graph)))
 
+(defn- planner-visible-rule-ids
+  [world]
+  (->> (:rules (family-planning-graph world))
+       (map :id)
+       set))
+
+(defn- active-activation-rules
+  [world]
+  (let [allowed-rule-ids (planner-visible-rule-ids world)]
+    (->> (activation-rules)
+         (filter #(contains? allowed-rule-ids (:id %)))
+         vec)))
+
+(defn- active-planning-rules
+  [world]
+  (let [allowed-rule-ids (planner-visible-rule-ids world)]
+    (->> (planning-rules)
+         (filter #(contains? allowed-rule-ids (:id %)))
+         vec)))
+
 (defn- active-cross-family-rules
   [world]
   (let [allowed-rule-ids (->> (:rules (family-serendipity-graph world))
@@ -448,10 +468,10 @@
      (get-in rule [:antecedent-schema 0 :fact/type])))
 
 (defn- activation-candidates-from-trigger-facts
-  [trigger-facts]
+  [world trigger-facts]
   (->> trigger-facts
        (mapcat (fn [trigger-fact]
-                 (->> (activation-rules)
+                 (->> (active-activation-rules world)
                       (filter (partial fact-consumer-rule? :goal-family-trigger))
                       (mapcat (fn [rule]
                                 (->> (rules/matched-rule-applications
@@ -477,8 +497,8 @@
        vec))
 
 (defn- activation-candidates-for-goal-type
-  [goal-type trigger-facts]
-  (->> (activation-candidates-from-trigger-facts trigger-facts)
+  [world goal-type trigger-facts]
+  (->> (activation-candidates-from-trigger-facts world trigger-facts)
        (filter #(= goal-type (:goal-type %)))
        (mapv #(dissoc % :goal-type))))
 
@@ -486,7 +506,7 @@
   [world request-facts]
   (->> request-facts
        (mapcat (fn [request-fact]
-                 (->> (planning-rules)
+                 (->> (active-planning-rules world)
                       (filter (partial fact-consumer-rule? :family-plan-request))
                       (mapcat (fn [rule]
                                 (->> (rules/matched-rule-applications
@@ -676,7 +696,8 @@
   "Find failed-goal / negative-emotion pairs strong enough to activate
   REVERSAL."
   [world]
-  (activation-candidates-for-goal-type :reversal
+  (activation-candidates-for-goal-type world
+                                       :reversal
                                        (reversal-trigger-facts world)))
 
 (defn- reversal-trigger-facts
@@ -1086,7 +1107,8 @@
   "Find failed-goal / negative-emotion pairs with an explicit rationalization
   frame strong enough to activate RATIONALIZATION."
   [world]
-  (activation-candidates-for-goal-type :rationalization
+  (activation-candidates-for-goal-type world
+                                       :rationalization
                                        (rationalization-trigger-facts world)))
 
 (defn select-rationalization-trigger
@@ -1186,7 +1208,8 @@
 (defn roving-activation-candidates
   "Find failed-goal / negative-emotion pairs that can activate ROVING."
   [world]
-  (activation-candidates-for-goal-type :roving
+  (activation-candidates-for-goal-type world
+                                       :roving
                                        (roving-trigger-facts world)))
 
 (defn select-roving-trigger
@@ -1217,6 +1240,7 @@
   [world]
   (let [candidates-by-type (group-by :goal-type
                                      (activation-candidates-from-trigger-facts
+                                      world
                                       (goal-family-trigger-facts world)))]
     (->> trigger-dispatch-goal-types
          (keep (fn [goal-type]

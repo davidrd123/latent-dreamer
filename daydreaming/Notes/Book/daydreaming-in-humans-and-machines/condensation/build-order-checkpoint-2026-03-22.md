@@ -104,6 +104,9 @@ Implemented in the first pass:
 - actual cross-family trigger emission now reads that access split
   instead of walking the raw bridge-rule list, so quarantining a
   frontier bridge suppresses the handoff in runtime behavior
+- activation and planning dispatch now also read planner-visible rule
+  sets rather than raw `activation-rules` / `planning-rules`, so
+  frontier/quarantined state now gates those live family paths too
 - durable episode promotion can open frontier rules to
   `:accessible`, and hard-failure demotion can quarantine non-core
   rules on the episode's rule path
@@ -123,9 +126,8 @@ Still missing inside step 1:
   advisory/gating input rather than direct admission authority
 - broader vindication policy beyond the first pending-same-family
   source-use path, plus fuller quarantine reopening / rehabilitation
-- rule accessibility state derived from durable evidence, not from
-  provisional storage or evaluator opinion alone; current family
-  rules all still start as authored-core
+- fuller frontier structure beyond the first live frontier bridge rule;
+  most family activation/planning rules still default to authored-core
 - source-type decay / stronger zone-specific consolidation
 - explicit loop-risk metadata shaping retrieval
 - stronger downstream flagging / demotion beyond evaluator annotation

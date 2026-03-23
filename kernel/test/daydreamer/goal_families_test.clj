@@ -667,6 +667,51 @@
                                        :family-plan-request)
              rule-provenance)))))
 
+(deftest frontier-planning-dispatch-rule-does-not-yield-family-plan-payload
+  (let [planning-rules* (->> (families/planning-rules)
+                             (mapv (fn [rule]
+                                     (if (= :goal-family/roving-plan-dispatch
+                                            (:id rule))
+                                       (assoc-in rule
+                                                 [:provenance :deployment-role]
+                                                 :authored-frontier)
+                                       rule))))
+        family-rules* (vec (concat planning-rules*
+                                   (families/cross-family-rules)
+                                   (families/activation-rules)))
+        [world root-id] (world-with-root)
+        [world pleasant-episode-id]
+        (episodic/add-episode world {:rule :pleasant-memory})
+        world (-> world
+                  (episodic/store-episode pleasant-episode-id :calm
+                                          {:reminding? true})
+                  (episodic/store-episode pleasant-episode-id :sunlight
+                                          {:reminding? true})
+                  (assoc :roving-episodes [pleasant-episode-id]))
+        [world roving-goal-id]
+        (goals/activate-top-level-goal
+         world
+         root-id
+         {:goal-type :roving
+          :planning-type :imaginary
+          :strength 0.6
+          :main-motiv :e-relief})
+        context-id (get-in world [:goals roving-goal-id :next-cx])
+        world (rules/sync-rule-access-registry world family-rules*)
+        error (with-redefs [families/planning-rules (constantly planning-rules*)
+                            families/family-rules (constantly family-rules*)]
+                (try
+                  (families/roving-plan-effects world
+                                                {:goal-id roving-goal-id
+                                                 :context-id context-id})
+                  nil
+                  (catch Exception e
+                    e)))]
+    (is (some? error))
+    (is (= "ROVING needs a plan payload" (ex-message error)))
+    (is (= :frontier
+           (get-in world [:rule-access :goal-family/roving-plan-dispatch :status])))))
+
 (deftest roving-plan-uses-graph-bridge-depth-to-retrieve-cross-family-memory
   (let [[world root-id] (world-with-root)
         [world pleasant-episode-id]
@@ -1202,15 +1247,7 @@
     (is (= :none (:promotion-basis stored-episode)))))
 
 (deftest evaluator-promotion-decision-does-not-open-frontier-rules-at-store-time
-  (let [family-rules* (->> (families/family-rules)
-                           (mapv (fn [rule]
-                                   (if (= :goal-family/roving-plan-dispatch
-                                          (:id rule))
-                                     (assoc-in rule
-                                               [:provenance :deployment-role]
-                                               :authored-frontier)
-                                     rule))))
-        promote-evaluator (fn [_family-plan default-evaluation]
+  (let [promote-evaluator (fn [_family-plan default-evaluation]
                             (assoc default-evaluation
                                    :promotion-decision :promote-durable
                                    :evaluation-source :mock-llm))
@@ -1232,32 +1269,22 @@
           :strength 0.6
           :main-motiv :e-relief})
         context-id (get-in world [:goals roving-goal-id :next-cx])
-        [world family-plan]
-        (with-redefs [families/family-rules (constantly family-rules*)]
-          (families/run-family-plan world
-                                    {:goal-id roving-goal-id
-                                     :context-id context-id
-                                     :family-evaluator promote-evaluator}))
+        [world family-plan] (families/run-family-plan world
+                                                      {:goal-id roving-goal-id
+                                                       :context-id context-id
+                                                       :family-evaluator promote-evaluator})
         family-episode-id (:family-episode-id family-plan)]
     (is (= :promote-durable (get-in family-plan [:evaluation :promotion-decision])))
     (is (= :provisional (:admission-status family-plan)))
     (is (= :provisional (get-in world [:episodes family-episode-id :admission-status])))
     (is (= :frontier
-           (get-in world [:rule-access :goal-family/roving-plan-dispatch :status])))
+           (get-in world [:rule-access :goal-family/reversal-aftershock-to-rationalization :status])))
     (is (= :authored-frontier
-           (get-in world [:rule-access :goal-family/roving-plan-dispatch :source])))
+           (get-in world [:rule-access :goal-family/reversal-aftershock-to-rationalization :source])))
     (is (= [] (:rule-access-transitions family-plan)))))
 
 (deftest hard-failure-family-plan-admission-does-not-open-frontier-rules-at-store-time
-  (let [family-rules* (->> (families/family-rules)
-                           (mapv (fn [rule]
-                                   (if (= :goal-family/roving-plan-dispatch
-                                          (:id rule))
-                                     (assoc-in rule
-                                               [:provenance :deployment-role]
-                                               :authored-frontier)
-                                     rule))))
-        contradicted-evaluator (fn [_family-plan default-evaluation]
+  (let [contradicted-evaluator (fn [_family-plan default-evaluation]
                                  (assoc default-evaluation
                                         :promotion-decision :promote-durable
                                         :anti-residue-flags [:contradicted]
@@ -1280,12 +1307,10 @@
           :strength 0.6
           :main-motiv :e-relief})
         context-id (get-in world [:goals roving-goal-id :next-cx])
-        [world family-plan]
-        (with-redefs [families/family-rules (constantly family-rules*)]
-          (families/run-family-plan world
-                                    {:goal-id roving-goal-id
-                                     :context-id context-id
-                                     :family-evaluator contradicted-evaluator}))
+        [world family-plan] (families/run-family-plan world
+                                                      {:goal-id roving-goal-id
+                                                       :context-id context-id
+                                                       :family-evaluator contradicted-evaluator})
         family-episode-id (:family-episode-id family-plan)]
     (is (= :promote-durable (get-in family-plan [:evaluation :promotion-decision])))
     (is (= [:contradicted] (get-in family-plan [:evaluation :anti-residue-flags])))
@@ -1293,9 +1318,9 @@
     (is (= :provisional
            (get-in world [:episodes family-episode-id :admission-status])))
     (is (= :frontier
-           (get-in world [:rule-access :goal-family/roving-plan-dispatch :status])))
+           (get-in world [:rule-access :goal-family/reversal-aftershock-to-rationalization :status])))
     (is (= :authored-frontier
-           (get-in world [:rule-access :goal-family/roving-plan-dispatch :source])))
+           (get-in world [:rule-access :goal-family/reversal-aftershock-to-rationalization :source])))
     (is (= [] (:rule-access-transitions family-plan)))))
 
 (deftest stored-rationalization-family-plan-episode-feeds-later-roving
@@ -2312,6 +2337,44 @@
            (:activation-reasons roving-goal)))
     (is (= (:id roving-goal)
            (:goal-id activation-event)))))
+
+(deftest frontier-activation-rule-does-not-dispatch-family-goal
+  (let [activation-rules* (->> (families/activation-rules)
+                               (mapv (fn [rule]
+                                       (if (= :goal-family/roving-activation
+                                              (:id rule))
+                                         (assoc-in rule
+                                                   [:provenance :deployment-role]
+                                                   :authored-frontier)
+                                         rule))))
+        family-rules* (vec (concat (families/planning-rules)
+                                   (families/cross-family-rules)
+                                   activation-rules*))
+        [world root-id] (world-with-root)
+        world (assoc world :reality-context root-id)
+        [world context-id] (cx/sprout world root-id)
+        failed-goal-id :g-failed
+        emotion-id :e-shame
+        world (-> world
+                  (cx/assert-fact context-id {:fact/type :goal
+                                              :goal-id failed-goal-id
+                                              :top-level-goal failed-goal-id
+                                              :status :failed
+                                              :activation-context context-id})
+                  (cx/assert-fact context-id {:fact/type :emotion
+                                              :emotion-id emotion-id
+                                              :strength 0.25
+                                              :valence :negative})
+                  (cx/assert-fact context-id {:fact/type :dependency
+                                              :from-id emotion-id
+                                              :to-id failed-goal-id}))
+        world (with-redefs [families/activation-rules (constantly activation-rules*)
+                            families/family-rules (constantly family-rules*)]
+                (families/activate-family-goals world))]
+    (is (empty? (filter #(= :roving (:goal-type %))
+                        (vals (:goals world)))))
+    (is (= :frontier
+           (get-in world [:rule-access :goal-family/roving-activation :status])))))
 
 (deftest activate-family-goals-dispatches-rationalization-via-trigger-facts
   (let [[world root-id] (world-with-root)
