@@ -358,6 +358,35 @@ The fixed-chain kernel proof is now stronger than the benchmark proof:
   chain is broken"; it is "the benchmark still routes mostly through
   authored fixture sources instead of dynamic family-plan reuse"
 
+The new narrow membrane fixture benchmark now closes the next proof gap:
+
+- `kernel/src/daydreamer/benchmarks/membrane_fixture.clj` is a
+  code-defined, two-situation live harness built from
+  `daydreaming/Notes/membrane-fixture-spec.md`
+- it is intentionally thinner than Puppet Knows and is not a creative
+  showcase; its job is to prove the first live dynamic stored-source race
+- the current 4-cycle deterministic run now shows:
+  - authored rationalization in situation A
+  - authored reversal in situation B
+  - dynamic stored rationalization source selected in situation B
+  - dynamic stored reversal source selected in situation A
+  - pending same-family source-use recorded on both stored episodes
+- an 8-cycle deterministic rerun now goes one step further: the first
+  stored reversal episode is reused often enough to trip a live
+  `:same-family-loop` flag, so the fixture has already crossed from
+  Level 1 / Level 2 into a first narrow Level 3 membrane movement
+- so the benchmark ladder is now:
+  - Puppet Knows: runtime/seam regression, still authored-dominant
+  - membrane fixture: live Level 1 / Level 2 membrane integration
+  - fixed-chain episode test: direct promotion/access proof when handed
+    clean evidence
+
+What still remains unproven live is Level 3 movement inside a benchmark:
+promotion, broader demotion/rehabilitation, and frontier opening from
+naturally produced cross-family evidence rather than a handcrafted test
+chain. The fixture now proves one real flag path, but not yet the full
+promotion/access loop.
+
 ### Deferred parallel fronts
 
 - Option B (Graffito creative brief) remains valid but not active

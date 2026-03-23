@@ -85,6 +85,7 @@ Lane 2: Deep Build (kernel rule engine)            ← where the architecture li
   ├── Memory ecology: promotion logic, anti-residue, accessibility frontier
   ├── Executor boundary: execute-rule in rules.clj, declarative effects
   ├── Puppet Knows re-entry: 12-cycle clean, 50-cycle partial but mixed after pressure retune
+  ├── Membrane fixture: live dynamic candidate entry, use-history, first loop flag
   ├── First :llm-backed pilot as episode evaluator
   └── See build-order-checkpoint-2026-03-22.md
 
@@ -200,6 +201,7 @@ See `condensation/build-order-checkpoint-2026-03-22.md` for full details.
 | Promotion + anti-residue + accessibility | Substantially real | 2026-03-22 |
 | Executor boundary (execute-rule) | Substantially real | 2026-03-22 |
 | Puppet Knows benchmark re-entry | Partial | 2026-03-22 |
+| Membrane fixture benchmark (L1/L2 + first L3 flag) | Done | 2026-03-22 |
 | First :llm-backed evaluator | Not started | |
 | Verified paths | Not started | |
 | Cross-session write-back transfer (L4) | Not started | |
