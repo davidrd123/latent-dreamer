@@ -45,7 +45,7 @@ As the system accumulates episodes, rules, and graph connections:
   attributed use when a stored family-plan episode actually shapes
   the later branch; immediate outcome resolution there is now reserved
   for negative evidence rather than plain successful reuse
-- later cross-family success can now vindicate those pending
+- repeated later cross-family success can now vindicate those pending
   same-family source uses without adding fresh promotion evidence of
   its own
 - repeated failed same-family attributed use can now auto-flag

@@ -68,7 +68,7 @@ Implemented in the first pass:
   reopen now also run through attributed use rather than the old
   same-family reuse wrapper; immediate resolution is now reserved for
   negative branch-local evidence, not plain successful reuse
-- later cross-family success can now vindicate those pending
+- repeated later cross-family success can now vindicate those pending
   same-family source uses without counting that vindication as new
   promotion evidence
 - repeated cross-family success now promotes via explicit use evidence

@@ -725,18 +725,19 @@
        (>= (qualifying-promotion-evidence-count episode)
            stale-rehabilitation-success-threshold)))
 
-(defn- later-qualifying-promotion-evidence
+(defn- later-qualifying-promotion-evidence-count
   [episode use-id]
   (let [order-index (use-order-index episode)
         use-idx (get order-index use-id)]
-    (when (some? use-idx)
+    (if (nil? use-idx)
+      0
       (->> (:promotion-evidence episode)
            (filter #(= :cross-family-use-success (:type %)))
            (filter (fn [evidence]
                      (let [evidence-idx (get order-index (:use-id evidence))]
                        (and (some? evidence-idx)
                             (> evidence-idx use-idx)))))
-           last))))
+           count))))
 
 (defn- vindicate-pending-same-family-uses
   [world episode-id]
@@ -747,8 +748,9 @@
                                    anti-residue-flags)))
       [world []]
       (reduce (fn [[current-world resolved-use-ids] use-record]
-                (if-not (later-qualifying-promotion-evidence episode
-                                                             (:use-id use-record))
+                (if (< (later-qualifying-promotion-evidence-count episode
+                                                                  (:use-id use-record))
+                       durable-promotion-success-threshold)
                   [current-world resolved-use-ids]
                   (let [[next-world outcome-info]
                         (resolve-episode-use-outcome current-world

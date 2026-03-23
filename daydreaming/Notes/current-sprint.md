@@ -136,7 +136,7 @@ and "deserves future influence":
   family-plan episode is actually selected as the counterfactual
   source; only negative branch-local evidence resolves that use
   immediately
-- later cross-family success can now vindicate those pending
+- repeated later cross-family success can now vindicate those pending
   same-family source uses without turning that vindication itself into
   new promotion evidence
 - repeated cross-family success can now promote through attributed use
