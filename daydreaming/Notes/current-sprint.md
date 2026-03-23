@@ -506,14 +506,14 @@ The first Graffito kernel slices now exist:
     membrane movement is now visible:
     - `7` dynamic source candidate cycles, all rationalization-side
     - `7` dynamic source wins
-    - `5` episodes with use-history
-    - `3` episodes with anti-residue flags (`:same-family-loop`)
+    - `4` episodes with use-history
+    - `2` episodes with anti-residue flags (`:same-family-loop`)
     - the first cross-family Graffito bridge is now live:
       `4` cross-family source candidate cycles, `4` cross-family source
-      wins, and `1` episode with cross-family use-history
+      wins, and `2` episodes with cross-family use-history
     - with correct episode-use/event counters carried across rebuilds,
-      that bridge now produces `1` promotion-history record and `1`
-      durable episode in the live 20-cycle run
+      the live 20-cycle run now produces `2` promotion-history records
+      and `2` durable episodes on Graffito material
     - the miniworld now also carries one benchmark-local reversal
       aftershock fact across rebuild, which makes a real frontier path
       live:
@@ -522,11 +522,14 @@ The first Graffito kernel slices now exist:
       `1` rule-access transition opening
       `:goal-family/reversal-aftershock-to-rationalization` from
       `:frontier` to `:accessible`
+    - after that frontier path opens, the rehearsal bridge now seeds a
+      second non-frontier cross-family rationalization episode instead
+      of repeatedly monopolizing the already-durable frontier episode
   - so the next honest question is no longer whether Graffito episodes
     can enter or win a later race, or whether Graffito can produce live
     cross-family reuse, promotion, and frontier opening at all; it is
-    how the miniworld broadens beyond this one repeated rehearsal-
-    support frontier bridge into additional distinct cross-family paths
+    how the miniworld broadens beyond these two rehearsal-targeted
+    rationalization paths into additional distinct cross-family families
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:

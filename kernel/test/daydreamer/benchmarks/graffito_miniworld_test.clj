@@ -112,6 +112,9 @@
       (is (integer? (:dynamic-reversal-candidate-cycles run-summary)))
       (is (pos? (:cross-family-source-candidate-cycles run-summary)))
       (is (pos? (:cross-family-source-win-cycles run-summary)))
+      (is (>= (:episodes-with-cross-family-use-history run-summary) 2))
+      (is (>= (:episodes-with-promotion-history run-summary) 2))
+      (is (>= (:durable-episode-count run-summary) 2))
       (is (pos? (:frontier-bridge-cycles run-summary)))
       (is (pos? (:rule-access-transition-count run-summary))))))
 
@@ -157,3 +160,27 @@
                :episode-id :ep-24
                :branch-context-id :cx-3}]
              (:history entry))))))
+
+(deftest twenty-cycle-miniworld-produces-a-second-cross-family-promoted-path
+  (let [{:keys [world]} (mini/run-miniworld {:cycles 20})
+        cross-family-promoted
+        (->> (vals (:episodes world))
+             (filter #(seq (:promotion-history %)))
+             (filter (fn [episode]
+                       (some #(not= (:source-family %)
+                                    (:target-family %))
+                             (:use-history episode)))))
+        frontier-promoted
+        (filter #(some #{:goal-family/reversal-aftershock-to-rationalization}
+                       (:rule-path %))
+                cross-family-promoted)
+        non-frontier-promoted
+        (remove #(some #{:goal-family/reversal-aftershock-to-rationalization}
+                       (:rule-path %))
+                cross-family-promoted)]
+    (testing "the miniworld no longer relies on a single repeated frontier bridge for cross-family promotion"
+      (is (>= (count cross-family-promoted) 2))
+      (is (= 1 (count frontier-promoted)))
+      (is (seq non-frontier-promoted))
+      (is (every? #(= :durable (:admission-status %))
+                  cross-family-promoted)))))

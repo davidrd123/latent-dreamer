@@ -750,6 +750,9 @@
                                              (:provenance-reason hit)
                                              (conj (:provenance-reason hit)))
                         :admission-status (:admission-status episode)
+                        :cross-family-use-count (count (filter #(not= (:source-family %)
+                                                                      (:target-family %))
+                                                               (:use-history episode)))
                         :use-history-count (count (:use-history episode))
                         :promotion-evidence-count (count (:promotion-evidence episode))
                         :anti-residue-flags (vec (:anti-residue-flags episode))}))))
@@ -774,15 +777,38 @@
             :selection-policy (:selection-policy candidate)
             :selection-reasons (:selection-reasons candidate)
             :admission-status (:admission-status candidate)
+            :cross-family-use-count (:cross-family-use-count candidate)
             :use-history-count (:use-history-count candidate)
             :promotion-evidence-count (:promotion-evidence-count candidate)
             :anti-residue-flags (:anti-residue-flags candidate)})
          (take 4 candidates))})
 
+(defn- select-cross-family-rehearsal-source
+  [candidates]
+  (let [frontier-candidate (first (filter :frontier-bridge? candidates))
+        frontier-needs-open? (and frontier-candidate
+                                  (not= :durable (:admission-status frontier-candidate)))
+        seeded-alt-candidate
+        (->> candidates
+             (remove :frontier-bridge?)
+             (sort-by (juxt (comp - :use-history-count)
+                            (comp - :priority)
+                            (comp str :episode-id)))
+             first)]
+    (cond
+      frontier-needs-open?
+      frontier-candidate
+
+      seeded-alt-candidate
+      seeded-alt-candidate
+
+      :else
+      (first candidates))))
+
 (defn- rehearsal-cross-family-probe
   [world]
   (let [candidates (cross-family-rehearsal-source-candidates world)
-        selected (first candidates)]
+        selected (select-cross-family-rehearsal-source candidates)]
     [(assoc (summarize-cross-family-rehearsal-candidates candidates)
             :cross-family-source-context-id (mural-context-id world)
             :cross-family-source-visible? (boolean selected)
