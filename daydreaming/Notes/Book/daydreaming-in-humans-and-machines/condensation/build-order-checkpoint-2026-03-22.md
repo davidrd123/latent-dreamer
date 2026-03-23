@@ -283,6 +283,44 @@ Order: roving first (simplest), rationalization second, reversal last (hardest �
 
 Why last: the executor contract must be real (step 2), the memory ecology must be safe (step 1), and the LLM evaluator must be gating promotion (step 3) before more writeback paths are added.
 
+## Deep engine gaps (identified 2026-03-23)
+
+Two gaps flagged from the web chat sift that sit below the current
+build order but above the "later" horizon:
+
+### Relaxed planning
+
+Mueller's daydreaming mode explicitly loosens planning constraints so
+implausible but emotionally meaningful paths can survive. Mutation
+depends on this — you generate something fanciful, and instead of
+pruning it, relaxed planning explores whether it leads somewhere
+useful. The kernel does not yet distinguish constraint relaxation
+between performance mode and daydreaming mode. This matters for
+mutation, fanciful exploration, and any creative operator that needs
+to try implausible paths before verifying them.
+
+Not the next build step, but a prerequisite for mutation and for
+genuine creative search. Should be addressed before or alongside
+the verified-path layer.
+
+### Planning-tree debt for analogical planning
+
+Mueller's episodes are stored planning decompositions — full trees
+of subgoals, rule applications, and outcomes. When retrieved for
+analogical planning, the system walks the tree, matches subgoals to
+the current situation, and repairs mismatches.
+
+The kernel stores episodes with typed facts, indices, provenance,
+and use-history. RuntimeThoughtBeat stores prose residue. Neither is
+a reusable planning structure. The existing family-plan episodes are
+closer (they carry rule-path, edge-path, selection, and payload),
+but they are not full Mueller-level planning decompositions.
+
+This gap is acceptable now — the current slices don't need analogical
+planning. But when analogical planning comes (the mechanism that
+makes stored experience transferable to new situations), episode
+content will need structural shape, not just indices and prose.
+
 ## The discipline chain (fully specified)
 
 ```

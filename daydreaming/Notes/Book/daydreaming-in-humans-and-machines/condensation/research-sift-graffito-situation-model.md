@@ -433,7 +433,45 @@ For the next slice, only Can and Mural need phase logic.
 | 2022 computational flow theory | Flow as mutual information between means and ends |
 | RAMSR preschool RCT (n=213) | Rhythm-and-movement improves self-regulation (p<0.001) |
 
-## 10. Parked
+## 10. Future engine connections (from web chat sift, 2026-03-23)
+
+### Regulation-modulated serendipity threshold
+
+When serendipity is built, Tony's regulation state should modulate
+the serendipity threshold:
+
+- `overloaded` → tight threshold (only forced connections, emergency
+  coping). Mueller's coercive loop territory.
+- `flowing` / `creating` → loose threshold (browsing attention,
+  wider associative reach). The "attractive" curiosity loop.
+
+This is the principled bridge from the regulation state machine we
+already have to the serendipity engine that hasn't been built yet.
+Same variable, different ends of the spectrum produce different
+cognitive modes. Serendipity's surprise emotion is the mechanism
+that converts the attractive loop (low-pressure noticing) into the
+coercive loop (can't stop thinking about it).
+
+### REPERCUSSIONS as future family priority
+
+Mueller's most underspecified family is also his most general:
+hypothesis-driven simulation ("what would happen if X?"), activated
+by heuristics he never specified, the only family not triggered by
+emotions. Natural home for intellectual exploration. Not the next
+implementation seam, but the next family to develop after rehearsal
+is more real.
+
+### Engine gap > family gap
+
+The self-correction from the web chat is worth preserving: the
+missing thing for broader cognitive modes (intellectual exploration,
+vault brainstorming, curiosity-driven musing) is mostly engine
+(serendipity, mutation, analogical planning), not new families.
+Mueller's existing families are broader than they look if the goal
+vocabulary is broader. REHEARSAL is already intellectual exploration
+if "achieve understanding of X" is a valid concern.
+
+## 11. Parked
 
 - Full 7-situation Graffito scaffold — wait until 3-4 situations work
 - GOLEM ontology for archival — overkill for runtime v1
