@@ -225,3 +225,85 @@ The genuinely novel contribution is the accessibility frontier — staged
 rule admission with evidence-gated opening. Neither Soar nor ACT-R has
 this as an explicit framework. The 5 Pro reviews confirmed this is a
 real contribution, not a literature rename.
+
+## Late-session additions (after main log)
+
+### Reviews 15 and 16 — code-level bugs
+
+Review 15 found 4 real bugs in the executor boundary code:
+1. Reversal nil-result doesn't propagate through reverse-leafs
+2. `false` from executor silently swallowed (only `nil` should mean no-result)
+3. Rationalization afterglow divergence (executor computes one fact,
+   assertion handler rebuilds a different one)
+4. `resolve-effect-context-id` fails open (unresolved symbolic refs
+   fall back to raw keyword, silently writing junk)
+
+Plus 3 contract gaps: result-key wiring not validated across effect
+program, effect ordering implicit/unchecked, reversal branch validation
+too weak.
+
+Review 16 found 6 admission chain leaks:
+A. Evaluator can durable-promote too early (bypasses use→outcome→evidence chain)
+B. One cross-family success is enough to promote (over-promotes in small worlds)
+C. Plain failure too weak (gummy middle-tier episodes accumulate)
+D. Quarantine appears one-way (no reopening path)
+E. Payload-cluster cap weaker than it looks (run-local goal IDs split clusters)
+F. Same-family-loop has immunity loophole (one cross-family success immunizes)
+
+Plus: evaluator authority should be narrowed — critic only, not
+critic-plus-policy-engine. `:kernel-caps` field should explicitly
+limit what the model is allowed to decide.
+
+One-sentence summary from review 16: "Do not let a loosely supervised
+model output turn a provisional family-plan episode into durable memory
+plus opened rule access without downstream evidence."
+
+These are active fix targets for the codex, not research findings.
+
+### Project page status
+
+The v3 page draft lives in scope-drd, not latent-dreamer:
+`/Users/daviddickinson/Projects/Lora/scope-drd/notes/daydream/self_docs/project_page_v3/page_draft.md`
+
+It has absorbed most of the session's work. Codex correctly notes:
+- Don't claim a 50-cycle soak result that doesn't exist yet
+- Add honest status notes about rule-access not fully gating live
+  activation and evaluator still having some negative authority
+- Promote the draft into latent-dreamer as canonical source
+
+This is polish work for a fresh session.
+
+### Symbiotic-Vault connections (corrected)
+
+The initial mappings were too literal. Codex corrected:
+- Atoms ≠ episodes (atoms are conceptual notes, episodes are cognitive traces)
+- Frames ≠ goal families (frames are reader-lenses, families are operators)
+- Respond = typed conductor event, NOT raw world mutation
+- Compost = diagnostic layer over neglected material, not anti-residue itself
+
+The real connection: THE_MEMBRANE vocabulary (freeze/dismiss/respond/cut)
+is the right human-facing control surface for a conducted cognitive engine.
+The kernel provides the persistent machinery underneath. The conductor
+shapes pressure and surfacing without becoming a freeform world mutator.
+
+### Reading list mapping
+
+The earlier reading list (25 sources + Mueller sections) was built for
+the generation-pipeline architecture. Current status against kernel-first:
+- EMA, OCC, ATMS, MINSTREL: directly absorbed
+- Facade, DODM, Versu: still valid for performance lane, not current focus
+- Loyall/ABL, FAtiMA: flagged gap — surface believability, interaction legibility
+- Generative Agents: our baseline is now "assertion/event memory with
+  consolidation + graph memory + long-context fallback" (citing Mem0)
+- Our distinguishing claim is narrower than sometimes stated: not "memory"
+  but "cumulative structured search with explicit affective control"
+
+### What to read on restart
+
+If compacted, read in this order:
+1. `sessions/session-2026-03-22-condensation-and-architecture.md` (this file)
+2. `condensation/build-order-checkpoint-2026-03-22.md` (settled build sequence)
+3. `condensation/research-sift-memory-ecology-and-beyond.md` (all research findings)
+4. `condensation/architectural-framing.md` (our point of view)
+5. `Notes/dashboard.md` (current project status)
+6. `Notes/canonical-map.md` (where everything lives)
