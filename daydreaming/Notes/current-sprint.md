@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-03-22
+Last updated: 2026-03-23
 
 ---
 
@@ -508,11 +508,16 @@ The first Graffito kernel slices now exist:
     - `8` dynamic source wins
     - `4` episodes with use-history
     - `4` episodes with anti-residue flags (`:same-family-loop`)
+    - the first cross-family Graffito bridge is now live too:
+      `4` cross-family source candidate cycles, `4` cross-family source
+      wins, and `1` episode with cross-family use-history
     - still `0` promotion-history and `0` durable episodes
   - so the next honest question is no longer whether Graffito episodes
-    can enter or win a later race; it is how the miniworld produces a
-    real cross-family Graffito reuse path that can feed promotion rather
-    than only same-family loop defense
+    can enter or win a later race, or whether Graffito can produce any
+    live cross-family reuse at all; it is how the miniworld turns that
+    first cross-family bridge into distinct later evidence that can feed
+    promotion rather than only same-family loop defense plus one
+    repeated rehearsal-support path
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:

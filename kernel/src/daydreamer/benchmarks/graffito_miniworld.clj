@@ -8,8 +8,10 @@
   live families where they exist, and uses one benchmark-local rehearsal
   routine where the kernel does not yet provide a rehearsal planner."
   (:require [daydreamer.context :as cx]
+            [daydreamer.episodic-memory :as episodic]
             [daydreamer.goal-families :as families]
             [daydreamer.goals :as goals]
+            [daydreamer.rules :as rules]
             [daydreamer.runner :as runner]
             [daydreamer.trace :as trace]))
 
@@ -40,6 +42,7 @@
 (def ^:private mural-challenge-frame-id :rf_rhythm_can_hold_the_mark)
 (def ^:private rehearsal-routine-id :rt_counted_stroke_rehearsal)
 (def ^:private rehearsal-operator-id :op_counted_stroke_with_sketchbook)
+(def ^:private rehearsal-source-rule-id :graffito-miniworld/rehearsal-routine)
 
 (def ^:private street-leaf-objective
   {:fact/type :assumption
@@ -644,6 +647,123 @@
               :dynamic-source-visible? dynamic-visible?
               :authored-source-withdrawn? dynamic-visible?)])))
 
+(defn- cross-family-rehearsal-source-candidates
+  [world]
+  (let [context-id (mural-context-id world)
+        visible-indices (->> (cx/visible-facts world context-id)
+                             (keep :fact/id)
+                             distinct
+                             vec)]
+    (if-not (seq visible-indices)
+      []
+      (->> (episodic/retrieve-episodes
+            world
+            visible-indices
+            {:threshold-key :plan-threshold
+             :active-rule-path [rehearsal-source-rule-id]
+             :active-family :rehearsal})
+           (keep (fn [hit]
+                   (let [episode (get-in world [:episodes (:episode-id hit)])
+                         provenance (:provenance episode)]
+                     (when (and (= :family-plan (:source provenance))
+                                (= :rationalization (:family provenance)))
+                       {:candidate-origin :dynamic
+                        :episode-id (:episode-id hit)
+                        :source-family (:family provenance)
+                        :frame-id (or (get-in episode [:payload :frame-id])
+                                      (get-in provenance
+                                              [:selection :rationalization_frame_id]))
+                        :goal-id (or (get-in episode [:payload :frame-goal-id])
+                                     (get-in provenance
+                                             [:selection :rationalization_frame_goal]))
+                        :priority (double (or (:effective-marks hit)
+                                              (:marks hit)
+                                              0.0))
+                        :selection-policy :stored_cross_family_support_episode
+                        :selection-reasons (cond-> [:stored_cross_family_support_episode
+                                                    :anticipated_mural_projection]
+                                             (:provenance-reason hit)
+                                             (conj (:provenance-reason hit)))
+                        :admission-status (:admission-status episode)
+                        :use-history-count (count (:use-history episode))
+                        :promotion-evidence-count (count (:promotion-evidence episode))
+                        :anti-residue-flags (vec (:anti-residue-flags episode))}))))
+           (sort-by (juxt (comp - :priority)
+                          (comp str :episode-id)))
+           vec))))
+
+(defn- summarize-cross-family-rehearsal-candidates
+  [candidates]
+  {:cross-family-source-candidate-count (count candidates)
+   :cross-family-source-candidates
+   (mapv (fn [candidate]
+           {:origin (candidate-origin-keyword (:candidate-origin candidate))
+            :episode-id (:episode-id candidate)
+            :source-family (:source-family candidate)
+            :frame-id (:frame-id candidate)
+            :goal-id (:goal-id candidate)
+            :priority (:priority candidate)
+            :selection-policy (:selection-policy candidate)
+            :selection-reasons (:selection-reasons candidate)
+            :admission-status (:admission-status candidate)
+            :use-history-count (:use-history-count candidate)
+            :promotion-evidence-count (:promotion-evidence-count candidate)
+            :anti-residue-flags (:anti-residue-flags candidate)})
+         (take 4 candidates))})
+
+(defn- rehearsal-cross-family-probe
+  [world]
+  (let [candidates (cross-family-rehearsal-source-candidates world)
+        selected (first candidates)]
+    [(assoc (summarize-cross-family-rehearsal-candidates candidates)
+            :cross-family-source-context-id (mural-context-id world)
+            :cross-family-source-visible? (boolean selected)
+            :cross-family-source-episode-id (:episode-id selected))
+     selected]))
+
+(defn- apply-cross-family-rehearsal-use
+  [world selected-source]
+  (if-not selected-source
+    [world nil nil nil []]
+    (let [episode-id (:episode-id selected-source)
+          episode (get-in world [:episodes episode-id])
+          branch-context-id (apartment-context-id world)
+          [world use-info]
+          (episodic/note-episode-use
+           world
+           episode-id
+           {:reason :graffito-cross-family-rehearsal-use
+            :use-role :rehearsal-support-source
+            :goal-id rehearsal-routine-id
+            :branch-context-id branch-context-id
+            :source-family (get-in episode [:provenance :family])
+            :target-family :rehearsal
+            :source-rule (last (:rule-path episode))
+            :target-rule rehearsal-source-rule-id})
+          [world outcome-info]
+          (if use-info
+            (episodic/resolve-episode-use-outcome
+             world
+             episode-id
+             (:use-id use-info)
+             {:outcome :succeeded
+              :reason :rehearsal-regulation-success})
+            [world nil])
+          [world transition]
+          (if use-info
+            (episodic/reconcile-episode-admission world episode-id)
+            [world nil])
+          episode (get-in world [:episodes episode-id])
+          [world access-transitions]
+          (if use-info
+            (rules/reconcile-episode-rule-access world
+                                                 (families/family-rules)
+                                                 episode
+                                                 transition
+                                                 {:branch-context-id branch-context-id})
+            [world []])]
+      [world use-info outcome-info transition access-transitions])))
+
 (defn- apply-fatigue-adjustment
   [world candidate]
   (let [recent (get-in world [:graffito-miniworld :recent-choices] [])
@@ -1084,12 +1204,15 @@
         object-state-before (current-object-state world)
         appraisal-before (get-in world [:graffito-miniworld :mural-projection :appraisal-mode])
         regulation-before (get-in world [:graffito-miniworld :mural-projection :regulation-mode])
+        [cross-family-race selected-source] (rehearsal-cross-family-probe world)
         world (append-cycle world (trace-cycle-base world chosen-candidate top-candidates))
         world (-> world
                   (update-tony-and-object-state (:operator-key chosen-candidate))
                   (advance-situations (:operator-key chosen-candidate))
                   (update-recent-choices chosen-candidate)
                   project-mural-appraisal)
+        [world use-info outcome-info transition access-transitions]
+        (apply-cross-family-rehearsal-use world selected-source)
         appraisal-after (get-in world [:graffito-miniworld :mural-projection :appraisal-mode])
         regulation-after (get-in world [:graffito-miniworld :mural-projection :regulation-mode])
         summary {:cycle (:cycle world)
@@ -1115,17 +1238,35 @@
                  :authored-source-candidate-count 0
                  :dynamic-source-visible? false
                  :dynamic-source-won? false
+                 :cross-family-source-candidate-count (:cross-family-source-candidate-count
+                                                       cross-family-race)
+                 :cross-family-source-visible? (:cross-family-source-visible?
+                                                cross-family-race)
+                 :cross-family-source-episode-id (:cross-family-source-episode-id
+                                                  cross-family-race)
+                 :cross-family-source-won? (boolean use-info)
+                 :cross-family-use-outcome (:outcome outcome-info)
+                 :cross-family-admission-transition transition
+                 :cross-family-access-transitions access-transitions
                  :stored-episode-count (count (:episodes world))}]
     [(trace/merge-latest-cycle
       world
-      {:graffito_miniworld
+      {:episode-use-records (cond-> []
+                              use-info
+                              (conj use-info))
+       :admission-transition transition
+       :rule-access-transitions access-transitions
+       :graffito_miniworld
        {:operator-id rehearsal-operator-id
         :routine-id rehearsal-routine-id
         :tony-state-before tony-state-before
         :tony-state-after (:tony-state-after summary)
         :mural-appraisal-before appraisal-before
         :mural-appraisal-after appraisal-after
-        :reappraisal-flip? (:reappraisal-flip? summary)}})
+        :reappraisal-flip? (:reappraisal-flip? summary)
+        :cross-family-race cross-family-race
+        :cross-family-source-won? (:cross-family-source-won? summary)
+        :cross-family-use-outcome (:cross-family-use-outcome summary)}})
      summary]))
 
 (defn run-miniworld-cycle
@@ -1183,6 +1324,12 @@
                                                        cycle-summaries))
         dynamic-source-win-cycles (count (filter :dynamic-source-won?
                                                  cycle-summaries))
+        cross-family-source-candidate-cycles
+        (count (filter :cross-family-source-visible?
+                       cycle-summaries))
+        cross-family-source-win-cycles
+        (count (filter :cross-family-source-won?
+                       cycle-summaries))
         dynamic-rationalization-candidate-cycles
         (count (filter #(and (= :rationalization (:selected-family %))
                              (:dynamic-source-visible? %))
@@ -1198,6 +1345,12 @@
      :challenge-mural-cycles challenge-mural-cycles
      :stored-episode-count (count episodes)
      :episodes-with-use-history (count (filter #(seq (:use-history %)) episodes))
+     :episodes-with-cross-family-use-history
+     (count (filter (fn [episode]
+                      (seq (filter #(not= (:source-family %)
+                                          (:target-family %))
+                                   (:use-history episode))))
+                    episodes))
      :episodes-with-promotion-history (count (filter #(seq (:promotion-history %))
                                                      episodes))
      :episodes-with-flags (count (filter #(seq (:anti-residue-flags %)) episodes))
@@ -1207,6 +1360,8 @@
                                                episodes))
      :dynamic-source-candidate-cycles dynamic-source-candidate-cycles
      :dynamic-source-win-cycles dynamic-source-win-cycles
+     :cross-family-source-candidate-cycles cross-family-source-candidate-cycles
+     :cross-family-source-win-cycles cross-family-source-win-cycles
      :dynamic-rationalization-candidate-cycles dynamic-rationalization-candidate-cycles
      :dynamic-reversal-candidate-cycles dynamic-reversal-candidate-cycles}))
 
