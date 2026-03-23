@@ -77,3 +77,28 @@
       (is (map? log))
       (is (= 12 (count (get log "cycles"))))
       (is (= "graffito-miniworld" (get log "seed"))))))
+
+(deftest twenty-cycle-miniworld-summary-stays-in-a-healthy-band
+  (let [{:keys [run-summary]} (mini/run-miniworld {:cycles 20})
+        family-counts (:family-counts run-summary)
+        situation-counts (:situation-counts run-summary)]
+    (testing "the 20-cycle miniworld stays non-collapsed without pinning exact choreography"
+      (is (pos? (get family-counts :reversal 0)))
+      (is (pos? (get family-counts :rationalization 0)))
+      (is (pos? (get family-counts :rehearsal 0)))
+      (is (pos? (get situation-counts :graffito_street_overload 0)))
+      (is (pos? (get situation-counts :graffito_grandma_apartment 0)))
+      (is (pos? (get situation-counts :graffito_night_mural 0)))
+      (is (>= (:reappraisal-flips run-summary) 4))
+      (is (>= (:challenge-mural-cycles run-summary) 6))
+      (is (>= (:stored-episode-count run-summary) 12)))
+    (testing "accumulation observability is explicit even before durable skill movement appears"
+      (is (integer? (:episodes-with-use-history run-summary)))
+      (is (integer? (:episodes-with-promotion-history run-summary)))
+      (is (integer? (:episodes-with-flags run-summary)))
+      (is (integer? (:durable-episode-count run-summary)))
+      (is (integer? (:provisional-episode-count run-summary)))
+      (is (integer? (:dynamic-source-candidate-cycles run-summary)))
+      (is (integer? (:dynamic-source-win-cycles run-summary)))
+      (is (integer? (:dynamic-rationalization-candidate-cycles run-summary)))
+      (is (integer? (:dynamic-reversal-candidate-cycles run-summary))))))

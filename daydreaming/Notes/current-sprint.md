@@ -499,6 +499,14 @@ The first Graffito kernel slices now exist:
     (`:rationalization 10`, `:reversal 6`, `:rehearsal 4`), stores 16
     family-plan episodes, and produces 6 autonomous reread flips with
     8 challenge-reading mural cycles
+  - the miniworld now exposes accumulation-facing run summary counters
+    directly in code: stored episodes, use-history, promotion-history,
+    anti-residue flags, and dynamic source-race visibility
+  - on the current 20-cycle first pass those counters are still all
+    zero for live membrane movement (`0` use-history, `0`
+    promotion-history, `0` flags, `0` dynamic source candidate cycles,
+    `0` dynamic source wins), so the next honest question is
+    accumulation, not reread
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:

@@ -955,6 +955,15 @@
         appraisal-after (get-in world [:graffito-miniworld :mural-projection :appraisal-mode])
         regulation-after (get-in world [:graffito-miniworld :mural-projection :regulation-mode])
         family-plan-episode-id (get-in family-plan [:selection :family_plan_episode_id])
+        source-candidates (vec (or (get-in family-plan [:selection :rationalization_frame_candidates])
+                                   (get-in family-plan [:selection :reversal_counterfactual_candidates])
+                                   []))
+        winner-origin (or (get-in family-plan [:selection :rationalization_frame_winner_origin])
+                          (get-in family-plan [:selection :reversal_counterfactual_winner_origin]))
+        dynamic-source-candidate-count (count (filter #(= "dynamic" (:origin %))
+                                                      source-candidates))
+        authored-source-candidate-count (count (filter #(= "authored" (:origin %))
+                                                       source-candidates))
         summary {:cycle (:cycle world)
                  :selected-situation-id (:situation-id chosen-candidate)
                  :selected-family (:family chosen-candidate)
@@ -972,8 +981,12 @@
                  :reappraisal-flip? (not= appraisal-before appraisal-after)
                  :family-plan-episode-id family-plan-episode-id
                  :admission-status (:admission-status family-plan)
-                 :winner-origin (or (get-in family-plan [:selection :rationalization_frame_winner_origin])
-                                    (get-in family-plan [:selection :reversal_counterfactual_winner_origin]))
+                 :winner-origin winner-origin
+                 :source-candidate-count (count source-candidates)
+                 :dynamic-source-candidate-count dynamic-source-candidate-count
+                 :authored-source-candidate-count authored-source-candidate-count
+                 :dynamic-source-visible? (pos? dynamic-source-candidate-count)
+                 :dynamic-source-won? (= "dynamic" winner-origin)
                  :frame-id (get-in family-plan [:selection :rationalization_frame_id])
                  :source-id (get-in family-plan [:selection :reversal_counterfactual_source])
                  :rule-provenance (:rule-provenance family-plan)
@@ -1024,6 +1037,12 @@
                  :mural-appraisal-after appraisal-after
                  :reappraisal-flip? (not= appraisal-before appraisal-after)
                  :family-plan-episode-id nil
+                 :winner-origin nil
+                 :source-candidate-count 0
+                 :dynamic-source-candidate-count 0
+                 :authored-source-candidate-count 0
+                 :dynamic-source-visible? false
+                 :dynamic-source-won? false
                  :stored-episode-count (count (:episodes world))}]
     [(trace/merge-latest-cycle
       world
@@ -1075,6 +1094,50 @@
            :graph_edges 3}
           overrides)))
 
+(defn run-summary
+  "Summarize a Graffito miniworld run for stable regression checks and
+  accumulation observability."
+  [world cycle-summaries]
+  (let [episodes (vals (:episodes world))
+        family-counts (frequencies (map :selected-family cycle-summaries))
+        situation-counts (frequencies (map :selected-situation-id cycle-summaries))
+        challenge-mural-cycles (count (filter #(and (= :graffito_night_mural
+                                                       (:selected-situation-id %))
+                                                    (= :rationalization
+                                                       (:selected-family %)))
+                                              cycle-summaries))
+        reappraisal-flips (count (filter :reappraisal-flip? cycle-summaries))
+        dynamic-source-candidate-cycles (count (filter :dynamic-source-visible?
+                                                       cycle-summaries))
+        dynamic-source-win-cycles (count (filter :dynamic-source-won?
+                                                 cycle-summaries))
+        dynamic-rationalization-candidate-cycles
+        (count (filter #(and (= :rationalization (:selected-family %))
+                             (:dynamic-source-visible? %))
+                       cycle-summaries))
+        dynamic-reversal-candidate-cycles
+        (count (filter #(and (= :reversal (:selected-family %))
+                             (:dynamic-source-visible? %))
+                       cycle-summaries))]
+    {:cycle-count (count cycle-summaries)
+     :family-counts family-counts
+     :situation-counts situation-counts
+     :reappraisal-flips reappraisal-flips
+     :challenge-mural-cycles challenge-mural-cycles
+     :stored-episode-count (count episodes)
+     :episodes-with-use-history (count (filter #(seq (:use-history %)) episodes))
+     :episodes-with-promotion-history (count (filter #(seq (:promotion-history %))
+                                                     episodes))
+     :episodes-with-flags (count (filter #(seq (:anti-residue-flags %)) episodes))
+     :durable-episode-count (count (filter #(= :durable (:admission-status %))
+                                           episodes))
+     :provisional-episode-count (count (filter #(= :provisional (:admission-status %))
+                                               episodes))
+     :dynamic-source-candidate-cycles dynamic-source-candidate-cycles
+     :dynamic-source-win-cycles dynamic-source-win-cycles
+     :dynamic-rationalization-candidate-cycles dynamic-rationalization-candidate-cycles
+     :dynamic-reversal-candidate-cycles dynamic-reversal-candidate-cycles}))
+
 (defn run-miniworld
   "Run the autonomous Graffito miniworld for `cycles` turns."
   ([] (run-miniworld {}))
@@ -1087,6 +1150,7 @@
      (if (>= step cycles)
        {:world world
         :cycle-summaries cycle-summaries
+        :run-summary (run-summary world cycle-summaries)
         :summaries (mapv summary-line cycle-summaries)
         :log (trace/reporter-log world (benchmark-metadata))}
        (let [prepared-world (if (zero? step)
