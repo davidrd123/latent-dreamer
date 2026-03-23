@@ -83,7 +83,9 @@ Implemented in the first pass:
   durable admission be re-earned through evidence
 - repeated later cross-family success can now also clear
   `:same-family-loop`, but only when that evidence is genuinely later
-  than the loop-triggering use
+  than the loop-triggering use; once cleared, same-family pressure
+  accumulates from that rehabilitation point rather than lifetime
+  totals
 - inert rule-access scaffolding is now in code:
   `world[:rule-access]` with `:accessible` / `:frontier` /
   `:quarantined`

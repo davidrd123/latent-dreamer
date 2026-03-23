@@ -455,8 +455,31 @@
         use-stats (get-in world [:episodes episode-id :use-stats])
         same-family-count (:same-family-use-count use-stats 0)
         cross-family-count (:cross-family-use-count use-stats 0)
+        same-family-window-count (let [last-loop-clear
+                                       (->> (get-in world
+                                                    [:episodes episode-id :anti-residue-history])
+                                            (filter (fn [record]
+                                                      (and (= :same-family-loop (:flag record))
+                                                           (= :cleared (:action record)))))
+                                            last)
+                                       anchor-use-id (:use-id last-loop-clear)
+                                       anchor-order (some (fn [use-record]
+                                                            (when (= anchor-use-id
+                                                                     (:use-id use-record))
+                                                              (:use-order use-record)))
+                                                          (get-in world
+                                                                  [:episodes episode-id :use-history]))]
+                                   (->> (get-in world [:episodes episode-id :use-history])
+                                        (filter #(= (:source-family %) (:target-family %)))
+                                        (filter (fn [use-record]
+                                                  (if (some? anchor-order)
+                                                    (> (:use-order use-record 0)
+                                                       anchor-order)
+                                                    true)))
+                                        count))
         loop-risk? (and same-family?
-                        (>= same-family-count same-family-loop-threshold))
+                        (>= same-family-window-count
+                            same-family-loop-threshold))
         [world flagged?] (if loop-risk?
                            (flag-episode world
                                          episode-id
@@ -470,6 +493,7 @@
     [world (assoc use-record
                   :same-family? same-family?
                   :same-family-use-count same-family-count
+                  :same-family-window-count same-family-window-count
                   :cross-family-use-count cross-family-count
                   :loop-risk? loop-risk?
                   :flagged? flagged?)]))

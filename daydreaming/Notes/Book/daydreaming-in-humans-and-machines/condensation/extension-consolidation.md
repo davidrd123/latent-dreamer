@@ -55,7 +55,9 @@ As the system accumulates episodes, rules, and graph connections:
   durable role can be re-earned through evidence rather than fiat
 - repeated later cross-family success can now also clear an active
   `:same-family-loop` flag, and that rehabilitation is keyed to later
-  evidence timing rather than older cross-family history
+  evidence timing rather than older cross-family history; once cleared,
+  same-family pressure restarts from that rehabilitation point instead
+  of lifetime totals
 - world state now carries a dynamic `:rule-access` registry with
   `:accessible` / `:frontier` / `:quarantined` statuses, separate from
   the structural rule graph

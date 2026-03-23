@@ -1064,6 +1064,114 @@
             :use-id (:use-id same-family-use-2)}
            (last (:anti-residue-history episode))))))
 
+(deftest same-family-loop-rehabilitation-resets-future-reentry-pressure
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id
+                                               :admission-status :durable
+                                               :provenance {:source :family-plan
+                                                            :family :rationalization}})
+        [world _]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :seed
+                                 :goal-id :g-1
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization})
+        [world _same-family-use-2]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :seed
+                                 :goal-id :g-2
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization})
+        [world cross-family-use-1]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :reminded
+                                 :goal-id :g-3
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :roving})
+        [world _]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id cross-family-use-1)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        [world cross-family-use-2]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :reminded
+                                 :goal-id :g-4
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :roving})
+        [world _]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id cross-family-use-2)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        [world _]
+        (epmem/reconcile-episode-admission world episode-id)
+        [world post-rehab-use-1]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :seed
+                                 :goal-id :g-5
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization})
+        [world post-rehab-use-2]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :seed
+                                 :goal-id :g-6
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization})
+        episode (get-in world [:episodes episode-id])]
+    (is (= {:same-family? true
+            :same-family-use-count 3
+            :same-family-window-count 1
+            :cross-family-use-count 2
+            :loop-risk? false
+            :flagged? false}
+           (select-keys post-rehab-use-1
+                        [:same-family? :same-family-use-count
+                         :same-family-window-count :cross-family-use-count
+                         :loop-risk? :flagged?])))
+    (is (= {:same-family? true
+            :same-family-use-count 4
+            :same-family-window-count 2
+            :cross-family-use-count 2
+            :loop-risk? true
+            :flagged? true}
+           (select-keys post-rehab-use-2
+                        [:same-family? :same-family-use-count
+                         :same-family-window-count :cross-family-use-count
+                         :loop-risk? :flagged?])))
+    (is (= #{:same-family-loop}
+           (set (:anti-residue-flags episode))))
+    (is (= {:flag :same-family-loop
+            :cycle 0
+            :reason :same-family-reuse-threshold
+            :source-family :rationalization
+            :target-family :rationalization
+            :episode-id episode-id
+            :use-id (:use-id post-rehab-use-2)}
+           (last (:anti-residue-history episode))))))
+
 (deftest durable-stale-episode-demotes-before-rehabilitation-can-clear-stale
   (let [[world root-id] (world-with-root)
         [world episode-id] (epmem/add-episode world

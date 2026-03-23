@@ -158,7 +158,9 @@ and "deserves future influence":
   re-earned through evidence rather than evaluator judgment
 - repeated later cross-family success can now also clear an active
   `:same-family-loop` flag, but only when that evidence is genuinely
-  later than the loop-triggering use
+  later than the loop-triggering use; once cleared, same-family reentry
+  pressure now accumulates from that rehabilitation point rather than
+  from lifetime totals
 - world state now carries an inert `:rule-access` registry with
   `:accessible` / `:frontier` / `:quarantined` statuses derived
   from rule provenance deployment roles
