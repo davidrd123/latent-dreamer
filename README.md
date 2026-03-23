@@ -28,19 +28,18 @@ cognitive architecture:
 - Runtime thought projection with LLM-generated inner-life prose
 - Writeback loop: generated thought changes future retrieval and
   cognition
-- Tony character state with sensory regulation (overloaded → bracing
-  → entraining → flowing → creating), reappraisal after family
-  execution
+- Persistent character state with sensory regulation (overloaded →
+  bracing → entraining → flowing → creating), reappraisal after
+  family execution
 
 **Benchmarks** ([`kernel/src/daydreamer/benchmarks/`](kernel/src/daydreamer/benchmarks/)):
 
 - Puppet Knows: runtime/seam regression on authored fixture
 - Membrane Assays A and B: live dynamic reuse, same-family-loop flag,
   cross-family promotion, frontier rule opening
-- Graffito microfixture, regulation slice, rehearsal slice: typed
-  psychological facts drive family selection and retrieval
-- Graffito miniworld: 3-situation autonomous run with persistent Tony
-  state, reappraisal flips, cross-family episode reuse
+- Typed situation benchmarks: psychological facts drive family
+  selection and retrieval, with persistent character regulation state
+  and autonomous reappraisal
 
 **Condensation** ([`daydreaming/Notes/Book/`](daydreaming/Notes/Book/)) — Mueller's 19
 mechanisms condensed into implementation-grade cards, verified against
@@ -51,10 +50,6 @@ replies from external architecture reviews covering cold-start
 bootstrapping, appraisal theory, situation models, regulation
 mechanics.
 
-**Graffito** ([`daydreaming/vendor/graffito/`](daydreaming/vendor/graffito/)) — vendored source
-material for the first creative brief (Mark Friedberg short film).
-Kernel-facing brief at
-[`daydreaming/Notes/experiential-design/24-graffito-kernel-brief.md`](daydreaming/Notes/experiential-design/24-graffito-kernel-brief.md).
 
 ## Orientation
 
@@ -86,7 +81,7 @@ bb lint           # clj-kondo
 bb nrepl          # port 7888
 ```
 
-Run a Graffito miniworld:
+Run a benchmark miniworld:
 
 ```clojure
 (require '[daydreamer.benchmarks.graffito-miniworld :as mini])
@@ -106,7 +101,7 @@ Run a Graffito miniworld:
   frontier opening (Assays A and B)
 - Same raw cues produce different behavior after regulation state
   changes (6 autonomous reappraisal flips in 20 cycles)
-- First cross-family episode reuse on Graffito material
+- First cross-family episode reuse on typed psychological material
 
 ## What is not proven yet
 
