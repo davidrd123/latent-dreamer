@@ -858,6 +858,7 @@
                      (let [counterfactual-facts (vec (:counterfactual-facts fact []))]
                        (when (seq counterfactual-facts)
                          {:candidate-rank 0
+                          :candidate-origin :authored
                           :cause-id (fact-id fact)
                           :goal-id (or (:failed-goal-id fact)
                                        (:goal-id fact)
@@ -903,6 +904,8 @@
                                     retracted-match?
                                     (seq counterfactual-facts))
                            {:candidate-rank candidate-rank
+                            :candidate-origin :dynamic
+                            :admission-status admission-status
                             :cause-id (:episode-id hit)
                             :goal-id (or (:reversal_counterfactual_goal selection)
                                          (:goal-id episode))
@@ -943,6 +946,21 @@
      :counterfactual-goal-id (:goal-id cause)
      :counterfactual-policy (:selection-policy cause)
      :counterfactual-reasons (:selection-reasons cause)}))
+
+(defn- summarize-reversal-counterfactual-candidates
+  [candidates]
+  (mapv (fn [candidate]
+          (cond-> {:origin (:candidate-origin candidate)
+                   :rank (:candidate-rank candidate)
+                   :source-id (:cause-id candidate)
+                   :goal-id (:goal-id candidate)
+                   :selection-policy (:selection-policy candidate)
+                   :priority (:priority candidate)
+                   :counterfactual-count (:counterfactual-count candidate)
+                   :selection-reasons (:selection-reasons candidate)}
+            (:admission-status candidate)
+            (assoc :admission-status (:admission-status candidate))))
+        (take 5 candidates)))
 
 (defn- matching-rationalization-frame?
   [fact failed-goal-id]
@@ -1000,6 +1018,7 @@
                      (let [reframe-facts (vec (:reframe-facts fact []))]
                        (when (seq reframe-facts)
                          {:candidate-rank 0
+                          :candidate-origin :authored
                           :frame-id (fact-id fact)
                           :episode-id nil
                           :goal-id (or (:failed-goal-id fact)
@@ -1043,6 +1062,8 @@
                                     (= failed-goal-id frame-goal-id)
                                     (seq reframe-facts))
                            {:candidate-rank candidate-rank
+                            :candidate-origin :dynamic
+                            :admission-status admission-status
                             :episode-id (:episode-id hit)
                             :frame-id (or (:frame-id payload)
                                           (:rationalization_frame_id selection))
@@ -1071,6 +1092,22 @@
                         (comp - :reframe-fact-count)
                         (comp str :frame-id)))
          vec)))
+
+(defn- summarize-rationalization-frame-candidates
+  [candidates]
+  (mapv (fn [candidate]
+          (cond-> {:origin (:candidate-origin candidate)
+                   :rank (:candidate-rank candidate)
+                   :frame-id (:frame-id candidate)
+                   :episode-id (:episode-id candidate)
+                   :goal-id (:goal-id candidate)
+                   :selection-policy (:selection-policy candidate)
+                   :priority (:priority candidate)
+                   :reframe-fact-count (:reframe-fact-count candidate)
+                   :selection-reasons (:selection-reasons candidate)}
+            (:admission-status candidate)
+            (assoc :admission-status (:admission-status candidate))))
+        (take 5 candidates)))
 
 (defn- rationalization-trigger-facts
   [world]
@@ -2483,7 +2520,8 @@
         {:keys [trigger-context-id failed-goal-id frame-id ordering
                 selection-policy rule-provenance source-episode-id
                 frame-goal-id reframe-facts reframe-fact-ids
-                selection-reasons situation-id effects surface-summary]
+                selection-reasons situation-id candidate-race winner-origin
+                effects surface-summary]
          :as plan-payload}
         (first (plan-payloads-from-request-facts world plan-request-facts))]
     (when plan-payload
@@ -2505,6 +2543,8 @@
        :reframe-fact-ids reframe-fact-ids
        :selection-reasons selection-reasons
        :situation-id situation-id
+       :candidate-race candidate-race
+       :winner-origin winner-origin
        :rule-provenance rule-provenance
        :surface-summary surface-summary
        :effects effects})))
@@ -2599,15 +2639,26 @@
 
     :else
     (when-let [reversal-leaf (select-reversal-leaf world)]
-      (merge reversal-leaf
-             (reverse-undo-causes world reversal-leaf)
-             opts
-             {:new-top-level-goal-id (or (:new-top-level-goal-id opts) goal-id)
-              :new-context-id (or (:new-context-id opts)
-                                  (default-plan-context world
-                                                        (or (:new-top-level-goal-id opts)
-                                                            goal-id)))
-              :ordering (or (:ordering opts) 0.9)}))))
+      (let [counterfactual-candidates (reverse-undo-cause-candidates world reversal-leaf)
+            selected-cause (first counterfactual-candidates)]
+        (merge reversal-leaf
+               (when selected-cause
+                 {:input-facts (:counterfactual-facts selected-cause)
+                  :counterfactual-fact-ids (mapv fact-id (:counterfactual-facts selected-cause))
+                  :counterfactual-cause-id (:cause-id selected-cause)
+                  :counterfactual-goal-id (:goal-id selected-cause)
+                  :counterfactual-policy (:selection-policy selected-cause)
+                  :counterfactual-reasons (:selection-reasons selected-cause)
+                  :counterfactual-winner-origin (:candidate-origin selected-cause)
+                  :counterfactual-candidates (summarize-reversal-counterfactual-candidates
+                                              counterfactual-candidates)})
+               opts
+               {:new-top-level-goal-id (or (:new-top-level-goal-id opts) goal-id)
+                :new-context-id (or (:new-context-id opts)
+                                    (default-plan-context world
+                                                          (or (:new-top-level-goal-id opts)
+                                                              goal-id)))
+                :ordering (or (:ordering opts) 0.9)})))))
 
 (defn roving-plan
   "Sprout a side-channel context and seed it with a pleasant episode reminder.
@@ -2727,16 +2778,21 @@
                           world
                           {:trigger-context-id trigger-context-id
                            :failed-goal-id failed-goal-id})]
-    (or (when frame-id
-          (some #(when (= frame-id (:frame-id %)) %) frame-candidates))
-        (first frame-candidates)
-        (throw (ex-info "RATIONALIZATION plan payload resolved to missing frame"
-                        {:goal-id goal-id
-                         :context-id context-id
-                         :trigger-context-id trigger-context-id
-                         :failed-goal-id failed-goal-id
-                         :frame-id frame-id
-                         :plan-request-facts plan-request-facts})))))
+    (if-let [frame (or (when frame-id
+                         (some #(when (= frame-id (:frame-id %)) %) frame-candidates))
+                       (first frame-candidates))]
+      (assoc frame
+             :candidate-race
+             (summarize-rationalization-frame-candidates frame-candidates)
+             :winner-origin
+             (:candidate-origin frame))
+      (throw (ex-info "RATIONALIZATION plan payload resolved to missing frame"
+                      {:goal-id goal-id
+                       :context-id context-id
+                       :trigger-context-id trigger-context-id
+                       :failed-goal-id failed-goal-id
+                       :frame-id frame-id
+                       :plan-request-facts plan-request-facts})))))
 
 (defn- rationalization-diversion-preview
   [world {:keys [trigger-context-id failed-goal-id]} frame]
@@ -2864,7 +2920,9 @@
                        :reframe-facts (:reframe-facts frame)
                        :reframe-fact-ids (mapv fact-id (:reframe-facts frame))
                        :selection-reasons (:selection-reasons frame)
-                       :situation-id (:situation-id frame))
+                       :situation-id (:situation-id frame)
+                       :candidate-race (:candidate-race frame)
+                       :winner-origin (:winner-origin frame))
         affect-state-fact (or (when diversion-preview
                                 {:fact/type :family-affect-state
                                  :source-family :rationalization
@@ -2996,7 +3054,8 @@
           :or {ordering 1.0}}]
   (if-let [{:keys [source-episode-id frame-id frame-goal-id reframe-facts
                    reframe-fact-ids selection-policy rule-provenance
-                   selection-reasons situation-id effects]}
+                   selection-reasons situation-id candidate-race
+                   winner-origin effects]}
            (rationalization-plan-effects
             world
             {:goal-id goal-id
@@ -3027,6 +3086,8 @@
               :selection-policy selection-policy
               :rule-provenance rule-provenance
               :selection-reasons selection-reasons
+              :candidate-race candidate-race
+              :winner-origin winner-origin
               :situation-id situation-id
               :diversion-policy (:diversion-policy diversion)
               :trigger-emotion-id trigger-emotion-id
@@ -3117,8 +3178,10 @@
                                  :reversal_branch_contexts sprouted-context-ids
                                  :reversal_counterfactual_policy (:counterfactual-policy reversal-target)
                                  :reversal_counterfactual_source (:counterfactual-cause-id reversal-target)
+                                 :reversal_counterfactual_winner_origin (:counterfactual-winner-origin reversal-target)
                                  :reversal_counterfactual_goal (:counterfactual-goal-id reversal-target)
                                  :reversal_counterfactual_reasons (:counterfactual-reasons reversal-target)
+                                 :reversal_counterfactual_candidates (:counterfactual-candidates reversal-target)
                                  :reversal_counterfactual_fact_ids (:counterfactual-fact-ids reversal-target)
                                  :reversal_branch_context (:sprouted-context-id primary-branch)}
                      :affect-state-fact affect-state-fact
@@ -3202,9 +3265,11 @@
                                    :family_goal_id goal-id
                                    :rationalization_selection_policy (:selection-policy rationalization-result)
                                    :rationalization_source_episode (:source-episode-id rationalization-result)
+                                   :rationalization_frame_winner_origin (:winner-origin rationalization-result)
                                    :rationalization_frame_id (:frame-id rationalization-result)
                                    :rationalization_frame_goal (:frame-goal-id rationalization-result)
                                    :rationalization_frame_reasons (:selection-reasons rationalization-result)
+                                   :rationalization_frame_candidates (:candidate-race rationalization-result)
                                    :rationalization_reframe_fact_ids (:reframe-fact-ids rationalization-result)
                                    :rationalization_branch_context (:sprouted-context-id rationalization-result)
                                    :rationalization_diversion_policy (:diversion-policy rationalization-result)

@@ -326,6 +326,10 @@ Current read:
   rationalization sources too, but the live soak still stays on authored
   rationalization frames, so the benchmark is still not driving the
   promotion chain through live family-plan reuse
+- candidate-race trace is now live for reversal and rationalization, and
+  the current Puppet Knows rerun shows authored-source dominance by
+  construction: the observed rationalization races are authored-only,
+  and the observed reversal races are authored-only
 - rule-access gating is now live in activation, planning, and the
   first frontier bridge, but the current benchmark run does not yet
   produce meaningful quarantine/reopening movement

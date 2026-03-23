@@ -1635,6 +1635,26 @@
             :multi_fact_reframe]
            (get-in later-family-plan
                    [:selection :rationalization_frame_reasons])))
+    (is (= :dynamic
+           (get-in later-family-plan
+                   [:selection :rationalization_frame_winner_origin])))
+    (is (= [{:origin :dynamic
+             :rank 1
+             :frame-id frame-id
+             :episode-id stored-episode-id
+             :goal-id failed-goal-id
+             :selection-policy :stored_rationalization_episode
+             :reframe-fact-count 3
+             :selection-reasons [:stored_rationalization_episode
+                                 :matching_failed_goal
+                                 :shared-rule
+                                 :multi_fact_reframe]
+             :admission-status :durable}]
+           (mapv #(dissoc % :priority)
+                 (get-in later-family-plan
+                         [:selection :rationalization_frame_candidates]))))
+    (is (pos? (get-in later-family-plan
+                      [:selection :rationalization_frame_candidates 0 :priority])))
     (is (= frame-id
            (get-in later-family-plan
                    [:selection :rationalization_frame_id])))
@@ -2221,6 +2241,25 @@
            (get-in later-family-plan [:selection :reversal_counterfactual_policy])))
     (is (= stored-episode-id
            (get-in later-family-plan [:selection :reversal_counterfactual_source])))
+    (is (= :dynamic
+           (get-in later-family-plan
+                   [:selection :reversal_counterfactual_winner_origin])))
+    (is (= [{:origin :dynamic
+             :rank 1
+             :source-id stored-episode-id
+             :goal-id old-top-level-goal-id
+             :selection-policy :stored_reversal_episode
+             :counterfactual-count 1
+             :selection-reasons [:stored_reversal_episode
+                                 :matching_failed_goal
+                                 :matching_retracted_fact
+                                 :shared-rule]
+             :admission-status :durable}]
+           (mapv #(dissoc % :priority)
+                 (get-in later-family-plan
+                         [:selection :reversal_counterfactual_candidates]))))
+    (is (pos? (get-in later-family-plan
+                      [:selection :reversal_counterfactual_candidates 0 :priority])))
     (is (= [stored-episode-id]
            (mapv :episode-id
                  (get-in later-family-plan

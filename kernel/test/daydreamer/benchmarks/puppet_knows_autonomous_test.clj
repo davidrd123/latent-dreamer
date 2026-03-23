@@ -16,6 +16,10 @@
 (deftest run-benchmark-emits-readable-autonomous-trace
   (let [{:keys [world log summaries]} (autonomous/run-benchmark {:cycles 6})
         cycles (get log "cycles")
+        first-reversal-cycle (some #(when (= "reversal"
+                                             (get-in % ["selected_goal" "goal_type"]))
+                                      %)
+                                   cycles)
         selected-situations (keep #(get-in % ["selected_goal" "situation_id"]) cycles)
         selected-goal-types (keep #(get-in % ["selected_goal" "goal_type"]) cycles)]
     (testing "the run emits the requested cycle window"
@@ -41,6 +45,15 @@
                           cycles)))
       (is (some seq
                 (map #(get % "sprouted_contexts") cycles))))
+    (testing "source-selection races are visible in the trace"
+      (is (vector? (get-in (first cycles)
+                           ["selection" "rationalization_frame_candidates"])))
+      (is (some? (get-in (first cycles)
+                         ["selection" "rationalization_frame_winner_origin"])))
+      (is (vector? (get-in first-reversal-cycle
+                           ["selection" "reversal_counterfactual_candidates"])))
+      (is (some? (get-in first-reversal-cycle
+                         ["selection" "reversal_counterfactual_winner_origin"]))))
     (testing "the run is not stuck in one situation"
       (is (> (count (set selected-situations))
              1)))))
