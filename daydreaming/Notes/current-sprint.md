@@ -313,9 +313,9 @@ Current read:
   first frontier bridge, but the current benchmark run does not yet
   produce meaningful quarantine/reopening movement
 - the first benchmark-pressure retune broke the earlier rehearsal lock:
-  post-cycle-13 activity now stays mixed across reversal, roving,
-  rehearsal, and repercussions, so the soak is more informative than
-  the first return
+  a fresh 50-cycle rerun now stays mixed after cycle 13
+  (`reversal 9`, `roving 6`, `rehearsal 13`, `repercussions 9`), and
+  the late tail no longer locks into same-situation repercussions
 - even after that retune, the soak is still more useful as a runtime /
   pressure read than as a deep memory-membrane read, because the run is
   not yet generating visible use-history / promotion / flag dynamics in

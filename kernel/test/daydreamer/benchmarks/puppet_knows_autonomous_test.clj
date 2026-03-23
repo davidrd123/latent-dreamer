@@ -3,6 +3,15 @@
             [daydreamer.director :as director]
             [daydreamer.benchmarks.puppet-knows-autonomous :as autonomous]))
 
+(defn- longest-true-run
+  [xs]
+  (->> xs
+       (partition-by identity)
+       (keep (fn [run]
+               (when (true? (first run))
+                 (count run))))
+       (reduce max 0)))
+
 (deftest run-benchmark-emits-readable-autonomous-trace
   (let [{:keys [world log summaries]} (autonomous/run-benchmark {:cycles 6})
         cycles (get log "cycles")
@@ -183,6 +192,23 @@
            (:strength candidate)))
     (is (some #{:repercussions_saturation}
               (:reasons adjusted)))))
+
+(deftest run-benchmark-50-cycle-tail-stays-mixed-after-retune
+  (let [{:keys [log]} (autonomous/run-benchmark {:cycles 50})
+        cycles (get log "cycles")
+        post-cycle-13 (drop 13 cycles)
+        selected-goal-types (map #(get-in % ["selected_goal" "goal_type"])
+                                 post-cycle-13)
+        late-s3-repercussions (map #(and (= "repercussions"
+                                            (get-in % ["selected_goal" "goal_type"]))
+                                         (= "s3_the_edge"
+                                            (get-in % ["selected_goal" "situation_id"])))
+                                   (drop 33 cycles))]
+    (testing "the long soak still visits multiple families after cycle 13"
+      (is (every? (set selected-goal-types)
+                  ["reversal" "roving" "rehearsal" "repercussions"])))
+    (testing "same-situation repercussions no longer lock for the rest of the run"
+      (is (<= (longest-true-run late-s3-repercussions) 1)))))
 
 (deftest run-benchmark-can-apply-external-family-evaluator
   (let [archive-evaluator (fn [_family-plan _default-evaluation]
