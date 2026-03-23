@@ -92,14 +92,15 @@
       (is (>= (:reappraisal-flips run-summary) 4))
       (is (>= (:challenge-mural-cycles run-summary) 6))
       (is (>= (:stored-episode-count run-summary) 12)))
-    (testing "accumulation observability is explicit even before durable skill movement appears"
+    (testing "accumulation observability is explicit once cross-family reuse starts moving the membrane"
       (is (integer? (:episodes-with-use-history run-summary)))
       (is (integer? (:episodes-with-cross-family-use-history run-summary)))
       (is (integer? (:episodes-with-promotion-history run-summary)))
       (is (pos? (:episodes-with-use-history run-summary)))
       (is (pos? (:episodes-with-cross-family-use-history run-summary)))
       (is (pos? (:episodes-with-flags run-summary)))
-      (is (integer? (:durable-episode-count run-summary)))
+      (is (pos? (:episodes-with-promotion-history run-summary)))
+      (is (pos? (:durable-episode-count run-summary)))
       (is (integer? (:provisional-episode-count run-summary)))
       (is (pos? (:dynamic-source-candidate-cycles run-summary)))
       (is (pos? (:dynamic-source-win-cycles run-summary)))
@@ -107,3 +108,24 @@
       (is (integer? (:dynamic-reversal-candidate-cycles run-summary)))
       (is (pos? (:cross-family-source-candidate-cycles run-summary)))
       (is (pos? (:cross-family-source-win-cycles run-summary))))))
+
+(deftest twenty-cycle-miniworld-assigns-distinct-cross-family-use-ids
+  (let [{:keys [world]} (mini/run-miniworld {:cycles 20})
+        cross-family-promoted
+        (->> (vals (:episodes world))
+             (filter #(seq (:promotion-history %)))
+             (filter (fn [episode]
+                       (some #(not= (:source-family %)
+                                    (:target-family %))
+                             (:use-history episode)))))
+        promoted-episode (first cross-family-promoted)
+        distinct-cross-use-ids (->> (:use-history promoted-episode)
+                                    (filter #(not= (:source-family %)
+                                                   (:target-family %)))
+                                    (map :use-id)
+                                    distinct)]
+    (testing "cross-family Graffito promotion is driven by distinct later uses, not one recycled use-id"
+      (is promoted-episode)
+      (is (= :durable (:admission-status promoted-episode)))
+      (is (>= (count distinct-cross-use-ids) 2))
+      (is (>= (count (:promotion-evidence promoted-episode)) 2)))))

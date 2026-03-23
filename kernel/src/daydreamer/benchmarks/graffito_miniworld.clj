@@ -84,6 +84,8 @@
    :trace
    :episodes
    :episode-index
+   :episode-use-counter
+   :episode-event-counter
    :id-counter
    :recent-episodes
    :recent-indices

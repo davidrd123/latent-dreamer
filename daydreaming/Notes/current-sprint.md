@@ -506,18 +506,22 @@ The first Graffito kernel slices now exist:
     membrane movement is now visible:
     - `8` dynamic source candidate cycles, all rationalization-side
     - `8` dynamic source wins
-    - `4` episodes with use-history
-    - `4` episodes with anti-residue flags (`:same-family-loop`)
-    - the first cross-family Graffito bridge is now live too:
+    - `3` episodes with use-history
+    - `3` episodes with anti-residue flags (`:same-family-loop`)
+    - the first cross-family Graffito bridge is now live:
       `4` cross-family source candidate cycles, `4` cross-family source
       wins, and `1` episode with cross-family use-history
-    - still `0` promotion-history and `0` durable episodes
+    - with correct episode-use/event counters carried across rebuilds,
+      that bridge now produces `1` promotion-history record and `1`
+      durable episode in the live 20-cycle run
+    - rule-access movement is still `0`, because the promoted episode's
+      rule path is already kernel-accessible rather than frontier-gated
   - so the next honest question is no longer whether Graffito episodes
-    can enter or win a later race, or whether Graffito can produce any
-    live cross-family reuse at all; it is how the miniworld turns that
-    first cross-family bridge into distinct later evidence that can feed
-    promotion rather than only same-family loop defense plus one
-    repeated rehearsal-support path
+    can enter or win a later race, or whether Graffito can produce live
+    cross-family reuse and promotion at all; it is how the miniworld
+    broadens beyond this one repeated rehearsal-support bridge into
+    additional distinct cross-family paths, and eventually into rule-
+    access movement rather than promotion on already-accessible paths
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:
