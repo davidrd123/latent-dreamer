@@ -87,7 +87,7 @@ Lane 2: Deep Build (kernel rule engine)            ← where the architecture li
   ├── Puppet Knows re-entry: 12-cycle clean, 50-cycle partial but mixed after pressure retune
   ├── Membrane assays: Assay A (dynamic entry + loop flag), Assay B (live promotion/frontier open)
   ├── Graffito slices: Slice 1 (typed retrieval), Slice 2 (character-state reappraisal), Slice 3 (rehearsal control reread)
-  ├── Graffito miniworld: autonomous 3-scene reread dynamics first pass, dynamic wins + same-family loop flags + first cross-family promotion now visible
+  ├── Graffito miniworld: autonomous 3-scene reread dynamics, dynamic wins + same-family loop flags + first frontier-path cross-family promotion/access now visible
   ├── First :llm-backed pilot as episode evaluator
   └── See build-order-checkpoint-2026-03-22.md
 

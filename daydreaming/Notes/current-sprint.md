@@ -504,9 +504,9 @@ The first Graffito kernel slices now exist:
     anti-residue flags, and dynamic source-race visibility
   - on the current 20-cycle first pass, the first live Graffito
     membrane movement is now visible:
-    - `8` dynamic source candidate cycles, all rationalization-side
-    - `8` dynamic source wins
-    - `3` episodes with use-history
+    - `7` dynamic source candidate cycles, all rationalization-side
+    - `7` dynamic source wins
+    - `5` episodes with use-history
     - `3` episodes with anti-residue flags (`:same-family-loop`)
     - the first cross-family Graffito bridge is now live:
       `4` cross-family source candidate cycles, `4` cross-family source
@@ -514,14 +514,19 @@ The first Graffito kernel slices now exist:
     - with correct episode-use/event counters carried across rebuilds,
       that bridge now produces `1` promotion-history record and `1`
       durable episode in the live 20-cycle run
-    - rule-access movement is still `0`, because the promoted episode's
-      rule path is already kernel-accessible rather than frontier-gated
+    - the miniworld now also carries one benchmark-local reversal
+      aftershock fact across rebuild, which makes a real frontier path
+      live:
+      `1` `:reversal_aftershock_rationalization_frame` mural
+      rationalization cycle, `1` frontier-path promoted episode, and
+      `1` rule-access transition opening
+      `:goal-family/reversal-aftershock-to-rationalization` from
+      `:frontier` to `:accessible`
   - so the next honest question is no longer whether Graffito episodes
     can enter or win a later race, or whether Graffito can produce live
-    cross-family reuse and promotion at all; it is how the miniworld
-    broadens beyond this one repeated rehearsal-support bridge into
-    additional distinct cross-family paths, and eventually into rule-
-    access movement rather than promotion on already-accessible paths
+    cross-family reuse, promotion, and frontier opening at all; it is
+    how the miniworld broadens beyond this one repeated rehearsal-
+    support frontier bridge into additional distinct cross-family paths
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:

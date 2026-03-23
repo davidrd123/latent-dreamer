@@ -40,9 +40,11 @@
 (def ^:private apartment-frame-id :rf_intensity_becomes_style)
 (def ^:private mural-threat-cause-id :fc_cop_light_turns_art_to_capture)
 (def ^:private mural-challenge-frame-id :rf_rhythm_can_hold_the_mark)
+(def ^:private mural-bridge-frame-id :rf_counterfactual_aftershock_holds_the_mark)
 (def ^:private rehearsal-routine-id :rt_counted_stroke_rehearsal)
 (def ^:private rehearsal-operator-id :op_counted_stroke_with_sketchbook)
 (def ^:private rehearsal-source-rule-id :graffito-miniworld/rehearsal-routine)
+(def ^:private frontier-bridge-rule-id :goal-family/reversal-aftershock-to-rationalization)
 
 (def ^:private street-leaf-objective
   {:fact/type :assumption
@@ -93,6 +95,12 @@
    :provenance-episode-index
    :support-episode-index
    :roving-episodes])
+
+(defn- carryover-fact
+  [fact context-id]
+  (cond-> (assoc fact :context-id context-id)
+    (:branch-context-id fact)
+    (dissoc :branch-context-id)))
 
 (defn- clamp01
   [value]
@@ -228,6 +236,15 @@
    (typed-fact :appraisal :rhythm_can_hold_the_mark)
    (typed-fact :appraisal :control_can_meet_demand)])
 
+(def ^:private mural-bridge-reframe-facts
+  [(typed-fact :sensorimotor-input :light_jolt_floods_attention)
+   (typed-fact :sensorimotor-input :siren_pulse_hits_body)
+   (typed-fact :sensorimotor-input :noise_fragments_precision)
+   (typed-fact :person-object-relation :can_waits_for_a_steady_hand)
+   (typed-fact :cross-layer-correspondence :can_corresponds_to_sensory_capacity)
+   (typed-fact :appraisal :counterfactual_aftershock_reopens_the_mark)
+   (typed-fact :appraisal :pressure_can_be_line_tension)])
+
 (def ^:private tony-baseline-state
   default-tony-state)
 
@@ -332,6 +349,10 @@
                        mural-threat-goal-id
                        0.89
                        mural-threat-counterfactual-facts)
+   (rationalization-frame-fact mural-bridge-frame-id
+                               mural-threat-goal-id
+                               0.88
+                               mural-bridge-reframe-facts)
    (typed-fact :appraisal :same_light_reads_as_threat)
    (typed-fact :appraisal :capture_feels_inevitable)
    {:fact/type :emotion
@@ -402,6 +423,10 @@
                                mural-threat-goal-id
                                0.89
                                mural-threat-counterfactual-facts)
+           (rationalization-frame-fact mural-bridge-frame-id
+                                       mural-threat-goal-id
+                                       0.88
+                                       mural-bridge-reframe-facts)
            (typed-fact :appraisal :same_light_reads_as_threat)
            (typed-fact :appraisal :capture_feels_inevitable)])
         world (retract-facts world mural-context-id removable-mural-projection-facts)
@@ -492,6 +517,7 @@
                       :objects default-object-state
                       :situations-state initial-situations-state
                       :recent-choices []
+                      :pending-context-facts {}
                       :flip-history []
                       :mural-raw-input-ids (->> mural-raw-input-facts
                                                 (keep :fact/id)
@@ -509,6 +535,7 @@
         object-state (current-object-state world)
         prior-gm (:graffito-miniworld world)
         fresh-gm (:graffito-miniworld fresh-world)
+        pending-context-facts (:pending-context-facts prior-gm)
         decayed-situations
         (reduce-kv
          (fn [acc situation-id situation]
@@ -535,7 +562,17 @@
                             (select-keys prior-gm [:recent-choices
                                                    :flip-history])))
         world (assoc-in world [:graffito-miniworld :objects] object-state)
-        world (assoc-in world [:graffito-miniworld :situations-state] decayed-situations)]
+        world (assoc-in world [:graffito-miniworld :situations-state] decayed-situations)
+        world (reduce-kv
+               (fn [acc logical-context facts]
+                 (if-let [context-id (get-in acc [:graffito-miniworld :contexts logical-context])]
+                   (assert-facts acc
+                                 context-id
+                                 (map #(carryover-fact % context-id) facts))
+                   acc))
+               world
+               pending-context-facts)
+        world (assoc-in world [:graffito-miniworld :pending-context-facts] {})]
     (project-mural-appraisal world)))
 
 (defn- reset-cycle-events
@@ -649,6 +686,28 @@
               :dynamic-source-visible? dynamic-visible?
               :authored-source-withdrawn? dynamic-visible?)])))
 
+(defn- mural-aftershock-rationalization-trigger
+  [world]
+  (let [active-cross-family-rules (ns-resolve 'daydreamer.goal-families
+                                              'active-cross-family-rules)
+        instantiate-cross-family-trigger (ns-resolve 'daydreamer.goal-families
+                                                     'instantiate-cross-family-trigger)
+        facts (cx/visible-facts world (mural-context-id world))
+        rule (some #(when (= frontier-bridge-rule-id (:id %)) %)
+                   (when active-cross-family-rules
+                     (active-cross-family-rules world)))]
+    (when (and rule instantiate-cross-family-trigger)
+      (some->> (rules/match-rule rule facts)
+               (keep (fn [{:keys [bindings matched-facts]}]
+                       (let [producer-fact (first matched-facts)
+                             producer-provenance (:rule-provenance producer-fact)]
+                         (when producer-provenance
+                           (instantiate-cross-family-trigger
+                            producer-provenance
+                            rule
+                            bindings)))))
+               first))))
+
 (defn- cross-family-rehearsal-source-candidates
   [world]
   (let [context-id (mural-context-id world)
@@ -672,6 +731,10 @@
                        {:candidate-origin :dynamic
                         :episode-id (:episode-id hit)
                         :source-family (:family provenance)
+                        :rule-path (vec (:rule-path episode))
+                        :frontier-bridge? (boolean
+                                           (some #{:goal-family/reversal-aftershock-to-rationalization}
+                                                 (:rule-path episode)))
                         :frame-id (or (get-in episode [:payload :frame-id])
                                       (get-in provenance
                                               [:selection :rationalization_frame_id]))
@@ -690,7 +753,8 @@
                         :use-history-count (count (:use-history episode))
                         :promotion-evidence-count (count (:promotion-evidence episode))
                         :anti-residue-flags (vec (:anti-residue-flags episode))}))))
-           (sort-by (juxt (comp - :priority)
+           (sort-by (juxt (comp not :frontier-bridge?)
+                          (comp - :priority)
                           (comp str :episode-id)))
            vec))))
 
@@ -702,6 +766,8 @@
            {:origin (candidate-origin-keyword (:candidate-origin candidate))
             :episode-id (:episode-id candidate)
             :source-family (:source-family candidate)
+            :rule-path (:rule-path candidate)
+            :frontier-bridge? (:frontier-bridge? candidate)
             :frame-id (:frame-id candidate)
             :goal-id (:goal-id candidate)
             :priority (:priority candidate)
@@ -823,12 +889,18 @@
                                  (trigger-context-id %)))
                      first)
                 (assoc :goal-type :rationalization))
-        mural-rationalization-trigger
+        regular-mural-rationalization-trigger
         (some-> (->> rationalization-triggers
                      (filter #(= (mural-context-id world)
                                  (trigger-context-id %)))
                      first)
                 (assoc :goal-type :rationalization))
+        mural-bridge-rationalization-trigger
+        (mural-aftershock-rationalization-trigger world)
+        mural-rationalization-trigger
+        (or mural-bridge-rationalization-trigger
+            regular-mural-rationalization-trigger)
+        mural-bridge-trigger? (boolean mural-bridge-rationalization-trigger)
         tony-state (current-tony-state world)
         situations (current-situations-state world)
         regulation-mode (derive-regulation-mode tony-state)
@@ -915,8 +987,9 @@
                           0.12)
              :reasons [:mural_threat :cop_pressure :failed_mark]}))
 
-          (and (= :challenge-dominant appraisal-mode)
-               mural-rationalization-trigger)
+          (and mural-rationalization-trigger
+               (or (= :challenge-dominant appraisal-mode)
+                   mural-bridge-trigger?))
           (conj
            (candidate
             {:kind :goal
@@ -928,8 +1001,16 @@
                           (* 0.16 (:ripeness mural))
                           (* 0.16 agency)
                           (* 0.18 control)
-                          0.22)
-             :reasons [:mural_reread :held_mark :challenge_appraisal]})))]
+                          (if (= :challenge-dominant appraisal-mode) 0.22 0.0)
+                          (if mural-bridge-trigger? 0.24 0.0))
+             :reasons (cond-> [:mural_reread]
+                        (= :challenge-dominant appraisal-mode)
+                        (into [:held_mark :challenge_appraisal])
+
+                        mural-bridge-trigger?
+                        (into [:reversal_aftershock_bridge
+                               :counterfactual_reopened
+                               :rationalization_frame]))})))]
     [world
      (->> candidates
           (mapv #(apply-fatigue-adjustment world %))
@@ -940,6 +1021,15 @@
 (defn- choose-candidate
   [candidates]
   (first candidates))
+
+(defn- mural-aftershock-carryover-facts
+  [world]
+  (->> (cx/visible-facts world (mural-context-id world))
+       (filter #(and (= :family-affect-state (:fact/type %))
+                     (= :reversal (:source-family %))
+                     (= :counterfactual_reopened (:transition %))
+                     (= mural-threat-goal-id (:failed-goal-id %))))
+       vec))
 
 (defn- update-tony-and-object-state
   [world operator-key]
@@ -1069,13 +1159,21 @@
                     (take-last 6)
                     vec))))
 
+(defn- trace-candidate-summary
+  [candidate]
+  (cond-> (select-keys candidate
+                       [:situation-id :family :operator-key :strength :reasons])
+    (:trigger candidate)
+    (assoc :trigger-selection-policy (get-in candidate [:trigger :selection-policy])
+           :frontier-bridge-trigger? (= :reversal_aftershock_rationalization_frame
+                                        (get-in candidate
+                                                [:trigger :selection-policy])))))
+
 (defn- trace-cycle-base
   [world chosen-candidate top-candidates]
   (cond-> {:graffito_miniworld
-           {:selected-candidate (select-keys chosen-candidate
-                                             [:situation-id :family :operator-key :strength :reasons])
-            :top-candidates (mapv #(select-keys %
-                                                [:situation-id :family :operator-key :strength :reasons])
+           {:selected-candidate (trace-candidate-summary chosen-candidate)
+            :top-candidates (mapv trace-candidate-summary
                                   (take 4 top-candidates))
             :mural-projection-before (get-in world [:graffito-miniworld :mural-projection])}}
     (:goal-id chosen-candidate)
@@ -1084,11 +1182,11 @@
 (defn- activate-family-goal-from-trigger
   [world {:keys [goal-type situation-id emotion-id emotion-strength
                  selection-policy selection-reasons activation-policy
-                 activation-reasons context-id old-context-id failed-goal-id
+                 activation-reasons context-id trigger-context-id old-context-id failed-goal-id
                  frame-id rule-provenance]}]
   (let [activation-context-id (or (:reality-lookahead world)
                                   (:reality-context world))
-        trigger-context-id (or old-context-id context-id)
+        trigger-context-id (or trigger-context-id old-context-id context-id)
         [world goal-id]
         (goals/activate-top-level-goal
          world
@@ -1142,6 +1240,11 @@
         appraisal-after (get-in world [:graffito-miniworld :mural-projection :appraisal-mode])
         regulation-after (get-in world [:graffito-miniworld :mural-projection :regulation-mode])
         family-plan-episode-id (get-in family-plan [:selection :family_plan_episode_id])
+        world (assoc-in world
+                        [:graffito-miniworld :pending-context-facts]
+                        (if (= :reversal (:family chosen-candidate))
+                          {:mural (mural-aftershock-carryover-facts world)}
+                          {}))
         source-candidates (vec (or (get-in family-plan [:selection :rationalization_frame_candidates])
                                    (get-in family-plan [:selection :reversal_counterfactual_candidates])
                                    []))
@@ -1160,6 +1263,9 @@
                  :selected-family (:family chosen-candidate)
                  :operator-key (:operator-key chosen-candidate)
                  :goal-id (:goal-id chosen-candidate)
+                 :trigger-selection-policy (:selection-policy (:trigger chosen-candidate))
+                 :frontier-bridge-trigger? (= :reversal_aftershock_rationalization_frame
+                                              (:selection-policy (:trigger chosen-candidate)))
                  :top-candidates (take 4 top-candidates)
                  :tony-state-before tony-state-before
                  :tony-state-after (current-tony-state world)
@@ -1197,6 +1303,8 @@
         :mural-appraisal-before appraisal-before
         :mural-appraisal-after appraisal-after
         :reappraisal-flip? (:reappraisal-flip? summary)
+        :trigger-selection-policy (:trigger-selection-policy summary)
+        :frontier-bridge-trigger? (:frontier-bridge-trigger? summary)
         :preplan-race preplan-race}})
      summary]))
 
@@ -1339,6 +1447,13 @@
         dynamic-reversal-candidate-cycles
         (count (filter #(and (= :reversal (:selected-family %))
                              (:dynamic-source-visible? %))
+                       cycle-summaries))
+        rule-access-transition-count
+        (reduce + 0
+                (map #(count (:cross-family-access-transitions %))
+                     cycle-summaries))
+        frontier-bridge-cycles
+        (count (filter :frontier-bridge-trigger?
                        cycle-summaries))]
     {:cycle-count (count cycle-summaries)
      :family-counts family-counts
@@ -1365,7 +1480,9 @@
      :cross-family-source-candidate-cycles cross-family-source-candidate-cycles
      :cross-family-source-win-cycles cross-family-source-win-cycles
      :dynamic-rationalization-candidate-cycles dynamic-rationalization-candidate-cycles
-     :dynamic-reversal-candidate-cycles dynamic-reversal-candidate-cycles}))
+     :dynamic-reversal-candidate-cycles dynamic-reversal-candidate-cycles
+     :rule-access-transition-count rule-access-transition-count
+     :frontier-bridge-cycles frontier-bridge-cycles}))
 
 (defn run-miniworld
   "Run the autonomous Graffito miniworld for `cycles` turns."

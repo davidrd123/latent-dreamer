@@ -96,6 +96,8 @@
       (is (integer? (:episodes-with-use-history run-summary)))
       (is (integer? (:episodes-with-cross-family-use-history run-summary)))
       (is (integer? (:episodes-with-promotion-history run-summary)))
+      (is (integer? (:frontier-bridge-cycles run-summary)))
+      (is (integer? (:rule-access-transition-count run-summary)))
       (is (pos? (:episodes-with-use-history run-summary)))
       (is (pos? (:episodes-with-cross-family-use-history run-summary)))
       (is (pos? (:episodes-with-flags run-summary)))
@@ -107,13 +109,17 @@
       (is (pos? (:dynamic-rationalization-candidate-cycles run-summary)))
       (is (integer? (:dynamic-reversal-candidate-cycles run-summary)))
       (is (pos? (:cross-family-source-candidate-cycles run-summary)))
-      (is (pos? (:cross-family-source-win-cycles run-summary))))))
+      (is (pos? (:cross-family-source-win-cycles run-summary)))
+      (is (pos? (:frontier-bridge-cycles run-summary)))
+      (is (pos? (:rule-access-transition-count run-summary))))))
 
 (deftest twenty-cycle-miniworld-assigns-distinct-cross-family-use-ids
   (let [{:keys [world]} (mini/run-miniworld {:cycles 20})
         cross-family-promoted
         (->> (vals (:episodes world))
              (filter #(seq (:promotion-history %)))
+             (filter #(some #{:goal-family/reversal-aftershock-to-rationalization}
+                            (:rule-path %)))
              (filter (fn [episode]
                        (some #(not= (:source-family %)
                                     (:target-family %))
