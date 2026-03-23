@@ -240,7 +240,8 @@
              :target-rule :goal-family/roving-plan-dispatch
              :branch-context-id root-id
              :goal-id :g-2}]
-           (:promotion-evidence episode)))))
+           (mapv #(dissoc % :evidence-order)
+                 (:promotion-evidence episode))))))
 
 (deftest resolve-episode-use-outcome-is-idempotent-for-already-resolved-use
   (let [[world root-id] (world-with-root)
@@ -451,7 +452,8 @@
              :target-rule :goal-family/roving-plan-dispatch
              :branch-context-id root-id
              :goal-id :g-3}]
-           (:promotion-evidence episode)))
+           (mapv #(dissoc % :evidence-order)
+                 (:promotion-evidence episode))))
     (is (= :durable (:admission-status episode)))
     (is (nil? (:promotion-history episode)))))
 
@@ -511,7 +513,8 @@
              :target-rule :goal-family/roving-plan-dispatch
              :branch-context-id root-id
              :goal-id :g-2}]
-           (:promotion-evidence episode)))
+           (mapv #(dissoc % :evidence-order)
+                 (:promotion-evidence episode))))
     (is (= (:use-id same-family-use)
            (:use-id same-family-record)))))
 
@@ -571,11 +574,98 @@
              :target-rule :goal-family/roving-plan-dispatch
              :branch-context-id root-id
              :goal-id :g-1}]
-           (:promotion-evidence episode)))
+           (mapv #(dissoc % :evidence-order)
+                 (:promotion-evidence episode))))
     (is (= :durable (:admission-status episode)))
     (is (nil? (:promotion-history episode)))
     (is (= (:use-id same-family-use)
            (:use-id same-family-record)))))
+
+(deftest reconcile-episode-admission-vindicates-same-family-use-from-later-success-evidence-on-earlier-cross-family-use
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id
+                                               :retention-class :payload-exemplar
+                                               :keep-decision :keep-exemplar
+                                               :admission-status :durable
+                                               :provenance {:source :family-plan
+                                                            :family :rationalization}})
+        [world cross-family-use-1]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :reminded
+                                 :goal-id :g-1
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :roving
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/roving-plan-dispatch})
+        [world _same-family-use]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :frame-source
+                                 :goal-id :g-2
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/rationalization-plan-dispatch})
+        [world _]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id cross-family-use-1)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        [world cross-family-use-2]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :reminded
+                                 :goal-id :g-3
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :roving
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/roving-plan-dispatch})
+        [world _]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id cross-family-use-2)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        [world transition]
+        (epmem/reconcile-episode-admission world episode-id)
+        episode (get-in world [:episodes episode-id])
+        same-family-record (second (:use-history episode))]
+    (is (nil? transition))
+    (is (= :resolved (:status same-family-record)))
+    (is (= :succeeded (:outcome same-family-record)))
+    (is (= :later-cross-family-vindication
+           (:outcome-reason same-family-record)))
+    (is (= 3 (get-in episode [:outcome-stats :successful-use-count])))
+    (is (= [{:cycle 0
+             :type :cross-family-use-success
+             :use-id (:use-id cross-family-use-1)
+             :source-family :rationalization
+             :target-family :roving
+             :source-rule :goal-family/rationalization-plan-dispatch
+             :target-rule :goal-family/roving-plan-dispatch
+             :branch-context-id root-id
+             :goal-id :g-1}
+            {:cycle 0
+             :type :cross-family-use-success
+             :use-id (:use-id cross-family-use-2)
+             :source-family :rationalization
+             :target-family :roving
+             :source-rule :goal-family/rationalization-plan-dispatch
+             :target-rule :goal-family/roving-plan-dispatch
+             :branch-context-id root-id
+             :goal-id :g-3}]
+           (mapv #(dissoc % :evidence-order)
+                 (:promotion-evidence episode))))))
 
 (deftest repeated-failed-same-family-use-flags-stale-and-demotes-durable-episode
   (let [[world root-id] (world-with-root)
@@ -802,8 +892,20 @@
             :reason :cross-family-use-success}
            second-promotion-attempt))
     (is (= :durable (:admission-status episode)))
-    (is (= #{:same-family-loop}
+    (is (= #{}
            (set (:anti-residue-flags episode))))
+    (is (= [{:flag :same-family-loop
+             :cycle 0
+             :action :cleared
+             :reason :cross-family-loop-rehabilitation
+             :episode-id episode-id
+             :use-id (:use-id same-family-use-2)}
+            {:flag :stale
+             :cycle 0
+             :action :cleared
+             :reason :cross-family-rehabilitation
+             :episode-id episode-id}]
+           (take-last 2 (:anti-residue-history episode))))
     (is (= {:flag :stale
             :cycle 0
             :action :cleared
@@ -819,6 +921,148 @@
              :source-rule :goal-family/rationalization-plan-dispatch
              :target-rule :goal-family/roving-plan-dispatch}]
            (:promotion-history episode)))))
+
+(deftest earlier-cross-family-success-does-not-immunize-later-same-family-loop-flagging
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id
+                                               :admission-status :durable
+                                               :provenance {:source :family-plan
+                                                            :family :rationalization}})
+        [world cross-family-use]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :reminded
+                                 :goal-id :g-cross
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :roving
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/roving-plan-dispatch})
+        [world _]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id cross-family-use)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        [world first-same-family-use]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :seed
+                                 :goal-id :g-1
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/rationalization-plan-dispatch})
+        [world second-same-family-use]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :seed
+                                 :goal-id :g-2
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/rationalization-plan-dispatch})
+        episode (get-in world [:episodes episode-id])]
+    (is (= false (:loop-risk? first-same-family-use)))
+    (is (= true (:loop-risk? second-same-family-use)))
+    (is (= #{:same-family-loop}
+           (set (:anti-residue-flags episode))))
+    (is (= {:flag :same-family-loop
+            :cycle 0
+            :reason :same-family-reuse-threshold
+            :source-family :rationalization
+            :target-family :rationalization
+            :episode-id episode-id
+            :use-id (:use-id second-same-family-use)}
+           (last (:anti-residue-history episode))))))
+
+(deftest repeated-later-cross-family-success-clears-same-family-loop
+  (let [[world root-id] (world-with-root)
+        [world episode-id] (epmem/add-episode world
+                                              {:rule :rationalization-plan
+                                               :context-id root-id
+                                               :admission-status :durable
+                                               :provenance {:source :family-plan
+                                                            :family :rationalization}})
+        [world _]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :seed
+                                 :goal-id :g-1
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/rationalization-plan-dispatch})
+        [world same-family-use-2]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :seed
+                                 :goal-id :g-2
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :rationalization
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/rationalization-plan-dispatch})
+        [world cross-family-use-1]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :reminded
+                                 :goal-id :g-3
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :roving
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/roving-plan-dispatch})
+        [world _]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id cross-family-use-1)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        [world first-reconcile]
+        (epmem/reconcile-episode-admission world episode-id)
+        [world cross-family-use-2]
+        (epmem/note-episode-use world
+                                episode-id
+                                {:reason :family-plan-use
+                                 :use-role :reminded
+                                 :goal-id :g-4
+                                 :branch-context-id root-id
+                                 :source-family :rationalization
+                                 :target-family :roving
+                                 :source-rule :goal-family/rationalization-plan-dispatch
+                                 :target-rule :goal-family/roving-plan-dispatch})
+        [world _]
+        (epmem/resolve-episode-use-outcome world
+                                           episode-id
+                                           (:use-id cross-family-use-2)
+                                           {:outcome :succeeded
+                                            :reason :cross-family-family-plan-success})
+        [world second-reconcile]
+        (epmem/reconcile-episode-admission world episode-id)
+        episode (get-in world [:episodes episode-id])]
+    (is (nil? first-reconcile))
+    (is (nil? second-reconcile))
+    (is (= #{}
+           (set (:anti-residue-flags episode))))
+    (is (= {:flag :same-family-loop
+            :cycle 0
+            :action :cleared
+            :reason :cross-family-loop-rehabilitation
+            :episode-id episode-id
+            :use-id (:use-id same-family-use-2)}
+           (last (:anti-residue-history episode))))))
 
 (deftest durable-stale-episode-demotes-before-rehabilitation-can-clear-stale
   (let [[world root-id] (world-with-root)
@@ -909,7 +1153,17 @@
            first-transition))
     (is (= :provisional (:admission-status episode-after-first)))
     (is (contains? (set (:anti-residue-flags episode-after-first)) :stale))
-    (is (nil? (some #(when (= :cleared (:action %)) %)
+    (is (= [{:flag :same-family-loop
+             :cycle 0
+             :action :cleared
+             :reason :cross-family-loop-rehabilitation
+             :episode-id episode-id
+             :use-id (:use-id same-family-use-2)}]
+           (filter #(= :cleared (:action %))
+                   (:anti-residue-history episode-after-first))))
+    (is (nil? (some #(when (and (= :stale (:flag %))
+                                (= :cleared (:action %)))
+                       %)
                     (:anti-residue-history episode-after-first))))))
 
 (deftest same-family-loop-flag-blocks-same-family-reentry

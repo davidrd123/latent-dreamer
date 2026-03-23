@@ -1517,7 +1517,8 @@
             :branch-context-id branch-context-id
             :source-rule :goal-family/rationalization-plan-dispatch
             :target-rule :goal-family/rationalization-plan-dispatch}
-           latest-use-record))
+           (dissoc latest-use-record :use-order)))
+    (is (pos-int? (:use-order latest-use-record)))
     (is (= [:s5_the_guide :zone_is_mercy :delay_is_faith]
            (get-in later-family-plan [:result :reframe-fact-ids])))
     (is (every? #(cx/fact-true? world branch-context-id %)
@@ -2094,7 +2095,8 @@
             :branch-context-id branch-context-id
             :source-rule :goal-family/reversal-plan-dispatch
             :target-rule :goal-family/reversal-plan-dispatch}
-           latest-use-record))))
+           (dissoc latest-use-record :use-order)))
+    (is (pos-int? (:use-order latest-use-record)))))
 
 (deftest reused-reversal-source-episode-can-backfire-and-demote
   (let [[world root-id] (world-with-root)

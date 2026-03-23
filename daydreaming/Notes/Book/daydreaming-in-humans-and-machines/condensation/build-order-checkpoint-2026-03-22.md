@@ -47,7 +47,8 @@ Implemented in the first pass:
 - promotion emits a typed `:episode-promotion` fact into the branch context
 - promotion still respects the recent-episode anti-echo gate
 - repeated same-family reuse can now flag `:same-family-loop`
-  and suppress same-family reentry
+  and suppress same-family reentry; one earlier cross-family success
+  no longer grants lifetime immunity from that loop signal
 - external evaluator output can now annotate promotion eligibility
   through an explicit promotion decision; heuristic evaluation still
   defaults to `:stay-provisional`
@@ -80,6 +81,9 @@ Implemented in the first pass:
   automatically
 - repeated later cross-family success can now clear `:stale` and let
   durable admission be re-earned through evidence
+- repeated later cross-family success can now also clear
+  `:same-family-loop`, but only when that evidence is genuinely later
+  than the loop-triggering use
 - inert rule-access scaffolding is now in code:
   `world[:rule-access]` with `:accessible` / `:frontier` /
   `:quarantined`

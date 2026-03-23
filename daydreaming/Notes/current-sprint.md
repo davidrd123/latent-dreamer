@@ -145,7 +145,9 @@ and "deserves future influence":
 - promotion does not bypass the recent-episode anti-echo gate;
   a promoted episode becomes reusable only after recent eviction
 - same-family reuse is now tracked, and repeated same-family reuse
-  can flag `:same-family-loop` to suppress reentry
+  can flag `:same-family-loop` to suppress reentry; one old
+  cross-family success no longer grants lifetime immunity from that
+  flag
 - repeated failed same-family attributed use can now auto-flag
   `:stale` and demote a `:durable` episode back to `:provisional`
   without waiting for evaluator annotation; while `:stale` remains
@@ -154,6 +156,9 @@ and "deserves future influence":
 - repeated later cross-family success can now rehabilitate a `:stale`
   episode by clearing the stale flag and letting durable status be
   re-earned through evidence rather than evaluator judgment
+- repeated later cross-family success can now also clear an active
+  `:same-family-loop` flag, but only when that evidence is genuinely
+  later than the loop-triggering use
 - world state now carries an inert `:rule-access` registry with
   `:accessible` / `:frontier` / `:quarantined` statuses derived
   from rule provenance deployment roles

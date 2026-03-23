@@ -213,6 +213,11 @@
         use-id (keyword (str "epuse-" next-id))]
     [(assoc world :episode-use-counter next-id) use-id]))
 
+(defn- next-episode-event-order
+  [world]
+  (let [next-order (inc (or (:episode-event-counter world) 0))]
+    [(assoc world :episode-event-counter next-order) next-order]))
+
 (defn- episode-or-throw
   [world episode-id]
   (or (get-in world [:episodes episode-id])
@@ -343,7 +348,10 @@
                         (assoc :target-family (:target-family flag-record))
 
                         (:episode-id flag-record)
-                        (assoc :episode-id (:episode-id flag-record)))))
+                        (assoc :episode-id (:episode-id flag-record))
+
+                        (:use-id flag-record)
+                        (assoc :use-id (:use-id flag-record)))))
        true])))
 
 (defn clear-episode-flag
@@ -376,17 +384,21 @@
                         (assoc :target-family (:target-family clear-record))
 
                         (:episode-id clear-record)
-                        (assoc :episode-id (:episode-id clear-record)))))
+                        (assoc :episode-id (:episode-id clear-record))
+
+                        (:use-id clear-record)
+                        (assoc :use-id (:use-id clear-record)))))
        true])))
 
 (defn note-episode-use
   "Record attributed use of an episode by a later family plan.
 
-  Returns `[world use-info]`. Repeated same-family use without any
-  cross-family use is flagged as `:same-family-loop`."
+  Returns `[world use-info]`. Repeated same-family use is flagged as
+  `:same-family-loop` until later cross-family evidence rehabilitates it."
   [world episode-id use]
   (let [episode (episode-or-throw world episode-id)
         [world use-id] (next-episode-use-id world)
+        [world use-order] (next-episode-event-order world)
         source-family (or (:source-family use)
                           (get-in episode [:provenance :family]))
         target-family (:target-family use)
@@ -394,6 +406,7 @@
                           target-family
                           (= source-family target-family))
         use-record (cond-> {:use-id use-id
+                            :use-order use-order
                             :episode-id episode-id
                             :cycle (:cycle world)
                             :source-family source-family
@@ -443,13 +456,13 @@
         same-family-count (:same-family-use-count use-stats 0)
         cross-family-count (:cross-family-use-count use-stats 0)
         loop-risk? (and same-family?
-                        (>= same-family-count same-family-loop-threshold)
-                        (zero? cross-family-count))
+                        (>= same-family-count same-family-loop-threshold))
         [world flagged?] (if loop-risk?
                            (flag-episode world
                                          episode-id
                                          :same-family-loop
                                          {:reason :same-family-reuse-threshold
+                                          :use-id use-id
                                           :source-family source-family
                                           :target-family target-family
                                           :episode-id episode-id})
@@ -476,7 +489,9 @@
 (defn record-promotion-evidence
   "Attach structured promotion evidence to an episode."
   [world episode-id evidence]
-  (let [evidence-record (cond-> {:cycle (:cycle world)
+  (let [[world evidence-order] (next-episode-event-order world)
+        evidence-record (cond-> {:cycle (:cycle world)
+                                 :evidence-order evidence-order
                                  :type (:type evidence)}
                           (:use-id evidence)
                           (assoc :use-id (:use-id evidence))
@@ -521,13 +536,6 @@
        (filter #(and (= :pending (:status %))
                      (= (:source-family %) (:target-family %))))
        vec))
-
-(defn- use-order-index
-  [episode]
-  (->> (:use-history episode)
-       (map-indexed (fn [idx use-record]
-                      [(:use-id use-record) idx]))
-       (into {})))
 
 (defn- same-family-failed-use-count
   [use-history]
@@ -727,17 +735,39 @@
 
 (defn- later-qualifying-promotion-evidence-count
   [episode use-id]
-  (let [order-index (use-order-index episode)
-        use-idx (get order-index use-id)]
-    (if (nil? use-idx)
+  (let [use-order (some (fn [use-record]
+                          (when (= use-id (:use-id use-record))
+                            (:use-order use-record)))
+                        (:use-history episode))]
+    (if (nil? use-order)
       0
       (->> (:promotion-evidence episode)
            (filter #(= :cross-family-use-success (:type %)))
            (filter (fn [evidence]
-                     (let [evidence-idx (get order-index (:use-id evidence))]
-                       (and (some? evidence-idx)
-                            (> evidence-idx use-idx)))))
+                     (and (some? (:evidence-order evidence))
+                          (> (:evidence-order evidence) use-order))))
            count))))
+
+(defn- active-flag-record
+  [episode flag]
+  (when (contains? (set (:anti-residue-flags episode)) flag)
+    (->> (:anti-residue-history episode)
+         (filter (fn [record]
+                   (and (= flag (:flag record))
+                        (not= :cleared (:action record)))))
+         last)))
+
+(defn- same-family-loop-rehabilitation-ready?
+  [episode]
+  (let [anti-residue-flags (set (:anti-residue-flags episode))
+        flag-record (active-flag-record episode :same-family-loop)]
+    (and (contains? anti-residue-flags :same-family-loop)
+         (empty? (set/intersection #{:backfired :contradicted}
+                                   anti-residue-flags))
+         (some? (:use-id flag-record))
+         (>= (later-qualifying-promotion-evidence-count episode
+                                                        (:use-id flag-record))
+             durable-promotion-success-threshold))))
 
 (defn- vindicate-pending-same-family-uses
   [world episode-id]
@@ -773,6 +803,17 @@
   [world episode-id]
   (let [[world _vindicated-use-ids] (vindicate-pending-same-family-uses world
                                                                         episode-id)
+        episode (episode-or-throw world episode-id)
+        [world _same-family-loop-cleared?]
+        (if (same-family-loop-rehabilitation-ready? episode)
+          (clear-episode-flag world
+                              episode-id
+                              :same-family-loop
+                              {:reason :cross-family-loop-rehabilitation
+                               :episode-id episode-id
+                               :use-id (:use-id (active-flag-record episode
+                                                                    :same-family-loop))})
+          [world false])
         episode (episode-or-throw world episode-id)
         current-status (:admission-status episode :durable)
         [world _stale-cleared?]

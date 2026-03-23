@@ -53,6 +53,9 @@ As the system accumulates episodes, rules, and graph connections:
   one later cross-family success does not re-promote it automatically
 - repeated later cross-family success can now clear `:stale`, so a
   durable role can be re-earned through evidence rather than fiat
+- repeated later cross-family success can now also clear an active
+  `:same-family-loop` flag, and that rehabilitation is keyed to later
+  evidence timing rather than older cross-family history
 - world state now carries a dynamic `:rule-access` registry with
   `:accessible` / `:frontier` / `:quarantined` statuses, separate from
   the structural rule graph
