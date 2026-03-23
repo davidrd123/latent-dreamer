@@ -12,7 +12,7 @@ structural loops Mueller's system owns.
 
 ## What exists
 
-**Kernel** (`kernel/`) — a Clojure implementation of Mueller's
+**Kernel** ([`kernel/`](kernel/)) — a Clojure implementation of Mueller's
 cognitive architecture:
 
 - Emotion-driven control loop with five daydreaming families
@@ -32,7 +32,7 @@ cognitive architecture:
   → entraining → flowing → creating), reappraisal after family
   execution
 
-**Benchmarks** (`kernel/src/daydreamer/benchmarks/`):
+**Benchmarks** ([`kernel/src/daydreamer/benchmarks/`](kernel/src/daydreamer/benchmarks/)):
 
 - Puppet Knows: runtime/seam regression on authored fixture
 - Membrane Assays A and B: live dynamic reuse, same-family-loop flag,
@@ -42,36 +42,32 @@ cognitive architecture:
 - Graffito miniworld: 3-situation autonomous run with persistent Tony
   state, reappraisal flips, cross-family episode reuse
 
-**Condensation** (`daydreaming/Notes/Book/`) — Mueller's 19
+**Condensation** ([`daydreaming/Notes/Book/`](daydreaming/Notes/Book/)) — Mueller's 19
 mechanisms condensed into implementation-grade cards, verified against
 the original Common Lisp source.
 
-**Research** (`daydreaming/Notes/DeepResearch/`) — prompts and
+**Research** ([`daydreaming/Notes/DeepResearch/`](daydreaming/Notes/DeepResearch/)) — prompts and
 replies from external architecture reviews covering cold-start
 bootstrapping, appraisal theory, situation models, regulation
 mechanics.
 
-**Graffito** (`daydreaming/vendor/graffito/`) — vendored source
+**Graffito** ([`daydreaming/vendor/graffito/`](daydreaming/vendor/graffito/)) — vendored source
 material for the first creative brief (Mark Friedberg short film).
 Kernel-facing brief at
-`daydreaming/Notes/experiential-design/24-graffito-kernel-brief.md`.
+[`daydreaming/Notes/experiential-design/24-graffito-kernel-brief.md`](daydreaming/Notes/experiential-design/24-graffito-kernel-brief.md).
 
 ## Orientation
 
 Start from the control plane:
 
-1. `daydreaming/Notes/current-sprint.md` — current objective, what's
-   proven, what's next
-2. `daydreaming/Notes/dashboard.md` — broader project map, benchmark
-   ladder, milestone status
-3. `daydreaming/Notes/canonical-map.md` — where everything lives
+1. [`daydreaming/Notes/current-sprint.md`](daydreaming/Notes/current-sprint.md) — current objective, what's proven, what's next
+2. [`daydreaming/Notes/dashboard.md`](daydreaming/Notes/dashboard.md) — broader project map, benchmark ladder, milestone status
+3. [`daydreaming/Notes/canonical-map.md`](daydreaming/Notes/canonical-map.md) — where everything lives
 
 For the architecture:
 
-4. `daydreaming/Notes/Book/daydreaming-in-humans-and-machines/condensation/architectural-framing.md`
-   — the hybrid Clojure/LLM boundary design
-5. `daydreaming/Notes/Book/daydreaming-in-humans-and-machines/condensation/build-order-checkpoint-2026-03-22.md`
-   — settled build sequence from five rounds of review
+4. [`condensation/architectural-framing.md`](daydreaming/Notes/Book/daydreaming-in-humans-and-machines/condensation/architectural-framing.md) — the hybrid Clojure/LLM boundary design
+5. [`condensation/build-order-checkpoint-2026-03-22.md`](daydreaming/Notes/Book/daydreaming-in-humans-and-machines/condensation/build-order-checkpoint-2026-03-22.md) — settled build sequence from five rounds of review
 
 ## Running the kernel
 
@@ -141,4 +137,4 @@ lives in `scope-drd`. The generation pipeline and L3 traversal from
 earlier rounds are documented in `daydreaming/Notes/` but are no
 longer the primary architecture.
 
-Mueller's original Common Lisp source is in `daydreamer/`.
+Mueller's original Common Lisp source is in [`daydreamer/`](daydreamer/).
