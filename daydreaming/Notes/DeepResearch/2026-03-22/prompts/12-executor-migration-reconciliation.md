@@ -4,7 +4,7 @@ You have the full repo context. Do NOT summarize it back. The codex is about to 
 
 ## Context
 
-Review 10 (`replies/10-executor-boundary-5pro.md`) gave a detailed spec for `execute-rule` in `rules.clj` with a five-step migration path. But since then, the codex added local typed effects for roving inside `goal_families.clj` — a `roving-plan-effects` function that returns effect descriptors instead of mutating world directly. Reviews 11a and 11b gave the spec for episode-use attribution and promotion logic.
+Review 10 (`replies/archive-01-16/10-executor-boundary-5pro.md`) gave a detailed spec for `execute-rule` in `rules.clj` with a five-step migration path. But since then, the codex added local typed effects for roving inside `goal_families.clj` — a `roving-plan-effects` function that returns effect descriptors instead of mutating world directly. Reviews 11a and 11b gave the spec for episode-use attribution and promotion logic.
 
 The codex now needs to reconcile three things that are about to land simultaneously.
 

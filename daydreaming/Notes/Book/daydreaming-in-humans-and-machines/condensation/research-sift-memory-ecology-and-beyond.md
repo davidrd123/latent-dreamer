@@ -10,20 +10,20 @@ Prompts and replies covered:
 
 | ID | Topic | Source |
 |----|-------|--------|
-| 03 | Episode loop risks | `replies/03-episode-loop-risks-5thinking.md` |
-| 04 | Executor seam | `replies/04-executor-seam-5thinking.md` |
-| 05 | Verified paths | `replies/05-verified-paths-5thinking.md` |
-| 06 | Family graph rev | `replies/06-family-graph-rev-5pro.md` |
-| 07 | Executor seam | `replies/07-executor-seam-5pro.md` |
-| 08 | Verified paths | `replies/08-verified-paths-5pro.md` |
-| 09 | Episode loop risks | `replies/09-episode-loop-risks-5pro.md` (if exists) |
-| 10 | Executor boundary | `replies/10-executor-boundary-5pro.md` |
-| 11a | Promotion (loose) | `replies/11a-promo-loose-5pro.md` |
-| 11b | Promotion (prompted) | `replies/11b-promo-prompt-5pro.md` |
-| 13a | Beyond Mueller Q1-3 | `replies/13-beyond-1_3.md` |
-| 13b | Beyond Mueller Q4-6 | `replies/13-beyond-4_6.md` |
-| 13c | Beyond Mueller Q7-8 | `replies/13-beyond-7_8.md` |
-| 13d | Beyond Mueller all 8 | `replies/13-beyond-all.md` |
+| 03 | Episode loop risks | `replies/archive-01-16/03-episode-loop-risks-5thinking.md` |
+| 04 | Executor seam | `replies/archive-01-16/04-executor-seam-5thinking.md` |
+| 05 | Verified paths | `replies/archive-01-16/05-verified-paths-5thinking.md` |
+| 06 | Family graph rev | `replies/archive-01-16/06-family-graph-rev-5pro.md` |
+| 07 | Executor seam | `replies/archive-01-16/07-executor-seam-5pro.md` |
+| 08 | Verified paths | `replies/archive-01-16/08-verified-paths-5pro.md` |
+| 09 | Episode loop risks | `replies/archive-01-16/09-episode-loop-risks-5pro.md` (if exists) |
+| 10 | Executor boundary | `replies/archive-01-16/10-executor-boundary-5pro.md` |
+| 11a | Promotion (loose) | `replies/archive-01-16/11a-promo-loose-5pro.md` |
+| 11b | Promotion (prompted) | `replies/archive-01-16/11b-promo-prompt-5pro.md` |
+| 13a | Beyond Mueller Q1-3 | `replies/archive-01-16/13-beyond-1_3.md` |
+| 13b | Beyond Mueller Q4-6 | `replies/archive-01-16/13-beyond-4_6.md` |
+| 13c | Beyond Mueller Q7-8 | `replies/archive-01-16/13-beyond-7_8.md` |
+| 13d | Beyond Mueller all 8 | `replies/archive-01-16/13-beyond-all.md` |
 
 Also incorporates: Mueller source verification (`dd_epis.cl`, `dd_ri.cl`, `dd_rule2.cl`).
 

@@ -261,6 +261,6 @@ Kernel:
 - `kernel/src/daydreamer/rules.clj`
 
 Reviews that surfaced these gaps:
-- `replies/03-episode-loop-risks-5thinking.md`
-- `replies/06-family-graph-rev-5pro.md`
-- `replies/09-episode-loop-risks-5pro.md`
+- `replies/archive-01-16/03-episode-loop-risks-5thinking.md`
+- `replies/archive-01-16/06-family-graph-rev-5pro.md`
+- `replies/archive-01-16/09-episode-loop-risks-5pro.md`

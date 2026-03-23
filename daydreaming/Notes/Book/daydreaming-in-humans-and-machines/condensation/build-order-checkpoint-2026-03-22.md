@@ -264,6 +264,15 @@ Three implementation stages:
 - Stage 2: Episode skeleton construction (`:episode-constructed`). Mueller-faithful.
 - Stage 3: Grounding + executor checking (`:grounded`, `:sound`). After executor boundary is real.
 
+Design note (from Draft-and-Prune, arxiv 2603.17233): add a
+well-definedness gate early in verification. A path that's `:bound`
+but has contradictory bindings at different hops, or ambiguous
+bindings that admit multiple incompatible readings, should be
+rejected before reaching `:supported`. Fail on contradiction and
+ambiguity, not just on binding propagation failure. This is cheap
+insurance against paths that unify syntactically but are
+semantically incoherent.
+
 Why after steps 1-3: verifying paths through a tiny corridor is honest but uninformative. The graph needs more heterogeneity (evaluation facts, retrieval events, critic signals) and the executor contract needs to be real before verification produces meaningful results.
 
 ### 5. Generic executor dispatch with `:clojure-fn`
@@ -324,13 +333,13 @@ Rule fires
 
 ## Source reviews
 
-- `replies/03-episode-loop-risks-5thinking.md` — groove risks, three-tier admission, anti-residue
-- `replies/04-executor-seam-5thinking.md` — declarative effects, three-channel RuleResultV1
-- `replies/05-verified-paths-5thinking.md` — status lattice, ambient ∪ derived witness
-- `replies/06-family-graph-rev-5pro.md` — double-counting, FIFO crowding, index zone separation
-- `replies/07-executor-seam-5pro.md` — symbolic refs, consequent-schema vs effect-schema
-- `replies/08-verified-paths-5pro.md` — progressive binding first, episode skeleton, code delta
-- `replies/09-episode-loop-risks-5pro.md` — minimum patch set for the memory membrane
-- `replies/10-executor-boundary-5pro.md` — `execute-rule`, RuleResultV1 validation, denotation contract
-- `replies/11a-promo-loose-5pro.md` — promotion needs structural + outcome evidence; evaluator is gate/veto
-- `replies/11b-promo-prompt-5pro.md` — episode use with attributed outcomes as the missing abstraction
+- `replies/archive-01-16/03-episode-loop-risks-5thinking.md` — groove risks, three-tier admission, anti-residue
+- `replies/archive-01-16/04-executor-seam-5thinking.md` — declarative effects, three-channel RuleResultV1
+- `replies/archive-01-16/05-verified-paths-5thinking.md` — status lattice, ambient ∪ derived witness
+- `replies/archive-01-16/06-family-graph-rev-5pro.md` — double-counting, FIFO crowding, index zone separation
+- `replies/archive-01-16/07-executor-seam-5pro.md` — symbolic refs, consequent-schema vs effect-schema
+- `replies/archive-01-16/08-verified-paths-5pro.md` — progressive binding first, episode skeleton, code delta
+- `replies/archive-01-16/09-episode-loop-risks-5pro.md` — minimum patch set for the memory membrane
+- `replies/archive-01-16/10-executor-boundary-5pro.md` — `execute-rule`, RuleResultV1 validation, denotation contract
+- `replies/archive-01-16/11a-promo-loose-5pro.md` — promotion needs structural + outcome evidence; evaluator is gate/veto
+- `replies/archive-01-16/11b-promo-prompt-5pro.md` — episode use with attributed outcomes as the missing abstraction
