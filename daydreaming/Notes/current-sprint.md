@@ -107,7 +107,7 @@ The membrane substrate (admission tiers, anti-residue flags,
 promotion chain, executor boundary) is in a good resting state.
 Assay A is frozen as a regression. The next steps follow the
 three-level stack above, and the active benchmark-side branch is now
-the first mechanistic Graffito microfixture on typed fact-space.
+the first mechanistic Graffito microfixtures on typed fact-space.
 
 ### What is already true
 
@@ -438,35 +438,47 @@ Puppet Knows         runtime/seam regression (authored-dominant, stays)
 Assay A              L1/L2 + first flag (same-family-loop) — PASSED
 Fixed-chain test     direct promotion/access proof with clean evidence — PASSED
 Assay B              live cross-family success -> durable -> frontier open — PASSED
-Graffito microfixture first typed-fact kernel slice — PASSED
+Graffito Slice 1     typed retrieval + honest family-plan storage — PASSED
+Graffito Slice 2     persistent Tony state + same-situation reappraisal — PASSED
 Graffito miniworld   richer typed fact-space benchmark (next)
 ```
 
-The first Graffito microfixture now exists:
+The first Graffito kernel slices now exist:
 
 - `kernel/src/daydreamer/benchmarks/graffito_microfixture.clj` is the
   first kernel-facing Graffito slice built from
   `experiential-design/24-graffito-kernel-brief.md`
-- it stays deliberately mechanistic:
-  - Grandma's apartment as a typed rationalization context
-  - night mural crisis as a typed reversal context
-  - typed fact categories for actors, relationships, obligations,
-    artifacts, exposure, recent events, and derived appraisal
+- `kernel/src/daydreamer/benchmarks/graffito_regulation_slice.clj`
+  is the second slice built on the same brief
+- they stay deliberately mechanistic:
+  - Slice 1: Grandma's apartment + mural crisis
+  - Slice 2: world-level Tony state + same mural reappraisal after
+    apartment support
+  - typed fact categories now include actors, relationships,
+    obligations, artifacts, person-object relations, exposure, recent
+    events, cross-layer correspondence, and derived appraisal
+  - regulation is no longer treated as primitive situation-local labels
+    in the benchmark story; the slice carries Tony state across cycles
+    with `:sensory-load`, `:entrainment`, `:felt-agency`, and
+    `:perceived-control`, then derives readable regulation/appraisal
+    labels from that state plus situation inputs
 - the live result is now:
   - `activate-family-goals` picks the expected families from richer
     typed material
-  - apartment rationalization stores an honest family-plan episode with
-    typed reframe facts
-  - mural reversal stores an honest family-plan episode with a typed
-    counterfactual cause
-  - a mural-context retrieval probe can see the stored apartment
+  - Slice 1 stores honest rationalization/reversal family-plan episodes
+    and a mural-context retrieval probe can see the stored apartment
     rationalization episode through shared typed facts, not just flat
     pressure labels
+  - Slice 2 keeps the same mural overload cue family fixed, lets
+    apartment rationalization/support update Tony's carried state, then
+    reruns appraisal on the same mural facts so the selected family
+    flips from reversal/threat to rationalization/challenge without
+    adding a new family
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:
 
-- extend the microfixture slightly or add a sibling microfixture
+- move from slices to the first Graffito miniworld
 - keep asking activation / retrieval / family-choice / provenance
   questions
 - do not jump straight to creative-output evaluation yet
