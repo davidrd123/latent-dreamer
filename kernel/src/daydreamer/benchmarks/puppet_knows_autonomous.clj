@@ -604,6 +604,43 @@
                           [:emotion:pos]))]
     (ordered-unique indices)))
 
+(defn- goal-dispatch-rule-path
+  [goal-type]
+  (case goal-type
+    :roving [:goal-family/roving-plan-dispatch]
+    :rationalization [:goal-family/rationalization-plan-dispatch]
+    :reversal [:goal-family/reversal-plan-dispatch]
+    []))
+
+(defn- retrieve-episodic-hits
+  [world goal active-indices]
+  (let [active-set (set active-indices)
+        retrieval-opts (cond-> {:active-family (:goal-type goal)}
+                         (seq (goal-dispatch-rule-path (:goal-type goal)))
+                         (assoc :active-rule-path
+                                (goal-dispatch-rule-path (:goal-type goal))))]
+    (->> (episodic/retrieve-episodes world active-indices retrieval-opts)
+         (mapv (fn [hit]
+                 (let [episode (get-in world [:episodes (:episode-id hit)])
+                       overlap (->> (get-in episode [:cue-indices :content-indices] [])
+                                    (filter active-set)
+                                    vec)
+                       base-hit {:episode-id (:episode-id hit)
+                                 :retrieval-score (double
+                                                   (or (:effective-marks hit)
+                                                       (:marks hit)
+                                                       0.0))
+                                 :marks (:marks hit)
+                                 :threshold (:threshold hit)
+                                 :overlap overlap
+                                 :admission-status (:admission-status hit)}]
+                   (cond-> base-hit
+                     (:provenance-reason hit)
+                     (assoc :provenance-reason (:provenance-reason hit))
+
+                     (:retention-reason hit)
+                     (assoc :retention-reason (:retention-reason hit)))))))))
+
 (defn- apply-metric-deltas
   [situation-state metric-deltas]
   (reduce-kv (fn [state metric delta]
@@ -935,6 +972,7 @@
                                       :threshold (:threshold hit)
                                       :overlap (:overlap hit)})
                                    (take 6 hits)))
+            trace-episodic-retrievals (retrieve-episodic-hits world goal active-indices)
             next-situations (if node
                               (advance-situations effective-situations
                                                   goal
@@ -960,6 +998,7 @@
                    world
                    (cond-> {:active-indices active-indices
                             :retrievals trace-retrievals
+                            :episodic-retrievals trace-episodic-retrievals
                             :situations (or (:situations-state world) next-situations)}
                      chosen
                      (assoc :chosen-node-id (:id node)

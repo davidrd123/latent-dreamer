@@ -309,6 +309,10 @@ Current read:
   use/outcome/promotion substrate: no family-plan episode accumulated
   use history, promotion evidence, or anti-residue flags in the 12- or
   50-cycle returns
+- a new `retrieved_episodes` channel now shows that the live 50-cycle
+  run is seeing the world episode store on most cycles, including some
+  provisional family-plan episodes, but those hits are still not being
+  converted into source-use / promotion / flag movement
 - rule-access gating is now live in activation, planning, and the
   first frontier bridge, but the current benchmark run does not yet
   produce meaningful quarantine/reopening movement

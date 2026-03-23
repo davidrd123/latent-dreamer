@@ -1,7 +1,8 @@
 (ns daydreamer.benchmarks.puppet-knows-autonomous-test
   (:require [clojure.test :refer [deftest is testing]]
             [daydreamer.director :as director]
-            [daydreamer.benchmarks.puppet-knows-autonomous :as autonomous]))
+            [daydreamer.benchmarks.puppet-knows-autonomous :as autonomous]
+            [daydreamer.episodic-memory :as episodic]))
 
 (defn- longest-true-run
   [xs]
@@ -30,6 +31,9 @@
                    (first summaries))))
     (testing "the autonomous trace includes real branch work"
       (is (some #{"reversal"} selected-goal-types))
+      (is (every? vector?
+                  (map #(get % "retrieved_episodes")
+                       cycles)))
       (is (some seq
                 (map #(get % "sprouted_contexts") cycles))))
     (testing "the run is not stuck in one situation"
@@ -209,6 +213,21 @@
                   ["reversal" "roving" "rehearsal" "repercussions"])))
     (testing "same-situation repercussions no longer lock for the rest of the run"
       (is (<= (longest-true-run late-s3-repercussions) 1)))))
+
+(deftest retrieve-episodic-hits-reads-the-world-episode-store
+  (let [[world episode-id]
+        (episodic/add-episode {} {:rule :autonomous-benchmark-probe})
+        world (-> world
+                  (assoc-in [:episodes episode-id :admission-status] :durable)
+                  (episodic/store-episode episode-id :honesty {:plan? true :reminding? true})
+                  (episodic/store-episode episode-id :clarity {:plan? true}))
+        hits (#'autonomous/retrieve-episodic-hits world
+                                                  {:goal-type :roving}
+                                                  [:honesty :clarity :performance])]
+    (is (= [episode-id]
+           (mapv :episode-id hits)))
+    (is (= [:honesty :clarity]
+           (-> hits first :overlap)))))
 
 (deftest run-benchmark-can-apply-external-family-evaluator
   (let [archive-evaluator (fn [_family-plan _default-evaluation]

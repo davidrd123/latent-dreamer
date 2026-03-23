@@ -233,7 +233,7 @@
   "Build an internal cycle snapshot. Fields that are not yet produced by the
   kernel can be supplied explicitly by the caller."
   [world {:keys [goal-id selected-goal top-candidate-ids top-candidates
-                 active-indices retrievals chosen-node-id selection
+                 active-indices retrievals episodic-retrievals chosen-node-id selection
                  feedback-applied serendipity-bias situations context-id
                  sprouted active-plan backtrack-events activations mutations
                  terminations timestamp goal-selection emotion-shifts
@@ -241,6 +241,7 @@
                  emotional-state]
           :or {active-indices []
                retrievals []
+               episodic-retrievals []
                active-plan []
                backtrack-events []
                activations []
@@ -283,6 +284,7 @@
      :active-plan (vec active-plan)
      :active-indices (vec active-indices)
      :retrievals (vec retrievals)
+     :episodic-retrievals (vec episodic-retrievals)
      :chosen-node-id chosen-node-id
      :selection selection
      :rule-provenance rule-provenance
@@ -354,6 +356,20 @@
                           "overlap" (json-value (or (:overlap hit) []))
                           "threshold" (:threshold hit)})
                        (:retrievals snapshot))
+     "retrieved_episodes" (mapv (fn [hit]
+                                  {"episode_id" (some-> (:episode-id hit) scalar->json)
+                                   "retrieval_score" (or (:retrieval-score hit)
+                                                         (:marks hit)
+                                                         0.0)
+                                   "overlap" (json-value (or (:overlap hit) []))
+                                   "threshold" (:threshold hit)
+                                   "admission_status" (some-> (:admission-status hit)
+                                                              scalar->json)
+                                   "provenance_reason" (some-> (:provenance-reason hit)
+                                                               scalar->json)
+                                   "retention_reason" (some-> (:retention-reason hit)
+                                                              scalar->json)})
+                                (:episodic-retrievals snapshot))
      "chosen_node_id" (or (:chosen-node-id snapshot) "n/a")
      "selection" (json-value (:selection snapshot))
      "rule_provenance" (provenance-json-value (:rule-provenance snapshot))
