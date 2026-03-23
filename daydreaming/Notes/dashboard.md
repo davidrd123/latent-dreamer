@@ -87,6 +87,7 @@ Lane 2: Deep Build (kernel rule engine)            ← where the architecture li
   ├── Puppet Knows re-entry: 12-cycle clean, 50-cycle partial but mixed after pressure retune
   ├── Membrane assays: Assay A (dynamic entry + loop flag), Assay B (live promotion/frontier open)
   ├── Graffito slices: Slice 1 (typed retrieval), Slice 2 (character-state reappraisal), Slice 3 (rehearsal control reread)
+  ├── Graffito miniworld: autonomous 3-scene reread dynamics first pass
   ├── First :llm-backed pilot as episode evaluator
   └── See build-order-checkpoint-2026-03-22.md
 
@@ -207,6 +208,7 @@ See `condensation/build-order-checkpoint-2026-03-22.md` for full details.
 | Graffito Slice 1 benchmark (typed fact-space, first kernel slice) | Done | 2026-03-22 |
 | Graffito Slice 2 benchmark (persistent Tony state + same-situation reappraisal) | Done | 2026-03-22 |
 | Graffito Slice 3 benchmark (rehearsal-driven control shift + same-situation reappraisal) | Done | 2026-03-23 |
+| Graffito miniworld benchmark (autonomous street/apartment/mural reread loop) | Done | 2026-03-23 |
 | First :llm-backed evaluator | Not started | |
 | Verified paths | Not started | |
 | Cross-session write-back transfer (L4) | Not started | |

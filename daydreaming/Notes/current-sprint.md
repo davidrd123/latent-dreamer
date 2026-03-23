@@ -107,7 +107,8 @@ The membrane substrate (admission tiers, anti-residue flags,
 promotion chain, executor boundary) is in a good resting state.
 Assay A is frozen as a regression. The next steps follow the
 three-level stack above, and the active benchmark-side branch is now
-the first mechanistic Graffito microfixtures on typed fact-space.
+the first autonomous Graffito miniworld over typed fact-space and
+carried Tony state.
 
 ### What is already true
 
@@ -441,7 +442,7 @@ Assay B              live cross-family success -> durable -> frontier open — P
 Graffito Slice 1     typed retrieval + honest family-plan storage — PASSED
 Graffito Slice 2     persistent Tony state + same-situation reappraisal — PASSED
 Graffito Slice 3     rehearsal-driven control shift + same-situation reappraisal — PASSED
-Graffito miniworld   richer typed fact-space benchmark (next)
+Graffito miniworld   autonomous 3-scene reread benchmark — PASSED (first pass)
 ```
 
 The first Graffito kernel slices now exist:
@@ -459,6 +460,8 @@ The first Graffito kernel slices now exist:
     apartment support
   - Slice 3: authored apartment rehearsal routine + same mural
     reappraisal after the control shift
+  - Miniworld: autonomous street -> apartment -> mural cycling with
+    Tony-state updates and reread every cycle
   - typed fact categories now include actors, relationships,
     obligations, artifacts, person-object relations, exposure, recent
     events, cross-layer correspondence, and derived appraisal
@@ -488,13 +491,24 @@ The first Graffito kernel slices now exist:
     mural facts so the later family choice flips without treating
     rehearsal as a new top-level scheduler or as permanent learned
     state
+  - the first autonomous miniworld now runs those pieces together over
+    three situations (`street overload -> apartment support/rehearsal
+    -> mural crisis`) instead of a hand-sequenced slice
+  - on the current 20-cycle deterministic run, the kernel visits all
+    three situations, uses all three live families/operators
+    (`:rationalization 10`, `:reversal 6`, `:rehearsal 4`), stores 16
+    family-plan episodes, and produces 6 autonomous reread flips with
+    8 challenge-reading mural cycles
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:
 
-- move from slices to the first Graffito miniworld
-- keep asking activation / retrieval / family-choice / provenance
-  questions
+- keep the miniworld running longer and inspect whether retrieval,
+  provenance, and later reread remain legible when the three scenes
+  interact over time
+- watch for the first honest bridge from transient Tony-state shifts
+  into membrane-mediated accumulation, rather than inventing sticky
+  learned-capability floats
 - do not jump straight to creative-output evaluation yet
 
 See the 5 Pro research sift at

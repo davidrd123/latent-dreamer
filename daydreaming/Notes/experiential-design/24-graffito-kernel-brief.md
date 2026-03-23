@@ -68,8 +68,13 @@ The script keeps returning to these through concrete scene logic:
 ## Kernel-Level Implications
 
 Graffito needs a richer situation model than a flat pressure map.
-The right next step is not full simulation. It is a typed fact-space
-plus a small carried character state, with derived pressure.
+The first kernel step is not full simulation. It is a typed fact-space
+plus a small carried character state, with derived pressure. That
+substrate now exists in the shipped Graffito slices and first
+autonomous miniworld benchmark. The active question is no longer
+whether typed facts and Tony-state reread can work at all; it is
+whether those same mechanisms stay legible and path-dependent when the
+street, apartment, and mural scenes interact over time.
 
 Each situation should carry at least:
 
