@@ -576,9 +576,12 @@ but still in the mechanistic frame:
   seam, but not the first move in this branch
 - do not jump straight to creative-output evaluation yet
 
-See the 5 Pro research sift at
-`condensation/research-sifts/research-sift-cold-start-and-situation-model.md` for
-the outside-knowledge foundation.
+See the research sifts at `condensation/research-sifts/` for the
+outside-knowledge foundation:
+- `research-sift-cold-start-and-situation-model.md` — membrane design, threshold, evidence types
+- `research-sift-graffito-situation-model.md` — 9-category schema, regulation, reappraisal, serendipity threshold
+- `research-sift-rehearsal-and-longer-soaks.md` — rehearsal gotchas, soak predictions, measurements
+- `research-sift-memory-ecology-and-beyond.md` — earlier batch sift, accessibility frontier, thin/thick brief
 
 ### Deferred parallel fronts
 
