@@ -1195,6 +1195,41 @@
               :rehearsal_affordance]
              (:selection-reasons candidate))))))
 
+(deftest apply-post-effect-hook-can-attach-caller-local-reread-result
+  (let [[world root-id] (world-with-root)
+        [world context-id] (cx/sprout world root-id)
+        [world family-plan]
+        (families/run-family-plan
+         world
+         {:goal-type :rehearsal
+          :goal-id :rt-counted-stroke
+          :context-id context-id
+          :routine-id :rt-counted-stroke
+          :operator-id :op-counted-stroke
+          :precondition-ids [:monk_counts_a_holdable_beat]
+          :selection-reasons [:support_need :rhythm_routine]
+          :routine-fact-ids [:monk_counts_a_holdable_beat]})
+        [world family-plan]
+        (families/apply-post-effect-hook
+         world
+         family-plan
+         (fn [current-world current-family-plan]
+           [(assoc-in current-world
+                      [:post-effect-markers (:family-episode-id current-family-plan)]
+                      :ran)
+            {:family (:family current-family-plan)
+             :episode-id (:family-episode-id current-family-plan)
+             :selection-policy (get-in current-family-plan
+                                       [:selection :rehearsal_selection_policy])}]))]
+    (testing "the generic post-effect seam can attach caller-local reread results without changing family-plan storage semantics"
+      (is (= :ran
+             (get-in world
+                     [:post-effect-markers (:family-episode-id family-plan)])))
+      (is (= {:family :rehearsal
+              :episode-id (:family-episode-id family-plan)
+              :selection-policy :authored_rehearsal_routine}
+             (get-in family-plan [:result :post-effect-hook-result]))))))
+
 (deftest stored-roving-family-plan-episode-is-retrievable-by-structure
   (let [[world root-id] (world-with-root)
         [world pleasant-episode-id]

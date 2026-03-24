@@ -26,17 +26,18 @@ Last updated: 2026-03-23
 ## Next After This
 
 - Broaden use/outcome tracking on top of the now-kernelized rehearsal
-  trigger seam.
-- Pull the generic post-effect reappraisal hook inward instead of
-  leaving reread as benchmark-local behavior forever.
+  trigger seam and the extracted generic post-effect hook.
+- Keep the Graffito-specific reread projector benchmark-local until the
+  same projection pattern is proven reusable outside this harness.
 - Then choose the next family-ecology move from longer-run evidence,
   rather than inventing another benchmark-local bridge first.
 
 ## Decision Point
 
-- After rehearsal trigger kernelization, does the longer-run miniworld
-  diversify, or does it remain a cleaner version of the same repeating
-  attractor around the durable reversal-sourced bridge?
+- After rehearsal trigger kernelization and generic post-effect-hook
+  extraction, does the longer-run miniworld diversify, or does it
+  remain a cleaner version of the same repeating attractor around the
+  durable reversal-sourced bridge?
 
 ## Codex Next
 

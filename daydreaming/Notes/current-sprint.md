@@ -568,8 +568,8 @@ The first Graffito kernel slices now exist:
       dead"; it is "the current ecology is stable but becoming too
       periodic," which is exactly why minimal kernel rehearsal was the
       right reusable move and why the next kernel seam should be
-      rehearsal motivation / generic post-effect reappraisal rather
-      than yet another benchmark-local bridge invention
+      broader use/outcome tracking plus a generic post-effect hook
+      shape, rather than yet another benchmark-local bridge invention
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:
@@ -579,9 +579,10 @@ but still in the mechanistic frame:
 - treat the current `reversal -> rehearsal` bridge as the last major
   benchmark-local rehearsal addition unless a new concrete leak appears
 - use the new kernel-owned rehearsal seam as the reusable baseline for
-  the next move: broader use/outcome tracking, a generic post-effect
-  reappraisal hook, and whatever additional family ecology the longer
-  runs still expose after rehearsal trigger/activation moved inward
+  the next move: broader use/outcome tracking, the now-extracted
+  generic post-effect hook, and whatever additional family ecology the
+  longer runs still expose after rehearsal trigger/activation moved
+  inward
 - keep full rehearsal routine content in payload/support metadata, but
   continue using compressed rehearsal `:retrieval-indices` as the
   portable default
@@ -591,8 +592,9 @@ but still in the mechanistic frame:
 - watch for the first honest bridge from transient Tony-state shifts
   into membrane-mediated accumulation, rather than inventing sticky
   learned-capability floats
-- keep the generic post-effect reappraisal pass as a live follow-on
-  seam, but not the first move in this branch
+- keep the Graffito-specific reread projector and state math
+  benchmark-local for now even though the generic post-effect hook
+  shell now lives in the kernel
 - in the current miniworld, frontier opening is real membrane
   bookkeeping, but it should not yet be over-read as a newly unlocked
   capability

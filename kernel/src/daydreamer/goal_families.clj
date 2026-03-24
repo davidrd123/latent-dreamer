@@ -1667,6 +1667,26 @@
                  :evaluation (assoc default-evaluation
                                     :evaluation-source :heuristic-fallback)))))))
 
+(defn apply-post-effect-hook
+  "Run a caller-supplied reread/projection hook after local family effects.
+
+  Returns `[world family-plan]`. When `family-plan` is non-nil and the hook
+  returns a two-tuple `[world hook-result]`, the hook result is attached at
+  `[:result :post-effect-hook-result]`."
+  [world family-plan post-effect-hook]
+  (if (nil? post-effect-hook)
+    [world family-plan]
+    (let [hook-output (post-effect-hook world family-plan)
+          [next-world hook-result]
+          (if (and (vector? hook-output)
+                   (= 2 (count hook-output)))
+            hook-output
+            [hook-output nil])]
+      [next-world
+       (cond-> family-plan
+         (some? hook-result)
+         (assoc-in [:result :post-effect-hook-result] hook-result))])))
+
 (defn- store-family-plan-episode
   [world family-plan]
   (let [selection (:selection family-plan)
@@ -3563,7 +3583,6 @@
                   (record-family-plan-source-episode-use world family-plan)]
               [world family-plan])
             [world nil])))
-
       [world nil])))
 
 (defn- retract-facts

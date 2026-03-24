@@ -1310,6 +1310,15 @@
                     (take-last 6)
                     vec))))
 
+(defn- post-effect-reappraisal-hook
+  [chosen-candidate]
+  (fn [world _family-plan]
+    (-> world
+        (update-tony-and-object-state (:operator-key chosen-candidate))
+        (advance-situations (:operator-key chosen-candidate))
+        (update-recent-choices chosen-candidate)
+        project-graffito-state)))
+
 (defn- trace-candidate-summary
   [candidate]
   (cond-> (select-keys candidate
@@ -1400,11 +1409,10 @@
         world (annotate-mural-reversal-episode-for-rehearsal world
                                                              chosen-candidate
                                                              family-plan)
-        world (-> world
-                  (update-tony-and-object-state (:operator-key chosen-candidate))
-                  (advance-situations (:operator-key chosen-candidate))
-                  (update-recent-choices chosen-candidate)
-                  project-graffito-state)
+        [world family-plan] (families/apply-post-effect-hook
+                             world
+                             family-plan
+                             (post-effect-reappraisal-hook chosen-candidate))
         appraisal-after (get-in world [:graffito-miniworld :mural-projection :appraisal-mode])
         regulation-after (get-in world [:graffito-miniworld :mural-projection :regulation-mode])
         family-plan-episode-id (get-in family-plan [:selection :family_plan_episode_id])
@@ -1486,11 +1494,10 @@
         regulation-before (get-in world [:graffito-miniworld :mural-projection :regulation-mode])
         [cross-family-race selected-source] (rehearsal-cross-family-probe world)
         world (append-cycle world (trace-cycle-base world chosen-candidate top-candidates))
-        world (-> world
-                  (update-tony-and-object-state (:operator-key chosen-candidate))
-                  (advance-situations (:operator-key chosen-candidate))
-                  (update-recent-choices chosen-candidate)
-                  project-graffito-state)
+        [world _] (families/apply-post-effect-hook
+                   world
+                   nil
+                   (post-effect-reappraisal-hook chosen-candidate))
         [world family-plan]
         (families/run-family-plan
          world
