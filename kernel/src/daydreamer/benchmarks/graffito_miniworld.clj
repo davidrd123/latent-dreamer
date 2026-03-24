@@ -303,19 +303,20 @@
     :challenge-dominant
     :threat-dominant))
 
-(defn- retract-facts
-  [world context-id facts]
-  (reduce (fn [current-world fact]
-            (cx/retract-fact current-world context-id fact))
-          world
-          facts))
-
 (defn- retract-facts-by-type
   [world context-id fact-type]
   (reduce (fn [current-world fact]
             (cx/retract-fact current-world context-id fact))
           world
           (filter #(= fact-type (:fact/type %))
+                  (cx/visible-facts world context-id))))
+
+(defn- retract-facts-by-types
+  [world context-id fact-types]
+  (reduce (fn [current-world fact]
+            (cx/retract-fact current-world context-id fact))
+          world
+          (filter #(contains? fact-types (:fact/type %))
                   (cx/visible-facts world context-id))))
 
 (defn- assert-facts
@@ -343,6 +344,7 @@
               tony-state
               deltas)))
 
+(declare street-context-id)
 (declare apartment-context-id)
 (declare rehearsal-routine-ready?)
 
@@ -357,45 +359,164 @@
               {}
               tony-state)))
 
-(def ^:private removable-mural-projection-facts
-  [{:fact/type :emotion
-    :emotion-id mural-threat-emotion-id
-    :strength 0.87
-    :valence :negative
-    :affect :fear}
-   {:fact/type :dependency
-    :from-id mural-threat-emotion-id
-    :to-id mural-threat-goal-id}
-   (goal-fact mural-threat-goal-id mural-threat-goal-id :failed nil)
-   (goal-fact mural-leaf-goal-id mural-threat-goal-id :runable nil
-              {:strength 0.34
-               :objective-fact mural-leaf-objective})
-   (intends-fact mural-threat-goal-id mural-leaf-goal-id mural-threat-goal-id)
-   (failure-cause-fact mural-threat-cause-id
-                       mural-threat-goal-id
-                       0.89
-                       mural-threat-counterfactual-facts)
-   (rationalization-frame-fact mural-bridge-frame-id
-                               mural-threat-goal-id
-                               0.88
-                               mural-bridge-reframe-facts)
-   (typed-fact :appraisal :same_light_reads_as_threat)
-   (typed-fact :appraisal :capture_feels_inevitable)
-   {:fact/type :emotion
-    :emotion-id mural-challenge-emotion-id
-    :strength 0.74
-    :valence :negative
-    :affect :shame}
-   {:fact/type :dependency
-    :from-id mural-challenge-emotion-id
-    :to-id mural-challenge-goal-id}
-   (goal-fact mural-challenge-goal-id mural-challenge-goal-id :failed nil)
-   (rationalization-frame-fact mural-challenge-frame-id
-                               mural-challenge-goal-id
-                               0.9
-                               mural-challenge-reframe-facts)
-   (typed-fact :appraisal :same_light_reads_as_challenge)
-   (typed-fact :appraisal :rhythm_supports_precision)])
+(def ^:private street-projection-fact-types
+  #{:situation :emotion :dependency :goal :intends :failure-cause})
+
+(def ^:private apartment-projection-fact-types
+  #{:situation :emotion :dependency :goal :rationalization-frame})
+
+(def ^:private mural-projection-fact-types
+  #{:emotion :dependency :goal :intends :failure-cause :rationalization-frame :appraisal})
+
+(defn- tony-delta
+  [tony-state metric]
+  (- (double (get tony-state metric 0.0))
+     (double (get default-tony-state metric 0.0))))
+
+(defn- situation-delta
+  [situations situation-id metric]
+  (- (double (get-in situations [situation-id metric] 0.0))
+     (double (get-in initial-situations-state [situation-id metric] 0.0))))
+
+(def ^:private baseline-control-deficit
+  (- 1.0 (:perceived-control default-tony-state)))
+
+(def ^:private baseline-agency-deficit
+  (- 1.0 (:felt-agency default-tony-state)))
+
+(defn- control-deficit-delta
+  [tony-state]
+  (- (- 1.0 (double (:perceived-control tony-state)))
+     baseline-control-deficit))
+
+(defn- agency-deficit-delta
+  [tony-state]
+  (- (- 1.0 (double (:felt-agency tony-state)))
+     baseline-agency-deficit))
+
+(defn- street-emotion-strength
+  [world]
+  (let [tony-state (current-tony-state world)
+        situations (current-situations-state world)]
+    (clamp01
+     (+ 0.82
+        (* 0.24 (tony-delta tony-state :sensory-load))
+        (* 0.20 (control-deficit-delta tony-state))
+        (* 0.14 (situation-delta situations street-situation-id :activation))
+        (* 0.08 (situation-delta situations street-situation-id :ripeness))
+        (* -0.12 (tony-delta tony-state :entrainment))
+        (* -0.10 (tony-delta tony-state :felt-agency))))))
+
+(defn- apartment-emotion-strength
+  [world]
+  (let [tony-state (current-tony-state world)
+        situations (current-situations-state world)]
+    (clamp01
+     (+ 0.79
+        (* 0.12 (tony-delta tony-state :sensory-load))
+        (* 0.22 (agency-deficit-delta tony-state))
+        (* 0.18 (control-deficit-delta tony-state))
+        (* 0.12 (situation-delta situations apartment-situation-id :activation))
+        (* 0.08 (situation-delta situations apartment-situation-id :ripeness))
+        (* -0.10 (tony-delta tony-state :entrainment))))))
+
+(defn- mural-threat-strength
+  [world]
+  (let [tony-state (current-tony-state world)
+        situations (current-situations-state world)]
+    (clamp01
+     (+ 0.87
+        (* 0.20 (tony-delta tony-state :sensory-load))
+        (* 0.18 (control-deficit-delta tony-state))
+        (* 0.14 (situation-delta situations mural-situation-id :activation))
+        (* 0.08 (situation-delta situations mural-situation-id :ripeness))
+        (* -0.14 (tony-delta tony-state :felt-agency))
+        (* -0.12 (tony-delta tony-state :entrainment))))))
+
+(defn- mural-challenge-strength
+  [world]
+  (let [tony-state (current-tony-state world)
+        situations (current-situations-state world)]
+    (clamp01
+     (+ 0.74
+        (* -0.16 (tony-delta tony-state :sensory-load))
+        (* 0.18 (tony-delta tony-state :perceived-control))
+        (* 0.18 (tony-delta tony-state :felt-agency))
+        (* 0.16 (tony-delta tony-state :entrainment))
+        (* 0.12 (situation-delta situations mural-situation-id :activation))
+        (* 0.08 (situation-delta situations mural-situation-id :ripeness))))))
+
+(defn- emotion-projection-summary
+  [situation-id emotion-id affect strength]
+  {:situation-id situation-id
+   :emotion-id emotion-id
+   :affect affect
+   :strength strength
+   :provenance :benchmark-projected
+   :projection-kind :derived})
+
+(defn- project-street-reversal
+  [world]
+  (let [context-id (street-context-id world)
+        emotion-strength (street-emotion-strength world)
+        projected-facts [{:fact/type :situation
+                          :fact/id street-situation-id}
+                         {:fact/type :emotion
+                          :emotion-id street-emotion-id
+                          :strength emotion-strength
+                          :valence :negative
+                          :affect :fear}
+                         {:fact/type :dependency
+                          :from-id street-emotion-id
+                          :to-id street-goal-id}
+                         (goal-fact street-goal-id street-goal-id :failed context-id)
+                         (goal-fact street-leaf-goal-id
+                                    street-goal-id
+                                    :runable
+                                    context-id
+                                    {:strength 0.36
+                                     :objective-fact street-leaf-objective})
+                         (intends-fact street-goal-id street-leaf-goal-id street-goal-id)
+                         (failure-cause-fact street-cause-id
+                                             street-goal-id
+                                             0.88
+                                             street-counterfactual-facts)]
+        world (retract-facts-by-types world context-id street-projection-fact-types)
+        world (assert-facts world context-id projected-facts)]
+    (assoc-in world
+              [:graffito-miniworld :emotion-projections :street]
+              (emotion-projection-summary street-situation-id
+                                          street-emotion-id
+                                          :fear
+                                          emotion-strength))))
+
+(defn- project-apartment-support
+  [world]
+  (let [context-id (apartment-context-id world)
+        emotion-strength (apartment-emotion-strength world)
+        projected-facts [{:fact/type :situation
+                          :fact/id apartment-situation-id}
+                         {:fact/type :emotion
+                          :emotion-id apartment-emotion-id
+                          :strength emotion-strength
+                          :valence :negative
+                          :affect :shame}
+                         {:fact/type :dependency
+                          :from-id apartment-emotion-id
+                          :to-id apartment-goal-id}
+                         (goal-fact apartment-goal-id apartment-goal-id :failed context-id)
+                         (rationalization-frame-fact apartment-frame-id
+                                                     apartment-goal-id
+                                                     0.91
+                                                     apartment-reframe-facts)]
+        world (retract-facts-by-types world context-id apartment-projection-fact-types)
+        world (assert-facts world context-id projected-facts)]
+    (assoc-in world
+              [:graffito-miniworld :emotion-projections :apartment]
+              (emotion-projection-summary apartment-situation-id
+                                          apartment-emotion-id
+                                          :shame
+                                          emotion-strength))))
 
 (defn project-mural-appraisal
   "Project Tony's carried state into the mural situation as derived appraisal."
@@ -404,11 +525,13 @@
         tony-state (current-tony-state world)
         regulation-mode (derive-regulation-mode tony-state)
         appraisal-mode (derive-appraisal-mode tony-state)
+        challenge-strength (mural-challenge-strength world)
+        threat-strength (mural-threat-strength world)
         projected-facts
         (if (= :challenge-dominant appraisal-mode)
           [{:fact/type :emotion
             :emotion-id mural-challenge-emotion-id
-            :strength 0.74
+            :strength challenge-strength
             :valence :negative
             :affect :shame}
            {:fact/type :dependency
@@ -426,7 +549,7 @@
            (typed-fact :appraisal :rhythm_supports_precision)]
           [{:fact/type :emotion
             :emotion-id mural-threat-emotion-id
-            :strength 0.87
+            :strength threat-strength
             :valence :negative
             :affect :fear}
            {:fact/type :dependency
@@ -455,14 +578,25 @@
                                        mural-bridge-reframe-facts)
            (typed-fact :appraisal :same_light_reads_as_threat)
            (typed-fact :appraisal :capture_feels_inevitable)])
-        world (retract-facts world mural-context-id removable-mural-projection-facts)
+        world (retract-facts-by-types world mural-context-id mural-projection-fact-types)
         world (assert-facts world mural-context-id projected-facts)]
-    (assoc-in world
-              [:graffito-miniworld :mural-projection]
-              {:appraisal-mode appraisal-mode
-               :regulation-mode regulation-mode
-               :tony-state tony-state
-               :object-state (current-object-state world)})))
+    (-> world
+        (assoc-in [:graffito-miniworld :mural-projection]
+                  {:appraisal-mode appraisal-mode
+                   :regulation-mode regulation-mode
+                   :tony-state tony-state
+                   :object-state (current-object-state world)})
+        (assoc-in [:graffito-miniworld :emotion-projections :mural]
+                  (emotion-projection-summary mural-situation-id
+                                              (if (= :challenge-dominant appraisal-mode)
+                                                mural-challenge-emotion-id
+                                                mural-threat-emotion-id)
+                                              (if (= :challenge-dominant appraisal-mode)
+                                                :shame
+                                                :fear)
+                                              (if (= :challenge-dominant appraisal-mode)
+                                                challenge-strength
+                                                threat-strength))))))
 
 (defn- rehearsal-motivation-strength
   [world]
@@ -522,51 +656,10 @@
 (defn- project-graffito-state
   [world]
   (-> world
+      project-street-reversal
+      project-apartment-support
       project-mural-appraisal
       project-rehearsal-affordance))
-
-(defn- street-reversal-facts
-  [context-id]
-  [{:fact/type :situation
-    :fact/id street-situation-id}
-   {:fact/type :emotion
-    :emotion-id street-emotion-id
-    :strength 0.82
-    :valence :negative
-    :affect :fear}
-   {:fact/type :dependency
-    :from-id street-emotion-id
-    :to-id street-goal-id}
-   (goal-fact street-goal-id street-goal-id :failed context-id)
-   (goal-fact street-leaf-goal-id
-              street-goal-id
-              :runable
-              context-id
-              {:strength 0.36
-               :objective-fact street-leaf-objective})
-   (intends-fact street-goal-id street-leaf-goal-id street-goal-id)
-   (failure-cause-fact street-cause-id
-                       street-goal-id
-                       0.88
-                       street-counterfactual-facts)])
-
-(defn- apartment-support-facts
-  [context-id]
-  [{:fact/type :situation
-    :fact/id apartment-situation-id}
-   {:fact/type :emotion
-    :emotion-id apartment-emotion-id
-    :strength 0.79
-    :valence :negative
-    :affect :shame}
-   {:fact/type :dependency
-    :from-id apartment-emotion-id
-    :to-id apartment-goal-id}
-   (goal-fact apartment-goal-id apartment-goal-id :failed context-id)
-   (rationalization-frame-fact apartment-frame-id
-                               apartment-goal-id
-                               0.91
-                               apartment-reframe-facts)])
 
 (defn build-world
   "Create the first autonomous Graffito miniworld."
@@ -580,12 +673,10 @@
         world (assert-facts world
                             street-context-id
                             (concat street-facts
-                                    [street-leaf-objective]
-                                    (street-reversal-facts street-context-id)))
+                                    [street-leaf-objective]))
         world (assert-facts world
                             apartment-context-id
-                            (concat apartment-facts
-                                    (apartment-support-facts apartment-context-id)))
+                            apartment-facts)
         world (assert-facts world
                             mural-context-id
                             (concat mural-raw-input-facts
@@ -605,6 +696,7 @@
                       :situations-state initial-situations-state
                       :recent-choices []
                       :pending-context-facts {}
+                      :emotion-projections {}
                       :flip-history []
                       :mural-raw-input-ids (->> mural-raw-input-facts
                                                 (keep :fact/id)
@@ -734,7 +826,7 @@
    :top-source-candidates
    (mapv (fn [candidate]
            {:origin (candidate-origin-keyword (:candidate-origin candidate))
-            :rank (:candidate-rank candidate)
+            :candidate-rank (:candidate-rank candidate)
             :goal-id (:goal-id candidate)
             :frame-id (:frame-id candidate)
             :episode-id (:episode-id candidate)
@@ -882,6 +974,9 @@
                                                           [:selection :reversal_counterfactual_source])
                                                   (get-in episode [:payload :source-id]))
                                    :repair-target rehearsal-repair-target
+                                   :breakdown-surface-overlap (->> breakdown-overlap
+                                                                   (sort-by str)
+                                                                   vec)
                                    :breakdown-surface (vec breakdown-surface)
                                    :breakdown-surface-overlap-count
                                    (count breakdown-overlap)
@@ -923,6 +1018,7 @@
             :source-id (:source-id candidate)
             :priority (:priority candidate)
             :repair-target (:repair-target candidate)
+            :breakdown-surface-overlap (:breakdown-surface-overlap candidate)
             :breakdown-surface-overlap-count (:breakdown-surface-overlap-count candidate)
             :selection-policy (:selection-policy candidate)
             :selection-reasons (:selection-reasons candidate)
@@ -1321,23 +1417,175 @@
 
 (defn- trace-candidate-summary
   [candidate]
-  (cond-> (select-keys candidate
-                       [:situation-id :family :operator-key :strength :reasons])
+  (cond-> {:id (or (:goal-id candidate)
+                   (:operator-id candidate)
+                   (:operator-key candidate))
+           :goal-type (:family candidate)
+           :kind (:kind candidate)
+           :situation-id (:situation-id candidate)
+           :family (:family candidate)
+           :operator-key (:operator-key candidate)
+           :operator-id (:operator-id candidate)
+           :goal-id (:goal-id candidate)
+           :strength (:strength candidate)
+           :reasons (:reasons candidate)}
     (:trigger candidate)
     (assoc :trigger-selection-policy (get-in candidate [:trigger :selection-policy])
+           :trigger-emotion-id (get-in candidate [:trigger :emotion-id])
+           :trigger-emotion-strength (get-in candidate [:trigger :emotion-strength])
+           :trigger-motivation-strength (get-in candidate [:trigger :motivation-strength])
+           :trigger-context-id (or (get-in candidate [:trigger :trigger-context-id])
+                                   (get-in candidate [:trigger :old-context-id])
+                                   (get-in candidate [:trigger :context-id]))
            :frontier-bridge-trigger? (= :reversal_aftershock_rationalization_frame
                                         (get-in candidate
                                                 [:trigger :selection-policy])))))
 
+(def ^:private logical-context->situation-id
+  {:street street-situation-id
+   :apartment apartment-situation-id
+   :mural mural-situation-id})
+
+(defn- situation-id-for-context
+  [world context-id]
+  (some (fn [[logical-context known-context-id]]
+          (when (= known-context-id context-id)
+            (get logical-context->situation-id logical-context)))
+        (get-in world [:graffito-miniworld :contexts])))
+
+(defn- context-id-for-situation
+  [world situation-id]
+  (some (fn [[logical-context known-situation-id]]
+          (when (= known-situation-id situation-id)
+            (get-in world [:graffito-miniworld :contexts logical-context])))
+        logical-context->situation-id))
+
+(defn- context-active-indices
+  [world context-id]
+  (->> (cx/visible-facts world context-id)
+       (keep :fact/id)
+       distinct
+       vec))
+
+(defn- emotional-state-for-context
+  [world context-id]
+  (let [situation-id (situation-id-for-context world context-id)
+        projection-info (case situation-id
+                          :graffito_street_overload
+                          (get-in world [:graffito-miniworld :emotion-projections :street])
+
+                          :graffito_grandma_apartment
+                          (get-in world [:graffito-miniworld :emotion-projections :apartment])
+
+                          :graffito_night_mural
+                          (get-in world [:graffito-miniworld :emotion-projections :mural])
+
+                          nil)]
+    (->> (cx/visible-facts world context-id)
+         (filter #(= :emotion (:fact/type %)))
+         (map (fn [fact]
+                {:emotion-id (:emotion-id fact)
+                 :strength (:strength fact)
+                 :valence (:valence fact)
+                 :affect (:affect fact)
+                 :provenance (:provenance projection-info)
+                 :projection-kind (:projection-kind projection-info)
+                 :situation-id situation-id
+                 :context-id context-id}))
+         (sort-by (juxt (comp str :situation-id)
+                        (comp - double :strength)
+                        (comp str :emotion-id)))
+         vec)))
+
+(defn- current-emotional-state
+  [world]
+  (->> (vals (get-in world [:graffito-miniworld :contexts]))
+       (mapcat #(emotional-state-for-context world %))
+       vec))
+
+(defn- trace-retrieval-summary
+  [candidate]
+  (let [origin (or (candidate-origin-keyword (:candidate-origin candidate))
+                   (candidate-origin-keyword (:origin candidate)))
+        overlap (cond
+                  (seq (:overlap candidate))
+                  (vec (:overlap candidate))
+
+                  (seq (:breakdown-surface-overlap candidate))
+                  (vec (:breakdown-surface-overlap candidate))
+
+                  :else
+                  [])]
+    (cond-> {:node-id (or (:frame-id candidate)
+                          (:source-id candidate)
+                          (:goal-id candidate)
+                          (:episode-id candidate)
+                          (:operator-id candidate))
+             :episode-id (:episode-id candidate)
+             :retrieval-score (double (or (:retrieval-score candidate)
+                                          (:priority candidate)
+                                          (:marks candidate)
+                                          0.0))
+             :overlap overlap
+             :origin origin
+             :selection-policy (:selection-policy candidate)
+             :selection-reasons (:selection-reasons candidate)
+             :source-family (:source-family candidate)
+             :frame-id (:frame-id candidate)
+             :goal-id (:goal-id candidate)
+             :source-id (:source-id candidate)
+             :frontier-bridge? (:frontier-bridge? candidate)
+             :repair-target (:repair-target candidate)
+             :admission-status (:admission-status candidate)
+             :rule-path (:rule-path candidate)}
+      (:candidate-rank candidate)
+      (assoc :candidate-rank (:candidate-rank candidate))
+
+      (:rank candidate)
+      (assoc :candidate-rank (:rank candidate))
+
+      (:breakdown-surface-overlap-count candidate)
+      (assoc :breakdown-surface-overlap-count
+             (:breakdown-surface-overlap-count candidate)))))
+
+(defn- trace-episodic-retrieval-summary
+  [world candidate]
+  (when-let [episode-id (:episode-id candidate)]
+    (let [episode (get-in world [:episodes episode-id])]
+      {:episode-id episode-id
+       :retrieval-score (double (or (:retrieval-score candidate)
+                                    (:priority candidate)
+                                    (:marks candidate)
+                                    0.0))
+       :overlap (vec (or (:overlap candidate)
+                         (:breakdown-surface-overlap candidate)
+                         []))
+       :threshold nil
+       :episode-created-cycle (:cycle-created episode)
+       :same-cycle? (= (:cycle world) (:cycle-created episode))
+       :admission-status (:admission-status episode)
+       :provenance-reason (:selection-policy candidate)})))
+
 (defn- trace-cycle-base
   [world chosen-candidate top-candidates]
-  (cond-> {:graffito_miniworld
-           {:selected-candidate (trace-candidate-summary chosen-candidate)
-            :top-candidates (mapv trace-candidate-summary
-                                  (take 4 top-candidates))
-            :mural-projection-before (get-in world [:graffito-miniworld :mural-projection])}}
-    (:goal-id chosen-candidate)
-    (assoc :selected-goal (trace-selected-goal world (:goal-id chosen-candidate)))))
+  (let [selected-context-id (or (some-> chosen-candidate :trigger :trigger-context-id)
+                                (some-> chosen-candidate :trigger :old-context-id)
+                                (some-> chosen-candidate :trigger :context-id)
+                                (context-id-for-situation world
+                                                          (:situation-id chosen-candidate)))]
+    (cond-> {:top-candidates (mapv trace-candidate-summary
+                                   (take 4 top-candidates))
+             :active-indices (context-active-indices world selected-context-id)
+             :emotional-state (current-emotional-state world)
+             :situations (current-situations-state world)
+             :graffito_miniworld
+             {:selected-candidate (trace-candidate-summary chosen-candidate)
+              :top-candidates (mapv trace-candidate-summary
+                                    (take 4 top-candidates))
+              :emotion-projections-before (get-in world [:graffito-miniworld :emotion-projections])
+              :mural-projection-before (get-in world [:graffito-miniworld :mural-projection])}}
+      (:goal-id chosen-candidate)
+      (assoc :selected-goal (trace-selected-goal world (:goal-id chosen-candidate))))))
 
 (defn- activate-family-goal-from-trigger
   [world {:keys [goal-type situation-id emotion-id emotion-strength
@@ -1469,6 +1717,20 @@
     [(trace/merge-latest-cycle
       world
       {:selection (:selection family-plan)
+       :active-indices (context-active-indices
+                        world
+                        (or (:trigger-context-id preplan-race)
+                            (context-id-for-situation world
+                                                      (:situation-id chosen-candidate))))
+       :retrievals (mapv trace-retrieval-summary
+                         (or (:top-source-candidates preplan-race)
+                             source-candidates
+                             []))
+       :episodic-retrievals (->> (or (:top-source-candidates preplan-race)
+                                     source-candidates
+                                     [])
+                                 (keep #(trace-episodic-retrieval-summary world %))
+                                 vec)
        :sprouted (:sprouted-context-ids family-plan)
        :mutations (:mutation-events world)
        :rule-provenance (:rule-provenance family-plan)
@@ -1476,6 +1738,7 @@
        :graffito_miniworld
        {:tony-state-before tony-state-before
         :tony-state-after (:tony-state-after summary)
+        :emotion-projections-before (get-in world [:graffito-miniworld :emotion-projections])
         :mural-appraisal-before appraisal-before
         :mural-appraisal-after appraisal-after
         :reappraisal-flip? (:reappraisal-flip? summary)
@@ -1575,6 +1838,14 @@
     [(trace/merge-latest-cycle
       world
       {:selection (:selection family-plan)
+       :active-indices (context-active-indices
+                        world
+                        (:cross-family-source-context-id cross-family-race))
+       :retrievals (mapv trace-retrieval-summary
+                         (:cross-family-source-candidates cross-family-race))
+       :episodic-retrievals (->> (:cross-family-source-candidates cross-family-race)
+                                 (keep #(trace-episodic-retrieval-summary world %))
+                                 vec)
        :rule-provenance (:rule-provenance family-plan)
        :family-plan-episode-id (:family-episode-id family-plan)
        :episode-use-records (vec (:episode-use-records family-plan-result))
@@ -1585,6 +1856,7 @@
         :routine-id rehearsal-routine-id
         :tony-state-before tony-state-before
         :tony-state-after (:tony-state-after summary)
+        :emotion-projections-before (get-in world [:graffito-miniworld :emotion-projections])
         :mural-appraisal-before appraisal-before
         :mural-appraisal-after appraisal-after
         :reappraisal-flip? (:reappraisal-flip? summary)

@@ -37,7 +37,45 @@
              (get-in world [:graffito-miniworld :mural-projection :appraisal-mode])))
       (is (contains? mural-facts
                      {:fact/type :appraisal
-                      :fact/id :same_light_reads_as_threat})))))
+                      :fact/id :same_light_reads_as_threat})))
+    (testing "the initial scene emotions are benchmark-projected from the live carried state rather than left implicit"
+      (is (contains? street-facts
+                     {:fact/type :emotion
+                      :emotion-id :e_tony_mockery_panic
+                      :strength 0.82
+                      :valence :negative
+                      :affect :fear}))
+      (is (contains? apartment-facts
+                     {:fact/type :emotion
+                      :emotion-id :e_tony_wrongness_shame
+                      :strength 0.79
+                      :valence :negative
+                      :affect :shame}))
+      (is (contains? mural-facts
+                     {:fact/type :emotion
+                      :emotion-id :e_mural_capture_panic
+                      :strength 0.87
+                      :valence :negative
+                      :affect :fear}))
+      (is (= {:street {:situation-id :graffito_street_overload
+                       :emotion-id :e_tony_mockery_panic
+                       :affect :fear
+                       :strength 0.82
+                       :provenance :benchmark-projected
+                       :projection-kind :derived}
+              :apartment {:situation-id :graffito_grandma_apartment
+                          :emotion-id :e_tony_wrongness_shame
+                          :affect :shame
+                          :strength 0.79
+                          :provenance :benchmark-projected
+                          :projection-kind :derived}
+              :mural {:situation-id :graffito_night_mural
+                      :emotion-id :e_mural_capture_panic
+                      :affect :fear
+                      :strength 0.87
+                      :provenance :benchmark-projected
+                      :projection-kind :derived}}
+             (get-in world [:graffito-miniworld :emotion-projections]))))))
 
 (deftest autonomous-miniworld-stays-diverse-and-produces-live-rereads
   (let [{:keys [world cycle-summaries summaries log]} (mini/run-miniworld {:cycles 12})
@@ -69,9 +107,13 @@
       (is (pos? (count (:episodes world))))
       (is (= #{:sensory-load :entrainment :felt-agency :perceived-control}
              (set (keys (mini/current-tony-state world)))))
-      (is (every? #(or (= :rehearsal (:selected-family %))
-                       (:family-plan-episode-id %))
-                  cycle-summaries)))
+      (let [stored-cycles (filter :family-plan-episode-id cycle-summaries)
+            activation-only-cycles (remove :family-plan-episode-id cycle-summaries)]
+        (is (>= (count stored-cycles) 8))
+        (is (every? #(and (= :reversal (:selected-family %))
+                          (= :graffito_street_overload
+                             (:selected-situation-id %)))
+                    activation-only-cycles))))
     (testing "the trace remains inspectable"
       (is (= 12 (count summaries)))
       (is (re-find #"graffito_night_mural"
@@ -193,6 +235,57 @@
                :episode-id :ep-24
                :branch-context-id :cx-3}]
              (:history entry))))))
+
+(deftest reporter-log-includes-world-delta-and-benchmark-debug
+  (let [{:keys [log]} (mini/run-miniworld {:cycles 20})
+        cycles (get log "cycles")
+        world-deltas (map #(get % "world_delta") cycles)]
+    (testing "every exported cycle carries a world-delta projection"
+      (is (= 20 (count cycles)))
+      (is (every? map? world-deltas)))
+    (testing "the canopy-facing canonical trace slots stay populated for Graffito runs"
+      (is (every? #(seq (get % "top_candidates")) cycles))
+      (is (every? #(seq (get % "emotional_state")) cycles))
+      (is (every? #(seq (get % "active_indices")) cycles))
+      (is (some #(seq (get % "retrieved")) cycles))
+      (is (some #(seq (get % "retrieved_episodes")) cycles)))
+    (testing "the exported log shows episode additions, promotion, and rule-access movement"
+      (is (some #(seq (get-in % ["episodes" "added"])) world-deltas))
+      (is (some #(seq (get-in % ["promotion" "events"])) world-deltas))
+      (is (some #(seq (get-in % ["rule_access" "changed"])) world-deltas)))
+    (testing "benchmark-local debug payloads survive projection for the canopy viewer"
+      (is (some #(contains? (get % "debug") "graffito_miniworld") cycles))
+      (is (some #(seq (get-in % ["debug" "rule-access-transitions"])) cycles))
+      (is (some #(seq (get-in % ["debug" "episode-use-records"])) cycles))
+      (is (every? #(seq (get-in % ["debug" "graffito_miniworld" "emotion-projections-before"]))
+                  cycles)))
+    (testing "exported emotional state now labels benchmark-projected provenance explicitly"
+      (is (every? (fn [cycle]
+                    (every? #(= "benchmark-projected" (get % "provenance"))
+                            (get cycle "emotional_state")))
+                  cycles))
+      (is (every? (fn [cycle]
+                    (every? #(= "derived" (get % "projection_kind"))
+                            (get cycle "emotional_state")))
+                  cycles)))))
+
+(deftest projected-scene-emotions-vary-over-a-live-run
+  (let [{:keys [log]} (mini/run-miniworld {:cycles 12})
+        cycles (get log "cycles")
+        emotional-states (mapcat #(get % "emotional_state") cycles)
+        strengths-for (fn [emotion-id]
+                        (->> emotional-states
+                             (filter #(= emotion-id (get % "emotion_id")))
+                             (map #(get % "strength"))
+                             distinct
+                             vec))]
+    (testing "street and apartment affect are no longer frozen scene constants"
+      (is (> (count (strengths-for "e_tony_mockery_panic")) 1))
+      (is (> (count (strengths-for "e_tony_wrongness_shame")) 1)))
+    (testing "mural affect now varies in both kind and magnitude across rereads"
+      (is (> (count (concat (strengths-for "e_mural_capture_panic")
+                            (strengths-for "e_mural_mark_doubt")))
+             1)))))
 
 (deftest twenty-cycle-miniworld-produces-a-reversal-to-rehearsal-promoted-path
   (let [{:keys [world]} (mini/run-miniworld {:cycles 20})

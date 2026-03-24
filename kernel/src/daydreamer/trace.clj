@@ -10,7 +10,8 @@
   context id and depth, sprouted children, active plan chain, retrieval
   hits and thresholds, backtrack events, mutation attempts, and
   termination events."
-  (:require [daydreamer.context :as cx]))
+  (:require [clojure.set :as set]
+            [daydreamer.context :as cx]))
 
 (def ^:private reporter-top-level-keys
   ["started_at"
@@ -118,11 +119,32 @@
 
 (defn- reporter-goal
   [goal]
-  {"id" (some-> (:id goal) scalar->json)
-   "goal_type" (some-> (:goal-type goal) scalar->json)
-   "strength" (:strength goal)
-   "planning_type" (some-> (:planning-type goal) scalar->json)
-   "situation_id" (some-> (:situation-id goal) scalar->json)})
+  (cond-> {"id" (some-> (:id goal) scalar->json)
+           "goal_type" (some-> (:goal-type goal) scalar->json)
+           "strength" (:strength goal)
+           "planning_type" (some-> (:planning-type goal) scalar->json)
+           "situation_id" (some-> (:situation-id goal) scalar->json)}
+    (:family goal)
+    (assoc "family" (some-> (:family goal) scalar->json))
+
+    (:kind goal)
+    (assoc "kind" (some-> (:kind goal) scalar->json))
+
+    (:goal-id goal)
+    (assoc "goal_id" (some-> (:goal-id goal) scalar->json))
+
+    (:operator-key goal)
+    (assoc "operator_key" (some-> (:operator-key goal) scalar->json))
+
+    (:operator-id goal)
+    (assoc "operator_id" (some-> (:operator-id goal) scalar->json))
+
+    (contains? goal :trigger-selection-policy)
+    (assoc "trigger_selection_policy" (some-> (:trigger-selection-policy goal)
+                                              scalar->json))
+
+    (contains? goal :frontier-bridge-trigger?)
+    (assoc "frontier_bridge_trigger" (boolean (:frontier-bridge-trigger? goal)))))
 
 (defn- reporter-activation
   [activation]
@@ -150,13 +172,18 @@
 
 (defn- reporter-emotional-state
   [emotion]
-  {"emotion_id" (some-> (:emotion-id emotion) scalar->json)
-   "strength" (:strength emotion)
-   "valence" (some-> (:valence emotion) scalar->json)
-   "affect" (some-> (:affect emotion) scalar->json)
-   "situation_id" (some-> (:situation-id emotion) scalar->json)
-   "context_id" (some-> (:context-id emotion) scalar->json)
-   "role" (some-> (:role emotion) scalar->json)})
+  (cond-> {"emotion_id" (some-> (:emotion-id emotion) scalar->json)
+           "strength" (:strength emotion)
+           "valence" (some-> (:valence emotion) scalar->json)
+           "affect" (some-> (:affect emotion) scalar->json)
+           "situation_id" (some-> (:situation-id emotion) scalar->json)
+           "context_id" (some-> (:context-id emotion) scalar->json)
+           "role" (some-> (:role emotion) scalar->json)}
+    (:provenance emotion)
+    (assoc "provenance" (some-> (:provenance emotion) scalar->json))
+
+    (:projection-kind emotion)
+    (assoc "projection_kind" (some-> (:projection-kind emotion) scalar->json))))
 
 (defn- fact-id
   [fact]
@@ -299,10 +326,277 @@
      :emotional-state (vec emotional-state)
      :terminations (vec terminations)}))
 
+(def ^:private reporter-cycle-known-keys
+  #{:cycle-num
+    :timestamp
+    :mode
+    :goal-selection
+    :selected-goal
+    :top-candidates
+    :context-id
+    :context-depth
+    :sprouted
+    :active-plan
+    :active-indices
+    :retrievals
+    :episodic-retrievals
+    :chosen-node-id
+    :selection
+    :rule-provenance
+    :feedback-applied
+    :serendipity-bias
+    :situations
+    :backtrack-events
+    :activations
+    :mutations
+    :branch-events
+    :emotion-shifts
+    :emotional-state
+    :terminations
+    :runtime-thought
+    :world-delta
+    :world-debug-state})
+
+(defn- episode-debug-summary
+  [episode]
+  {:episode-id (:id episode)
+   :family (get-in episode [:provenance :family])
+   :admission-status (:admission-status episode)
+   :promotion-eligible? (boolean (:promotion-eligible? episode))
+   :promotion-basis (:promotion-basis episode)
+   :cycle-created (:cycle-created episode)
+   :rule-path (vec (:rule-path episode))
+   :retrieval-indices (vec (or (:content-indices episode)
+                               (:indices episode)
+                               []))
+   :use-history (vec (:use-history episode))
+   :promotion-evidence (vec (:promotion-evidence episode))
+   :promotion-history (vec (:promotion-history episode))
+   :anti-residue-history (vec (:anti-residue-history episode))
+   :anti-residue-flags (vec (:anti-residue-flags episode))})
+
+(defn- rule-access-debug-summary
+  [[rule-id entry]]
+  [rule-id {:rule-id rule-id
+            :status (:status entry)
+            :source (:source entry)
+            :opened-cycle (:opened-cycle entry)
+            :opened-by (:opened-by entry)
+            :history (vec (:history entry))}])
+
+(defn- world-debug-state
+  [world]
+  {:episodes (into {}
+                   (map (fn [[episode-id episode]]
+                          [episode-id (episode-debug-summary episode)]))
+                   (:episodes world))
+   :rule-access (into {}
+                      (map rule-access-debug-summary)
+                      (:rule-access world))
+   :recent-indices (vec (:recent-indices world))})
+
+(defn- episode-added-payload
+  [episode]
+  (select-keys episode
+               [:episode-id
+                :family
+                :admission-status
+                :promotion-eligible?
+                :promotion-basis
+                :cycle-created
+                :rule-path
+                :retrieval-indices]))
+
+(defn- drop-prefix
+  [previous current]
+  (if (<= (count previous) (count current))
+    (subvec current (count previous))
+    current))
+
+(defn- changed-use-records
+  [previous current]
+  (let [previous-by-id (into {} (map (juxt :use-id identity)) previous)]
+    (->> current
+         (keep (fn [record]
+                 (let [prev-record (get previous-by-id (:use-id record))]
+                   (when (and prev-record (not= prev-record record))
+                     {:episode_id (:episode-id record)
+                      :use_id (:use-id record)
+                      :from_status (some-> (:status prev-record) scalar->json)
+                      :to_status (some-> (:status record) scalar->json)
+                      :outcome (some-> (:outcome record) scalar->json)
+                      :resolved_cycle (:resolved-cycle record)
+                      :source_family (some-> (:source-family record) scalar->json)
+                      :target_family (some-> (:target-family record) scalar->json)
+                      :reason (some-> (:outcome-reason record) scalar->json)}))))
+         vec)))
+
+(defn- world-delta
+  [previous-state current-state]
+  (let [previous-state (or previous-state
+                           {:episodes {}
+                            :rule-access {}
+                            :recent-indices []})
+        previous-episodes (:episodes previous-state)
+        current-episodes (:episodes current-state)
+        added-episode-ids (sort (set/difference (set (keys current-episodes))
+                                                (set (keys previous-episodes))))
+        common-episode-ids (sort (set/intersection (set (keys current-episodes))
+                                                   (set (keys previous-episodes))))
+        episodes-added (mapv (fn [episode-id]
+                               (episode-added-payload
+                                (get current-episodes episode-id)))
+                             added-episode-ids)
+        episode-status-changed
+        (->> common-episode-ids
+             (keep (fn [episode-id]
+                     (let [before (get previous-episodes episode-id)
+                           after (get current-episodes episode-id)]
+                       (when (not= (:admission-status before)
+                                   (:admission-status after))
+                         {:episode_id episode-id
+                          :family (some-> (:family after) scalar->json)
+                          :from (some-> (:admission-status before) scalar->json)
+                          :to (some-> (:admission-status after) scalar->json)}))))
+             vec)
+        episode-uses-added
+        (->> (concat added-episode-ids common-episode-ids)
+             (mapcat (fn [episode-id]
+                       (let [before (get previous-episodes episode-id {:use-history []})
+                             after (get current-episodes episode-id)
+                             new-records (drop-prefix (vec (:use-history before))
+                                                      (vec (:use-history after)))]
+                         (map (fn [record]
+                                {:episode_id episode-id
+                                 :use_id (:use-id record)
+                                 :status (some-> (:status record) scalar->json)
+                                 :outcome (some-> (:outcome record) scalar->json)
+                                 :cycle (:cycle record)
+                                 :source_family (some-> (:source-family record) scalar->json)
+                                 :target_family (some-> (:target-family record) scalar->json)
+                                 :reason (some-> (:reason record) scalar->json)
+                                 :outcome_reason (some-> (:outcome-reason record) scalar->json)
+                                 :use_role (some-> (:use-role record) scalar->json)
+                                 :goal_id (some-> (:goal-id record) scalar->json)})
+                              new-records))))
+             vec)
+        episode-uses-resolved
+        (->> common-episode-ids
+             (mapcat (fn [episode-id]
+                       (changed-use-records
+                        (vec (:use-history (get previous-episodes episode-id)))
+                        (vec (:use-history (get current-episodes episode-id))))))
+             vec)
+        promotion-evidence-added
+        (->> (concat added-episode-ids common-episode-ids)
+             (mapcat (fn [episode-id]
+                       (let [before (get previous-episodes episode-id {:promotion-evidence []})
+                             after (get current-episodes episode-id)
+                             new-records (drop-prefix (vec (:promotion-evidence before))
+                                                      (vec (:promotion-evidence after)))]
+                         (map (fn [record]
+                                {:episode_id episode-id
+                                 :type (some-> (:type record) scalar->json)
+                                 :cycle (:cycle record)
+                                 :use_id (:use-id record)
+                                 :source_family (some-> (:source-family record) scalar->json)
+                                 :target_family (some-> (:target-family record) scalar->json)})
+                              new-records))))
+             vec)
+        promotion-events
+        (->> (concat added-episode-ids common-episode-ids)
+             (mapcat (fn [episode-id]
+                       (let [before (get previous-episodes episode-id {:promotion-history []})
+                             after (get current-episodes episode-id)
+                             new-records (drop-prefix (vec (:promotion-history before))
+                                                      (vec (:promotion-history after)))]
+                         (map (fn [record]
+                                {:episode_id episode-id
+                                 :from (some-> (:from-status record) scalar->json)
+                                 :to (some-> (:to-status record) scalar->json)
+                                 :cycle (:cycle record)
+                                 :reason (some-> (:reason record) scalar->json)
+                                 :source_family (some-> (:source-family record) scalar->json)
+                                 :target_family (some-> (:target-family record) scalar->json)})
+                              new-records))))
+             vec)
+        flag-events
+        (->> (concat added-episode-ids common-episode-ids)
+             (mapcat (fn [episode-id]
+                       (let [before (get previous-episodes episode-id {:anti-residue-history []})
+                             after (get current-episodes episode-id)
+                             new-records (drop-prefix (vec (:anti-residue-history before))
+                                                      (vec (:anti-residue-history after)))]
+                         (map (fn [record]
+                                {:episode_id episode-id
+                                 :flag (some-> (:flag record) scalar->json)
+                                 :cycle (:cycle record)
+                                 :action (some-> (:action record) scalar->json)
+                                 :reason (some-> (:reason record) scalar->json)
+                                 :use_id (:use-id record)})
+                              new-records))))
+             vec)
+        previous-rule-access (:rule-access previous-state)
+        current-rule-access (:rule-access current-state)
+        all-rule-ids (sort (set/union (set (keys previous-rule-access))
+                                      (set (keys current-rule-access))))
+        rule-access-changed
+        (->> all-rule-ids
+             (mapcat (fn [rule-id]
+                       (let [before (get previous-rule-access rule-id {:history []})
+                             after (get current-rule-access rule-id)]
+                         (cond
+                           (nil? after)
+                           []
+
+                           (not= (:status before) (:status after))
+                           [{:rule_id (scalar->json rule-id)
+                             :from (some-> (:status before) scalar->json)
+                             :to (some-> (:status after) scalar->json)
+                             :opened_cycle (:opened-cycle after)
+                             :opened_by (some-> (:opened-by after) scalar->json)}]
+
+                           :else
+                           (->> (drop-prefix (vec (:history before))
+                                             (vec (:history after)))
+                                (map (fn [record]
+                                       {:rule_id (scalar->json rule-id)
+                                        :from (some-> (:from-status record) scalar->json)
+                                        :to (some-> (:to-status record) scalar->json)
+                                        :cycle (:cycle record)
+                                        :reason (some-> (:reason record) scalar->json)
+                                        :episode_id (some-> (:episode-id record) scalar->json)
+                                        :branch_context_id (some-> (:branch-context-id record)
+                                                                   scalar->json)}))
+                                vec)))))
+             vec)
+        previous-recent (vec (:recent-indices previous-state))
+        current-recent (vec (:recent-indices current-state))]
+    {:episodes {:added episodes-added
+                :status_changed episode-status-changed}
+     :episode_use {:added episode-uses-added
+                   :resolved episode-uses-resolved}
+     :promotion {:evidence_added promotion-evidence-added
+                 :events promotion-events}
+     :flags {:events flag-events}
+     :rule_access {:changed rule-access-changed}
+     :recent_indices {:pushed (vec (remove (set previous-recent) current-recent))
+                      :evicted (vec (remove (set current-recent) previous-recent))}}))
+
+(defn- attach-world-debug
+  [snapshot previous-state current-world]
+  (let [current-state (world-debug-state current-world)]
+    (assoc snapshot
+           :world-debug-state current-state
+           :world-delta (world-delta previous-state current-state))))
+
 (defn append-cycle
   "Append a cycle snapshot to the world's trace."
   [world snapshot-opts]
-  (update world :trace (fnil conj []) (cycle-snapshot world snapshot-opts)))
+  (let [previous-state (some-> world :trace last :world-debug-state)
+        snapshot (-> (cycle-snapshot world snapshot-opts)
+                     (attach-world-debug previous-state world))]
+    (update world :trace (fnil conj []) snapshot)))
 
 (defn- merge-snapshot-fields
   [snapshot snapshot-fields]
@@ -326,7 +620,10 @@
               (let [last-idx (dec (count trace))]
                 (update trace last-idx
                         (fn [snapshot]
-                          (merge-snapshot-fields snapshot snapshot-fields))))))
+                          (-> (merge-snapshot-fields snapshot snapshot-fields)
+                              (attach-world-debug
+                               (some-> trace butlast last :world-debug-state)
+                               world)))))))
     (append-cycle world snapshot-fields)))
 
 (defn reporter-cycle
@@ -335,7 +632,8 @@
   [snapshot]
   (let [snapshot (if (contains? snapshot :branch-events)
                    snapshot
-                   (assoc snapshot :branch-events (derive-branch-events snapshot)))]
+                   (assoc snapshot :branch-events (derive-branch-events snapshot)))
+        extra-debug (json-value (apply dissoc snapshot reporter-cycle-known-keys))]
     {"cycle" (:cycle-num snapshot)
      "timestamp" (:timestamp snapshot)
      "goal_selection" (scalar->json (:goal-selection snapshot))
@@ -346,15 +644,58 @@
                             (:top-candidates snapshot))
      "active_indices" (json-value (:active-indices snapshot))
      "retrieved" (mapv (fn [hit]
-                         {"node_id" (or (some-> (:node-id hit) scalar->json)
-                                        (some-> (:episode-id hit) scalar->json)
-                                        "n/a")
-                          "episode_id" (some-> (:episode-id hit) scalar->json)
-                          "retrieval_score" (or (:retrieval-score hit)
-                                                (:marks hit)
-                                                0.0)
-                          "overlap" (json-value (or (:overlap hit) []))
-                          "threshold" (:threshold hit)})
+                         (cond-> {"node_id" (or (some-> (:node-id hit) scalar->json)
+                                                (some-> (:episode-id hit) scalar->json)
+                                                "n/a")
+                                  "episode_id" (some-> (:episode-id hit) scalar->json)
+                                  "retrieval_score" (or (:retrieval-score hit)
+                                                        (:marks hit)
+                                                        0.0)
+                                  "overlap" (json-value (or (:overlap hit) []))
+                                  "threshold" (:threshold hit)}
+                           (:origin hit)
+                           (assoc "origin" (some-> (:origin hit) scalar->json))
+
+                           (:source-family hit)
+                           (assoc "source_family" (some-> (:source-family hit)
+                                                          scalar->json))
+
+                           (:selection-policy hit)
+                           (assoc "selection_policy" (some-> (:selection-policy hit)
+                                                             scalar->json))
+
+                           (:selection-reasons hit)
+                           (assoc "selection_reasons" (json-value (:selection-reasons hit)))
+
+                           (:frame-id hit)
+                           (assoc "frame_id" (some-> (:frame-id hit) scalar->json))
+
+                           (:goal-id hit)
+                           (assoc "goal_id" (some-> (:goal-id hit) scalar->json))
+
+                           (:source-id hit)
+                           (assoc "source_id" (some-> (:source-id hit) scalar->json))
+
+                           (contains? hit :frontier-bridge?)
+                           (assoc "frontier_bridge" (boolean (:frontier-bridge? hit)))
+
+                           (:repair-target hit)
+                           (assoc "repair_target" (some-> (:repair-target hit)
+                                                          scalar->json))
+
+                           (:admission-status hit)
+                           (assoc "admission_status" (some-> (:admission-status hit)
+                                                             scalar->json))
+
+                           (:rule-path hit)
+                           (assoc "rule_path" (json-value (:rule-path hit)))
+
+                           (:candidate-rank hit)
+                           (assoc "candidate_rank" (:candidate-rank hit))
+
+                           (:breakdown-surface-overlap-count hit)
+                           (assoc "breakdown_surface_overlap_count"
+                                  (:breakdown-surface-overlap-count hit))))
                        (:retrievals snapshot))
      "retrieved_episodes" (mapv (fn [hit]
                                   {"episode_id" (some-> (:episode-id hit) scalar->json)
@@ -384,7 +725,9 @@
      "feedback_applied" (json-value (:feedback-applied snapshot))
      "runtime_thought" (json-value (:runtime-thought snapshot))
      "serendipity_bias" (:serendipity-bias snapshot)
-     "situations" (json-value (:situations snapshot))}))
+     "situations" (json-value (:situations snapshot))
+     "world_delta" (json-value (:world-delta snapshot))
+     "debug" extra-debug}))
 
 (defn reporter-log
   "Project the world's trace into the top-level shape expected by the existing
