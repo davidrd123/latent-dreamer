@@ -526,54 +526,73 @@ The first Graffito kernel slices now exist:
       `1` rule-access transition opening
       `:goal-family/reversal-aftershock-to-rationalization` from
       `:frontier` to `:accessible`
-    - after that frontier path opens, the rehearsal bridge now seeds a
-      second non-frontier cross-family rationalization episode instead
-      of repeatedly monopolizing the already-durable frontier episode
+    - the next Graffito family-ecology branch is now live too:
+      benchmark-local `reversal -> rehearsal` with matched
+      `:repair-target` / `:breakdown-surface`, compressed rehearsal
+      retrieval indices, and full routine content preserved in
+      payload/support metadata
+    - in the current 20-cycle read that yields `4` cross-family source
+      wins split across two consumer paths:
+      `2` `rationalization -> rehearsal` wins from the frontier-path
+      episode and `2` `reversal -> rehearsal` wins from a distinct
+      stored mural reversal episode
+    - that reversal-sourced episode now promotes too: `2`
+      cross-family-use successes, `2` promotion-evidence records, and a
+      second durable Graffito episode whose payload carries
+      `:repair-target :precision_under_pulse` and
+      `[:reversal :rehearsal]`
   - so the next honest question is no longer whether Graffito episodes
     can enter or win a later race, or whether Graffito can produce live
     cross-family reuse, promotion, and frontier opening at all; it is
-    how the miniworld broadens beyond these two rehearsal-targeted
-    rationalization paths into additional distinct cross-family families
+    which of the remaining rehearsal-specific outer-loop pieces are now
+    clearly reusable kernel seams instead of more benchmark-local
+    ecology glue
   - longer "parking lot laps" now clarify the dynamic picture:
     - at `50` cycles the miniworld stays non-collapsed
-      (`:rationalization 25`, `:reversal 13`, `:rehearsal 12`)
+      (`:rationalization 25`, `:reversal 13`, `:rehearsal 12`) while
+      `12` cross-family rehearsal wins split into `2`
+      rationalization-sourced wins and `10` reversal-sourced wins
     - at `100` cycles it is still active
       (`:rationalization 50`, `:reversal 26`, `:rehearsal 24`), but the
       tail has settled into a narrow repeating pattern centered on the
-      second durable rationalization episode rather than continuing to
-      discover new cross-family paths
+      durable reversal-sourced rehearsal bridge (`:ep-12`) rather than
+      continuing to discover new cross-family paths
     - so the immediate lesson from longer runs is not "the miniworld is
       dead"; it is "the current ecology is stable but becoming too
       periodic," which is exactly why minimal kernel rehearsal was the
-      right next reusable move instead of more benchmark-local bridge
-      invention
+      right reusable move and why the next kernel seam should be
+      rehearsal motivation / generic post-effect reappraisal rather
+      than yet another benchmark-local bridge invention
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:
 
 - keep the miniworld running longer as a baseline observation harness,
   but do not mistake more laps alone for the next architectural step
+- treat the current `reversal -> rehearsal` bridge as the last major
+  benchmark-local rehearsal addition unless a new concrete leak appears
 - use the new kernel-owned rehearsal seam as the reusable baseline for
-  the next family-ecology move, rather than adding more benchmark-local
-  rehearsal glue
-- take the next family-ecology branch as `reversal -> rehearsal`,
-  specifically `mural reversal -> apartment rehearsal`, because it is
-  the first new consumer-family dependency beyond the already-proven
-  `rationalization -> rehearsal` path
-- keep that bridge benchmark-local first, but require matched repair
-  target / breakdown surface rather than loose shared-cue overlap
-- tighten the new rehearsal seam while doing it: keep full routine
-  content in payload/support metadata, but compress rehearsal
-  `:retrieval-indices` to a portable subset so rehearsal episodes do
-  not disappear behind their own threshold
+  the next move: rehearsal trigger/readiness, separate rehearsal
+  `:motivation-strength`, and a generic post-effect reappraisal hook
+  are now better kernel candidates than more miniworld-specific bridge
+  design
+- keep full rehearsal routine content in payload/support metadata, but
+  continue using compressed rehearsal `:retrieval-indices` as the
+  portable default
 - when rehearsal activation gets kernelized further, keep a separate
   rehearsal `:motivation-strength` path rather than pretending
   rehearsal intensity is just raw `:emotion-strength`
+- if another family pairing is needed later, choose it from observed
+  need after those reusable seams land rather than inventing another
+  benchmark-local path first
 - watch for the first honest bridge from transient Tony-state shifts
   into membrane-mediated accumulation, rather than inventing sticky
   learned-capability floats
 - keep the generic post-effect reappraisal pass as a live follow-on
   seam, but not the first move in this branch
+- in the current miniworld, frontier opening is real membrane
+  bookkeeping, but it should not yet be over-read as a newly unlocked
+  capability
 - do not jump straight to creative-output evaluation yet
 
 See the research sifts at `condensation/research-sifts/` for the

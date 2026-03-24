@@ -112,6 +112,10 @@
       (is (integer? (:dynamic-reversal-candidate-cycles run-summary)))
       (is (pos? (:cross-family-source-candidate-cycles run-summary)))
       (is (pos? (:cross-family-source-win-cycles run-summary)))
+      (is (pos? (:cross-family-rationalization-candidate-cycles run-summary)))
+      (is (pos? (:cross-family-reversal-candidate-cycles run-summary)))
+      (is (pos? (:cross-family-rationalization-win-cycles run-summary)))
+      (is (pos? (:cross-family-reversal-win-cycles run-summary)))
       (is (>= (:distinct-cross-family-source-episode-count run-summary) 2))
       (is (>= (:episodes-with-cross-family-use-history run-summary) 2))
       (is (>= (:episodes-with-promotion-history run-summary) 2))
@@ -162,7 +166,7 @@
                :branch-context-id :cx-3}]
              (:history entry))))))
 
-(deftest twenty-cycle-miniworld-produces-a-second-cross-family-promoted-path
+(deftest twenty-cycle-miniworld-produces-a-reversal-to-rehearsal-promoted-path
   (let [{:keys [world]} (mini/run-miniworld {:cycles 20})
         cross-family-promoted
         (->> (vals (:episodes world))
@@ -171,18 +175,31 @@
                        (some #(not= (:source-family %)
                                     (:target-family %))
                              (:use-history episode)))))
-        frontier-promoted
-        (filter #(some #{:goal-family/reversal-aftershock-to-rationalization}
-                       (:rule-path %))
+        rationalization-promoted
+        (filter #(= :rationalization (get-in % [:provenance :family]))
                 cross-family-promoted)
-        non-frontier-promoted
-        (remove #(some #{:goal-family/reversal-aftershock-to-rationalization}
-                       (:rule-path %))
+        reversal-promoted
+        (filter #(= :reversal (get-in % [:provenance :family]))
                 cross-family-promoted)]
-    (testing "the miniworld no longer relies on a single repeated frontier bridge for cross-family promotion"
+    (testing "the miniworld now carries both the frontier rationalization path and a matched reversal-to-rehearsal repair path"
       (is (>= (count cross-family-promoted) 2))
-      (is (= 1 (count frontier-promoted)))
-      (is (seq non-frontier-promoted))
+      (is (seq rationalization-promoted))
+      (is (seq reversal-promoted))
+      (is (some #(some #{:goal-family/reversal-aftershock-to-rationalization}
+                       (:rule-path %))
+                rationalization-promoted))
+      (is (some #(= :precision_under_pulse
+                    (get-in % [:payload :repair-target]))
+                reversal-promoted))
+      (is (some #(= [:reversal :rehearsal]
+                    (get-in % [:payload :bridge-family-pair]))
+                reversal-promoted))
+      (is (some #(>= (count (filter (fn [use]
+                                      (not= (:source-family use)
+                                            (:target-family use)))
+                                    (:use-history %)))
+                     2)
+                reversal-promoted))
       (is (every? #(= :durable (:admission-status %))
                   cross-family-promoted)))))
 
@@ -202,6 +219,7 @@
       (is (>= (:challenge-mural-cycles run-summary) 20))
       (is (>= (:cross-family-source-win-cycles run-summary) 10))
       (is (>= (:distinct-cross-family-source-episode-count run-summary) 2))
+      (is (pos? (:cross-family-reversal-win-cycles run-summary)))
       (is (>= (:episodes-with-promotion-history run-summary) 2))
       (is (>= (:durable-episode-count run-summary) 2))
       (is (pos? (:rule-access-transition-count run-summary))))))

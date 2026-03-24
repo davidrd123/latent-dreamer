@@ -8,7 +8,8 @@
   live families where they exist, and now routes rehearsal provenance,
   source-use, and episode storage through the kernel while keeping the
   Graffito-specific control delta benchmark-local."
-  (:require [daydreamer.context :as cx]
+  (:require [clojure.set :as set]
+            [daydreamer.context :as cx]
             [daydreamer.episodic-memory :as episodic]
             [daydreamer.goal-families :as families]
             [daydreamer.goals :as goals]
@@ -45,6 +46,7 @@
 (def ^:private rehearsal-routine-id :rt_counted_stroke_rehearsal)
 (def ^:private rehearsal-operator-id :op_counted_stroke_with_sketchbook)
 (def ^:private rehearsal-source-rule-id :graffito-miniworld/rehearsal-routine)
+(def ^:private rehearsal-repair-target :precision_under_pulse)
 (def ^:private frontier-bridge-rule-id :goal-family/reversal-aftershock-to-rationalization)
 
 (def ^:private street-leaf-objective
@@ -202,6 +204,17 @@
     :sketchbook_offers_small_surface
     :repeated_stroke_returns_precision
     :monk_co_regulates_tony_with_rhythm})
+
+(def ^:private rehearsal-retrieval-fact-ids
+  [:monk_counts_a_holdable_beat
+   :repeated_stroke_returns_precision])
+
+(def ^:private mural-reversal-breakdown-surface-ids
+  [:light_jolt_floods_attention
+   :siren_pulse_hits_body
+   :noise_fragments_precision])
+
+(def ^:private reversal-breakdown-overlap-threshold 2)
 
 (def ^:private mural-raw-input-facts
   [(typed-fact :sensorimotor-input :light_jolt_floods_attention)
@@ -709,13 +722,30 @@
                             bindings)))))
                first))))
 
+(defn- annotate-mural-reversal-episode-for-rehearsal
+  [world chosen-candidate family-plan]
+  (if-let [episode-id (when (= :mural-reversal (:operator-key chosen-candidate))
+                        (get-in family-plan [:selection :family_plan_episode_id]))]
+    (reduce (fn [acc fact-id]
+              (episodic/store-episode acc episode-id fact-id {:zone :content}))
+            (-> world
+                (assoc-in [:episodes episode-id :payload :repair-target]
+                          rehearsal-repair-target)
+                (assoc-in [:episodes episode-id :payload :breakdown-surface]
+                          (vec mural-reversal-breakdown-surface-ids))
+                (assoc-in [:episodes episode-id :payload :bridge-family-pair]
+                          [:reversal :rehearsal]))
+            mural-reversal-breakdown-surface-ids)
+    world))
+
 (defn- cross-family-rehearsal-source-candidates
   [world]
   (let [context-id (mural-context-id world)
         visible-indices (->> (cx/visible-facts world context-id)
                              (keep :fact/id)
                              distinct
-                             vec)]
+                             vec)
+        visible-id-set (set visible-indices)]
     (if-not (seq visible-indices)
       []
       (->> (episodic/retrieve-episodes
@@ -726,38 +756,77 @@
              :active-family :rehearsal})
            (keep (fn [hit]
                    (let [episode (get-in world [:episodes (:episode-id hit)])
-                         provenance (:provenance episode)]
-                     (when (and (= :family-plan (:source provenance))
-                                (= :rationalization (:family provenance)))
-                       {:candidate-origin :dynamic
-                        :episode-id (:episode-id hit)
-                        :source-family (:family provenance)
-                        :rule-path (vec (:rule-path episode))
-                        :frontier-bridge? (boolean
-                                           (some #{:goal-family/reversal-aftershock-to-rationalization}
-                                                 (:rule-path episode)))
-                        :frame-id (or (get-in episode [:payload :frame-id])
-                                      (get-in provenance
-                                              [:selection :rationalization_frame_id]))
-                        :goal-id (or (get-in episode [:payload :frame-goal-id])
-                                     (get-in provenance
-                                             [:selection :rationalization_frame_goal]))
-                        :priority (double (or (:effective-marks hit)
-                                              (:marks hit)
-                                              0.0))
-                        :selection-policy :stored_cross_family_support_episode
-                        :selection-reasons (cond-> [:stored_cross_family_support_episode
-                                                    :anticipated_mural_projection]
-                                             (:provenance-reason hit)
-                                             (conj (:provenance-reason hit)))
-                        :admission-status (:admission-status episode)
-                        :cross-family-use-count (count (filter #(not= (:source-family %)
-                                                                      (:target-family %))
-                                                               (:use-history episode)))
-                        :use-history-count (count (:use-history episode))
-                        :promotion-evidence-count (count (:promotion-evidence episode))
-                        :anti-residue-flags (vec (:anti-residue-flags episode))}))))
+                         provenance (:provenance episode)
+                         source-family (:family provenance)
+                         common-fields
+                         {:candidate-origin :dynamic
+                          :episode-id (:episode-id hit)
+                          :source-family source-family
+                          :rule-path (vec (:rule-path episode))
+                          :priority (double (or (:effective-marks hit)
+                                                (:marks hit)
+                                                0.0))
+                          :admission-status (:admission-status episode)
+                          :cross-family-use-count (count (filter #(not= (:source-family %)
+                                                                        (:target-family %))
+                                                                 (:use-history episode)))
+                          :use-history-count (count (:use-history episode))
+                          :promotion-evidence-count (count (:promotion-evidence episode))
+                          :anti-residue-flags (vec (:anti-residue-flags episode))}
+                         breakdown-surface (set (get-in episode [:payload :breakdown-surface]))
+                         breakdown-overlap (set/intersection visible-id-set
+                                                             breakdown-surface)]
+                     (when (= :family-plan (:source provenance))
+                       (case source-family
+                         :rationalization
+                         (merge common-fields
+                                {:frontier-bridge? (boolean
+                                                    (some #{:goal-family/reversal-aftershock-to-rationalization}
+                                                          (:rule-path episode)))
+                                 :frame-id (or (get-in episode [:payload :frame-id])
+                                               (get-in provenance
+                                                       [:selection :rationalization_frame_id]))
+                                 :goal-id (or (get-in episode [:payload :frame-goal-id])
+                                              (get-in provenance
+                                                      [:selection :rationalization_frame_goal]))
+                                 :selection-policy :stored_cross_family_support_episode
+                                 :selection-reasons (cond-> [:stored_cross_family_support_episode
+                                                             :anticipated_mural_projection]
+                                                      (:provenance-reason hit)
+                                                      (conj (:provenance-reason hit)))})
+
+                         :reversal
+                         (when (and (= rehearsal-repair-target
+                                       (get-in episode [:payload :repair-target]))
+                                    (>= (count breakdown-overlap)
+                                        reversal-breakdown-overlap-threshold))
+                           (merge common-fields
+                                  {:frontier-bridge? false
+                                   :goal-id (or (get-in provenance
+                                                        [:selection :reversal_counterfactual_goal])
+                                                (get-in episode [:goal-id]))
+                                   :source-id (or (get-in provenance
+                                                          [:selection :reversal_counterfactual_source])
+                                                  (get-in episode [:payload :source-id]))
+                                   :repair-target rehearsal-repair-target
+                                   :breakdown-surface (vec breakdown-surface)
+                                   :breakdown-surface-overlap-count
+                                   (count breakdown-overlap)
+                                   :selection-policy :stored_cross_family_breakdown_episode
+                                   :selection-reasons (cond-> [:stored_cross_family_breakdown_episode
+                                                               :matched_repair_target
+                                                               :matched_breakdown_surface]
+                                                        (:provenance-reason hit)
+                                                        (conj (:provenance-reason hit)))}))
+
+                         nil)))))
            (sort-by (juxt (comp not :frontier-bridge?)
+                          (fn [candidate]
+                            (case (:source-family candidate)
+                              :reversal 0
+                              :rationalization 1
+                              2))
+                          (comp - #(or % 0) :breakdown-surface-overlap-count)
                           (comp - :priority)
                           (comp str :episode-id)))
            vec))))
@@ -765,6 +834,10 @@
 (defn- summarize-cross-family-rehearsal-candidates
   [candidates]
   {:cross-family-source-candidate-count (count candidates)
+   :cross-family-rationalization-candidate-count
+   (count (filter #(= :rationalization (:source-family %)) candidates))
+   :cross-family-reversal-candidate-count
+   (count (filter #(= :reversal (:source-family %)) candidates))
    :cross-family-source-candidates
    (mapv (fn [candidate]
            {:origin (candidate-origin-keyword (:candidate-origin candidate))
@@ -774,7 +847,10 @@
             :frontier-bridge? (:frontier-bridge? candidate)
             :frame-id (:frame-id candidate)
             :goal-id (:goal-id candidate)
+            :source-id (:source-id candidate)
             :priority (:priority candidate)
+            :repair-target (:repair-target candidate)
+            :breakdown-surface-overlap-count (:breakdown-surface-overlap-count candidate)
             :selection-policy (:selection-policy candidate)
             :selection-reasons (:selection-reasons candidate)
             :admission-status (:admission-status candidate)
@@ -789,8 +865,17 @@
   (let [frontier-candidate (first (filter :frontier-bridge? candidates))
         frontier-needs-open? (and frontier-candidate
                                   (not= :durable (:admission-status frontier-candidate)))
+        reversal-candidate
+        (->> candidates
+             (filter #(= :reversal (:source-family %)))
+             (sort-by (juxt (comp - #(or % 0) :breakdown-surface-overlap-count)
+                            (comp - :promotion-evidence-count)
+                            (comp - :priority)
+                            (comp str :episode-id)))
+             first)
         seeded-alt-candidate
         (->> candidates
+             (filter #(= :rationalization (:source-family %)))
              (remove :frontier-bridge?)
              (sort-by (juxt (comp - :use-history-count)
                             (comp - :priority)
@@ -799,6 +884,9 @@
     (cond
       frontier-needs-open?
       frontier-candidate
+
+      reversal-candidate
+      reversal-candidate
 
       seeded-alt-candidate
       seeded-alt-candidate
@@ -813,7 +901,9 @@
     [(assoc (summarize-cross-family-rehearsal-candidates candidates)
             :cross-family-source-context-id (mural-context-id world)
             :cross-family-source-visible? (boolean selected)
-            :cross-family-source-episode-id (:episode-id selected))
+            :cross-family-source-episode-id (:episode-id selected)
+            :cross-family-source-family (:source-family selected)
+            :cross-family-source-selection-policy (:selection-policy selected))
      selected]))
 
 (defn- apply-fatigue-adjustment
@@ -1216,6 +1306,9 @@
                                                                   chosen-candidate
                                                                   goal-id)
         [world family-plan] (families/run-family-plan world {:goal-id (:goal-id chosen-candidate)})
+        world (annotate-mural-reversal-episode-for-rehearsal world
+                                                             chosen-candidate
+                                                             family-plan)
         world (-> world
                   (update-tony-and-object-state (:operator-key chosen-candidate))
                   (advance-situations (:operator-key chosen-candidate))
@@ -1316,7 +1409,8 @@
           :operator-id rehearsal-operator-id
           :precondition-ids (sort rehearsal-precondition-ids)
           :selection-reasons (:reasons chosen-candidate)
-          :routine-fact-ids (sort rehearsal-precondition-ids)
+          :routine-fact-ids (sort rehearsal-retrieval-fact-ids)
+          :support-indices (sort rehearsal-precondition-ids)
           :source-episode-id (:episode-id selected-source)
           :source-use-role :rehearsal-support-source
           :source-use-outcome (when selected-source
@@ -1324,7 +1418,10 @@
                                  :reason :rehearsal-regulation-success})
           :episode-payload {:situation-id apartment-situation-id
                             :routine-id rehearsal-routine-id
-                            :operator-id rehearsal-operator-id}})
+                            :operator-id rehearsal-operator-id
+                            :repair-target rehearsal-repair-target
+                            :routine-retrieval-fact-ids (vec (sort rehearsal-retrieval-fact-ids))
+                            :routine-support-fact-ids (vec (sort rehearsal-precondition-ids))}})
         _ (when-not family-plan
             (throw (ex-info "Graffito miniworld expected rehearsal family plan to run"
                             {:cycle (:cycle world)
@@ -1359,8 +1456,14 @@
                  :dynamic-source-won? false
                  :cross-family-source-candidate-count (:cross-family-source-candidate-count
                                                        cross-family-race)
+                 :cross-family-rationalization-candidate-visible?
+                 (pos? (:cross-family-rationalization-candidate-count cross-family-race))
+                 :cross-family-reversal-candidate-visible?
+                 (pos? (:cross-family-reversal-candidate-count cross-family-race))
                  :cross-family-source-visible? (:cross-family-source-visible?
                                                 cross-family-race)
+                 :cross-family-source-family (:cross-family-source-family
+                                              cross-family-race)
                  :cross-family-source-episode-id (:cross-family-source-episode-id
                                                   cross-family-race)
                  :cross-family-source-won? (boolean (seq (:episode-use-records family-plan-result)))
@@ -1453,6 +1556,20 @@
         cross-family-source-win-cycles
         (count (filter :cross-family-source-won?
                        cycle-summaries))
+        cross-family-rationalization-candidate-cycles
+        (count (filter :cross-family-rationalization-candidate-visible?
+                       cycle-summaries))
+        cross-family-reversal-candidate-cycles
+        (count (filter :cross-family-reversal-candidate-visible?
+                       cycle-summaries))
+        cross-family-rationalization-win-cycles
+        (count (filter #(= :rationalization
+                           (:cross-family-source-family %))
+                       cycle-summaries))
+        cross-family-reversal-win-cycles
+        (count (filter #(= :reversal
+                           (:cross-family-source-family %))
+                       cycle-summaries))
         distinct-cross-family-source-episode-count
         (count (->> cycle-summaries
                     (keep :cross-family-source-episode-id)
@@ -1496,6 +1613,14 @@
      :dynamic-source-win-cycles dynamic-source-win-cycles
      :cross-family-source-candidate-cycles cross-family-source-candidate-cycles
      :cross-family-source-win-cycles cross-family-source-win-cycles
+     :cross-family-rationalization-candidate-cycles
+     cross-family-rationalization-candidate-cycles
+     :cross-family-reversal-candidate-cycles
+     cross-family-reversal-candidate-cycles
+     :cross-family-rationalization-win-cycles
+     cross-family-rationalization-win-cycles
+     :cross-family-reversal-win-cycles
+     cross-family-reversal-win-cycles
      :distinct-cross-family-source-episode-count
      distinct-cross-family-source-episode-count
      :dynamic-rationalization-candidate-cycles dynamic-rationalization-candidate-cycles

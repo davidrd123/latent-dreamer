@@ -87,8 +87,8 @@ Lane 2: Deep Build (kernel rule engine)            ← where the architecture li
   ├── Puppet Knows re-entry: 12-cycle clean, 50-cycle partial but mixed after pressure retune
   ├── Membrane assays: Assay A (dynamic entry + loop flag), Assay B (live promotion/frontier open)
   ├── Graffito slices: Slice 1 (typed retrieval), Slice 2 (character-state reappraisal), Slice 3 (rehearsal control reread)
-  ├── Graffito miniworld: autonomous 3-scene reread dynamics, kernel-owned rehearsal provenance/storage, two promoted cross-family paths, frontier-path access opening, longer laps stable but periodic
-  ├── Next Graffito family-ecology branch: benchmark-local `reversal -> rehearsal` with matched repair target, then further rehearsal trigger/activation kernelization
+  ├── Graffito miniworld: autonomous 3-scene reread dynamics, kernel-owned rehearsal provenance/storage, frontier-path opening, and two promoted cross-family consumer paths (`rationalization -> rehearsal`, `reversal -> rehearsal`)
+  ├── Next Graffito reusable seams: rehearsal motivation-strength / readiness, broader use-outcome tracking, and a generic post-effect reappraisal hook
   ├── First :llm-backed pilot as episode evaluator
   └── See build-order-checkpoint-2026-03-22.md
 
