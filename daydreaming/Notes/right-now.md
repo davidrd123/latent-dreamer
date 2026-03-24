@@ -20,8 +20,8 @@ Last updated: 2026-03-23
   alone for architectural progress.
 - Use the kernel-owned rehearsal seam as the reusable baseline:
   typed `:rehearsal-affordance`, trigger/activation, separate
-  `:motivation-strength`, and compressed rehearsal retrieval indices are
-  now real.
+  `:motivation-strength`, live rehearsal goal activation, and
+  compressed rehearsal retrieval indices are now real.
 
 ## Next After This
 

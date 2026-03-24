@@ -550,8 +550,10 @@ The first Graffito kernel slices now exist:
   - minimal kernel rehearsal trigger/activation is now in place too:
     the miniworld projects a typed `:rehearsal-affordance` fact, the
     kernel emits rehearsal trigger/activation candidates with separate
-    `:motivation-strength`, and the miniworld's 20/50-cycle summaries
-    still hold their prior family mix after that extraction
+    `:motivation-strength`, live rehearsal cycles now activate a real
+    rehearsal goal before `run-family-plan`, and the miniworld's 20/50
+    cycle summaries still hold their prior family mix after that
+    extraction
   - longer "parking lot laps" now clarify the dynamic picture:
     - at `50` cycles the miniworld stays non-collapsed
       (`:rationalization 25`, `:reversal 13`, `:rehearsal 12`) while

@@ -1332,25 +1332,35 @@
 
 (defn- activate-family-goal-from-trigger
   [world {:keys [goal-type situation-id emotion-id emotion-strength
+                 motivation-strength affordance-id
+                 routine-id operator-id
                  selection-policy selection-reasons activation-policy
                  activation-reasons context-id trigger-context-id old-context-id failed-goal-id
                  frame-id rule-provenance]}]
   (let [activation-context-id (or (:reality-lookahead world)
                                   (:reality-context world))
         trigger-context-id (or trigger-context-id old-context-id context-id)
+        goal-strength (double (or (when (= :rehearsal goal-type)
+                                    motivation-strength)
+                                  emotion-strength
+                                  0.0))
         [world goal-id]
         (goals/activate-top-level-goal
          world
          activation-context-id
          {:goal-type goal-type
           :planning-type :imaginary
-          :strength emotion-strength
+          :strength goal-strength
           :main-motiv emotion-id
           :situation-id situation-id
           :trigger-context-id trigger-context-id
           :trigger-failed-goal-id failed-goal-id
           :trigger-emotion-id emotion-id
           :trigger-emotion-strength emotion-strength
+          :trigger-motivation-strength motivation-strength
+          :trigger-affordance-id affordance-id
+          :trigger-routine-id routine-id
+          :trigger-operator-id operator-id
           :trigger-frame-id frame-id
           :activation-policy (or activation-policy selection-policy)
           :activation-reasons (or activation-reasons selection-reasons)})]
@@ -1364,6 +1374,10 @@
                   :failed-goal-id failed-goal-id
                   :emotion-id emotion-id
                   :emotion-strength emotion-strength
+                  :motivation-strength motivation-strength
+                  :affordance-id affordance-id
+                  :routine-id routine-id
+                  :operator-id operator-id
                   :frame-id frame-id
                   :activation-policy (or activation-policy selection-policy)
                   :activation-reasons (or activation-reasons selection-reasons)
@@ -1464,7 +1478,9 @@
 
 (defn- execute-rehearsal-candidate
   [world chosen-candidate top-candidates]
-  (let [tony-state-before (current-tony-state world)
+  (let [[world goal-id] (activate-family-goal-from-trigger world (:trigger chosen-candidate))
+        chosen-candidate (assoc chosen-candidate :goal-id goal-id)
+        tony-state-before (current-tony-state world)
         object-state-before (current-object-state world)
         appraisal-before (get-in world [:graffito-miniworld :mural-projection :appraisal-mode])
         regulation-before (get-in world [:graffito-miniworld :mural-projection :regulation-mode])
@@ -1478,12 +1494,9 @@
         [world family-plan]
         (families/run-family-plan
          world
-         {:goal-type :rehearsal
-          :goal-id rehearsal-routine-id
+         {:goal-id goal-id
           :context-id (apartment-context-id world)
           :trigger-context-id (apartment-context-id world)
-          :routine-id rehearsal-routine-id
-          :operator-id rehearsal-operator-id
           :precondition-ids (sort rehearsal-precondition-ids)
           :selection-reasons (:reasons chosen-candidate)
           :routine-fact-ids (sort rehearsal-retrieval-fact-ids)
@@ -1511,6 +1524,7 @@
                  :selected-situation-id (:situation-id chosen-candidate)
                  :selected-family :rehearsal
                  :operator-key (:operator-key chosen-candidate)
+                 :goal-id goal-id
                  :operator-id rehearsal-operator-id
                  :routine-id rehearsal-routine-id
                  :top-candidates (take 4 top-candidates)

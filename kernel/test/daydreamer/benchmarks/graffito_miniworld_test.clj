@@ -80,6 +80,34 @@
       (is (= 12 (count (get log "cycles"))))
       (is (= "graffito-miniworld" (get log "seed"))))))
 
+(deftest rehearsal-cycles-run-through-kernel-activation-goals
+  (let [{:keys [cycle-summaries log]} (mini/run-miniworld {:cycles 12})
+        rehearsal-cycle (first (filter #(= :rehearsal (:selected-family %))
+                                       cycle-summaries))
+        goal-id (:goal-id rehearsal-cycle)
+        log-cycle (nth (get log "cycles") (dec (:cycle rehearsal-cycle)))
+        selected-goal (get log-cycle "selected_goal")
+        selection (get log-cycle "selection")
+        rehearsal-candidate (first (filter #(= :rehearsal (:family %))
+                                           (:top-candidates rehearsal-cycle)))
+        trigger-motivation-strength (get-in rehearsal-candidate [:trigger :motivation-strength])]
+    (testing "live rehearsal execution now uses an activated rehearsal goal instead of calling the plan directly by routine id"
+      (is rehearsal-cycle)
+      (is goal-id)
+      (is (= "rehearsal" (get selected-goal "goal_type")))
+      (is (= (name goal-id)
+             (get selected-goal "id")))
+      (is (pos? (double (or trigger-motivation-strength 0.0))))
+      (is (< (Math/abs (- (double trigger-motivation-strength)
+                          (double (get selected-goal "strength"))))
+             1.0e-9))
+      (is (= (name goal-id)
+             (get selection "family_goal_id")))
+      (is (= "rt_counted_stroke_rehearsal"
+             (get selection "rehearsal_routine_id")))
+      (is (= "op_counted_stroke_with_sketchbook"
+             (get selection "rehearsal_operator_id"))))))
+
 (deftest twenty-cycle-miniworld-summary-stays-in-a-healthy-band
   (let [{:keys [run-summary]} (mini/run-miniworld {:cycles 20})
         family-counts (:family-counts run-summary)
