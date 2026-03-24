@@ -29,24 +29,32 @@ overrides it.
 Do not recover project state by guessing from scattered notes.
 Start from the control plane:
 
-1. `daydreaming/Notes/current-sprint.md`
+1. `daydreaming/Notes/right-now.md`
+   - short rewritable standing position
+   - what is proven
+   - what is current
+   - what is next
+   - what decision is live
+2. `daydreaming/Notes/current-sprint.md`
    - current objective
    - frozen recipe
    - current status
    - decision gate
-2. `daydreaming/Notes/executor-verifier-protocol.md`
+3. `daydreaming/Notes/executor-verifier-protocol.md`
    - executor / verifier workflow
    - milestone evidence requirements
    - escalation triggers
-3. `daydreaming/Notes/dashboard.md`
+4. `daydreaming/Notes/dashboard.md`
    - broader project map
    - parallel fronts
    - milestone execution vs verification state
-4. `daydreaming/Notes/canonical-map.md`
+5. `daydreaming/Notes/canonical-map.md`
    - where the important docs and code live
 
 Rules:
 
+- Treat `right-now.md` as the quick standing snapshot, not the sprint
+  contract.
 - Treat `current-sprint.md` as the authoritative source for the active
   sprint.
 - Treat `dashboard.md` as the broader map, not the sprint contract.

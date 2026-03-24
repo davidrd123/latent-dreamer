@@ -2,153 +2,315 @@
 
 Date: 2026-03-22
 
-How the Symbiotic-Vault design experiments and John's Membrane
-concept map onto the kernel architecture. These are structural
-connections, not surface analogies — the same control patterns
-appear in both systems.
+How John's Symbiotic-Vault experiments, especially THE_MEMBRANE and
+THE_COMPOST, connect to the kernel architecture.
+
+The strongest connection is not "the vault and the kernel are the
+same system." They are not. The connection is that the vault's
+interface experiments point toward the right human-facing surface
+for a conducted cognitive engine.
+
+So this note is careful about three things:
+
+- where the overlap is real
+- where the mapping is only partial
+- what this implies for current build order
 
 ---
 
-## THE_MEMBRANE → Conductor Interface
+## The strongest overlap: THE_MEMBRANE as conductor surface
 
-The Membrane experiment describes exactly the conductor's relationship
-to the kernel. The system surfaces offerings (dream scenes, reminding
-results, serendipity discoveries). The human interacts through typed
-gestures. The feedback loop shapes what gets surfaced next.
+THE_MEMBRANE is the clearest live connection.
 
-John's freeze/dismiss/respond/cut maps directly onto the kernel's
-concern economy:
+Its core idea is simple: the agent surfaces offerings in the margins
+of active work, and the human shapes future surfacing by how they
+curate those offerings. That maps well onto a conducted daydreaming
+surface over the kernel.
 
-| Membrane gesture | Kernel operation | What it does |
-|-----------------|-----------------|-------------|
-| **Freeze** | Boost concern strength | Pin this concern so it keeps winning the scheduler |
-| **Dismiss** | Accelerate decay | Let this concern fade without explicit termination |
-| **Respond** | Assert fact in reality context | Inject new information (conductor input via APC Mini) |
-| **Cut** | Terminate concern | Explicitly end this line of thought (Mueller's concern termination) |
+The important overlap is:
 
-This is the thin version of directed daydreaming implemented as
-a curation membrane over the kernel's control loop. The conductor
-doesn't choose what the system thinks — they shape the pressure
-landscape that the emotion-driven scheduler operates over.
+- the agent offers candidate material
+- the human does not author every next step directly
+- the interaction leaves structured signal
+- later surfacing changes because of that signal
 
-The Membrane's insight — "the surfacing sharpens because serendipity
-isn't randomness, it's relevance arriving unexpectedly" — is exactly
-the property the static connection graph preserves. The system
-surfaces structurally real but previously unnoticed paths. The
-conductor's freeze/dismiss pattern teaches it which surprises
-resonate.
+That is very close to the kernel's intended live relationship with a
+conductor.
 
----
+But the mapping should stay at the level of typed interaction, not
+at the level of literal state mutation.
 
-## THE_COMPOST → Anti-Residue and Consolidation
+| Membrane gesture | Best kernel reading | Important caveat |
+|-----------------|---------------------|------------------|
+| **Freeze** | mark an offered item as salient or persistent across cycles | not necessarily "boost concern strength" directly; could be a conductor pin, a scheduler hint, or a retained offering |
+| **Dismiss** | suppress or down-rank a surfaced item for the current context | not deletion, and not necessarily concern decay in the strict kernel sense |
+| **Respond** | emit a typed conductor event that the kernel can interpret and write back through policy | should not bypass the kernel by directly asserting arbitrary world facts |
+| **De-cide / cut** | prune a surfaced branch, candidate, or arrangement | may sometimes align with concern termination, but is not identical to it |
 
-The Compost experiment asks: "what does the pattern of neglect reveal?"
+So the right claim is:
 
-In the kernel, that's:
-- Which episodes were stored but never retrieved?
-- Which rules were on the frontier but never verified?
-- Which rationalizations were never reused cross-family?
-- Which reversal counterfactuals kept reopening but never improved planning?
+THE_MEMBRANE maps well onto the conductor interface for the kernel.
 
-The compost is the anti-residue system read as a diagnostic rather
-than just a maintenance operation. The Wald question applied to
-cognitive memory: armor the places where the planes DON'T come back.
+The wrong claim is:
 
-Concretely, the consolidation sweep (`consolidate-episodes`) could
-produce a "compost report" alongside its maintenance work:
-- What's stale (used 3+ times, never led to success)
-- What's never been reused (stored but invisible to retrieval)
-- What themes recur in the abandoned material
-- What the system keeps avoiding thinking about
+freeze/dismiss/respond/cut already have exact one-to-one kernel
+equivalents.
 
-That last point is creative signal, not just cleanup. If the
-neglected material has coherence that no active concern captures,
-that's a signal for a new concern — exactly the Compost's insight
-that "new frames are born from absence."
+They do not. They are a strong interaction vocabulary for the layer
+above the kernel.
 
 ---
 
-## Atoms → Episodes
+## What "respond" should mean
 
-| Vault concept | Kernel concept |
-|--------------|---------------|
-| Atom (single-concept note) | Episode (single experience with planning structure) |
-| Typed relations (wikilinks) | Typed indices (content cues, provenance, support) |
-| Frame (named perspective) | Daydreaming goal family (typed cognitive strategy) |
-| Tend (discover connections) | Reminding cascade (activate indices, retrieve more) |
-| Atomize (extract from journal) | Episode storage (decompose planning tree into fragments) |
-| Reflect (agent's daily reading) | The kernel's control cycle (what concerns are active?) |
+This is the most important correction to the earlier draft.
 
-The difference: vault atoms are prose objects with metadata. Kernel
-episodes are planning-tree fragments with structural indices and
-rule provenance. The vault finds connections through wikilinks and
-frame perspectives. The kernel finds connections through the rule
-connection graph and serendipity search.
+Respond should not mean:
 
-But the shape is the same: a growing body of typed material,
-traversed by multiple perspectives, where connections between
-items are the substrate for discovery.
+- "assert a fact directly into the reality context"
 
----
+That would make the membrane a bypass around the kernel's policy
+layer.
 
-## What this means for the vault
+Respond should mean:
 
-If the vault ever wanted a cognitive backbone — not just "surface
-connections" but "the agent develops persistent concerns, revisits
-unfinished business, surprises itself with serendipitous connections"
-— the kernel IS that backbone.
+- emit a typed conductor event
+- let the kernel interpret it
+- let writeback or control policy decide what persistent state
+  changes follow
 
-The vault's reflect/atomize/tend/frame-read skills are the surface.
-The kernel's control loop + episodic memory + reminding cascade +
-serendipity would be the engine underneath. The vault currently
-lacks:
-- Persistent concerns that compete for attention across sessions
-- Emotion-driven routing (which perspective dominates right now?)
-- Serendipity as graph-path discovery (not just wikilink traversal)
-- Typed admission discipline (which atoms earn durable influence?)
+In other words:
 
-The kernel provides all of these. Whether that integration makes
-sense depends on whether the vault wants to move from "the agent
-surfaces connections" to "the agent has its own developing inner
-relationship to the material."
+the membrane should produce structured input, not raw world
+mutation.
+
+That keeps the system honest. The conductor can shape the thinking,
+but the kernel still owns admission, memory, and downstream effects.
 
 ---
 
-## What this means for the kernel / Graffito
+## THE_COMPOST maps to diagnostics, not to anti-residue itself
 
-The conductor interface for the kernel should use the Membrane's
-vocabulary:
-- Freeze/dismiss/respond/cut as the primary interaction gestures
-- The APC Mini maps onto these (faders = concern pressure,
-  pads = freeze/dismiss/respond/cut)
-- The feedback loop is the writeback: interaction shapes what
-  the kernel retrieves and surfaces next
+THE_COMPOST also connects strongly, but in a different way.
 
-This is the product path for the thin version of directed
-daydreaming: brief constrains the situation space, Membrane
-gestures shape the concern pressure, the kernel's cognitive
-machinery (operators, reminding, serendipity) operates within
-those constraints.
+Its question is:
+
+what does the pattern of neglect reveal?
+
+That maps well onto a retrospective report over the kernel's memory
+ecology. It does not map one-to-one onto anti-residue flags.
+
+Anti-residue in the kernel is local operational policy:
+
+- `:backfired`
+- `:contradicted`
+- `:stale`
+- `:same-family-loop`
+
+THE_COMPOST is broader. It is a diagnostic reading of what failed to
+develop, what was passed over, or what never became active again.
+
+So the better mapping is:
+
+- anti-residue flags are one input to a compost report
+- consolidation is one place that could produce such a report
+- compost is the interpretive layer over neglected material
+
+Examples of what a kernel-side compost report could read:
+
+- episodes stored but never reused
+- episodes repeatedly reused but only with failed outcomes
+- frontier rules never opened
+- rules quarantined and never revisited
+- motifs or payload clusters that recur in abandoned material
+- concern families that repeatedly activate without producing
+  durable value
+
+That is useful both operationally and creatively. Operationally, it
+helps identify dead weight and blind spots. Creatively, it may show
+what this mind keeps circling without being able to use.
 
 ---
 
-## What this means for John
+## Atoms are not episodes
 
-John's Membrane design was proposed as a curation interface for
-generated content. It maps more precisely onto the kernel's
-concern economy than onto the generation pipeline. The
-freeze/dismiss/respond/cut gestures are control-theoretic
-operations on persistent cognitive state, not just content
-curation actions.
+This is another place where the earlier draft was too literal.
 
-A conversation with John could explore:
-- Does the Membrane vocabulary feel right for live conducted
-  performance (not just post-hoc curation)?
-- What's the difference between curating generated scenes and
-  conducting a cognitive system's attention?
-- How does the "de-cide" (cut away) gesture relate to concern
-  termination — is it the same thing, or does cutting have a
-  different quality than terminating?
-- The Compost as evaluation: John's VP experience with material
-  that "doesn't work" — is the pattern of what doesn't work
-  diagnostic in the same way the Compost suggests?
+Symbiotic-Vault atoms are distilled conceptual notes. They are
+already post-processed material with explicit relations and a human-
+readable identity.
+
+Kernel episodes are not that. They are traces, planning fragments,
+and remembered structures with cue indices, provenance, and
+admission policy.
+
+So:
+
+- atoms are not the same thing as episodes
+- atoms are closer to a future consolidated abstraction layer than to
+  raw episodic memory
+
+The real structural similarity is weaker but still meaningful:
+
+- both systems accumulate typed material over time
+- both need retrieval/surfacing discipline
+- both care about provenance
+- both can later discover useful relations across what has been
+  accumulated
+
+But the substrate is different:
+
+- vault atoms are conceptual objects in prose
+- kernel episodes are situated cognitive traces
+
+If the two systems ever meet, the likely bridge is not "atom =
+episode." It is that a kernel could eventually support a higher
+abstraction layer more like atoms.
+
+---
+
+## Frames are not goal families
+
+This is the cleanest correction.
+
+Frames in Symbiotic-Vault are reader-lenses. They are perspectives
+with concerns, vocabulary, and questions. They traverse the same
+material differently.
+
+Goal families in the kernel are not reader-lenses. They are
+operators:
+
+- `:roving`
+- `:rationalization`
+- `:reversal`
+- and so on
+
+Families have activation conditions, planning behavior, effect
+programs, and memory consequences. They do work.
+
+So the earlier "frame = family" mapping should be dropped.
+
+A better mapping is:
+
+- frames map more naturally to conductor lenses, evaluator
+  viewpoints, or briefing modes
+- goal families map to the cognitive strategies that act on shared
+  material
+
+This distinction matters because it preserves the kernel's current
+architecture instead of forcing vault concepts into the wrong slot.
+
+---
+
+## Where the structural rhyme is still real
+
+Even after those corrections, there is still a real family
+resemblance between the projects.
+
+Symbiotic-Vault has:
+
+- an accumulated body of typed material
+- provenance
+- selective surfacing
+- multiple lenses over shared material
+- experiments in how interaction shapes future surfacing
+
+The kernel is moving toward:
+
+- an accumulated body of typed cognitive material
+- provenance
+- selective retrieval and reminding
+- multiple operators acting on shared memory
+- a conducted interface whose feedback changes future cognition
+
+That is enough to say there is a genuine connection.
+
+The connection is not identity of components. It is compatibility of
+design direction.
+
+---
+
+## What this implies for product direction
+
+The Membrane vocabulary is useful for the kernel's live interface.
+
+If there is a thin conducted-daydreaming surface, it should probably
+look more like:
+
+- freeze
+- dismiss
+- respond
+- cut
+
+than like a dashboard full of internal kernel nouns.
+
+That does not mean the kernel itself should be reorganized around
+Membrane concepts. It means the conductor surface should translate
+Membrane-like gestures into typed kernel events.
+
+That is the product path:
+
+- the kernel owns cognition
+- the membrane owns interaction
+- the conductor shapes pressure and surfacing without becoming a
+  freeform world mutator
+
+For Graffito or similar live work, this is promising because it
+offers a vocabulary a performer can actually use while the kernel
+remains structurally disciplined underneath.
+
+---
+
+## What this implies for build order
+
+This connection is real, but it does not change the immediate build
+order.
+
+If anything, it reinforces the current sequencing:
+
+1. finish Step 1 properly with episode use and attributed outcomes
+2. keep Step 2 honest at the rules/executor seam
+3. only then build a membrane layer that writes meaningful signal
+   back into the system
+
+Why:
+
+freeze/dismiss/respond/cut only become interesting if they can leave
+good evidence behind. Without the memory membrane, the interaction
+layer becomes expressive UI without trustworthy downstream effect.
+
+So Symbiotic-Vault is best read here as:
+
+- a strong clue about interface and collaboration design
+- a weaker clue about internal ontology
+- not a reason to skip the current memory-ecology hardening work
+
+---
+
+## What this means for a conversation with John
+
+The most promising conversation is not "our systems are the same."
+
+It is:
+
+- your Membrane vocabulary looks like the right human-facing control
+  surface for a conducted cognitive engine
+- the kernel could provide the persistent inner machinery that makes
+  those gestures accumulate consequences across sessions
+- THE_COMPOST suggests a reflective diagnostic layer over neglected
+  material that the kernel should probably eventually have
+
+Good questions for that conversation:
+
+- Does freeze/dismiss/respond/de-cide still feel right when the thing
+  being shaped is not a note-surfacing agent but a persistent
+  cognitive process?
+- Should freeze pin an offering, increase pressure, or both?
+- Is de-cide closer to pruning a surface arrangement or to ending a
+  live concern?
+- What kind of feedback trace should the membrane write so that later
+  surfacing becomes sharper without becoming manipulative?
+- Could compost become a shared diagnostic mode for both a vault and
+  a cognitive engine?
+
+That is the real overlap.

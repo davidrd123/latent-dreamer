@@ -3,7 +3,7 @@
 The documents that matter right now, plus where everything else
 lives. Read this when starting a session or switching tracks.
 
-Last updated: 2026-03-22
+Last updated: 2026-03-23
 
 ---
 
@@ -11,6 +11,7 @@ Last updated: 2026-03-22
 
 | Doc | What it does |
 |-----|-------------|
+| [right-now.md](right-now.md) | Short rewritable standing position: what works, what is current, what is next, what decision is live |
 | [dashboard.md](dashboard.md) | Project status, architecture overview, parallel tracks |
 | [current-sprint.md](current-sprint.md) | Current objective, gates, immediate tasks |
 | [executor / verifier protocol](executor-verifier-protocol.md) | Milestone-based autonomy with independent verification |
@@ -52,6 +53,14 @@ Last updated: 2026-03-22
 | [feedback comparison](runtime-thought-feedback-comparison.md) | Gate 2 result: writeback diverges traces (Haiku, Sonnet, hybrid) |
 | [GradMem ref](DeepResearch/2026-03-21/refs/GradMem.md) | Gradient-based memory writes — relevance to residue optimization |
 | [5 Pro prompts](Book/daydreaming-in-humans-and-machines/condensation/5pro-visioning-prompt-v2.md) | Visioning prompt (novelty, serendipity, provenance, emotion, accumulation) |
+
+---
+
+## Alignment / Strategy
+
+| Doc | What it covers |
+|-----|---------------|
+| [interest map](interest-map-2026-03-23.md) | How the current kernel branch serves the broader goals: daemon / thinking-partner vision, situated research lens, teammate-facing surfaces, and external proof gaps |
 
 ---
 
