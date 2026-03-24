@@ -577,7 +577,7 @@ but still in the mechanistic frame:
 - do not jump straight to creative-output evaluation yet
 
 See the 5 Pro research sift at
-`condensation/research-sift-cold-start-and-situation-model.md` for
+`condensation/research-sifts/research-sift-cold-start-and-situation-model.md` for
 the outside-knowledge foundation.
 
 ### Deferred parallel fronts

@@ -165,7 +165,7 @@ directions have been researched."
 | `condensation/goal-families-migration-analysis.md` | Three layers, four phases |
 | `condensation/mueller-to-kernel-mapping.md` | What Mueller had, what we collapsed |
 | `condensation/kernel-rule-schema-and-execution-model.md` | RuleV1 with worked examples (updated) |
-| `condensation/research-sift-memory-ecology-and-beyond.md` | Batch sift of all reviews |
+| `condensation/research-sifts/research-sift-memory-ecology-and-beyond.md` | Batch sift of all reviews |
 | `condensation/5pro-visioning-prompt-v2.md` | Merged visioning prompt |
 | `condensation/5pro-architecture-prompt.md` | Architecture review prompt |
 | `condensation/5pro-implementation-prompt.md` | Implementation review prompt |
@@ -303,7 +303,7 @@ the generation-pipeline architecture. Current status against kernel-first:
 If compacted, read in this order:
 1. `sessions/session-2026-03-22-condensation-and-architecture.md` (this file)
 2. `condensation/build-order-checkpoint-2026-03-22.md` (settled build sequence)
-3. `condensation/research-sift-memory-ecology-and-beyond.md` (all research findings)
+3. `condensation/research-sifts/research-sift-memory-ecology-and-beyond.md` (all research findings)
 4. `condensation/architectural-framing.md` (our point of view)
 5. `Notes/dashboard.md` (current project status)
 6. `Notes/canonical-map.md` (where everything lives)

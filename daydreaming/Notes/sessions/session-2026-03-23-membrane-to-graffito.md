@@ -160,8 +160,8 @@ revised to reflect this.
 
 | Document | What |
 |----------|------|
-| `condensation/research-sift-cold-start-and-situation-model.md` | Sift of prompts 19 replies |
-| `condensation/research-sift-graffito-situation-model.md` | Sift of prompt 20 replies (updated 3x) |
+| `condensation/research-sifts/research-sift-cold-start-and-situation-model.md` | Sift of prompts 19 replies |
+| `condensation/research-sifts/research-sift-graffito-situation-model.md` | Sift of prompt 20 replies (updated 3x) |
 | `daydreaming/Notes/membrane-fixture-spec.md` | Assay A spec (updated with ladder) |
 | `DeepResearch/prompts/19-cold-start-and-admission-comparison.md` | 5 Pro prompt |
 | `DeepResearch/prompts/20-graffito-situation-model.md` | 5 Pro prompt |
@@ -200,7 +200,7 @@ If compacted, read in this order:
 
 1. This session log
 2. `daydreaming/Notes/current-sprint.md` (evaluation framing + benchmark ladder)
-3. `condensation/research-sift-graffito-situation-model.md` (all Graffito research findings)
-4. `condensation/research-sift-cold-start-and-situation-model.md` (membrane research findings)
+3. `condensation/research-sifts/research-sift-graffito-situation-model.md` (all Graffito research findings)
+4. `condensation/research-sifts/research-sift-cold-start-and-situation-model.md` (membrane research findings)
 5. `experiential-design/24-graffito-kernel-brief.md` (kernel-facing Graffito brief)
 6. `daydreaming/Notes/dashboard.md` (current project status)
