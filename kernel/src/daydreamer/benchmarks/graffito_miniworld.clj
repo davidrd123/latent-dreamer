@@ -12,6 +12,7 @@
             [daydreamer.context :as cx]
             [daydreamer.episodic-memory :as episodic]
             [daydreamer.goal-families :as families]
+            [daydreamer.goal-family-rules :as gf-rules]
             [daydreamer.goals :as goals]
             [daydreamer.rules :as rules]
             [daydreamer.runner :as runner]
@@ -309,6 +310,14 @@
           world
           facts))
 
+(defn- retract-facts-by-type
+  [world context-id fact-type]
+  (reduce (fn [current-world fact]
+            (cx/retract-fact current-world context-id fact))
+          world
+          (filter #(= fact-type (:fact/type %))
+                  (cx/visible-facts world context-id))))
+
 (defn- assert-facts
   [world context-id facts]
   (reduce (fn [current-world fact]
@@ -333,6 +342,9 @@
                              (double delta)))))
               tony-state
               deltas)))
+
+(declare apartment-context-id)
+(declare rehearsal-routine-ready?)
 
 (defn- decay-tony-state
   [tony-state]
@@ -452,6 +464,67 @@
                :tony-state tony-state
                :object-state (current-object-state world)})))
 
+(defn- rehearsal-motivation-strength
+  [world]
+  (let [tony-state (current-tony-state world)
+        situations (current-situations-state world)
+        regulation-mode (derive-regulation-mode tony-state)
+        agency (:felt-agency tony-state)
+        entrainment (:entrainment tony-state)
+        control (:perceived-control tony-state)
+        control-deficit (- 1.0 control)
+        agency-deficit (- 1.0 agency)
+        apartment (get situations apartment-situation-id)]
+    (clamp01
+     (+ (* 0.28 control-deficit)
+        (* 0.18 agency-deficit)
+        (* 0.14 entrainment)
+        (* 0.10 (:ripeness apartment))
+        (if (rehearsal-routine-ready? world) 0.18 0.0)
+        (if (>= agency 0.4) 0.18 0.0)
+        (if (contains? #{:bracing :entraining} regulation-mode) 0.14 0.0)
+        (if (>= control 0.72) -0.18 0.0)
+        (if (= regulation-mode :creating) -0.22 0.0)))))
+
+(defn- project-rehearsal-affordance
+  [world]
+  (let [context-id (apartment-context-id world)
+        ready? (rehearsal-routine-ready? world)
+        motivation-strength (rehearsal-motivation-strength world)
+        selection-reasons (cond-> [:support_need
+                                   :rhythm_routine
+                                   :control_repair
+                                   :rehearsal_affordance]
+                            (>= motivation-strength gf-rules/rehearsal-motivation-threshold)
+                            (conj :motivation_above_threshold))
+        affordance-fact {:fact/type :rehearsal-affordance
+                         :fact/id rehearsal-routine-id
+                         :goal-id apartment-goal-id
+                         :routine-id rehearsal-routine-id
+                         :operator-id rehearsal-operator-id
+                         :motivation-strength motivation-strength
+                         :selection-policy gf-rules/rehearsal-affordance-policy
+                         :selection-reasons selection-reasons
+                         :situation-id apartment-situation-id
+                         :repair-target rehearsal-repair-target}
+        world (retract-facts-by-type world context-id :rehearsal-affordance)
+        world (cond-> world
+                ready?
+                (assert-facts context-id [affordance-fact]))]
+    (assoc-in world
+              [:graffito-miniworld :rehearsal-affordance]
+              {:ready? ready?
+               :motivation-strength motivation-strength
+               :selection-policy gf-rules/rehearsal-affordance-policy
+               :selection-reasons selection-reasons
+               :repair-target rehearsal-repair-target})))
+
+(defn- project-graffito-state
+  [world]
+  (-> world
+      project-mural-appraisal
+      project-rehearsal-affordance))
+
 (defn- street-reversal-facts
   [context-id]
   [{:fact/type :situation
@@ -539,7 +612,7 @@
                       :rehearsal-routine {:routine-id rehearsal-routine-id
                                           :operator-id rehearsal-operator-id
                                           :precondition-ids (sort rehearsal-precondition-ids)}})]
-    (project-mural-appraisal world)))
+    (project-graffito-state world)))
 
 (defn- rebuild-world-with-state
   [world]
@@ -587,7 +660,7 @@
                world
                pending-context-facts)
         world (assoc-in world [:graffito-miniworld :pending-context-facts] {})]
-    (project-mural-appraisal world)))
+    (project-graffito-state world)))
 
 (defn- reset-cycle-events
   [world]
@@ -943,6 +1016,7 @@
   "Compute autonomous miniworld candidates from live goals and Tony state."
   [world]
   (let [reversal-triggers (families/reversal-activation-candidates world)
+        rehearsal-triggers (families/rehearsal-activation-candidates world)
         rationalization-triggers (families/rationalization-activation-candidates world)
         trigger-context-id (fn [trigger]
                              (or (:old-context-id trigger)
@@ -963,6 +1037,13 @@
                                  (trigger-context-id %)))
                      first)
                 (assoc :goal-type :rationalization))
+        apartment-rehearsal-trigger
+        (some-> (->> rehearsal-triggers
+                     (filter #(= (apartment-context-id world)
+                                 (or (:trigger-context-id %)
+                                     (:context-id %))))
+                     first)
+                (assoc :goal-type :rehearsal))
         regular-mural-rationalization-trigger
         (some-> (->> rationalization-triggers
                      (filter #(= (mural-context-id world)
@@ -980,7 +1061,6 @@
         regulation-mode (derive-regulation-mode tony-state)
         appraisal-mode (get-in world [:graffito-miniworld :mural-projection :appraisal-mode])
         load (:sensory-load tony-state)
-        entrainment (:entrainment tony-state)
         agency (:felt-agency tony-state)
         control (:perceived-control tony-state)
         control-deficit (- 1.0 control)
@@ -1027,23 +1107,20 @@
                             0.0))
              :reasons [:support_need :meaning_repair :family_repair]}))
 
-          (rehearsal-routine-ready? world)
+          apartment-rehearsal-trigger
           (conj
            (candidate
             {:kind :routine
              :situation-id apartment-situation-id
              :family :rehearsal
              :operator-key :apartment-rehearsal
-             :operator-id rehearsal-operator-id
+             :operator-id (:operator-id apartment-rehearsal-trigger)
+             :trigger apartment-rehearsal-trigger
              :strength (+ (* 0.30 (:activation apartment))
                           (* 0.12 (:ripeness apartment))
-                          (* 0.16 control-deficit)
-                          (* 0.12 entrainment)
-                          (if (>= agency 0.4) 0.16 0.0)
-                          (if (contains? #{:bracing :entraining} regulation-mode) 0.12 0.0)
-                          (if (>= control 0.72) -0.22 0.0)
-                          (if (= regulation-mode :creating) -0.22 0.0))
-             :reasons [:support_need :rhythm_routine :control_repair]}))
+                          (* 0.58 (double (or (:motivation-strength apartment-rehearsal-trigger)
+                                              0.0))))
+             :reasons (vec (:selection-reasons apartment-rehearsal-trigger))}))
 
           (and (= :threat-dominant appraisal-mode)
                mural-reversal-trigger)
@@ -1313,7 +1390,7 @@
                   (update-tony-and-object-state (:operator-key chosen-candidate))
                   (advance-situations (:operator-key chosen-candidate))
                   (update-recent-choices chosen-candidate)
-                  project-mural-appraisal)
+                  project-graffito-state)
         appraisal-after (get-in world [:graffito-miniworld :mural-projection :appraisal-mode])
         regulation-after (get-in world [:graffito-miniworld :mural-projection :regulation-mode])
         family-plan-episode-id (get-in family-plan [:selection :family_plan_episode_id])
@@ -1397,7 +1474,7 @@
                   (update-tony-and-object-state (:operator-key chosen-candidate))
                   (advance-situations (:operator-key chosen-candidate))
                   (update-recent-choices chosen-candidate)
-                  project-mural-appraisal)
+                  project-graffito-state)
         [world family-plan]
         (families/run-family-plan
          world

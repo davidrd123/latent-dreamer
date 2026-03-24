@@ -547,6 +547,11 @@ The first Graffito kernel slices now exist:
     which of the remaining rehearsal-specific outer-loop pieces are now
     clearly reusable kernel seams instead of more benchmark-local
     ecology glue
+  - minimal kernel rehearsal trigger/activation is now in place too:
+    the miniworld projects a typed `:rehearsal-affordance` fact, the
+    kernel emits rehearsal trigger/activation candidates with separate
+    `:motivation-strength`, and the miniworld's 20/50-cycle summaries
+    still hold their prior family mix after that extraction
   - longer "parking lot laps" now clarify the dynamic picture:
     - at `50` cycles the miniworld stays non-collapsed
       (`:rationalization 25`, `:reversal 13`, `:rehearsal 12`) while
@@ -572,16 +577,12 @@ but still in the mechanistic frame:
 - treat the current `reversal -> rehearsal` bridge as the last major
   benchmark-local rehearsal addition unless a new concrete leak appears
 - use the new kernel-owned rehearsal seam as the reusable baseline for
-  the next move: rehearsal trigger/readiness, separate rehearsal
-  `:motivation-strength`, and a generic post-effect reappraisal hook
-  are now better kernel candidates than more miniworld-specific bridge
-  design
+  the next move: broader use/outcome tracking, a generic post-effect
+  reappraisal hook, and whatever additional family ecology the longer
+  runs still expose after rehearsal trigger/activation moved inward
 - keep full rehearsal routine content in payload/support metadata, but
   continue using compressed rehearsal `:retrieval-indices` as the
   portable default
-- when rehearsal activation gets kernelized further, keep a separate
-  rehearsal `:motivation-strength` path rather than pretending
-  rehearsal intensity is just raw `:emotion-strength`
 - if another family pairing is needed later, choose it from observed
   need after those reusable seams land rather than inventing another
   benchmark-local path first

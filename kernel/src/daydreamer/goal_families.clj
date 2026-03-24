@@ -488,6 +488,8 @@
        (sort-by (juxt (fn [candidate]
                         (- (double (or (:emotion-strength candidate) 0.0))))
                       (fn [candidate]
+                        (- (double (or (:motivation-strength candidate) 0.0))))
+                      (fn [candidate]
                         (- (double (or (:frame-priority candidate) 0.0))))
                       (fn [candidate]
                         (- (double (or (:frame-count candidate) 0.0))))
@@ -692,6 +694,8 @@
   [world]
   (first (reversal-leaf-candidates world)))
 
+(declare rehearsal-trigger-facts)
+
 (defn reversal-activation-candidates
   "Find failed-goal / negative-emotion pairs strong enough to activate
   REVERSAL."
@@ -699,6 +703,14 @@
   (activation-candidates-for-goal-type world
                                        :reversal
                                        (reversal-trigger-facts world)))
+
+(defn rehearsal-activation-candidates
+  "Find failed-goal / regulation-need pairs strong enough to activate
+  REHEARSAL."
+  [world]
+  (activation-candidates-for-goal-type world
+                                       :rehearsal
+                                       (rehearsal-trigger-facts world)))
 
 (defn- reversal-trigger-facts
   [world]
@@ -1187,6 +1199,31 @@
                    '?frame-count frame-count
                    '?situation-id situation-id}))
 
+(defn- instantiate-rehearsal-trigger
+  [context-id
+   failed-goal-id
+   emotion-id
+   emotion-strength
+   motivation-strength
+   affordance-id
+   routine-id
+   operator-id
+   selection-policy
+   selection-reasons
+   situation-id]
+  (emit-rule-fact gf-rules/rehearsal-trigger-rule
+                  {'?context-id context-id
+                   '?failed-goal-id failed-goal-id
+                   '?emotion-id emotion-id
+                   '?emotion-strength emotion-strength
+                   '?motivation-strength motivation-strength
+                   '?affordance-id affordance-id
+                   '?routine-id routine-id
+                   '?operator-id operator-id
+                   '?selection-policy selection-policy
+                   '?selection-reasons selection-reasons
+                   '?situation-id situation-id}))
+
 (defn- instantiate-roving-trigger
   [context-id failed-goal-id emotion-id emotion-strength]
   (emit-rule-fact gf-rules/roving-trigger-rule
@@ -1256,6 +1293,45 @@
                       (comp str :selection-policy)))
        vec))
 
+(defn- rehearsal-trigger-facts
+  [world]
+  (->> (keys (:contexts world))
+       (mapcat (fn [context-id]
+                 (let [facts (cx/visible-facts world context-id)]
+                   (->> (rules/match-rule gf-rules/rehearsal-trigger-rule
+                                          facts
+                                          {'?context-id context-id})
+                        (keep (fn [{:keys [bindings matched-facts]}]
+                                (let [emotion-fact (second matched-facts)
+                                      emotion-strength (double
+                                                        (or ('?emotion-strength bindings)
+                                                            0.0))
+                                      motivation-strength (double
+                                                           (or ('?motivation-strength bindings)
+                                                               0.0))]
+                                  (when (and (negative-emotion-fact? emotion-fact)
+                                             (> motivation-strength
+                                                gf-rules/rehearsal-motivation-threshold))
+                                    (instantiate-rehearsal-trigger
+                                     context-id
+                                     ('?failed-goal-id bindings)
+                                     ('?emotion-id bindings)
+                                     emotion-strength
+                                     motivation-strength
+                                     ('?affordance-id bindings)
+                                     ('?routine-id bindings)
+                                     ('?operator-id bindings)
+                                     ('?selection-policy bindings)
+                                     ('?selection-reasons bindings)
+                                     ('?situation-id bindings))))))
+                        vec))))
+       (sort-by (juxt (comp - :motivation-strength)
+                      (comp - :emotion-strength)
+                      (comp str :trigger-context-id)
+                      (comp str :failed-goal-id)
+                      (comp str :routine-id)))
+       vec))
+
 (defn roving-activation-candidates
   "Find failed-goal / negative-emotion pairs that can activate ROVING."
   [world]
@@ -1282,10 +1358,11 @@
   (vec (concat (reversal-trigger-facts world)
                (rationalization-trigger-facts world)
                (cross-family-trigger-facts world)
+               (rehearsal-trigger-facts world)
                (roving-trigger-facts world))))
 
 (def ^:private trigger-dispatch-goal-types
-  [:reversal :rationalization :roving])
+  [:reversal :rationalization :roving :rehearsal])
 
 (defn- trigger-dispatch-candidates
   [world]
@@ -1311,11 +1388,17 @@
         candidates (trigger-dispatch-candidates world)]
     (reduce
      (fn [current-world {:keys [goal-type situation-id emotion-id emotion-strength
+                                motivation-strength affordance-id
+                                routine-id operator-id
                                 selection-policy selection-reasons
                                 activation-policy activation-reasons
                                 context-id old-context-id failed-goal-id
                                 frame-id rule-provenance]}]
-       (let [trigger-context-id (or old-context-id context-id)]
+       (let [trigger-context-id (or old-context-id context-id)
+             goal-strength (double (or (when (= :rehearsal goal-type)
+                                         motivation-strength)
+                                       emotion-strength
+                                       0.0))]
          (if (existing-family-goal? current-world
                                     goal-type
                                     trigger-context-id
@@ -1327,13 +1410,17 @@
                   activation-context-id
                   {:goal-type goal-type
                    :planning-type :imaginary
-                   :strength emotion-strength
+                   :strength goal-strength
                    :main-motiv emotion-id
                    :situation-id situation-id
                    :trigger-context-id trigger-context-id
                    :trigger-failed-goal-id failed-goal-id
                    :trigger-emotion-id emotion-id
                    :trigger-emotion-strength emotion-strength
+                   :trigger-motivation-strength motivation-strength
+                   :trigger-affordance-id affordance-id
+                   :trigger-routine-id routine-id
+                   :trigger-operator-id operator-id
                    :trigger-frame-id frame-id
                    :activation-policy (or activation-policy selection-policy)
                    :activation-reasons (or activation-reasons selection-reasons)})]
@@ -1347,6 +1434,10 @@
                           :failed-goal-id failed-goal-id
                           :emotion-id emotion-id
                           :emotion-strength emotion-strength
+                          :motivation-strength motivation-strength
+                          :affordance-id affordance-id
+                          :routine-id routine-id
+                          :operator-id operator-id
                           :frame-id frame-id
                           :activation-policy (or activation-policy selection-policy)
                           :activation-reasons (or activation-reasons selection-reasons)
@@ -1780,6 +1871,8 @@
                                            (:bindings match)))))
        vec))
 
+(declare default-plan-context)
+
 (defn- roving-plan-ready-facts
   [world {:keys [goal-id context-id ordering]
           :or {ordering 1.0}
@@ -1807,9 +1900,36 @@
                  trigger-context-id
                  routine-id
                  operator-id
+                 failed-goal-id
+                 emotion-id
+                 emotion-strength
+                 motivation-strength
                  ordering]
           :or {ordering 1.0}}]
-  (let [goal-id (or goal-id routine-id)]
+  (let [goal-id (or goal-id routine-id)
+        goal (get-in world [:goals goal-id])
+        context-id (or context-id
+                       (default-plan-context world goal-id))
+        trigger-context-id (or trigger-context-id
+                               (:trigger-context-id goal)
+                               context-id)
+        routine-id (or routine-id
+                       (:trigger-routine-id goal)
+                       goal-id)
+        operator-id (or operator-id
+                        (:trigger-operator-id goal))
+        failed-goal-id (or failed-goal-id
+                           (:trigger-failed-goal-id goal))
+        emotion-id (or emotion-id
+                       (:trigger-emotion-id goal)
+                       (:main-motiv goal))
+        emotion-strength (double (or emotion-strength
+                                     (:trigger-emotion-strength goal)
+                                     (:strength goal)
+                                     0.0))
+        motivation-strength (double (or motivation-strength
+                                        (:trigger-motivation-strength goal)
+                                        emotion-strength))]
     (when (and goal-id
                context-id
                routine-id
@@ -1818,7 +1938,11 @@
         :goal-type :rehearsal
         :goal-id goal-id
         :context-id context-id
-        :trigger-context-id (or trigger-context-id context-id)
+        :trigger-context-id trigger-context-id
+        :failed-goal-id failed-goal-id
+        :emotion-id emotion-id
+        :emotion-strength emotion-strength
+        :motivation-strength motivation-strength
         :routine-id routine-id
         :operator-id operator-id
         :ordering ordering

@@ -1147,6 +1147,54 @@
     (is (= []
            (get-in family-plan [:result :episode-source-rule-access-transitions])))))
 
+(deftest rehearsal-activation-candidates-require-affordance-and-motivation
+  (let [[world root-id] (world-with-root)
+        [world context-id] (cx/sprout world root-id)
+        facts [{:fact/type :emotion
+                :emotion-id :e-shame
+                :strength 0.79
+                :valence :negative
+                :affect :shame}
+               {:fact/type :dependency
+                :from-id :e-shame
+                :to-id :g-repair}
+               (goal-fact :g-repair
+                          :g-repair
+                          :failed
+                          context-id)
+               {:fact/type :rehearsal-affordance
+                :fact/id :rt-counted-stroke
+                :goal-id :g-repair
+                :routine-id :rt-counted-stroke
+                :operator-id :op-counted-stroke
+                :motivation-strength 0.72
+                :selection-policy :regulation_need_affordance
+                :selection-reasons [:support_need
+                                    :rhythm_routine
+                                    :control_repair
+                                    :rehearsal_affordance]
+                :situation-id :graffito_grandma_apartment}]
+        world (reduce (fn [current-world fact]
+                        (cx/assert-fact current-world context-id fact))
+                      world
+                      facts)
+        candidate (first (families/rehearsal-activation-candidates world))]
+    (testing "kernel rehearsal activation now follows failed-goal plus affordance rather than benchmark-local routine glue"
+      (is candidate)
+      (is (= context-id (:context-id candidate)))
+      (is (= :g-repair (:failed-goal-id candidate)))
+      (is (= :e-shame (:emotion-id candidate)))
+      (is (= 0.79 (:emotion-strength candidate)))
+      (is (= 0.72 (:motivation-strength candidate)))
+      (is (= :rt-counted-stroke (:routine-id candidate)))
+      (is (= :op-counted-stroke (:operator-id candidate)))
+      (is (= :regulation_need_affordance (:selection-policy candidate)))
+      (is (= [:support_need
+              :rhythm_routine
+              :control_repair
+              :rehearsal_affordance]
+             (:selection-reasons candidate))))))
+
 (deftest stored-roving-family-plan-episode-is-retrievable-by-structure
   (let [[world root-id] (world-with-root)
         [world pleasant-episode-id]
@@ -2746,7 +2794,9 @@
              :goal-family/rationalization-trigger
              :goal-family/rationalization-activation
              :goal-family/reversal-trigger
-             :goal-family/reversal-activation}
+             :goal-family/reversal-activation
+             :goal-family/rehearsal-trigger
+             :goal-family/rehearsal-activation}
            (set (keys rules-by-id))))
     (is (= [{:from-rule :goal-family/rationalization-trigger
              :to-rule :goal-family/rationalization-activation
@@ -2789,6 +2839,48 @@
                             :situation-id
                             :selection-policy
                             :selection-reasons}
+             :edge-kind :state-transition}
+            {:from-rule :goal-family/rehearsal-trigger
+             :to-rule :goal-family/rehearsal-activation
+             :from-projection {:fact/type :goal-family-trigger
+                               :goal-type :rehearsal
+                               :trigger-context-id '?context-id
+                               :failed-goal-id '?failed-goal-id
+                               :emotion-id '?emotion-id
+                               :emotion-strength '?emotion-strength
+                               :motivation-strength '?motivation-strength
+                               :affordance-id '?affordance-id
+                               :routine-id '?routine-id
+                               :operator-id '?operator-id
+                               :selection-policy '?selection-policy
+                               :selection-reasons '?selection-reasons
+                               :situation-id '?situation-id}
+             :to-projection {:fact/type :goal-family-trigger
+                             :goal-type :rehearsal
+                             :trigger-context-id '?context-id
+                             :failed-goal-id '?failed-goal-id
+                             :emotion-id '?emotion-id
+                             :emotion-strength '?emotion-strength
+                             :motivation-strength '?motivation-strength
+                             :affordance-id '?affordance-id
+                             :routine-id '?routine-id
+                             :operator-id '?operator-id
+                             :selection-policy '?selection-policy
+                             :selection-reasons '?selection-reasons
+                             :situation-id '?situation-id}
+             :bindings {}
+             :shared-keys #{:goal-type
+                            :trigger-context-id
+                            :failed-goal-id
+                            :emotion-id
+                            :emotion-strength
+                            :motivation-strength
+                            :affordance-id
+                            :routine-id
+                            :operator-id
+                            :selection-policy
+                            :selection-reasons
+                            :situation-id}
              :edge-kind :state-transition}
             {:from-rule :goal-family/reversal-trigger
              :to-rule :goal-family/reversal-activation
@@ -2886,6 +2978,18 @@
     (is (= 1
            (count (get-in rules-by-id
                           [:goal-family/rationalization-activation :graph-cache :out-edge-bases]))))
+    (is (= 4
+           (count (get-in rules-by-id
+                          [:goal-family/rehearsal-trigger :graph-cache :in-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/rehearsal-trigger :graph-cache :out-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/rehearsal-activation :graph-cache :in-edge-bases]))))
+    (is (= 1
+           (count (get-in rules-by-id
+                          [:goal-family/rehearsal-activation :graph-cache :out-edge-bases]))))
     (is (= 2
            (count (get-in rules-by-id
                           [:goal-family/reversal-trigger :graph-cache :in-edge-bases]))))

@@ -35,6 +35,9 @@
 (def reversal-emotion-threshold
   0.5)
 
+(def rehearsal-motivation-threshold
+  0.45)
+
 (def roving-plan-policy
   :pleasant_episode_seed)
 
@@ -46,6 +49,9 @@
 
 (def rehearsal-plan-policy
   :authored_rehearsal_routine)
+
+(def rehearsal-affordance-policy
+  :regulation_need_affordance)
 
 (def rationalization-diversion-policy
   :divert_emot_to_tlg_bridge)
@@ -812,6 +818,109 @@
                  :partial
                  "Third extracted RuleV1 slice from goal_families activation logic.")}))
 
+(def rehearsal-trigger-rule
+  (inference-rule
+   {:id :goal-family/rehearsal-trigger
+    :antecedent [{:fact/type :goal
+                  :goal-id '?failed-goal-id
+                  :top-level-goal '?failed-goal-id
+                  :status :failed
+                  :activation-context '?context-id}
+                 {:fact/type :emotion
+                  :emotion-id '?emotion-id
+                  :strength '?emotion-strength}
+                 {:fact/type :dependency
+                  :from-id '?emotion-id
+                  :to-id '?failed-goal-id}
+                 {:fact/type :rehearsal-affordance
+                  :fact/id '?affordance-id
+                  :goal-id '?failed-goal-id
+                  :routine-id '?routine-id
+                  :operator-id '?operator-id
+                  :motivation-strength '?motivation-strength
+                  :selection-policy '?selection-policy
+                  :selection-reasons '?selection-reasons
+                  :situation-id '?situation-id}]
+    :consequent [{:fact/type :goal-family-trigger
+                  :goal-type :rehearsal
+                  :trigger-context-id '?context-id
+                  :failed-goal-id '?failed-goal-id
+                  :emotion-id '?emotion-id
+                  :emotion-strength '?emotion-strength
+                  :motivation-strength '?motivation-strength
+                  :affordance-id '?affordance-id
+                  :routine-id '?routine-id
+                  :operator-id '?operator-id
+                  :selection-policy '?selection-policy
+                  :selection-reasons '?selection-reasons
+                  :situation-id '?situation-id}]
+    :plausibility rehearsal-motivation-threshold
+    :denotation (denotation :emit-rehearsal-goal-family-trigger
+                            [:motivation-below-threshold
+                             :missing-negative-emotion
+                             :missing-dependency-link
+                             :missing-rehearsal-affordance])
+    :executor-spec {:motivation-threshold rehearsal-motivation-threshold
+                    :requires-negative-emotion? true
+                    :requires-affordance? true}
+    :provenance (rule-provenance
+                 [:theme-rehearsal]
+                 :partial
+                 "Graphable rehearsal trigger emitted from regulation-need plus affordance.")}))
+
+(def rehearsal-activation-rule
+  (inference-rule
+   {:id :goal-family/rehearsal-activation
+    :antecedent [{:fact/type :goal-family-trigger
+                  :goal-type :rehearsal
+                  :trigger-context-id '?context-id
+                  :failed-goal-id '?failed-goal-id
+                  :emotion-id '?emotion-id
+                  :emotion-strength '?emotion-strength
+                  :motivation-strength '?motivation-strength
+                  :affordance-id '?affordance-id
+                  :routine-id '?routine-id
+                  :operator-id '?operator-id
+                  :selection-policy '?selection-policy
+                  :selection-reasons '?selection-reasons
+                  :situation-id '?situation-id}]
+    :consequent [{:context-id '?context-id
+                  :failed-goal-id '?failed-goal-id
+                  :emotion-id '?emotion-id
+                  :emotion-strength '?emotion-strength
+                  :motivation-strength '?motivation-strength
+                  :affordance-id '?affordance-id
+                  :routine-id '?routine-id
+                  :operator-id '?operator-id
+                  :selection-policy '?selection-policy
+                  :selection-reasons '?selection-reasons
+                  :activation-policy rehearsal-affordance-policy
+                  :activation-reasons [:failed_goal
+                                       :negative_emotion
+                                       :dependency_link
+                                       :rehearsal_affordance]
+                  :situation-id '?situation-id}
+                 {:fact/type :family-plan-ready
+                  :goal-type :rehearsal
+                  :trigger-context-id '?context-id
+                  :failed-goal-id '?failed-goal-id
+                  :emotion-id '?emotion-id
+                  :emotion-strength '?emotion-strength
+                  :motivation-strength '?motivation-strength
+                  :routine-id '?routine-id
+                  :operator-id '?operator-id}]
+    :plausibility rehearsal-motivation-threshold
+    :denotation (denotation :activate-rehearsal-daydream-goal
+                            [:motivation-below-threshold
+                             :missing-rehearsal-affordance
+                             :missing-goal-family-trigger])
+    :executor-spec {:motivation-threshold rehearsal-motivation-threshold
+                    :requires-affordance? true}
+    :provenance (rule-provenance
+                 [:theme-rehearsal]
+                 :partial
+                 "Consumes the rehearsal affordance trigger into an activation payload.")}))
+
 (defn activation-rules
   "Return the currently extracted RuleV1 activation slices.
 
@@ -824,7 +933,9 @@
    rationalization-trigger-rule
    rationalization-activation-rule
    reversal-trigger-rule
-   reversal-activation-rule])
+   reversal-activation-rule
+   rehearsal-trigger-rule
+   rehearsal-activation-rule])
 
 (defn planning-rules
   "Return the currently extracted RuleV1 planning slices."
