@@ -88,6 +88,7 @@ Lane 2: Deep Build (kernel rule engine)            ← where the architecture li
   ├── Membrane assays: Assay A (dynamic entry + loop flag), Assay B (live promotion/frontier open)
   ├── Graffito slices: Slice 1 (typed retrieval), Slice 2 (character-state reappraisal), Slice 3 (rehearsal control reread)
   ├── Graffito miniworld: autonomous 3-scene reread dynamics, kernel-owned rehearsal provenance/storage, two promoted cross-family paths, frontier-path access opening, longer laps stable but periodic
+  ├── Next Graffito family-ecology branch: benchmark-local `reversal -> rehearsal` with matched repair target, then further rehearsal trigger/activation kernelization
   ├── First :llm-backed pilot as episode evaluator
   └── See build-order-checkpoint-2026-03-22.md
 

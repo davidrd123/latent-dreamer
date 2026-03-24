@@ -556,9 +556,24 @@ but still in the mechanistic frame:
 - use the new kernel-owned rehearsal seam as the reusable baseline for
   the next family-ecology move, rather than adding more benchmark-local
   rehearsal glue
+- take the next family-ecology branch as `reversal -> rehearsal`,
+  specifically `mural reversal -> apartment rehearsal`, because it is
+  the first new consumer-family dependency beyond the already-proven
+  `rationalization -> rehearsal` path
+- keep that bridge benchmark-local first, but require matched repair
+  target / breakdown surface rather than loose shared-cue overlap
+- tighten the new rehearsal seam while doing it: keep full routine
+  content in payload/support metadata, but compress rehearsal
+  `:retrieval-indices` to a portable subset so rehearsal episodes do
+  not disappear behind their own threshold
+- when rehearsal activation gets kernelized further, keep a separate
+  rehearsal `:motivation-strength` path rather than pretending
+  rehearsal intensity is just raw `:emotion-strength`
 - watch for the first honest bridge from transient Tony-state shifts
   into membrane-mediated accumulation, rather than inventing sticky
   learned-capability floats
+- keep the generic post-effect reappraisal pass as a live follow-on
+  seam, but not the first move in this branch
 - do not jump straight to creative-output evaluation yet
 
 See the 5 Pro research sift at
