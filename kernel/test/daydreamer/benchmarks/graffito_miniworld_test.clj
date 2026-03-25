@@ -115,9 +115,10 @@
                              (:selected-situation-id %)))
                     activation-only-cycles))))
     (testing "the trace remains inspectable"
-      (is (= 12 (count summaries)))
+      (is (= (+ 12 5) (count summaries)))
       (is (re-find #"graffito_night_mural"
                    (apply str summaries)))
+      (is (some #(re-find #"Attractor digest:" %) summaries))
       (is (map? log))
       (is (= 12 (count (get log "cycles"))))
       (is (= "graffito-miniworld" (get log "seed"))))))
@@ -273,7 +274,11 @@
       (is (every? (fn [cycle]
                     (every? #(= "derived" (get % "projection_kind"))
                             (get cycle "emotional_state")))
-                  cycles)))))
+                  cycles)))
+    (testing "the exported log now carries a top-level attractor digest"
+      (is (map? (get log "attractor_digest")))
+      (is (vector? (get-in log ["attractor_digest" "tail-cycle-range"])))
+      (is (integer? (get-in log ["attractor_digest" "tail-window"]))))))
 
 (deftest projected-scene-emotions-vary-over-a-live-run
   (let [{:keys [log]} (mini/run-miniworld {:cycles 12})
@@ -350,3 +355,26 @@
       (is (>= (:episodes-with-promotion-history run-summary) 2))
       (is (>= (:durable-episode-count run-summary) 2))
       (is (pos? (:rule-access-transition-count run-summary))))))
+
+(deftest hundred-cycle-miniworld-exposes-an-attractor-digest
+  (let [{:keys [run-summary attractor-digest summaries]} (mini/run-miniworld {:cycles 100})
+        family-counts (:family-counts run-summary)]
+    (testing "the digest describes the late-loop attractor without freezing exact choreography"
+      (is attractor-digest)
+      (is (= attractor-digest (:attractor-digest run-summary)))
+      (is (= [89 100] (:tail-cycle-range attractor-digest)))
+      (is (= 12 (:tail-window attractor-digest)))
+      (is (< 0 (or (:last-structural-change-cycle attractor-digest) 0) 100))
+      (is (= 12 (reduce + 0 (vals (:tail-family-counts attractor-digest)))))
+      (is (= 12 (reduce + 0 (vals (:tail-situation-counts attractor-digest)))))
+      (is (pos? (get family-counts :rationalization 0)))
+      (is (pos? (:tail-distinct-cross-family-source-episode-count attractor-digest)))
+      (is (some? (:dominant-tail-cross-family-source-episode-id attractor-digest)))
+      (is (pos? (:dominant-tail-cross-family-source-cycle-count attractor-digest)))
+      (is (integer? (:tail-promotion-event-count attractor-digest)))
+      (is (integer? (:tail-demotion-event-count attractor-digest)))
+      (is (integer? (:tail-rehabilitation-event-count attractor-digest)))
+      (is (integer? (:tail-vindicated-use-count attractor-digest))))
+    (testing "print summaries now include a compact attractor block"
+      (is (some #(re-find #"Attractor digest:" %) summaries))
+      (is (some #(re-find #"Tail dominant cross-family source:" %) summaries)))))

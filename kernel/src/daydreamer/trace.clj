@@ -28,7 +28,8 @@
    "feedback_sha256"
    "palette_sha256"
    "graph_nodes"
-   "graph_edges"])
+   "graph_edges"
+   "attractor_digest"])
 
 (defn- scalar->json
   [value]

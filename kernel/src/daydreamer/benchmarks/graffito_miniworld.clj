@@ -1905,6 +1905,135 @@
            :graph_edges 3}
           overrides)))
 
+(def ^:private attractor-tail-window 12)
+
+(defn- cycle-snapshot-by-number
+  [world cycle-number]
+  (some #(when (= cycle-number (:cycle-num %))
+           %)
+        (:trace world)))
+
+(defn- rehabilitation-flag-event?
+  [event]
+  (and (= :cleared (:action event))
+       (contains? #{:cross-family-loop-rehabilitation
+                    :cross-family-rehabilitation}
+                  (:reason event))))
+
+(defn- attractor-digest
+  [world cycle-summaries]
+  (let [cycle-count (count cycle-summaries)
+        tail-window (min attractor-tail-window cycle-count)
+        tail-cycles (vec (take-last tail-window cycle-summaries))
+        tail-cycle-range [(-> tail-cycles first :cycle)
+                          (-> tail-cycles last :cycle)]
+        cross-family-source-first-seen
+        (reduce (fn [acc cycle-summary]
+                  (let [episode-id (:cross-family-source-episode-id cycle-summary)]
+                    (if (or (nil? episode-id)
+                            (contains? acc episode-id))
+                      acc
+                      (assoc acc episode-id (:cycle cycle-summary)))))
+                {}
+                cycle-summaries)
+        structural-change-cycles
+        (->> cycle-summaries
+             (keep (fn [cycle-summary]
+                     (let [cycle (:cycle cycle-summary)
+                           snapshot (cycle-snapshot-by-number world cycle)
+                           world-delta (:world-delta snapshot)
+                           episode-id (:cross-family-source-episode-id cycle-summary)
+                           new-cross-family-source? (= cycle
+                                                       (get cross-family-source-first-seen
+                                                            episode-id))
+                           promotion-events (get-in world-delta [:promotion :events])
+                           demotion-events (get-in world-delta [:demotion :events])
+                           rule-access-events (get-in world-delta [:rule_access :changed])
+                           rehabilitation-events (->> (get-in world-delta [:flags :events])
+                                                      (filter rehabilitation-flag-event?)
+                                                      seq)]
+                       (when (or new-cross-family-source?
+                                 (seq promotion-events)
+                                 (seq demotion-events)
+                                 (seq rule-access-events)
+                                 rehabilitation-events)
+                         cycle))))
+             vec)
+        tail-cross-family-source-counts
+        (->> tail-cycles
+             (keep :cross-family-source-episode-id)
+             frequencies
+             (into (sorted-map-by (fn [left right]
+                                    (compare (str left) (str right))))))
+        dominant-tail-source
+        (first (sort-by (juxt (comp - val)
+                              (comp str key))
+                        tail-cross-family-source-counts))
+        tail-world-deltas
+        (->> tail-cycles
+             (keep #(cycle-snapshot-by-number world (:cycle %)))
+             (map :world-delta)
+             vec)]
+    {:tail-window tail-window
+     :tail-cycle-range tail-cycle-range
+     :last-structural-change-cycle (last structural-change-cycles)
+     :tail-family-counts (frequencies (map :selected-family tail-cycles))
+     :tail-situation-counts (frequencies (map :selected-situation-id tail-cycles))
+     :tail-regulation-mode-counts (frequencies (map :regulation-mode-after tail-cycles))
+     :tail-appraisal-mode-counts (frequencies (map :mural-appraisal-after tail-cycles))
+     :tail-reappraisal-flip-count (count (filter :reappraisal-flip? tail-cycles))
+     :tail-challenge-mural-cycles (count (filter #(and (= :graffito_night_mural
+                                                          (:selected-situation-id %))
+                                                       (= :rationalization
+                                                          (:selected-family %)))
+                                                 tail-cycles))
+     :tail-cross-family-source-episode-counts tail-cross-family-source-counts
+     :tail-distinct-cross-family-source-episode-count (count tail-cross-family-source-counts)
+     :dominant-tail-cross-family-source-episode-id (key dominant-tail-source)
+     :dominant-tail-cross-family-source-cycle-count (val dominant-tail-source)
+     :tail-promotion-event-count (reduce + 0
+                                         (map #(count (get-in % [:promotion :events]))
+                                              tail-world-deltas))
+     :tail-demotion-event-count (reduce + 0
+                                        (map #(count (get-in % [:demotion :events]))
+                                             tail-world-deltas))
+     :tail-rule-access-transition-count (reduce + 0
+                                                (map #(count (get-in % [:rule_access :changed]))
+                                                     tail-world-deltas))
+     :tail-rehabilitation-event-count (reduce + 0
+                                              (map #(count (filter rehabilitation-flag-event?
+                                                                   (get-in % [:flags :events])))
+                                                   tail-world-deltas))
+     :tail-vindicated-use-count (count (for [delta tail-world-deltas
+                                             resolved (get-in delta [:episode_use :resolved])
+                                             :when (= :later-cross-family-vindication
+                                                      (:reason resolved))]
+                                         resolved))}))
+
+(defn- attractor-digest-lines
+  [digest]
+  [(format "Attractor digest: tail cycles %s-%s, last structural change cycle %s"
+           (first (:tail-cycle-range digest))
+           (second (:tail-cycle-range digest))
+           (or (:last-structural-change-cycle digest) "n/a"))
+   (format "Tail family counts: %s | regulation: %s | appraisal: %s"
+           (:tail-family-counts digest)
+           (:tail-regulation-mode-counts digest)
+           (:tail-appraisal-mode-counts digest))
+   (format "Tail dominant cross-family source: %s (%s/%s cycles) | distinct sources: %s"
+           (or (:dominant-tail-cross-family-source-episode-id digest) "none")
+           (or (:dominant-tail-cross-family-source-cycle-count digest) 0)
+           (:tail-window digest)
+           (:tail-distinct-cross-family-source-episode-count digest))
+   (format "Tail movement: flips=%s challenge-mural=%s promotions=%s demotions=%s rehabilitations=%s vindications=%s rule-access=%s"
+           (:tail-reappraisal-flip-count digest)
+           (:tail-challenge-mural-cycles digest)
+           (:tail-promotion-event-count digest)
+           (:tail-demotion-event-count digest)
+           (:tail-rehabilitation-event-count digest)
+           (:tail-vindicated-use-count digest)
+           (:tail-rule-access-transition-count digest))])
+
 (defn run-summary
   "Summarize a Graffito miniworld run for stable regression checks and
   accumulation observability."
@@ -2031,11 +2160,17 @@
           world world
           cycle-summaries []]
      (if (>= step cycles)
-       {:world world
-        :cycle-summaries cycle-summaries
-        :run-summary (run-summary world cycle-summaries)
-        :summaries (mapv summary-line cycle-summaries)
-        :log (trace/reporter-log world (benchmark-metadata))}
+       (let [digest (attractor-digest world cycle-summaries)]
+         {:world world
+          :cycle-summaries cycle-summaries
+          :run-summary (assoc (run-summary world cycle-summaries)
+                              :attractor-digest digest)
+          :attractor-digest digest
+          :summaries (vec (concat (mapv summary-line cycle-summaries)
+                                  [""]
+                                  (attractor-digest-lines digest)))
+          :log (trace/reporter-log world
+                                   (benchmark-metadata {:attractor_digest digest}))})
        (let [prepared-world (if (zero? step)
                               world
                               (rebuild-world-with-state world))

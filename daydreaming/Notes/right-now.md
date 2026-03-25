@@ -28,6 +28,9 @@ Last updated: 2026-03-24
   can read it directly, and lifecycle summaries now make
   vindication/promotion/demotion/rehabilitation legible without
   reconstructing them from raw histories.
+- The short attractor digest is now real too:
+  the miniworld/export path reports when the loop settled, which
+  episode dominates the late tail, and what still changes inside it.
 
 ## Next After This
 
@@ -37,6 +40,11 @@ Last updated: 2026-03-24
   directly; right now promotion/rule-access movement are real, but
   vindication, rehabilitation, and demotion are still zero in the
   current Graffito loop.
+- Use that digest to choose the next branch from evidence: the current
+  `100`-cycle tail is fully `:challenge-dominant` and dominated by the
+  durable reversal-sourced bridge after cycle `17`, so the next
+  productive move should come from reusable seam or pivot pressure, not
+  another benchmark-local bridge.
 - Keep the Graffito-specific reread projector benchmark-local until the
   same projection pattern is proven reusable outside this harness.
 - Then use that lifecycle surface for a short 50/100-cycle attractor

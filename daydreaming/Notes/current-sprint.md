@@ -582,6 +582,11 @@ The first Graffito kernel slices now exist:
       rehabilitation, and rule-access movement, so the longer-run
       Graffito assay can say more directly what is moving and what is
       still zero
+    - the short attractor digest is now also landed in the miniworld
+      output/export path: it reports the late tail window, last
+      structural-change cycle, dominant cross-family source episode,
+      tail family/appraisal/regulation counts, and whether anything is
+      still changing inside the loop
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:
@@ -602,6 +607,12 @@ but still in the mechanistic frame:
   lifecycle surface: promotion and rule-access movement are real, but
   vindication / rehabilitation / demotion are still at zero through
   `100` cycles in the current attractor
+- the first attractor digest now makes the current loop explicit rather
+  than inferential: by `100` cycles the tail window (`89-100`) is fully
+  `:challenge-dominant`, dominated by the durable reversal-sourced
+  episode (`:ep-12`) as the only late cross-family source, and shows no
+  late promotion, demotion, rehabilitation, vindication, or rule-access
+  movement after the last structural change at cycle `17`
 - keep full rehearsal routine content in payload/support metadata, but
   continue using compressed rehearsal `:retrieval-indices` as the
   portable default
