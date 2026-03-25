@@ -1960,7 +1960,25 @@
                      cycle-summaries))
         frontier-bridge-cycles
         (count (filter :frontier-bridge-trigger?
-                       cycle-summaries))]
+                       cycle-summaries))
+        vindicated-use-count
+        (count (for [episode episodes
+                     use-record (:use-history episode)
+                     :when (= :later-cross-family-vindication
+                              (:outcome-reason use-record))]
+                 use-record))
+        episodes-with-rehabilitation-history
+        (count (filter (fn [episode]
+                         (some (fn [record]
+                                 (and (= :cleared (:action record))
+                                      (contains? #{:cross-family-loop-rehabilitation
+                                                   :cross-family-rehabilitation}
+                                                 (:reason record))))
+                               (:anti-residue-history episode)))
+                       episodes))
+        episodes-with-demotion-history
+        (count (filter #(seq (:demotion-history %))
+                       episodes))]
     {:cycle-count (count cycle-summaries)
      :family-counts family-counts
      :situation-counts situation-counts
@@ -1974,9 +1992,12 @@
                                           (:target-family %))
                                    (:use-history episode))))
                     episodes))
+     :vindicated-use-count vindicated-use-count
      :episodes-with-promotion-history (count (filter #(seq (:promotion-history %))
                                                      episodes))
+     :episodes-with-demotion-history episodes-with-demotion-history
      :episodes-with-flags (count (filter #(seq (:anti-residue-flags %)) episodes))
+     :episodes-with-rehabilitation-history episodes-with-rehabilitation-history
      :durable-episode-count (count (filter #(= :durable (:admission-status %))
                                            episodes))
      :provisional-episode-count (count (filter #(= :provisional (:admission-status %))

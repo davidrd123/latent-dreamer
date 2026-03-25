@@ -24,18 +24,28 @@ Last updated: 2026-03-24
   compressed rehearsal retrieval indices are now real.
 - The first broader use/outcome slice is now real too:
   canonical `:episode-lifecycle` is exposed across direct source use
-  and reminded/effect-driven paths, and the Graffito canopy/debug
-  export can read it directly.
+  and reminded/effect-driven paths, the Graffito canopy/debug export
+  can read it directly, and lifecycle summaries now make
+  vindication/promotion/demotion/rehabilitation legible without
+  reconstructing them from raw histories.
 
 ## Next After This
 
 - Broaden use/outcome tracking on top of the now-kernelized rehearsal
   trigger seam and the extracted generic post-effect hook.
+- Use the lifecycle summary to read the 50/100-cycle attractor
+  directly; right now promotion/rule-access movement are real, but
+  vindication, rehabilitation, and demotion are still zero in the
+  current Graffito loop.
 - Keep the Graffito-specific reread projector benchmark-local until the
   same projection pattern is proven reusable outside this harness.
 - Then use that lifecycle surface for a short 50/100-cycle attractor
   digest and choose the next family-ecology move from evidence, rather
   than inventing another benchmark-local bridge first.
+- If that read stabilizes without exposing another clear reusable
+  Graffito seam, the next branch may be one bounded collaborator-side
+  proposal experiment (for example typed concern/issue initiation),
+  not a broad pivot and not another miniworld growth spurt.
 
 ## Decision Point
 

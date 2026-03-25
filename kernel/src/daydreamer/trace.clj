@@ -370,8 +370,10 @@
                                (:indices episode)
                                []))
    :use-history (vec (:use-history episode))
+   :use-stats (:use-stats episode)
    :promotion-evidence (vec (:promotion-evidence episode))
    :promotion-history (vec (:promotion-history episode))
+   :demotion-history (vec (:demotion-history episode))
    :anti-residue-history (vec (:anti-residue-history episode))
    :anti-residue-flags (vec (:anti-residue-flags episode))})
 
@@ -520,6 +522,23 @@
                                  :target_family (some-> (:target-family record) scalar->json)})
                               new-records))))
              vec)
+        demotion-events
+        (->> (concat added-episode-ids common-episode-ids)
+             (mapcat (fn [episode-id]
+                       (let [before (get previous-episodes episode-id {:demotion-history []})
+                             after (get current-episodes episode-id)
+                             new-records (drop-prefix (vec (:demotion-history before))
+                                                      (vec (:demotion-history after)))]
+                         (map (fn [record]
+                                {:episode_id episode-id
+                                 :from (some-> (:from-status record) scalar->json)
+                                 :to (some-> (:to-status record) scalar->json)
+                                 :cycle (:cycle record)
+                                 :reason (some-> (:reason record) scalar->json)
+                                 :source_family (some-> (:source-family record) scalar->json)
+                                 :target_family (some-> (:target-family record) scalar->json)})
+                              new-records))))
+             vec)
         flag-events
         (->> (concat added-episode-ids common-episode-ids)
              (mapcat (fn [episode-id]
@@ -578,6 +597,7 @@
                    :resolved episode-uses-resolved}
      :promotion {:evidence_added promotion-evidence-added
                  :events promotion-events}
+     :demotion {:events demotion-events}
      :flags {:events flag-events}
      :rule_access {:changed rule-access-changed}
      :recent_indices {:pushed (vec (remove (set previous-recent) current-recent))

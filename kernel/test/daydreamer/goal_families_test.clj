@@ -1160,9 +1160,12 @@
               :branch-context-id context-id
               :source-family :rationalization
               :target-family :rehearsal
+              :same-family? false
+              :cross-family? true
               :status :resolved
               :outcome :succeeded
               :outcome-reason :rehearsal-regulation-success
+              :vindicated? false
               :admission-status :provisional
               :anti-residue-flags []
               :promotion-evidence-count 1
@@ -1170,7 +1173,25 @@
               :admission-transitions []
               :rule-access-transitions []
               :promotion-facts []}]
-            :promoted-episode-ids []}
+            :promoted-episode-ids []
+            :summary {:use-count 1
+                      :pending-use-count 0
+                      :resolved-use-count 1
+                      :same-family-use-count 0
+                      :cross-family-use-count 1
+                      :succeeded-use-count 1
+                      :failed-use-count 0
+                      :backfired-use-count 0
+                      :contradicted-use-count 0
+                      :vindicated-use-count 0
+                      :promotion-count 0
+                      :demotion-count 0
+                      :active-flag-count 0
+                      :flag-event-count 0
+                      :rehabilitation-count 0
+                      :promoted-episode-count 0
+                      :admission-transition-count 0
+                      :rule-access-transition-count 0}}
            (get-in family-plan [:result :episode-lifecycle])))))
 
 (deftest rehearsal-activation-candidates-require-affordance-and-motivation
@@ -1880,9 +1901,12 @@
               :branch-context-id branch-context-id
               :source-family :rationalization
               :target-family :rationalization
+              :same-family? true
+              :cross-family? false
               :status :pending
               :outcome nil
               :outcome-reason nil
+              :vindicated? false
               :admission-status :durable
               :anti-residue-flags []
               :promotion-evidence-count 2
@@ -1890,7 +1914,25 @@
               :admission-transitions []
               :rule-access-transitions []
               :promotion-facts []}]
-            :promoted-episode-ids []}
+            :promoted-episode-ids []
+            :summary {:use-count 1
+                      :pending-use-count 1
+                      :resolved-use-count 0
+                      :same-family-use-count 1
+                      :cross-family-use-count 0
+                      :succeeded-use-count 0
+                      :failed-use-count 0
+                      :backfired-use-count 0
+                      :contradicted-use-count 0
+                      :vindicated-use-count 0
+                      :promotion-count 0
+                      :demotion-count 0
+                      :active-flag-count 0
+                      :flag-event-count 0
+                      :rehabilitation-count 0
+                      :promoted-episode-count 0
+                      :admission-transition-count 0
+                      :rule-access-transition-count 0}}
            (get-in later-family-plan [:result :episode-lifecycle])))
     (is (= [{:fact/type :episode-use
              :episode-id stored-episode-id

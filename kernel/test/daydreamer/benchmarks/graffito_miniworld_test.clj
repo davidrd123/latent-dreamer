@@ -167,7 +167,10 @@
     (testing "accumulation observability is explicit once cross-family reuse starts moving the membrane"
       (is (integer? (:episodes-with-use-history run-summary)))
       (is (integer? (:episodes-with-cross-family-use-history run-summary)))
+      (is (integer? (:vindicated-use-count run-summary)))
       (is (integer? (:episodes-with-promotion-history run-summary)))
+      (is (integer? (:episodes-with-demotion-history run-summary)))
+      (is (integer? (:episodes-with-rehabilitation-history run-summary)))
       (is (integer? (:frontier-bridge-cycles run-summary)))
       (is (integer? (:rule-access-transition-count run-summary)))
       (is (pos? (:episodes-with-use-history run-summary)))
@@ -252,12 +255,14 @@
     (testing "the exported log shows episode additions, promotion, and rule-access movement"
       (is (some #(seq (get-in % ["episodes" "added"])) world-deltas))
       (is (some #(seq (get-in % ["promotion" "events"])) world-deltas))
+      (is (every? #(contains? % "demotion") world-deltas))
       (is (some #(seq (get-in % ["rule_access" "changed"])) world-deltas)))
     (testing "benchmark-local debug payloads survive projection for the canopy viewer"
       (is (some #(contains? (get % "debug") "graffito_miniworld") cycles))
       (is (some #(seq (get-in % ["debug" "rule-access-transitions"])) cycles))
       (is (some #(seq (get-in % ["debug" "episode-use-records"])) cycles))
       (is (some #(seq (get-in % ["debug" "episode-lifecycle" "episode-uses"])) cycles))
+      (is (some #(map? (get-in % ["debug" "episode-lifecycle" "summary"])) cycles))
       (is (every? #(seq (get-in % ["debug" "graffito_miniworld" "emotion-projections-before"]))
                   cycles)))
     (testing "exported emotional state now labels benchmark-projected provenance explicitly"

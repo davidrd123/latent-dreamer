@@ -2467,6 +2467,13 @@
             (get-in world [:episodes (:episode-id use-record) :use-history]))
       use-record))
 
+(defn- lifecycle-rehabilitation-record?
+  [record]
+  (and (= :cleared (:action record))
+       (contains? #{:cross-family-loop-rehabilitation
+                    :cross-family-rehabilitation}
+                  (:reason record))))
+
 (defn- family-plan-use-lifecycle
   [world use-records outcome-facts promotion-facts admission-transitions rule-access-transitions]
   (let [outcome-by-use-id (into {}
@@ -2480,6 +2487,8 @@
                 (let [use-record (refresh-use-record world use-record)
                       episode-id (:episode-id use-record)
                       episode (get-in world [:episodes episode-id])
+                      same-family? (= (:source-family use-record)
+                                      (:target-family use-record))
                       outcome-fact (get outcome-by-use-id (:use-id use-record))
                       episode-transitions (vec (get transition-by-episode-id episode-id))
                       episode-rule-access (vec (get rule-access-by-episode-id episode-id))
@@ -2492,11 +2501,16 @@
                    :branch-context-id (:branch-context-id use-record)
                    :source-family (:source-family use-record)
                    :target-family (:target-family use-record)
+                   :same-family? same-family?
+                   :cross-family? (not same-family?)
                    :status (:status use-record)
                    :outcome (or (:outcome use-record)
                                 (:outcome outcome-fact))
                    :outcome-reason (or (:outcome-reason use-record)
                                        (:reason outcome-fact))
+                   :vindicated? (= :later-cross-family-vindication
+                                   (or (:outcome-reason use-record)
+                                       (:reason outcome-fact)))
                    :admission-status (:admission-status episode)
                    :anti-residue-flags (vec (:anti-residue-flags episode))
                    :promotion-evidence-count (count (:promotion-evidence episode))
@@ -2506,9 +2520,34 @@
                    :promotion-facts episode-promotions})))
          vec)))
 
+(defn- episode-lifecycle-summary
+  [episode use-lifecycle promoted-episode-ids admission-transitions rule-access-transitions]
+  (let [anti-residue-history (vec (:anti-residue-history episode))
+        demotion-history (vec (:demotion-history episode))]
+    {:use-count (count use-lifecycle)
+     :pending-use-count (count (filter #(= :pending (:status %)) use-lifecycle))
+     :resolved-use-count (count (filter #(= :resolved (:status %)) use-lifecycle))
+     :same-family-use-count (count (filter :same-family? use-lifecycle))
+     :cross-family-use-count (count (filter :cross-family? use-lifecycle))
+     :succeeded-use-count (count (filter #(= :succeeded (:outcome %)) use-lifecycle))
+     :failed-use-count (count (filter #(= :failed (:outcome %)) use-lifecycle))
+     :backfired-use-count (count (filter #(= :backfired (:outcome %)) use-lifecycle))
+     :contradicted-use-count (count (filter #(= :contradicted (:outcome %)) use-lifecycle))
+     :vindicated-use-count (count (filter :vindicated? use-lifecycle))
+     :promotion-count (count (:promotion-history episode))
+     :demotion-count (count demotion-history)
+     :active-flag-count (count (:anti-residue-flags episode))
+     :flag-event-count (count anti-residue-history)
+     :rehabilitation-count (count (filter lifecycle-rehabilitation-record?
+                                          anti-residue-history))
+     :promoted-episode-count (count promoted-episode-ids)
+     :admission-transition-count (count admission-transitions)
+     :rule-access-transition-count (count rule-access-transitions)}))
+
 (defn- family-plan-episode-lifecycle
   [world family-plan]
   (let [result (:result family-plan)
+        episode (get-in world [:episodes (:family-episode-id family-plan)])
         use-records (vec (:episode-use-records result))
         outcome-facts (vec (:episode-outcome-facts result))
         promotion-facts (vec (:promotion-facts result))
@@ -2517,19 +2556,26 @@
                                              (conj (:episode-source-admission-transition result)))
                                            (:admission-transitions result)))
         rule-access-transitions (vec (concat (:episode-source-rule-access-transitions result)
-                                             (:rule-access-transitions result)))]
+                                             (:rule-access-transitions result)))
+        use-lifecycle (family-plan-use-lifecycle world
+                                                 use-records
+                                                 outcome-facts
+                                                 promotion-facts
+                                                 admission-transitions
+                                                 rule-access-transitions)
+        promoted-episode-ids (vec (:promoted-episode-ids result))]
     {:family-plan-episode
      {:episode-id (:family-episode-id family-plan)
       :family (:family family-plan)
       :admission-status (:admission-status family-plan)
       :rule-access-transitions (vec (:rule-access-transitions family-plan))}
-     :episode-uses (family-plan-use-lifecycle world
-                                              use-records
-                                              outcome-facts
-                                              promotion-facts
-                                              admission-transitions
-                                              rule-access-transitions)
-     :promoted-episode-ids (vec (:promoted-episode-ids result))}))
+     :episode-uses use-lifecycle
+     :promoted-episode-ids promoted-episode-ids
+     :summary (episode-lifecycle-summary episode
+                                         use-lifecycle
+                                         promoted-episode-ids
+                                         admission-transitions
+                                         rule-access-transitions)}))
 
 (defn- attach-family-plan-episode-lifecycle
   [world family-plan]

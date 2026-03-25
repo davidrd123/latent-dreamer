@@ -576,6 +576,12 @@ The first Graffito kernel slices now exist:
       canopy/debug export now carries that lifecycle directly instead
       of forcing benchmarks to reconstruct it from scattered
       `use/outcome/promotion` fields
+    - the next tracking slice is also now landed: that canonical
+      lifecycle carries summary counts for pending vs resolved use,
+      same- vs cross-family reuse, vindication, promotion, demotion,
+      rehabilitation, and rule-access movement, so the longer-run
+      Graffito assay can say more directly what is moving and what is
+      still zero
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:
@@ -592,6 +598,10 @@ but still in the mechanistic frame:
 - treat the new canonical `episode-lifecycle` surface as the baseline
   for the next tracking slice: clearer vindication / rehabilitation /
   attractor-reading, not another benchmark-local bridge
+- read the current longer-run Graffito state honestly through that
+  lifecycle surface: promotion and rule-access movement are real, but
+  vindication / rehabilitation / demotion are still at zero through
+  `100` cycles in the current attractor
 - keep full rehearsal routine content in payload/support metadata, but
   continue using compressed rehearsal `:retrieval-indices` as the
   portable default
