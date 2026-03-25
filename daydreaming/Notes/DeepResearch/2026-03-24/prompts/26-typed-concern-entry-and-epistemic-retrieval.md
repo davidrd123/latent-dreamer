@@ -55,6 +55,8 @@ assay has reached a readable plateau:
   (`:ep-12`)
 - there is no late vindication, rehabilitation, demotion, or additional
   rule-access movement in that tail
+- that 100-cycle attractor read is now a standard export artifact, not
+  just a one-off probe
 
 So the immediate branch question is not "should we add another
 benchmark-local Graffito bridge?" We think the answer there is no. The
@@ -68,7 +70,7 @@ Brennan (grounding/common ground), argumentative human-AI
 decision-making, George Lewis / Voyager (nonhierarchical partnership
 with independent internal process).
 
-## Three questions
+## Four questions
 
 Before answering the three questions below, answer this explicitly:
 
@@ -227,6 +229,10 @@ Please specify:
 - exact source material type
 - approximate input size / context window shape
 - exact typed output packet
+- exact observability / verifier packet:
+  what counters, traces, and example records should exist so we can
+  read `proposed -> validated -> admitted -> retrieved -> used ->
+  outcome -> persisted/dropped` without reconstructing it by hand
 - what kernel-side validation should do
 - what retrieval should be allowed to do
 - what persistence should and should not be allowed to do
@@ -272,3 +278,13 @@ proposals per chunk? Quality gate before entry? Or let the kernel's
 own competition handle it — flood the economy and let the strongest
 survive? What does the mixed-initiative sensemaking literature say
 about the right proposal rate for human-AI collaboration?
+
+**The mirroring / jargon trap.** If the source is from this repo or a
+conversation like this one, the model may simply mirror our own
+architecture vocabulary (`concern`, `membrane`, `retrieval
+reformulation`, `rule access`) instead of surfacing the underlying
+issue in the material. What is the best defense against that for v1?
+Source-grounding spans? A ban on kernel jargon in proposal text?
+Separate fields for `source_phrasing` vs `normalized_kernel_label`?
+A verifier check that the concern is recoverable from the source
+without architecture language?
