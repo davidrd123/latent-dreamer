@@ -1735,6 +1735,7 @@
        :mutations (:mutation-events world)
        :rule-provenance (:rule-provenance family-plan)
        :family-plan-episode-id family-plan-episode-id
+       :episode-lifecycle (get-in family-plan [:result :episode-lifecycle])
        :graffito_miniworld
        {:tony-state-before tony-state-before
         :tony-state-after (:tony-state-after summary)
@@ -1848,6 +1849,7 @@
                                  vec)
        :rule-provenance (:rule-provenance family-plan)
        :family-plan-episode-id (:family-episode-id family-plan)
+       :episode-lifecycle (get-in family-plan [:result :episode-lifecycle])
        :episode-use-records (vec (:episode-use-records family-plan-result))
        :admission-transition (:episode-source-admission-transition family-plan-result)
        :rule-access-transitions (:episode-source-rule-access-transitions family-plan-result)

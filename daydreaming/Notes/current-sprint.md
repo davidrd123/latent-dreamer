@@ -570,6 +570,12 @@ The first Graffito kernel slices now exist:
       right reusable move and why the next kernel seam should be
       broader use/outcome tracking plus a generic post-effect hook
       shape, rather than yet another benchmark-local bridge invention
+    - the first slice of that broader use/outcome seam is now landed:
+      direct source-use and reminded/effect-driven paths both expose a
+      canonical `:episode-lifecycle` result shape, and the Graffito
+      canopy/debug export now carries that lifecycle directly instead
+      of forcing benchmarks to reconstruct it from scattered
+      `use/outcome/promotion` fields
 
 So the next design energy should stay in the Graffito kernel branch,
 but still in the mechanistic frame:
@@ -583,6 +589,9 @@ but still in the mechanistic frame:
   generic post-effect hook, and whatever additional family ecology the
   longer runs still expose after rehearsal trigger/activation moved
   inward
+- treat the new canonical `episode-lifecycle` surface as the baseline
+  for the next tracking slice: clearer vindication / rehabilitation /
+  attractor-reading, not another benchmark-local bridge
 - keep full rehearsal routine content in payload/support metadata, but
   continue using compressed rehearsal `:retrieval-indices` as the
   portable default

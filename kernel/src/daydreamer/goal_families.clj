@@ -2262,7 +2262,8 @@
   (let [{:keys [use-records]}
         (get-in effect-state [:results (:from-uses effect)])
         context-id (resolve-effect-context-id world effect-state (:context-ref effect))
-        [world outcome-facts promotion-facts promoted-episode-ids]
+        [world outcome-facts promotion-facts promoted-episode-ids
+         admission-transitions rule-access-transitions]
         (resolve-family-plan-use-outcomes
          world
          context-id
@@ -2275,7 +2276,9 @@
                [:results (:result-key effect)]
                {:outcome-facts (vec outcome-facts)
                 :promotion-facts (vec promotion-facts)
-                :promoted-episode-ids (vec promoted-episode-ids)})]))
+                :promoted-episode-ids (vec promoted-episode-ids)
+                :admission-transitions (vec admission-transitions)
+                :rule-access-transitions (vec rule-access-transitions)})]))
 
 (defn- handle-rationalization-divert-emotion
   [{:keys [world effect effect-state]}]
@@ -2458,6 +2461,84 @@
    :goal-id goal-id
    :source-rule (last (:rule-path rule-provenance))})
 
+(defn- refresh-use-record
+  [world use-record]
+  (or (some #(when (= (:use-id use-record) (:use-id %)) %)
+            (get-in world [:episodes (:episode-id use-record) :use-history]))
+      use-record))
+
+(defn- family-plan-use-lifecycle
+  [world use-records outcome-facts promotion-facts admission-transitions rule-access-transitions]
+  (let [outcome-by-use-id (into {}
+                                (map (juxt :use-id identity))
+                                outcome-facts)
+        promotion-by-episode-id (group-by :episode-id promotion-facts)
+        transition-by-episode-id (group-by :episode-id (remove nil? admission-transitions))
+        rule-access-by-episode-id (group-by :episode-id rule-access-transitions)]
+    (->> use-records
+         (map (fn [use-record]
+                (let [use-record (refresh-use-record world use-record)
+                      episode-id (:episode-id use-record)
+                      episode (get-in world [:episodes episode-id])
+                      outcome-fact (get outcome-by-use-id (:use-id use-record))
+                      episode-transitions (vec (get transition-by-episode-id episode-id))
+                      episode-rule-access (vec (get rule-access-by-episode-id episode-id))
+                      episode-promotions (vec (get promotion-by-episode-id episode-id))]
+                  {:episode-id episode-id
+                   :use-id (:use-id use-record)
+                   :use-role (:use-role use-record)
+                   :retrieval-order (:retrieval-order use-record)
+                   :goal-id (:goal-id use-record)
+                   :branch-context-id (:branch-context-id use-record)
+                   :source-family (:source-family use-record)
+                   :target-family (:target-family use-record)
+                   :status (:status use-record)
+                   :outcome (or (:outcome use-record)
+                                (:outcome outcome-fact))
+                   :outcome-reason (or (:outcome-reason use-record)
+                                       (:reason outcome-fact))
+                   :admission-status (:admission-status episode)
+                   :anti-residue-flags (vec (:anti-residue-flags episode))
+                   :promotion-evidence-count (count (:promotion-evidence episode))
+                   :promoted? (boolean (seq episode-promotions))
+                   :admission-transitions episode-transitions
+                   :rule-access-transitions episode-rule-access
+                   :promotion-facts episode-promotions})))
+         vec)))
+
+(defn- family-plan-episode-lifecycle
+  [world family-plan]
+  (let [result (:result family-plan)
+        use-records (vec (:episode-use-records result))
+        outcome-facts (vec (:episode-outcome-facts result))
+        promotion-facts (vec (:promotion-facts result))
+        admission-transitions (vec (concat (cond-> []
+                                             (:episode-source-admission-transition result)
+                                             (conj (:episode-source-admission-transition result)))
+                                           (:admission-transitions result)))
+        rule-access-transitions (vec (concat (:episode-source-rule-access-transitions result)
+                                             (:rule-access-transitions result)))]
+    {:family-plan-episode
+     {:episode-id (:family-episode-id family-plan)
+      :family (:family family-plan)
+      :admission-status (:admission-status family-plan)
+      :rule-access-transitions (vec (:rule-access-transitions family-plan))}
+     :episode-uses (family-plan-use-lifecycle world
+                                              use-records
+                                              outcome-facts
+                                              promotion-facts
+                                              admission-transitions
+                                              rule-access-transitions)
+     :promoted-episode-ids (vec (:promoted-episode-ids result))}))
+
+(defn- attach-family-plan-episode-lifecycle
+  [world family-plan]
+  (if family-plan
+    (assoc-in family-plan
+              [:result :episode-lifecycle]
+              (family-plan-episode-lifecycle world family-plan))
+    family-plan))
+
 (defn- note-family-plan-episode-use
   [world episode-id target-family rule-provenance use-role goal-id branch-context-id]
   (let [episode (get-in world [:episodes episode-id])
@@ -2524,7 +2605,9 @@
 
 (defn- resolve-family-plan-use-outcomes
   [world branch-context-id target-family goal-id rule-provenance use-records]
-  (reduce (fn [[current-world outcome-facts promotion-facts promoted-episode-ids] use-record]
+  (reduce (fn [[current-world outcome-facts promotion-facts promoted-episode-ids
+                admission-transitions rule-access-transitions]
+               use-record]
             (let [source-family (:source-family use-record)
                   outcome (if (not= source-family target-family)
                             :succeeded
@@ -2554,7 +2637,7 @@
                   (episodic/reconcile-episode-admission next-world
                                                         (:episode-id use-record))
                   episode (get-in next-world [:episodes (:episode-id use-record)])
-                  [next-world _rule-access-transitions]
+                  [next-world episode-rule-access-transitions]
                   (rules/reconcile-episode-rule-access next-world
                                                        (family-rules)
                                                        episode
@@ -2578,8 +2661,11 @@
                (cond-> promotion-facts promotion-fact
                        (conj promotion-fact))
                (cond-> promoted-episode-ids promotion-fact
-                       (conj (:episode-id use-record)))]))
-          [world [] [] []]
+                       (conj (:episode-id use-record)))
+               (cond-> admission-transitions transition
+                       (conj transition))
+               (into rule-access-transitions episode-rule-access-transitions)]))
+          [world [] [] [] [] []]
           use-records))
 
 (defn- family-plan-source-outcome
@@ -2909,11 +2995,14 @@
           (get-in effect-state [:results :roving/episode-uses]
                   {:use-records []
                    :use-facts []})
-          {:keys [outcome-facts promotion-facts promoted-episode-ids]}
+          {:keys [outcome-facts promotion-facts promoted-episode-ids
+                  admission-transitions rule-access-transitions]}
           (get-in effect-state [:results :roving/promotions]
                   {:outcome-facts []
                    :promotion-facts []
-                   :promoted-episode-ids []})
+                   :promoted-episode-ids []
+                   :admission-transitions []
+                   :rule-access-transitions []})
           promoted-episode-ids (vec promoted-episode-ids)]
       [world {:sprouted-context-id sprouted-context-id
               :episode-id episode-id
@@ -2923,6 +3012,8 @@
               :episode-use-facts (vec use-facts)
               :episode-outcome-facts (vec outcome-facts)
               :promotion-facts (vec promotion-facts)
+              :admission-transitions (vec admission-transitions)
+              :rule-access-transitions (vec rule-access-transitions)
               :promoted-episode-ids promoted-episode-ids
               :active-indices (vec active-indices)
               :selection-policy selection-policy
@@ -3420,7 +3511,7 @@
                     (:family-evaluator opts)))
                   [world family-plan]
                   (record-family-plan-source-episode-use world family-plan)]
-              [world family-plan])))
+              [world (attach-family-plan-episode-lifecycle world family-plan)])))
         [world nil])
 
       :roving
@@ -3434,25 +3525,27 @@
           (let [[world roving-result] (roving-plan world roving-opts)]
             (if-not roving-result
               [world nil]
-              (store-family-plan-episode
-               world
-               (maybe-apply-family-evaluator
-                {:family :roving
-                 :sprouted-context-ids [(:sprouted-context-id roving-result)]
-                 :rule-provenance (:rule-provenance roving-result)
-                 :retrieval-indices (:active-indices roving-result)
-                 :support-indices [(keyword "family" "roving")
-                                   goal-id
-                                   (:selection-policy roving-result)]
-                 :selection {:goal_family :roving
-                             :family_goal_id goal-id
-                             :roving_selection_policy (:selection-policy roving-result)
-                             :roving_seed_episode (:episode-id roving-result)
-                             :roving_reminded_episodes (:reminded-episode-ids roving-result)
-                             :roving_active_indices (:active-indices roving-result)
-                             :roving_branch_context (:sprouted-context-id roving-result)}
-                 :result roving-result}
-                (:family-evaluator opts)))))))
+              (let [[world family-plan]
+                    (store-family-plan-episode
+                     world
+                     (maybe-apply-family-evaluator
+                      {:family :roving
+                       :sprouted-context-ids [(:sprouted-context-id roving-result)]
+                       :rule-provenance (:rule-provenance roving-result)
+                       :retrieval-indices (:active-indices roving-result)
+                       :support-indices [(keyword "family" "roving")
+                                         goal-id
+                                         (:selection-policy roving-result)]
+                       :selection {:goal_family :roving
+                                   :family_goal_id goal-id
+                                   :roving_selection_policy (:selection-policy roving-result)
+                                   :roving_seed_episode (:episode-id roving-result)
+                                   :roving_reminded_episodes (:reminded-episode-ids roving-result)
+                                   :roving_active_indices (:active-indices roving-result)
+                                   :roving_branch_context (:sprouted-context-id roving-result)}
+                       :result roving-result}
+                      (:family-evaluator opts)))]
+                [world (attach-family-plan-episode-lifecycle world family-plan)])))))
 
       :rationalization
       (let [context-id (or (:context-id opts)
@@ -3514,7 +3607,7 @@
                       (:family-evaluator opts)))
                     [world family-plan]
                     (record-family-plan-source-episode-use world family-plan)]
-                [world family-plan])))))
+                [world (attach-family-plan-episode-lifecycle world family-plan)])))))
 
       :rehearsal
       (let [goal-id (or goal-id (:routine-id opts))
@@ -3581,7 +3674,7 @@
                     (:family-evaluator opts)))
                   [world family-plan]
                   (record-family-plan-source-episode-use world family-plan)]
-              [world family-plan])
+              [world (attach-family-plan-episode-lifecycle world family-plan)])
             [world nil])))
       [world nil])))
 

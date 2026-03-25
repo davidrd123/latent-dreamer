@@ -1,6 +1,6 @@
 # Right Now
 
-Last updated: 2026-03-23
+Last updated: 2026-03-24
 
 ## Proven
 
@@ -22,6 +22,10 @@ Last updated: 2026-03-23
   typed `:rehearsal-affordance`, trigger/activation, separate
   `:motivation-strength`, live rehearsal goal activation, and
   compressed rehearsal retrieval indices are now real.
+- The first broader use/outcome slice is now real too:
+  canonical `:episode-lifecycle` is exposed across direct source use
+  and reminded/effect-driven paths, and the Graffito canopy/debug
+  export can read it directly.
 
 ## Next After This
 
@@ -29,8 +33,9 @@ Last updated: 2026-03-23
   trigger seam and the extracted generic post-effect hook.
 - Keep the Graffito-specific reread projector benchmark-local until the
   same projection pattern is proven reusable outside this harness.
-- Then choose the next family-ecology move from longer-run evidence,
-  rather than inventing another benchmark-local bridge first.
+- Then use that lifecycle surface for a short 50/100-cycle attractor
+  digest and choose the next family-ecology move from evidence, rather
+  than inventing another benchmark-local bridge first.
 
 ## Decision Point
 

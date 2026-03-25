@@ -257,6 +257,7 @@
       (is (some #(contains? (get % "debug") "graffito_miniworld") cycles))
       (is (some #(seq (get-in % ["debug" "rule-access-transitions"])) cycles))
       (is (some #(seq (get-in % ["debug" "episode-use-records"])) cycles))
+      (is (some #(seq (get-in % ["debug" "episode-lifecycle" "episode-uses"])) cycles))
       (is (every? #(seq (get-in % ["debug" "graffito_miniworld" "emotion-projections-before"]))
                   cycles)))
     (testing "exported emotional state now labels benchmark-projected provenance explicitly"

@@ -1145,7 +1145,33 @@
     (is (= :succeeded
            (get-in family-plan [:result :episode-source-outcome :outcome])))
     (is (= []
-           (get-in family-plan [:result :episode-source-rule-access-transitions])))))
+           (get-in family-plan [:result :episode-source-rule-access-transitions])))
+    (is (= {:family-plan-episode
+            {:episode-id family-episode-id
+             :family :rehearsal
+             :admission-status :provisional
+             :rule-access-transitions []}
+            :episode-uses
+            [{:episode-id source-episode-id
+              :use-id (:use-id recorded-use)
+              :use-role :rehearsal-support-source
+              :retrieval-order nil
+              :goal-id :rt-counted-stroke
+              :branch-context-id context-id
+              :source-family :rationalization
+              :target-family :rehearsal
+              :status :resolved
+              :outcome :succeeded
+              :outcome-reason :rehearsal-regulation-success
+              :admission-status :provisional
+              :anti-residue-flags []
+              :promotion-evidence-count 1
+              :promoted? false
+              :admission-transitions []
+              :rule-access-transitions []
+              :promotion-facts []}]
+            :promoted-episode-ids []}
+           (get-in family-plan [:result :episode-lifecycle])))))
 
 (deftest rehearsal-activation-candidates-require-affordance-and-motivation
   (let [[world root-id] (world-with-root)
@@ -1840,6 +1866,32 @@
                       [:result :promotion-facts])))
     (is (= [] (get-in later-family-plan
                       [:result :promoted-episode-ids])))
+    (is (= {:family-plan-episode
+            {:episode-id (get-in later-family-plan [:selection :family_plan_episode_id])
+             :family :rationalization
+             :admission-status :provisional
+             :rule-access-transitions []}
+            :episode-uses
+            [{:episode-id stored-episode-id
+              :use-id (:use-id latest-use-record)
+              :use-role :frame-source
+              :retrieval-order nil
+              :goal-id later-rationalization-goal-id
+              :branch-context-id branch-context-id
+              :source-family :rationalization
+              :target-family :rationalization
+              :status :pending
+              :outcome nil
+              :outcome-reason nil
+              :admission-status :durable
+              :anti-residue-flags []
+              :promotion-evidence-count 2
+              :promoted? false
+              :admission-transitions []
+              :rule-access-transitions []
+              :promotion-facts []}]
+            :promoted-episode-ids []}
+           (get-in later-family-plan [:result :episode-lifecycle])))
     (is (= [{:fact/type :episode-use
              :episode-id stored-episode-id
              :use-id (:use-id latest-use-record)
