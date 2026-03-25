@@ -24,6 +24,12 @@
   {:doc "Render a standalone cognitive playback page with embedded Puppet Knows autonomous trace data"
    :depends [puppet-knows-autonomous]
    :task (shell "python3 trace/daydreamer/render_cognitive_viz.py ../out/puppet_knows_autonomous.json --title 'Puppet Knows: Cognitive Trace Playback' --out ../out/puppet_knows_autonomous_cognitive.html")}
+  graffito-miniworld-trace
+  {:doc "Run the autonomous Graffito miniworld trace and render the debug canopy"
+   :task (shell "clojure -M:trace -m daydreamer.export-trace --benchmark graffito-miniworld --cycles 20 --out out/graffito_miniworld.json --render-canopy --canopy-out out/graffito_miniworld_canopy.html --print-summary")}
+  graffito-miniworld-trace-100
+  {:doc "Run the 100-cycle Graffito miniworld trace and render the debug canopy"
+   :task (shell "clojure -M:trace -m daydreamer.export-trace --benchmark graffito-miniworld --cycles 100 --out out/graffito_miniworld_100.json --render-canopy --canopy-out out/graffito_miniworld_100_canopy.html --print-summary")}
   dream
   {:doc "Alias for the autonomous Puppet Knows dream trace"
    :depends [puppet-knows-autonomous]}
