@@ -3,7 +3,7 @@
 The documents that matter right now, plus where everything else
 lives. Read this when starting a session or switching tracks.
 
-Last updated: 2026-03-23
+Last updated: 2026-03-24
 
 ---
 
@@ -14,6 +14,8 @@ Last updated: 2026-03-23
 | [right-now.md](right-now.md) | Short rewritable standing position: what works, what is current, what is next, what decision is live |
 | [dashboard.md](dashboard.md) | Project status, architecture overview, parallel tracks |
 | [current-sprint.md](current-sprint.md) | Current objective, gates, immediate tasks |
+| [learning curriculum](learning-curriculum.md) | Recommended order for learning the repo: control plane → substrate → membrane → one benchmark → LLM edges |
+| [multi-language process contract](multi-language-process-contract.md) | Current split between Clojure kernel, Python tooling, and future JS/TS surfaces; process boundaries and message contracts |
 | [executor / verifier protocol](executor-verifier-protocol.md) | Milestone-based autonomy with independent verification |
 | this file | Where to find everything |
 
@@ -60,7 +62,10 @@ Last updated: 2026-03-23
 
 | Doc | What it covers |
 |-----|---------------|
+| [collaborative pivot synthesis](collaborative-pivot-synthesis-2026-03-24.md) | Overall synthesis of the current pivot: kernel strengths, missing epistemic/relational layers, Graffito provenance lesson, and useful imports from Symbiotic-Vault |
+| [DSPy later lane](dspy-later-lane-2026-03-24.md) | Where DSPy-style optimization could fit later: bounded seams, metrics, eval sets, success criteria, and sequencing guardrails |
 | [interest map](interest-map-2026-03-23.md) | How the current kernel branch serves the broader goals: daemon / thinking-partner vision, situated research lens, teammate-facing surfaces, and external proof gaps |
+| [steering balance](steering-balance-2026-03-24.md) | `now / next / later / parked` steering aid for balancing the active Graffito branch, bounded honesty fixes, and the larger collaborative pivot |
 
 ---
 
