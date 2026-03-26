@@ -23,6 +23,20 @@ are updated there, re-copy here.
 | feedback-08-31-25.md | Feedback/D_Notes/08-31-25.md — session notes |
 | readme-context-guide.md | README.md — project context guide |
 
+## Visual references (vendored 2026-03-25)
+
+Origin: ComfyPromptByAPI/WorkingSpace/Projects/Graffito/ClipLibrary/
+
+| Directory | Contents |
+|-----------|----------|
+| `character_references/tony/` | 4 Tony reference images (standing, portal, space, action) |
+| `character_references/monk/` | 1 Monk closeup |
+| `character_references/grandma/` | 1 Grandma closeup |
+| `scene_references/` | street, apartment (x2), mural locations |
+
+See `VISUAL_REFERENCES.md` for usage guide and per-situation ref
+selection.
+
 ## See also
 
 - `daydreaming/Notes/experiential-design/24-graffito-kernel-brief.md` — kernel-facing brief

@@ -1,6 +1,6 @@
 # Right Now
 
-Last updated: 2026-03-24
+Last updated: 2026-03-25
 
 ## Proven
 
@@ -31,45 +31,52 @@ Last updated: 2026-03-24
 - The short attractor digest is now real too:
   the miniworld/export path reports when the loop settled, which
   episode dominates the late tail, and what still changes inside it.
+- The first bounded collaborator-side seam is now started too:
+  a typed issue-entry path exists for bounded architecture packets, with
+  LLM proposal packets on the outside and kernel-owned validation,
+  admission, activation, retrieval, and append-only lifecycle logs on
+  the inside.
+- The first live packet is still intentionally narrow and proposal-only:
+  one grounded issue is admitted as `:provisional` and activated, one
+  insufficiently grounded / jargon-leaning proposal is rejected, and
+  there is still no path from model proposal to `:durable`, rule
+  access, or threshold edits.
 
 ## Next After This
 
-- Broaden use/outcome tracking on top of the now-kernelized rehearsal
-  trigger seam and the extracted generic post-effect hook.
-- Use the lifecycle summary to read the 50/100-cycle attractor
-  directly; right now promotion/rule-access movement are real, but
-  vindication, rehabilitation, and demotion are still zero in the
-  current Graffito loop.
-- Use that digest to choose the next branch from evidence: the current
-  `100`-cycle tail is fully `:challenge-dominant` and dominated by the
-  durable reversal-sourced bridge after cycle `17`, so the next
-  productive move should come from reusable seam or pivot pressure, not
-  another benchmark-local bridge.
-- Keep the Graffito-specific reread projector benchmark-local until the
-  same projection pattern is proven reusable outside this harness.
-- Then use that lifecycle surface for a short 50/100-cycle attractor
-  digest and choose the next family-ecology move from evidence, rather
-  than inventing another benchmark-local bridge first.
-- If that read stabilizes without exposing another clear reusable
-  Graffito seam, the next branch may be one bounded collaborator-side
-  proposal experiment (for example typed concern/issue initiation),
-  not a broad pivot and not another miniworld growth spurt.
+- Keep widening reusable use/outcome reading where it still clarifies
+  real kernel state, but do not reopen a large Graffito-only branch.
+- Use the first typed issue-entry slice as the active pivot test:
+  `proposal packet -> validated/admitted issue -> activation gate ->
+  bridge-index retrieval -> append-only logs`.
+- Extend that seam next through the real missing stages:
+  `retrieved -> used -> outcome -> persisted/dropped`, rather than
+  adding another benchmark-local miniworld bridge.
+- Keep the first source type bounded and falsifiable:
+  short architecture/code-review packets first, not vault diffusion and
+  not a broad collaborator rewrite.
+- Keep the authority boundary hard:
+  no direct model path to durable admission, rule access, retrieval
+  threshold edits, or external action.
 
 ## Decision Point
 
-- After rehearsal trigger kernelization and generic post-effect-hook
-  extraction, does the longer-run miniworld diversify, or does it
-  remain a cleaner version of the same repeating attractor around the
-  durable reversal-sourced bridge?
+- Can the first typed issue-entry seam stay grounded and scarce across
+  bounded packets, or does it collapse into jargon mirroring,
+  duplication, or decorative retrieval that never alters later
+  resurfacing?
 
 ## Codex Next
 
-- Treat the miniworld as a domain assay, not as the kernel itself.
-- Pull inward only the seams that have clearly proven reusable.
-- Stop adding benchmark-local rehearsal glue unless a new concrete leak
-  appears.
-- Leave broader world richness, creative-output evaluation, and full
-  serendipity work for later.
+- Treat the miniworld as the stabilized assay baseline, not as the next
+  place to keep inventing bridges.
+- Use the new typed issue-entry seam as the first bounded collaborator
+  experiment.
+- Keep the kernel as strong committer:
+  validation, activation, persistence, promotion, and access movement
+  stay kernel-owned.
+- Pull inward only what proves reusable; leave broad collaborator
+  rewrite, richer worldbuilding, and full serendipity for later.
 
 ## Pointers
 

@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-03-23
+Last updated: 2026-03-25
 
 ---
 
@@ -108,7 +108,30 @@ promotion chain, executor boundary) is in a good resting state.
 Assay A is frozen as a regression. The next steps follow the
 three-level stack above, and the active benchmark-side branch is now
 the first autonomous Graffito miniworld over typed fact-space and
-carried Tony state.
+carried Tony state. That miniworld has now stabilized enough that the
+first bounded collaborator-side knowledge-entry seam is also in code:
+typed issue initiation over bounded architecture packets, with the
+kernel still owning validation, activation, persistence, and authority.
+
+### Current pivot slice: typed issue initiation
+
+The first honest collaborator-side experiment is no longer hypothetical.
+It is intentionally narrow:
+
+- `kernel/src/daydreamer/issue_entry.clj` now owns typed issue
+  validation, admission, activation gating, retrieval, and append-only
+  lifecycle logs
+- `kernel/src/daydreamer/issue_proposer.clj` is the bounded proposer
+  edge: model emits proposal packets, kernel normalizes and decides
+- `kernel/src/daydreamer/benchmarks/typed_issue_entry.clj` is the first
+  packet fixture: bounded architecture notes, not vault diffusion and
+  not a broad collaborator rewrite
+- the first mock run already proves the boundary:
+  one grounded decision issue is admitted and activated, one
+  insufficiently grounded / jargon-leaning proposal is rejected, and
+  the admitted issue can be retrieved later by shared bridge indices
+- there is still no path from proposal packet to `:durable`, rule
+  access, retrieval-threshold edits, or external action
 
 ### What is already true
 
@@ -307,6 +330,12 @@ The first honest Step 2 slices are now in code:
 - extend the new use/outcome substrate beyond roving's current
   cross-family slice so promotion, anti-residue, and rule
   accessibility are driven by attributed use records broadly
+- extend the issue-entry seam beyond `admitted -> retrieved` to the
+  real missing stages:
+  `retrieved -> used -> outcome -> persisted/dropped`
+- keep the first live source type bounded and falsifiable:
+  short architecture/code-review packets first, then broader source
+  surfaces only if the seam stays grounded
 - start using the new `:rule-access` registry for non-core/future
   frontier rules, not just authored-core defaults
 - widen outcome resolution beyond the current simple

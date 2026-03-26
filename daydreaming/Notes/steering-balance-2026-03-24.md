@@ -1,6 +1,6 @@
 # Steering Balance
 
-Last updated: 2026-03-24
+Last updated: 2026-03-25
 
 This note is not a sprint contract. It is a steering aid.
 
@@ -80,8 +80,12 @@ This is not a separate work stream. It is a lens on the current work:
   - **knowledge-entry layer**: what new issues, contradictions,
     hypotheses, or concerns enter the system in the first place
 
-When this thread reaches critical mass — when you can describe the
-first concrete pivot experiment — it moves to its own branch.
+That thread has now crossed the first threshold:
+the repo has a bounded typed issue-entry slice in code.
+It is still small enough to count as a seam test, not a broad rewrite.
+
+When this thread reaches the next threshold — repeated grounded packets
+with real later resurfacing effects — it moves to its own larger branch.
 
 This is still the center of gravity.
 
@@ -171,6 +175,14 @@ The working idea is:
 
 That keeps the collaborator pivot compatible with the current kernel
 discipline instead of turning into a prompt-per-rule rewrite.
+
+The first small live version of that is now started:
+
+- bounded architecture packet
+- proposal packet from the model
+- kernel validation / admission / activation
+- issue retrieval through shared bridge cues
+- no direct path to durable authority or rule access
 
 Near-pivot trigger:
 

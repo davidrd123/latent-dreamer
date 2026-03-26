@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Graffito Miniworld — Inner Life Trace</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; background: #0a0a0f; color: #c8c8d0; padding: 24px; line-height: 1.5; }
+h1 { font-size: 18px; color: #e0e0e8; margin-bottom: 4px; letter-spacing: 1px; }
+.subtitle { font-size: 12px; color: #666; margin-bottom: 24px; }
+.cycle-card { background: #12121a; border: 1px solid #222230; border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; transition: border-color 0.2s; }
+.cycle-card.flip { border-color: #d4a017; }
+.cycle-card.flip .flip-badge { display: inline-block; }
+.cycle-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.cycle-num { font-size: 13px; color: #555; min-width: 52px; }
+.situation { font-size: 13px; font-weight: 600; }
+.sit-street { color: #e06050; }
+.sit-apartment { color: #50b080; }
+.sit-mural { color: #6090e0; }
+.family-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
+.fam-rationalization { background: #2a2a44; color: #8888cc; }
+.fam-reversal { background: #3a2222; color: #cc7777; }
+.fam-rehearsal { background: #1a332a; color: #66bb88; }
+.fam-roving { background: #2a2a1a; color: #aaaa66; }
+.appraisal { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-left: 8px; }
+.apr-threat { background: #3a1a1a; color: #dd6666; }
+.apr-challenge { background: #1a2a1a; color: #66cc66; }
+.flip-badge { display: none; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; background: #3a2a00; color: #d4a017; margin-left: 8px; letter-spacing: 1px; }
+.regulation { font-size: 11px; color: #666; margin-left: auto; }
+.reg-overloaded { color: #dd5555; }
+.reg-bracing { color: #cc8844; }
+.reg-entraining { color: #55aadd; }
+.reg-flowing { color: #55cc88; }
+.reg-creating { color: #cc88dd; }
+
+.meters { display: flex; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+.meter { flex: 1; min-width: 140px; }
+.meter-label { font-size: 10px; color: #555; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+.meter-bar-bg { background: #1a1a24; height: 6px; border-radius: 3px; overflow: hidden; position: relative; }
+.meter-bar { height: 100%; border-radius: 3px; transition: width 0.3s; }
+.meter-bar.sensory { background: #cc5555; }
+.meter-bar.entrainment { background: #5588cc; }
+.meter-bar.agency { background: #55cc88; }
+.meter-bar.control { background: #88aacc; }
+.meter-val { font-size: 10px; color: #555; text-align: right; margin-top: 1px; }
+
+.candidates { margin-top: 10px; }
+.candidates-title { font-size: 10px; color: #444; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.candidate-row { display: flex; align-items: center; gap: 8px; font-size: 11px; margin-bottom: 2px; }
+.candidate-bar-bg { flex: 1; background: #1a1a24; height: 4px; border-radius: 2px; overflow: hidden; max-width: 200px; }
+.candidate-bar { height: 100%; border-radius: 2px; }
+.candidate-bar.winner { background: #d4a017; }
+.candidate-bar.loser { background: #333; }
+.candidate-name { min-width: 180px; color: #888; }
+.candidate-name.winner { color: #d4a017; font-weight: 600; }
+.candidate-score { min-width: 40px; text-align: right; color: #555; font-size: 10px; }
+
+.episode-info { font-size: 11px; color: #555; margin-top: 8px; }
+.episode-info .label { color: #444; }
+.promoted { color: #d4a017; }
+
+.summary-bar { background: #12121a; border: 1px solid #222230; border-radius: 8px; padding: 16px 20px; margin-top: 24px; }
+.summary-bar h2 { font-size: 14px; color: #888; margin-bottom: 10px; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.summary-item { font-size: 12px; }
+.summary-item .val { color: #e0e0e8; font-weight: 600; }
+.summary-item .lbl { color: #555; font-size: 10px; }
+
+.thought-prose { font-family: 'Georgia', serif; font-size: 13px; color: #a0a0b0; font-style: italic; margin-top: 10px; padding: 8px 12px; border-left: 2px solid #333; line-height: 1.6; }
+
+.arrow { color: #555; }
+</style>
+</head>
+<body>
+<h1>LATENT DREAMER — Graffito Miniworld</h1>
+<div class="subtitle">20-cycle autonomous inner life trace &middot; Tony navigates street overload, apartment support, mural crisis</div>
+
+<div id="cycles"></div>
+<div id="summary" class="summary-bar"></div>
+
+<script>
+const DATA_URL = 'graffito_miniworld.json';
+
+const SIT_LABELS = {
+  'graffito_street_overload': 'Street Overload',
+  'graffito_grandma_apartment': "Grandma's Apartment",
+  'graffito_night_mural': 'Night Mural'
+};
+const SIT_CLASS = {
+  'graffito_street_overload': 'sit-street',
+  'graffito_grandma_apartment': 'sit-apartment',
+  'graffito_night_mural': 'sit-mural'
+};
+const FAM_CLASS = {
+  'rationalization': 'fam-rationalization',
+  'reversal': 'fam-reversal',
+  'rehearsal': 'fam-rehearsal',
+  'roving': 'fam-roving'
+};
+const REG_CLASS = {
+  'overloaded': 'reg-overloaded',
+  'bracing': 'reg-bracing',
+  'entraining': 'reg-entraining',
+  'flowing': 'reg-flowing',
+  'creating': 'reg-creating'
+};
+
+function pct(v) { return Math.round((v || 0) * 100); }
+function fmt(v) { return (v || 0).toFixed(2); }
+
+function meterHTML(label, value, cssClass) {
+  return `<div class="meter">
+    <div class="meter-label">${label}</div>
+    <div class="meter-bar-bg"><div class="meter-bar ${cssClass}" style="width:${pct(value)}%"></div></div>
+    <div class="meter-val">${fmt(value)}</div>
+  </div>`;
+}
+
+function regMode(ts) {
+  if (!ts) return 'unknown';
+  if (ts.entrainment < 0.25 && ts['felt-agency'] < 0.3 && ts['perceived-control'] < 0.3) return 'overloaded';
+  if (ts.entrainment >= 0.6 && ts['felt-agency'] >= 0.6 && ts['perceived-control'] >= 0.6) return 'flowing';
+  if (ts.entrainment >= 0.45) return 'entraining';
+  return 'bracing';
+}
+
+function renderCycle(c) {
+  const gm = (c.debug || {}).graffito_miniworld || {};
+  const sitId = (c.selected_goal || {}).situation_id || '';
+  const family = (c.selected_goal || {}).goal_type || '';
+  const tsAfter = gm['tony-state-after'] || {};
+  const tsBefore = gm['tony-state-before'] || {};
+  const apBefore = gm['mural-appraisal-before'] || '';
+  const apAfter = gm['mural-appraisal-after'] || '';
+  const flip = gm['reappraisal-flip?'] || false;
+  const regAfter = regMode(tsAfter);
+  const candidates = (c.top_candidates || []).slice(0, 4);
+  const maxScore = candidates.length ? Math.max(...candidates.map(x => x.strength || 0)) : 1;
+  const epId = (c.debug || {})['family-plan-episode-id'];
+  const crossFamWon = gm['cross-family-source-won?'];
+  const crossFamOutcome = gm['cross-family-use-outcome'];
+
+  let episodeNote = '';
+  if (epId) episodeNote += `<span class="label">stored:</span> ${epId}`;
+  if (crossFamWon) episodeNote += ` · <span class="promoted">cross-family ${crossFamOutcome}</span>`;
+
+  const lifecycle = (c.debug || {})['episode-lifecycle'];
+  if (lifecycle) {
+    const lc = typeof lifecycle === 'string' ? lifecycle : JSON.stringify(lifecycle);
+    if (lc.includes('promoted') || lc.includes('durable')) {
+      episodeNote += ' · <span class="promoted">PROMOTED</span>';
+    }
+  }
+
+  return `<div class="cycle-card ${flip ? 'flip' : ''}">
+    <div class="cycle-header">
+      <span class="cycle-num">C${String(c.cycle).padStart(2,'0')}</span>
+      <span class="situation ${SIT_CLASS[sitId] || ''}">${SIT_LABELS[sitId] || sitId}</span>
+      <span class="family-badge ${FAM_CLASS[family] || ''}">${family}</span>
+      <span class="appraisal ${apAfter.includes('challenge') ? 'apr-challenge' : 'apr-threat'}">${apAfter.replace('-dominant','')}</span>
+      <span class="flip-badge">FLIP</span>
+      <span class="regulation ${REG_CLASS[regAfter] || ''}">${regAfter}</span>
+    </div>
+    <div class="meters">
+      ${meterHTML('sensory load', tsAfter['sensory-load'], 'sensory')}
+      ${meterHTML('entrainment', tsAfter.entrainment, 'entrainment')}
+      ${meterHTML('felt agency', tsAfter['felt-agency'], 'agency')}
+      ${meterHTML('control', tsAfter['perceived-control'], 'control')}
+    </div>
+    <div class="candidates">
+      <div class="candidates-title">competing candidates</div>
+      ${candidates.map((cand, i) => {
+        const isWinner = i === 0;
+        const barW = Math.round(((cand.strength || 0) / maxScore) * 100);
+        const reasons = (cand.reasons || []).join(', ');
+        return `<div class="candidate-row">
+          <span class="candidate-name ${isWinner ? 'winner' : ''}">${cand.family || '?'} · ${SIT_LABELS[cand.situation_id] || cand.situation_id || '?'}</span>
+          <div class="candidate-bar-bg"><div class="candidate-bar ${isWinner ? 'winner' : 'loser'}" style="width:${barW}%"></div></div>
+          <span class="candidate-score">${fmt(cand.strength)}</span>
+        </div>`;
+      }).join('')}
+    </div>
+    ${episodeNote ? `<div class="episode-info">${episodeNote}</div>` : ''}
+  </div>`;
+}
+
+function renderSummary(data) {
+  const digest = data.attractor_digest || {};
+  const cycles = data.cycles || [];
+  const families = {};
+  let flips = 0, challengeCycles = 0, episodes = 0;
+  cycles.forEach(c => {
+    const f = (c.selected_goal || {}).goal_type || '?';
+    families[f] = (families[f] || 0) + 1;
+    const gm = (c.debug || {}).graffito_miniworld || {};
+    if (gm['reappraisal-flip?']) flips++;
+    if ((gm['mural-appraisal-after'] || '').includes('challenge')) challengeCycles++;
+    if ((c.debug || {})['family-plan-episode-id']) episodes++;
+  });
+
+  const famStr = Object.entries(families).map(([k,v]) => `${k}: ${v}`).join(' · ');
+
+  return `<h2>20-Cycle Summary</h2>
+    <div class="summary-grid">
+      <div class="summary-item"><div class="val">${famStr}</div><div class="lbl">family distribution</div></div>
+      <div class="summary-item"><div class="val">${flips}</div><div class="lbl">reappraisal flips</div></div>
+      <div class="summary-item"><div class="val">${challengeCycles}</div><div class="lbl">challenge-reading mural cycles</div></div>
+      <div class="summary-item"><div class="val">${episodes}</div><div class="lbl">episodes stored</div></div>
+      <div class="summary-item"><div class="val">${digest.durable_episode_count || '?'}</div><div class="lbl">durable episodes</div></div>
+      <div class="summary-item"><div class="val">${digest.rule_access_transition_count || '?'}</div><div class="lbl">frontier rules opened</div></div>
+      <div class="summary-item"><div class="val">${digest.cross_family_source_win_cycles || '?'}</div><div class="lbl">cross-family source wins</div></div>
+    </div>`;
+}
+
+// Inline data — avoids fetch/CORS issues with file:// URLs
+const INLINE_DATA = null; // will be replaced by build script
+
+function loadAndRender() {
+  if (INLINE_DATA) {
+    render(INLINE_DATA);
+    return;
+  }
+  // Try fetch as fallback (works from localhost)
+  fetch(DATA_URL)
+    .then(r => r.json())
+    .then(render)
+    .catch(e => {
+      document.getElementById('cycles').innerHTML =
+        `<p style="color:#cc5555">Error loading data: ${e.message}<br>
+         Tip: run <code>python3 -m http.server 8080</code> in the out/ directory, then open <code>http://localhost:8080/graffito_miniworld_rendered.html</code></p>`;
+    });
+}
+
+function render(data) {
+  document.getElementById('cycles').innerHTML = (data.cycles || []).map(renderCycle).join('');
+  document.getElementById('summary').innerHTML = renderSummary(data);
+}
+
+loadAndRender();
+</script>
+</body>
+</html>

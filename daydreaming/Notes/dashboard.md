@@ -1,6 +1,6 @@
 # Conducted Daydreaming — Project Dashboard
 
-Last updated: 2026-03-23
+Last updated: 2026-03-25
 
 ---
 
@@ -89,6 +89,7 @@ Lane 2: Deep Build (kernel rule engine)            ← where the architecture li
   ├── Graffito slices: Slice 1 (typed retrieval), Slice 2 (character-state reappraisal), Slice 3 (rehearsal control reread)
   ├── Graffito miniworld: autonomous 3-scene reread dynamics, kernel-owned rehearsal activation/provenance/storage, frontier-path opening, and two promoted cross-family consumer paths (`rationalization -> rehearsal`, `reversal -> rehearsal`)
   ├── Next Graffito reusable seams: broader use-outcome tracking now started via canonical `episode-lifecycle` plus lifecycle summaries, the 50/100-cycle attractor digest now exposed directly in the miniworld/export path, the generic post-effect hook now in kernel with Graffito reread projection still benchmark-local, and the next non-rehearsal family ecology move chosen from longer-run evidence
+  ├── First bounded knowledge-entry seam: typed issue initiation now exists as `source packet -> LLM proposal packet -> kernel validation/admission/activation/retrieval/logging`, still proposal-only and still using bounded architecture packets
   ├── First :llm-backed pilot as episode evaluator
   └── See build-order-checkpoint-2026-03-22.md
 
@@ -210,6 +211,7 @@ See `condensation/build-order-checkpoint-2026-03-22.md` for full details.
 | Graffito Slice 2 benchmark (persistent Tony state + same-situation reappraisal) | Done | 2026-03-22 |
 | Graffito Slice 3 benchmark (rehearsal-driven control shift + same-situation reappraisal) | Done | 2026-03-23 |
 | Graffito miniworld benchmark (autonomous street/apartment/mural reread loop) | Done | 2026-03-23 |
+| Typed issue-entry seam (bounded architecture packet, proposal-only) | Started | 2026-03-25 |
 | First :llm-backed evaluator | Not started | |
 | Verified paths | Not started | |
 | Cross-session write-back transfer (L4) | Not started | |
