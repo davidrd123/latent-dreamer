@@ -7,7 +7,8 @@ dragging in the full DMPOST AE/Illustrator stack.
 
 ## What it does
 
-- `edit`: generate or edit images with Gemini
+- `edit`: generate or edit images with Gemini, Replicate, or Fal
+- `render`: friendlier alias for `edit` when you just want image generation
 - `analyze`: analyze images or videos with Gemini
 - `compare`: compare multiple images for the same target and return a structured ranking
 - `segment`: segment an image with SAM3 on Replicate
@@ -61,12 +62,22 @@ python3 -m venv .venv-daydream-vision
 Required env vars:
 
 - `GEMINI_API_KEY` for `edit` and `analyze`
-- `REPLICATE_API_TOKEN` for `segment`
+- `REPLICATE_API_TOKEN` for `segment` and Replicate-backed `edit`
+- `FAL_KEY` for Fal-backed `edit`
 
 Optional env vars:
 
 - `DAYDREAM_VISION_OUTPUT_DIR`
   Default: `daydreaming/out/visual-anchors/`
+
+Direct `render` / `edit` runs now default to:
+
+- `daydreaming/out/renders/<YYYY-MM-DD>/` for general renders
+- `daydreaming/out/renders/qwen/<YYYY-MM-DD>/` for direct `--model qwen/qwen-image`
+- `daydreaming/out/renders/fal/<YYYY-MM-DD>/` for direct `--model fal-ai/qwen-image`
+- `daydreaming/out/renders/graffito/<YYYY-MM-DD>/` for `--graffito`
+
+Anchor workflows still default to `daydreaming/out/visual-anchors/`.
 
 ## Usage
 
@@ -74,6 +85,12 @@ From the repo root:
 
 ```bash
 ./tools/vision --pretty edit "moody detective portrait in a rain-soaked alley" --label detective-alley
+./tools/vision --pretty render "Tony at the mural wall, charged and unfinished" --graffito --aspect-ratio 16:9
+./tools/vision --pretty edit "Tony at the mural wall, charged and unfinished" --graffito --aspect-ratio 16:9
+./tools/vision --pretty edit "cinematic alley at blue hour" --model qwen/qwen-image --aspect-ratio 16:9 --output-format png
+./tools/vision --pretty render "Tony at the mural wall, charged and unfinished" --graffito --provider fal --aspect-ratio 16:9
+./tools/vision --pretty render "synthetic graffito still, wet wall, electric orange residue" --model fal-ai/qwen-image --lora-weights https://huggingface.co/davidrd123/graffito_synthetic_qwen/resolve/main/pytorch_lora_weights.safetensors --aspect-ratio 16:9
+./tools/vision --pretty edit "make this alley feel wetter and more dangerous" --model qwen/qwen-image --image path/to/source.png --strength 0.85 --guidance 3.5
 ./tools/vision --pretty analyze "Does this match the brief?" path/to/image.png
 ./tools/vision --pretty compare "single centered glossy red rubber ball on a plain white background" \
   daydreaming/out/visual-anchors/2026-03-14/compare-ball_001.png \
@@ -124,8 +141,16 @@ Optional metadata flags:
 
 ## Notes
 
-- `segment` is the only command that currently depends on Replicate.
+- `segment` and Replicate-backed `edit` depend on Replicate.
+- `render` is just an alias for `edit`; both hit the same implementation path.
 - `edit` supports both pure generation and image-edit flows.
+- `edit` auto-routes to Replicate when `--model` looks like a Replicate model ref such as `qwen/qwen-image`.
+- `edit` auto-routes to Fal when `--model` looks like a Fal model ref such as `fal-ai/qwen-image`.
+- `edit --graffito` is a convenience preset: it switches to `qwen/qwen-image` and injects the Graffito LoRA weights URL.
+- `edit --graffito --provider fal` switches the same preset to `fal-ai/qwen-image`.
+- Replicate-backed `edit` now defaults to `png` output locally unless you override it with `--output-format`.
+- Replicate-backed `edit` supports additional flags such as `--seed`, `--guidance`, `--strength`, `--go-fast`, `--lora-weights`, `--extra-lora-weight`, `--output-format`, `--output-quality`, `--enhance-prompt`, `--negative-prompt`, `--num-inference-steps`, and `--disable-safety-checker`.
+- Fal-backed `edit` is currently wired as text-to-image only in this repo. It supports `--seed`, `--guidance`, `--go-fast`, `--lora-weights`, `--extra-lora-weight`, `--aspect-ratio`, `--image-size` (Fal enums), `--output-format png|jpg`, `--negative-prompt`, and `--num-inference-steps`.
 - `compare` sends multiple images to Gemini at once and returns a
   structured ranking with per-candidate scores, issues, strengths, and a
   recommended best candidate.

@@ -16,7 +16,15 @@ from .manifest import (
     resolve_anchor_source_image,
 )
 from .paths import repo_root, slugify, write_json
-from .service import analyze_media, build_visual_anchor, compare_media_candidates, edit_image, refine_visual_anchor, segment_image
+from .service import (
+    analyze_media,
+    apply_edit_presets,
+    build_visual_anchor,
+    compare_media_candidates,
+    edit_image,
+    refine_visual_anchor,
+    segment_image,
+)
 from .world_lint import lint_brief_world
 from .world_pack import evaluate_world_pack, get_world_pack_status, run_world_pack
 
@@ -101,6 +109,19 @@ def _default_pack_output_path(brief_path: str) -> str:
     return str(output)
 
 
+def _default_render_output_root(*, graffito: bool, model: str, provider: str = "auto") -> str:
+    root = repo_root() / "daydreaming" / "out" / "renders"
+    normalized_model = (model or "").strip().lower()
+    normalized_provider = (provider or "auto").strip().lower()
+    if graffito:
+        return str((root / "graffito").resolve())
+    if normalized_provider == "fal" or normalized_model.startswith("fal-ai/"):
+        return str((root / "fal").resolve())
+    if normalized_model == "qwen/qwen-image":
+        return str((root / "qwen").resolve())
+    return str(root.resolve())
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="vision",
@@ -130,7 +151,12 @@ def _build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    edit = subparsers.add_parser("edit", help="Generate or edit images with Gemini.")
+    edit = subparsers.add_parser(
+        "edit",
+        aliases=["render"],
+        help="Generate or edit images with Gemini, Replicate, or Fal.",
+    )
+    edit.set_defaults(command="edit")
     edit.add_argument("prompt", help="Prompt or edit instruction.")
     edit.add_argument(
         "--image",
@@ -142,10 +168,71 @@ def _build_parser() -> argparse.ArgumentParser:
     edit.add_argument("--num-outputs", type=int, default=1, help="Number of output images (1-4).")
     edit.add_argument("--output-dir", help="Optional output root directory.")
     edit.add_argument("--model", default="gemini-3.1-flash-image-preview")
+    edit.add_argument(
+        "--provider",
+        choices=["auto", "gemini", "replicate", "fal"],
+        default="auto",
+        help="Optional provider override when the model name alone is ambiguous.",
+    )
+    edit.add_argument(
+        "--graffito",
+        action="store_true",
+        help="Use the Graffito Qwen image preset and LoRA weights.",
+    )
     edit.add_argument("--temperature", type=float, default=0.7)
     edit.add_argument("--system-prompt", default="")
     edit.add_argument("--aspect-ratio")
     edit.add_argument("--image-size")
+    edit.add_argument("--seed", type=int, help="Optional random seed for Replicate image models.")
+    edit.add_argument("--guidance", type=float, help="Optional guidance value for Replicate image models.")
+    edit.add_argument("--strength", type=float, help="Optional img2img strength for Replicate image models.")
+    edit.add_argument(
+        "--go-fast",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Optional Replicate optimization toggle.",
+    )
+    edit.add_argument("--lora-scale", type=float, help="Optional LoRA scale for Replicate image models.")
+    edit.add_argument("--lora-weights", help="Optional primary LoRA weights URL for Replicate image models.")
+    edit.add_argument(
+        "--extra-lora-weight",
+        dest="extra_lora_weights",
+        action="append",
+        default=[],
+        help="Optional extra LoRA weights URL. Repeat for multiple entries.",
+    )
+    edit.add_argument(
+        "--extra-lora-scale",
+        dest="extra_lora_scale",
+        action="append",
+        type=float,
+        default=[],
+        help="Optional scale for an extra LoRA. Repeat to match extra weights.",
+    )
+    edit.add_argument(
+        "--output-format",
+        choices=["webp", "jpg", "png"],
+        help="Optional output format for Replicate image models.",
+    )
+    edit.add_argument("--output-quality", type=int, help="Optional output quality for Replicate image models.")
+    edit.add_argument(
+        "--enhance-prompt",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Optional prompt enhancement toggle for Replicate image models.",
+    )
+    edit.add_argument("--negative-prompt", help="Optional negative prompt for Replicate image models.")
+    edit.add_argument(
+        "--num-inference-steps",
+        type=int,
+        help="Optional denoising step count for Replicate image models.",
+    )
+    edit.add_argument(
+        "--disable-safety-checker",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Optional Replicate safety-checker toggle.",
+    )
 
     segment = subparsers.add_parser("segment", help="Segment an image with SAM3 on Replicate.")
     segment.add_argument("image_path", help="Input image path.")
@@ -380,18 +467,46 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "edit":
+        resolved_model, resolved_lora_weights = apply_edit_presets(
+            graffito=args.graffito,
+            provider=args.provider,
+            model=args.model,
+            lora_weights=args.lora_weights,
+        )
+        resolved_output_dir = args.output_dir or _default_render_output_root(
+            graffito=args.graffito,
+            model=resolved_model,
+            provider=args.provider,
+        )
         result = edit_image(
             prompt=args.prompt,
             image_paths=args.images,
             num_outputs=args.num_outputs,
-            output_dir=args.output_dir,
+            output_dir=resolved_output_dir,
             label=args.label,
-            model=args.model,
+            model=resolved_model,
+            provider=args.provider,
             temperature=args.temperature,
             system_prompt=args.system_prompt,
             aspect_ratio=args.aspect_ratio,
             image_size=args.image_size,
+            seed=args.seed,
+            guidance=args.guidance,
+            strength=args.strength,
+            go_fast=args.go_fast,
+            lora_scale=args.lora_scale,
+            lora_weights=resolved_lora_weights,
+            output_format=args.output_format,
+            enhance_prompt=args.enhance_prompt,
+            output_quality=args.output_quality,
+            negative_prompt=args.negative_prompt,
+            extra_lora_scale=(args.extra_lora_scale or None),
+            extra_lora_weights=(args.extra_lora_weights or None),
+            num_inference_steps=args.num_inference_steps,
+            disable_safety_checker=args.disable_safety_checker,
         )
+        if args.graffito:
+            result["preset"] = "graffito"
     elif args.command == "segment":
         result = segment_image(
             image_path=args.image_path,

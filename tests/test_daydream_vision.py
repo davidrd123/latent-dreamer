@@ -6,8 +6,11 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from PIL import Image
+
 from daydream_vision.brief_bridge import build_world_pack_from_brief
 from daydream_vision.manifest import append_manifest_record, get_anchor_record, review_anchor_candidate
+from daydream_vision.service import FAL_QWEN_MODEL, GRAFFITO_QWEN_MODEL, apply_edit_presets, edit_image
 from daydream_vision.world_lint import lint_brief_world
 from daydream_vision.world_pack import evaluate_world_pack, get_world_pack_status
 
@@ -220,6 +223,68 @@ class DaydreamVisionManifestTests(unittest.TestCase):
         self.assertEqual(anchor["status"], "rejected")
         self.assertEqual(anchor["history"][-1]["reason"], "off_brief")
         self.assertEqual(anchor["history"][-1]["note"], "shape is wrong")
+
+
+class DaydreamVisionProviderTests(unittest.TestCase):
+    def test_graffito_preset_can_target_fal(self) -> None:
+        model, lora = apply_edit_presets(
+            graffito=True,
+            provider="fal",
+            model="gemini-3.1-flash-image-preview",
+            lora_weights=None,
+        )
+        self.assertEqual(model, FAL_QWEN_MODEL)
+        self.assertIn("graffito_synthetic_qwen", lora or "")
+
+    def test_graffito_preset_defaults_to_replicate_qwen(self) -> None:
+        model, lora = apply_edit_presets(
+            graffito=True,
+            provider="auto",
+            model="gemini-3.1-flash-image-preview",
+            lora_weights=None,
+        )
+        self.assertEqual(model, GRAFFITO_QWEN_MODEL)
+        self.assertIn("graffito_synthetic_qwen", lora or "")
+
+    def test_edit_image_routes_fal_qwen_and_renames_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            out_dir = Path(temp_dir)
+            raw_dir = out_dir / "2026-03-25"
+            raw_dir.mkdir(parents=True, exist_ok=True)
+            raw_file = raw_dir / "test-raw_0.png"
+            Image.new("RGB", (32, 24), (10, 20, 30)).save(raw_file)
+
+            with patch(
+                "daydream_vision.service.fal_min.generate",
+                return_value={
+                    "success": True,
+                    "outputs": [
+                        {
+                            "path": str(raw_file),
+                            "width": 32,
+                            "height": 24,
+                            "content_type": "image/png",
+                        }
+                    ],
+                    "metrics": {"timings": {"inference": 1.0}},
+                },
+            ) as mock_generate:
+                result = edit_image(
+                    prompt="Tony at the mural wall",
+                    model="fal-ai/qwen-image",
+                    provider="fal",
+                    output_dir=str(out_dir),
+                    label="fal-test",
+                    lora_weights="https://example.com/graffito.safetensors",
+                )
+
+            self.assertEqual(result["provider"], "fal")
+            self.assertEqual(result["output_count"], 1)
+            self.assertEqual(Path(result["outputs"][0]["path"]).suffix, ".png")
+            self.assertTrue(Path(result["outputs"][0]["path"]).exists())
+            called_params = mock_generate.call_args.kwargs["params"]
+            self.assertEqual(called_params["output_format"], "png")
+            self.assertEqual(called_params["loras"][0]["path"], "https://example.com/graffito.safetensors")
 
 
 class DaydreamVisionPackTests(unittest.TestCase):

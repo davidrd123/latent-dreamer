@@ -5,12 +5,14 @@
             [clojure.java.shell :as sh]
             [clojure.string :as str]
             [daydreamer.benchmarks.arctic-expedition :as arctic]
+            [daydreamer.benchmarks.graffito-miniworld :as graffito-mini]
             [daydreamer.benchmarks.puppet-knows-autonomous :as puppet-autonomous]
             [daydreamer.benchmarks.puppet-knows :as puppet]
             [daydreamer.benchmarks.stalker-zone :as zone]))
 
 (declare build-puppet-knows-log)
 (declare build-arctic-expedition-log)
+(declare build-graffito-miniworld-log)
 (declare build-stalker-zone-log)
 
 (def ^:private benchmark-specs
@@ -41,6 +43,12 @@
     :default-html-path "out/puppet_knows_with_director.html"
     :default-title "Puppet Knows Benchmark: Autonomous + Director"
     :label "autonomous+director"}
+   :graffito-miniworld
+   {:builder :graffito-miniworld
+    :default-output-path "out/graffito_miniworld.json"
+    :default-html-path "out/graffito_miniworld.html"
+    :default-title "Graffito Miniworld: Autonomous"
+    :label "graffito-miniworld"}
    :arctic-scripted {:builder :arctic-expedition
                      :default-output-path "out/arctic_expedition_benchmark.json"
                      :default-html-path "out/arctic_expedition_benchmark.html"
@@ -86,8 +94,11 @@
     (if-let [flag (first args)]
       (case flag
         "--render-html" (recur (rest args) (assoc options :render-html? true))
+        "--render-canopy" (recur (rest args) (assoc options :render-canopy? true))
         "--out" (let [[_ value & more] args]
                   (recur more (assoc options :out-path value)))
+        "--canopy-out" (let [[_ value & more] args]
+                         (recur more (assoc options :canopy-out value)))
         "--cycles" (let [[_ value & more] args]
                      (recur more (assoc options :cycles (Long/parseLong value))))
         "--scope-root" (let [[_ value & more] args]
@@ -156,6 +167,7 @@
       :autonomous :autonomous
       :autonomous-mock-director :autonomous-mock-director
       :autonomous-director :autonomous-director
+      :graffito-miniworld :graffito-miniworld
       :arctic-scripted :arctic-scripted
       :arctic-semi :arctic-semi-unscripted
       :arctic-semi-unscripted :arctic-semi-unscripted
@@ -217,10 +229,23 @@
   [benchmark]
   (:default-title (benchmark-spec benchmark)))
 
+(defn- default-canopy-path
+  [benchmark]
+  (let [default-json-path (default-output-path benchmark)
+        json-file (io/file default-json-path)
+        filename (.getName json-file)
+        stem (if (str/ends-with? filename ".json")
+               (subs filename 0 (- (count filename) 5))
+               filename)]
+    (str (some-> (.getParent json-file) (str "/"))
+         stem
+         "_canopy.html")))
+
 (defn- build-log
   [benchmark options]
   (case (:builder (benchmark-spec benchmark))
     :puppet-knows (build-puppet-knows-log options)
+    :graffito-miniworld (build-graffito-miniworld-log options)
     :arctic-expedition (build-arctic-expedition-log options)
     :stalker-zone (build-stalker-zone-log options)
     (throw (ex-info "Unknown benchmark log builder"
@@ -295,6 +320,21 @@
      (:log (run-benchmark {:git_commit (or git-commit
                                            (repo-commit (latent-root)))})))))
 
+(defn build-graffito-miniworld-log
+  "Return the reporter-shaped Graffito miniworld benchmark log."
+  ([] (build-graffito-miniworld-log {}))
+  ([{:keys [cycles git-commit]}]
+   (let [{:keys [log summaries] :as result}
+         (graffito-mini/run-miniworld {:cycles (or cycles 20)})
+         commit (or git-commit
+                    (repo-commit (latent-root)))
+         log (cond-> log
+               commit
+               (assoc "git_commit" commit))]
+     (assoc result
+            :log log
+            :summaries summaries))))
+
 (defn build-stalker-zone-log
   "Return the reporter-shaped Stalker Zone benchmark log."
   ([] (build-stalker-zone-log {}))
@@ -340,6 +380,30 @@
                        :html-path (.getCanonicalPath html-file)})))
     (.getCanonicalPath html-file)))
 
+(defn- render-canopy!
+  [{:keys [json-path canopy-path title]}]
+  (let [repo-root (latent-root)
+        canopy-file (io/file repo-root canopy-path)
+        json-file (io/file json-path)
+        command ["uv"
+                 "run"
+                 "python"
+                 "daydreaming/debug_canopy.py"
+                 "--trace-path"
+                 (.getCanonicalPath json-file)
+                 "--output"
+                 (.getCanonicalPath canopy-file)
+                 "--title"
+                 title]
+        {:keys [exit err]} (apply sh/sh (concat command [:dir (.getCanonicalPath repo-root)]))]
+    (when-not (zero? exit)
+      (throw (ex-info "Debug canopy render failed"
+                      {:exit exit
+                       :stderr err
+                       :json-path (.getCanonicalPath json-file)
+                       :canopy-path (.getCanonicalPath canopy-file)})))
+    (.getCanonicalPath canopy-file)))
+
 (defn write-benchmark-log!
   "Write a reporter-shaped benchmark log to disk and return the absolute output
   path."
@@ -380,7 +444,8 @@
   "Write reporter JSON, and optionally HTML, for any supported benchmark
   variant. Returns the written paths."
   ([] (write-benchmark-report! {}))
-  ([{:keys [benchmark out-path html-out scope-root git-commit render-html? title
+  ([{:keys [benchmark out-path html-out canopy-out scope-root git-commit render-html?
+            render-canopy? title
             cycles director-mode director-model director-temperature
             director-max-output-tokens thought-mode thought-model
             thought-temperature thought-max-output-tokens
@@ -417,9 +482,17 @@
                                       :scope-root scope-root
                                       :title (or title
                                                  (default-title benchmark))
-                                      :label (:label (benchmark-spec benchmark))}))]
+                                      :label (:label (benchmark-spec benchmark))}))
+         canopy-path (when render-canopy?
+                       (render-canopy! {:json-path json-path
+                                        :canopy-path (or canopy-out
+                                                         (default-canopy-path benchmark))
+                                        :title (str (or title
+                                                        (default-title benchmark))
+                                                    " Debug Canopy")}))]
      {:json-path json-path
       :html-path html-path
+      :canopy-path canopy-path
       :summaries (:summaries payload)})))
 
 (defn write-puppet-knows-log!
@@ -437,18 +510,21 @@
 (defn -main
   [& args]
   (try
-    (let [{:keys [benchmark out-path html-out render-html? scope-root title
+    (let [{:keys [benchmark out-path html-out canopy-out render-html?
+                  render-canopy? scope-root title
                   cycles print-summary? director-mode director-model
                   director-temperature director-max-output-tokens
                   thought-mode thought-model thought-temperature
                   thought-max-output-tokens thought-routing-policy
                   thought-escalation-model thought-escalation-goals]}
           (parse-args args)
-          {:keys [json-path html-path summaries]}
+          {:keys [json-path html-path canopy-path summaries]}
           (write-benchmark-report! {:benchmark benchmark
                                     :out-path out-path
                                     :html-out html-out
+                                    :canopy-out canopy-out
                                     :render-html? render-html?
+                                    :render-canopy? render-canopy?
                                     :scope-root scope-root
                                     :title title
                                     :cycles cycles
@@ -474,6 +550,8 @@
           (println)))
       (println json-path)
       (when html-path
-        (println html-path)))
+        (println html-path))
+      (when canopy-path
+        (println canopy-path)))
     (finally
       (shutdown-agents))))

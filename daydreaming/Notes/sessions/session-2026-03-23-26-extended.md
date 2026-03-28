@@ -2,7 +2,7 @@
 
 Duration: multi-day extended session (continuation of 03-23)
 Agent: Claude Opus 4.6 (1M context)
-Context used: ~776k/1000k tokens
+Context used: ~759k/1000k tokens (at session end)
 
 ## What this session covered
 

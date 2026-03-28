@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Kernel Data Shapes</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap');
+
+:root {
+  --bg: #0d0f14;
+  --card: #151821;
+  --card-hover: #1a1e2a;
+  --border: #1e2230;
+  --border-active: #2a3040;
+  --text: #8b90a0;
+  --text-bright: #c8ccd8;
+  --text-dim: #4a4e5a;
+  --cyan: #5ccfe6;
+  --amber: #e6b450;
+  --magenta: #c678dd;
+  --green: #7ec699;
+  --red: #e06c75;
+  --cyan-dim: #2a4a50;
+  --amber-dim: #4a3a20;
+  --magenta-dim: #3a2a40;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+h1 {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-bright);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--text-dim);
+  margin-bottom: 40px;
+}
+
+/* ── World hub ── */
+.world-hub {
+  text-align: center;
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.world-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  border: 1px solid var(--cyan-dim);
+  padding: 6px 20px;
+  border-radius: 4px;
+  background: var(--card);
+}
+
+.world-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
+
+/* ── Card grid ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.shape-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.shape-card:hover {
+  border-color: var(--border-active);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.card-header:active {
+  background: var(--card-hover);
+}
+
+.card-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.card-dot.cyan { background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+.card-dot.amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.card-dot.magenta { background: var(--magenta); box-shadow: 0 0 6px var(--magenta); }
+.card-dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.card-dot.red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+.card-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-bright);
+  letter-spacing: 0.06em;
+}
+
+.card-brief {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+
+.card-toggle {
+  font-size: 10px;
+  color: var(--text-dim);
+  transition: transform 0.2s;
+}
+
+.shape-card.open .card-toggle {
+  transform: rotate(90deg);
+}
+
+.card-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.shape-card.open .card-body {
+  display: block;
+  padding-top: 14px;
+}
+
+/* ── Map display ── */
+.map-block {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 12px;
+}
+
+.map-line {
+  white-space: nowrap;
+  line-height: 1.7;
+}
+
+.k { color: var(--cyan); }          /* keyword key */
+.v { color: var(--text-bright); }   /* value */
+.t { color: var(--text-dim); }      /* type annotation */
+.c { color: var(--text-dim); font-style: italic; } /* comment */
+.ref { color: var(--amber); text-decoration: underline; text-decoration-style: dotted;
+       text-underline-offset: 3px; cursor: help; }
+.kw { color: var(--magenta); }      /* keyword value */
+.num { color: var(--green); }       /* number */
+.set-brace { color: var(--text-dim); }
+
+.card-note {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  padding: 8px 0;
+}
+
+.card-note strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ── Connection legend ── */
+.connections {
+  margin-bottom: 48px;
+}
+
+.connections h2 {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.conn-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 8px;
+}
+
+.conn-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.conn-from, .conn-to {
+  font-weight: 600;
+  color: var(--text-bright);
+}
+
+.conn-via {
+  color: var(--amber);
+}
+
+.conn-arrow {
+  color: var(--text-dim);
+}
+
+/* ── Cycle stepper ── */
+.cycle-section {
+  margin-bottom: 48px;
+}
+
+.cycle-section h2 {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.cycle-track {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+}
+
+.cycle-step {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  min-width: 100px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cycle-step:active, .cycle-step.active {
+  border-color: var(--cyan);
+  background: var(--card-hover);
+}
+
+.cycle-step.active .step-name {
+  color: var(--cyan);
+}
+
+.step-num {
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.step-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  transition: color 0.2s;
+}
+
+.step-detail {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  min-height: 120px;
+}
+
+.step-detail-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cyan);
+  margin-bottom: 8px;
+}
+
+.step-detail-body {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.step-detail-body .k { font-weight: 500; }
+
+.step-what {
+  margin-bottom: 8px;
+}
+
+.step-shape {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  overflow-x: auto;
+  font-size: 11px;
+}
+
+/* ── Context tree ── */
+.tree-section {
+  margin-bottom: 48px;
+}
+
+.tree-section h2 {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.tree-viz {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 24px;
+  font-size: 11px;
+  overflow-x: auto;
+}
+
+.tree-node {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.tree-indent {
+  color: var(--border);
+  white-space: pre;
+  user-select: none;
+}
+
+.tree-id {
+  color: var(--cyan);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tree-meta {
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.tree-facts {
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+.tree-label {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 2px;
+  margin-left: 6px;
+}
+
+.tree-label.alt-past {
+  color: var(--magenta);
+  border: 1px solid var(--magenta-dim);
+}
+
+.tree-label.pseudo {
+  color: var(--amber);
+  border: 1px solid var(--amber-dim);
+}
+
+footer {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Kernel Data Shapes</h1>
+<p class="subtitle">Everything is a map. Maps contain maps. Keywords connect them.</p>
+
+<!-- World hub -->
+<div class="world-hub">
+  <div class="world-label">world</div>
+  <div class="world-desc">The single map that holds everything. Every function takes it in and returns a new version.</div>
+</div>
+
+<!-- Card grid -->
+<div class="card-grid">
+
+  <!-- Contexts -->
+  <div class="shape-card" onclick="this.classList.toggle('open')">
+    <div class="card-header">
+      <div class="card-dot cyan"></div>
+      <span class="card-name">:contexts</span>
+      <span class="card-brief">the planning tree</span>
+      <span class="card-toggle">&#9654;</span>
+    </div>
+    <div class="card-body">
+      <div class="map-block">
+        <div class="map-line"><span class="t">;; id -> context map</span></div>
+        <div class="map-line">{<span class="k">:id</span>         <span class="kw">:cx-5</span></div>
+        <div class="map-line"> <span class="k">:parent-id</span>  <span class="ref">:cx-2</span> <span class="t">; -> contexts</span></div>
+        <div class="map-line"> <span class="k">:children</span>   <span class="set-brace">#{</span><span class="ref">:cx-8</span> <span class="ref">:cx-9</span><span class="set-brace">}</span></div>
+        <div class="map-line"> <span class="k">:all-obs</span>    <span class="set-brace">#{</span><span class="t">{:fact/type ...}</span><span class="set-brace">}</span> <span class="t">; visible facts</span></div>
+        <div class="map-line"> <span class="k">:add-obs</span>    <span class="set-brace">#{...}</span> <span class="t">; asserted here</span></div>
+        <div class="map-line"> <span class="k">:remove-obs</span> <span class="set-brace">#{...}</span> <span class="t">; retracted here</span></div>
+        <div class="map-line"> <span class="k">:ordering</span>   <span class="num">0.85</span> <span class="t">; backtrack priority</span></div>
+        <div class="map-line"> <span class="k">:rules-run?</span> <span class="kw">false</span></div>
+        <div class="map-line"> <span class="k">:alternative-past?</span> <span class="kw">false</span>}</div>
+      </div>
+      <div class="card-note">Contexts form a <strong>tree</strong>. Each sprout creates a child that inherits the parent's facts. The system explores branches and backtracks when stuck.</div>
+    </div>
+  </div>
+
+  <!-- Goals -->
+  <div class="shape-card" onclick="this.classList.toggle('open')">
+    <div class="card-header">
+      <div class="card-dot amber"></div>
+      <span class="card-name">:goals</span>
+      <span class="card-brief">active concerns</span>
+      <span class="card-toggle">&#9654;</span>
+    </div>
+    <div class="card-body">
+      <div class="map-block">
+        <div class="map-line"><span class="t">;; id -> goal map</span></div>
+        <div class="map-line">{<span class="k">:id</span>            <span class="kw">:g-1</span></div>
+        <div class="map-line"> <span class="k">:goal-type</span>    <span class="kw">:reversal</span></div>
+        <div class="map-line"> <span class="k">:planning-type</span> <span class="kw">:imaginary</span></div>
+        <div class="map-line"> <span class="k">:status</span>       <span class="kw">:runable</span></div>
+        <div class="map-line"> <span class="k">:strength</span>     <span class="num">0.7</span> <span class="t">; competition value</span></div>
+        <div class="map-line"> <span class="k">:main-motiv</span>   <span class="ref">:e-shame</span> <span class="t">; -> emotions</span></div>
+        <div class="map-line"> <span class="k">:next-cx</span>      <span class="ref">:cx-5</span> <span class="t">; -> contexts</span></div>
+        <div class="map-line"> <span class="k">:backtrack-wall</span> <span class="ref">:cx-3</span>}</div>
+      </div>
+      <div class="card-note"><strong>:main-motiv</strong> links to an emotion. That emotion won't decay while this goal is active. <strong>:strength</strong> determines which goal wins each cycle.</div>
+    </div>
+  </div>
+
+  <!-- Emotions -->
+  <div class="shape-card" onclick="this.classList.toggle('open')">
+    <div class="card-header">
+      <div class="card-dot magenta"></div>
+      <span class="card-name">:emotions</span>
+      <span class="card-brief">pressure values</span>
+      <span class="card-toggle">&#9654;</span>
+    </div>
+    <div class="card-body">
+      <div class="map-block">
+        <div class="map-line"><span class="t">;; id -> emotion map</span></div>
+        <div class="map-line">{<span class="k">:strength</span>  <span class="num">0.7</span> <span class="t">; decays 5%/cycle unless motivating</span></div>
+        <div class="map-line"> <span class="k">:valence</span>   <span class="kw">:negative</span> <span class="t">; or :positive</span></div>
+        <div class="map-line"> <span class="k">:affect</span>    <span class="kw">:shame</span></div>
+        <div class="map-line"> <span class="k">:situation-id</span> <span class="ref">:s1_seeing_through</span>}</div>
+      </div>
+      <div class="card-note">Below <span class="num">0.15</span> strength, the emotion is garbage collected. Emotions motivating active goals are protected from decay.</div>
+    </div>
+  </div>
+
+  <!-- Episodes -->
+  <div class="shape-card" onclick="this.classList.toggle('open')">
+    <div class="card-header">
+      <div class="card-dot green"></div>
+      <span class="card-name">:episodes</span>
+      <span class="card-brief">long-term memory</span>
+      <span class="card-toggle">&#9654;</span>
+    </div>
+    <div class="card-body">
+      <div class="map-block">
+        <div class="map-line"><span class="t">;; id -> episode map</span></div>
+        <div class="map-line">{<span class="k">:id</span>           <span class="kw">:ep-7</span></div>
+        <div class="map-line"> <span class="k">:rule</span>         <span class="kw">:rationalization-plan</span></div>
+        <div class="map-line"> <span class="k">:goal-id</span>      <span class="ref">:g-1</span> <span class="t">; -> goals</span></div>
+        <div class="map-line"> <span class="k">:context-id</span>   <span class="ref">:cx-5</span> <span class="t">; -> contexts</span></div>
+        <div class="map-line"> <span class="k">:indices</span>      <span class="set-brace">#{</span><span class="kw">:honesty</span> <span class="kw">:performance</span><span class="set-brace">}</span></div>
+        <div class="map-line"> <span class="k">:plan-threshold</span> <span class="num">2</span></div>
+        <div class="map-line"> <span class="k">:admission-status</span> <span class="kw">:provisional</span></div>
+        <div class="map-line"> <span class="k">:rule-path</span>    [<span class="kw">:rationalization-dispatch</span>]</div>
+        <div class="map-line"> <span class="k">:anti-residue-flags</span> <span class="set-brace">#{}</span>}</div>
+      </div>
+      <div class="card-note">Retrieved by <strong>coincidence-mark counting</strong>: if enough of an episode's indices overlap with currently active indices, it surfaces. The membrane fields control who can be retrieved and promoted.</div>
+    </div>
+  </div>
+
+  <!-- Episode Index -->
+  <div class="shape-card" onclick="this.classList.toggle('open')">
+    <div class="card-header">
+      <div class="card-dot green"></div>
+      <span class="card-name">:episode-index</span>
+      <span class="card-brief">reverse lookup</span>
+      <span class="card-toggle">&#9654;</span>
+    </div>
+    <div class="card-body">
+      <div class="map-block">
+        <div class="map-line"><span class="t">;; keyword -> set of episode ids</span></div>
+        <div class="map-line">{<span class="kw">:honesty</span>     <span class="set-brace">#{</span><span class="ref">:ep-7</span> <span class="ref">:ep-12</span><span class="set-brace">}</span></div>
+        <div class="map-line"> <span class="kw">:performance</span> <span class="set-brace">#{</span><span class="ref">:ep-7</span><span class="set-brace">}</span></div>
+        <div class="map-line"> <span class="kw">:harbor</span>      <span class="set-brace">#{</span><span class="ref">:ep-3</span><span class="set-brace">}</span>}</div>
+      </div>
+      <div class="card-note">This is how retrieval finds episodes quickly. Active indices are looked up here, and episodes that appear enough times cross their threshold.</div>
+    </div>
+  </div>
+
+  <!-- Needs -->
+  <div class="shape-card" onclick="this.classList.toggle('open')">
+    <div class="card-header">
+      <div class="card-dot red"></div>
+      <span class="card-name">:needs</span>
+      <span class="card-brief">background drives</span>
+      <span class="card-toggle">&#9654;</span>
+    </div>
+    <div class="card-body">
+      <div class="map-block">
+        <div class="map-line"><span class="t">;; id -> need map</span></div>
+        <div class="map-line">{<span class="k">:strength</span> <span class="num">0.6</span>} <span class="t">; decays 2%/cycle</span></div>
+      </div>
+      <div class="card-note">Slow background pressure. Less important than emotions for cycle-to-cycle behavior but they represent long-term motivational context.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Connections -->
+<div class="connections">
+  <h2>How Maps Reference Each Other</h2>
+  <div class="conn-list">
+    <div class="conn-item">
+      <span class="conn-from">goal</span>
+      <span class="conn-arrow">&rarr;</span>
+      <span class="conn-to">emotion</span>
+      <span class="conn-via">via :main-motiv</span>
+    </div>
+    <div class="conn-item">
+      <span class="conn-from">goal</span>
+      <span class="conn-arrow">&rarr;</span>
+      <span class="conn-to">context</span>
+      <span class="conn-via">via :next-cx</span>
+    </div>
+    <div class="conn-item">
+      <span class="conn-from">context</span>
+      <span class="conn-arrow">&rarr;</span>
+      <span class="conn-to">context</span>
+      <span class="conn-via">via :parent-id</span>
+    </div>
+    <div class="conn-item">
+      <span class="conn-from">episode</span>
+      <span class="conn-arrow">&rarr;</span>
+      <span class="conn-to">context</span>
+      <span class="conn-via">via :context-id</span>
+    </div>
+    <div class="conn-item">
+      <span class="conn-from">episode</span>
+      <span class="conn-arrow">&rarr;</span>
+      <span class="conn-to">goal</span>
+      <span class="conn-via">via :goal-id</span>
+    </div>
+    <div class="conn-item">
+      <span class="conn-from">episode-index</span>
+      <span class="conn-arrow">&rarr;</span>
+      <span class="conn-to">episodes</span>
+      <span class="conn-via">keyword &rarr; #{ids}</span>
+    </div>
+    <div class="conn-item">
+      <span class="conn-from">fact</span>
+      <span class="conn-arrow">&rarr;</span>
+      <span class="conn-to">goal</span>
+      <span class="conn-via">via :goal-id in dependency</span>
+    </div>
+    <div class="conn-item">
+      <span class="conn-from">fact</span>
+      <span class="conn-arrow">&rarr;</span>
+      <span class="conn-to">emotion</span>
+      <span class="conn-via">via :emotion-id in dependency</span>
+    </div>
+  </div>
+</div>
+
+<!-- Context tree -->
+<div class="tree-section">
+  <h2>Context Tree (example)</h2>
+  <div class="tree-viz">
+    <div class="tree-node"><span class="tree-indent"></span><span class="tree-id">:cx-1</span> <span class="tree-meta">root &middot; ordering 1.0 &middot; 3 facts</span></div>
+    <div class="tree-node"><span class="tree-indent">  ├─ </span><span class="tree-id">:cx-2</span> <span class="tree-meta">ordering 0.9 &middot; 5 facts &middot; rules-run</span></div>
+    <div class="tree-node"><span class="tree-indent">  │  ├─ </span><span class="tree-id">:cx-5</span> <span class="tree-meta">ordering 0.85 &middot; 7 facts</span> <span class="tree-facts">&larr; goal :g-1 is here</span></div>
+    <div class="tree-node"><span class="tree-indent">  │  │  ├─ </span><span class="tree-id">:cx-8</span> <span class="tree-meta">ordering 0.8</span> <span class="tree-label alt-past">alternative-past</span></div>
+    <div class="tree-node"><span class="tree-indent">  │  │  └─ </span><span class="tree-id">:cx-9</span> <span class="tree-meta">ordering 0.7</span></div>
+    <div class="tree-node"><span class="tree-indent">  │  └─ </span><span class="tree-id">:cx-6</span> <span class="tree-meta">ordering 0.4 &middot; rules-run</span></div>
+    <div class="tree-node"><span class="tree-indent">  └─ </span><span class="tree-id">:cx-3</span> <span class="tree-meta">ordering 0.6</span> <span class="tree-label pseudo">pseudo-sprout</span></div>
+  </div>
+</div>
+
+<!-- Cycle stepper -->
+<div class="cycle-section">
+  <h2>One Cycle of Inner Life</h2>
+  <div class="cycle-track" id="cycleTrack">
+    <div class="cycle-step active" data-step="0" onclick="showStep(0)">
+      <div class="step-num">step 1</div>
+      <div class="step-name">Decay</div>
+    </div>
+    <div class="cycle-step" data-step="1" onclick="showStep(1)">
+      <div class="step-num">step 2</div>
+      <div class="step-name">Select</div>
+    </div>
+    <div class="cycle-step" data-step="2" onclick="showStep(2)">
+      <div class="step-num">step 3</div>
+      <div class="step-name">Plan</div>
+    </div>
+    <div class="cycle-step" data-step="3" onclick="showStep(3)">
+      <div class="step-num">step 4</div>
+      <div class="step-name">Retrieve</div>
+    </div>
+    <div class="cycle-step" data-step="4" onclick="showStep(4)">
+      <div class="step-num">step 5</div>
+      <div class="step-name">Store</div>
+    </div>
+    <div class="cycle-step" data-step="5" onclick="showStep(5)">
+      <div class="step-num">step 6</div>
+      <div class="step-name">Project</div>
+    </div>
+    <div class="cycle-step" data-step="6" onclick="showStep(6)">
+      <div class="step-num">step 7</div>
+      <div class="step-name">Writeback</div>
+    </div>
+  </div>
+  <div class="step-detail" id="stepDetail"></div>
+</div>
+
+<footer>
+  Latent Dreamer &middot; kernel/doc/reference/tutorials &middot; All data is plain Clojure maps. No classes, no objects, no hidden state.
+</footer>
+
+</div>
+
+<script>
+const steps = [
+  {
+    title: "Decay",
+    what: "Needs lose 2% strength. Emotions lose 5% unless they're motivating an active goal. Emotions below 0.15 are removed entirely.",
+    shape: `<span class="k">:emotions</span>\n  <span class="kw">:e-shame</span> <span class="num">0.7</span> → <span class="num">0.7</span>  <span class="c">; motivating :g-1, protected</span>\n  <span class="kw">:e-hope</span>  <span class="num">0.3</span> → <span class="num">0.285</span>  <span class="c">; not motivating, decayed</span>\n  <span class="kw">:e-fear</span>  <span class="num">0.1</span> → <span class="c">removed</span>  <span class="c">; below 0.15 threshold</span>`
+  },
+  {
+    title: "Select Concern",
+    what: "Pick the goal with the strongest emotional motivation. If no goals exist in the current mode, flip modes (performance ↔ daydreaming).",
+    shape: `<span class="c">;; candidates sorted by :strength</span>\n[<span class="kw">:g-1</span> <span class="num">0.7</span>  <span class="c">; reversal, driven by shame</span>\n <span class="kw">:g-2</span> <span class="num">0.285</span>  <span class="c">; roving, driven by hope</span>]\n\n<span class="c">;; :g-1 wins this cycle</span>`
+  },
+  {
+    title: "Run Family Plan",
+    what: "Execute the winning goal's family operator. Rationalization finds a reframe. Reversal imagines a counterfactual. Roving drifts to pleasant memories. The plan sprouts new contexts and asserts facts.",
+    shape: `<span class="c">;; reversal sprouts an alternative-past branch</span>\n<span class="k">:cx-8</span> sprouted from <span class="k">:cx-5</span>\n  <span class="k">:alternative-past?</span> <span class="kw">true</span>\n  <span class="k">:generation-switches</span> {<span class="k">:tense</span> <span class="kw">:conditional-present-perfect</span>}\n  <span class="c">; "what if things had gone differently..."</span>`
+  },
+  {
+    title: "Retrieve Episodes",
+    what: "Cross-reference currently active indices against the episode index. Count marks. Episodes that cross their threshold are retrieved. The reminding cascade then activates further episodes through shared indices.",
+    shape: `<span class="c">;; active indices: [:honesty :performance]</span>\n<span class="c">;; episode :ep-7 has #{:honesty :performance :harbor}</span>\n<span class="c">;; 2 marks, threshold 2 → RETRIEVED</span>\n\n<span class="c">;; reminding cascade:</span>\n<span class="c">;; :harbor enters recent-indices FIFO</span>\n<span class="c">;; check: does :harbor retrieve more episodes?</span>`
+  },
+  {
+    title: "Store Result",
+    what: "The family plan's output becomes a new episode with indices, provenance, and admission status. Episodes enter as :provisional and must earn :durable through cross-family evidence.",
+    shape: `{<span class="k">:id</span> <span class="kw">:ep-14</span>\n <span class="k">:rule</span> <span class="kw">:reversal-plan</span>\n <span class="k">:indices</span> <span class="set-brace">#{</span><span class="kw">:wall_was_open</span> <span class="kw">:seeing_through</span><span class="set-brace">}</span>\n <span class="k">:admission-status</span> <span class="kw">:provisional</span>\n <span class="k">:rule-path</span> [<span class="kw">:reversal-plan-dispatch</span>]}`
+  },
+  {
+    title: "Project Thought Beat",
+    what: "An LLM receives the kernel's structural state and generates 2-3 sentences of inner-life prose. The beat includes mood tags, image hints, and audio hints.",
+    shape: `{<span class="k">:thought_beat_text</span>\n <span class="v">"He knows the seam is real—the foam-core</span>\n  <span class="v">edge, the fingerprint pressed into clay..."</span>\n <span class="k">:mood_tags</span> [<span class="kw">"trapped"</span> <span class="kw">"lucid-but-silenced"</span>]\n <span class="k">:residue_indices</span> [<span class="kw">:seam</span> <span class="kw">:honesty</span> <span class="kw">:perception</span>]}`
+  },
+  {
+    title: "Writeback",
+    what: "The thought beat's residue indices become a new episode in memory. This changes what future retrieval finds. The system is now path-dependent: cycle 8 will be different because of what cycle 7 stored.",
+    shape: `<span class="c">;; new episode from residue</span>\n{<span class="k">:id</span> <span class="kw">:ep-15</span>\n <span class="k">:rule</span> <span class="kw">:runtime-thought-residue</span>\n <span class="k">:indices</span> <span class="set-brace">#{</span><span class="kw">:seam</span> <span class="kw">:honesty</span> <span class="kw">:perception</span><span class="set-brace">}</span>\n <span class="k">:realism</span> <span class="kw">:imaginary</span>\n <span class="k">:admission-status</span> <span class="kw">:provisional</span>}\n\n<span class="c">;; :seam and :honesty are now in recent-indices</span>\n<span class="c">;; next cycle's retrieval will be different</span>`
+  }
+];
+
+function showStep(idx) {
+  document.querySelectorAll('.cycle-step').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+  const s = steps[idx];
+  document.getElementById('stepDetail').innerHTML = `
+    <div class="step-detail-title">${s.title}</div>
+    <div class="step-detail-body">
+      <div class="step-what">${s.what}</div>
+      <div class="step-shape">${s.shape}</div>
+    </div>
+  `;
+}
+
+showStep(0);
+</script>
+</body>
+</html>

@@ -3,3 +3,4 @@ pillow
 pyyaml
 python-dotenv
 replicate
+fal-client

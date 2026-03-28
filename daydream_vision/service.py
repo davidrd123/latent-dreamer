@@ -21,6 +21,7 @@ except Exception:  # pragma: no cover
 
 from .anchor_spec import format_anchor_spec, merge_anchor_spec
 from .paths import dated_output_dir, path_record, prompt_stem, resolve_path, slugify
+from .vendor import fal_min
 from .vendor import replicate_min
 from .vendor.gemini_min import (
     cleanup_uploaded,
@@ -36,6 +37,14 @@ except Exception:  # pragma: no cover
     generate_images = None  # type: ignore[assignment]
 
 
+FAL_QWEN_MODEL = "fal-ai/qwen-image"
+GRAFFITO_QWEN_MODEL = "qwen/qwen-image"
+GRAFFITO_QWEN_LORA_URL = (
+    "https://huggingface.co/davidrd123/graffito_synthetic_qwen/resolve/main/"
+    "pytorch_lora_weights.safetensors"
+)
+
+
 def _google_genai_version() -> str:
     try:
         return importlib.metadata.version("google-genai")
@@ -43,8 +52,489 @@ def _google_genai_version() -> str:
         return "unknown"
 
 
+def _replicate_version() -> str:
+    try:
+        return importlib.metadata.version("replicate")
+    except Exception:
+        return "unknown"
+
+
+def _fal_version() -> str:
+    try:
+        return importlib.metadata.version("fal-client")
+    except Exception:
+        return "unknown"
+
+
 def _supports_image_config() -> bool:
     return bool(gtypes is not None and hasattr(gtypes, "ImageConfig"))
+
+
+def _select_image_provider(*, model: str, provider: str = "auto") -> str:
+    requested = (provider or "auto").strip().lower()
+    if requested in {"gemini", "replicate", "fal"}:
+        return requested
+    normalized_model = (model or "").strip().lower()
+    if normalized_model.startswith("gemini-"):
+        return "gemini"
+    if normalized_model.startswith("fal-ai/"):
+        return "fal"
+    if "/" in normalized_model:
+        return "replicate"
+    return "gemini"
+
+
+def apply_edit_presets(
+    *,
+    graffito: bool = False,
+    provider: str = "auto",
+    model: str,
+    lora_weights: Optional[str],
+) -> tuple[str, Optional[str]]:
+    if not graffito:
+        return model, lora_weights
+    selected_provider = _select_image_provider(model=model, provider=provider)
+    graffito_model = FAL_QWEN_MODEL if selected_provider == "fal" else GRAFFITO_QWEN_MODEL
+    return graffito_model, GRAFFITO_QWEN_LORA_URL
+
+
+def _has_replicate_image_options(*, seed: Optional[int], guidance: Optional[float], strength: Optional[float], go_fast: Optional[bool], lora_scale: Optional[float], lora_weights: Optional[str], output_format: Optional[str], enhance_prompt: Optional[bool], output_quality: Optional[int], negative_prompt: Optional[str], extra_lora_scale: Optional[List[float]], extra_lora_weights: Optional[List[str]], num_inference_steps: Optional[int], disable_safety_checker: Optional[bool]) -> bool:
+    return any(
+        value is not None and value != []
+        for value in (
+            seed,
+            guidance,
+            strength,
+            go_fast,
+            lora_scale,
+            lora_weights,
+            output_format,
+            enhance_prompt,
+            output_quality,
+            negative_prompt,
+            extra_lora_scale,
+            extra_lora_weights,
+            num_inference_steps,
+            disable_safety_checker,
+        )
+    )
+
+
+def _record_output_file(path: Path, *, root: Path) -> Dict[str, Any]:
+    metadata = path_record(path, root=root)
+    mime_type, _ = mimetypes.guess_type(str(path))
+    if Image is not None and mime_type and mime_type.startswith("image/"):
+        try:
+            with Image.open(path) as img:  # type: ignore[call-arg]
+                metadata.update(_img_size(img))
+        except Exception:
+            pass
+    return metadata
+
+
+def _build_qwen_image_params(
+    *,
+    prompt: str,
+    has_input_image: bool,
+    seed: Optional[int],
+    guidance: Optional[float],
+    strength: Optional[float],
+    go_fast: Optional[bool],
+    aspect_ratio: Optional[str],
+    image_size: Optional[str],
+    lora_scale: Optional[float],
+    lora_weights: Optional[str],
+    output_format: Optional[str],
+    enhance_prompt: Optional[bool],
+    output_quality: Optional[int],
+    negative_prompt: Optional[str],
+    extra_lora_scale: Optional[List[float]],
+    extra_lora_weights: Optional[List[str]],
+    num_inference_steps: Optional[int],
+    disable_safety_checker: Optional[bool],
+) -> Dict[str, Any]:
+    if extra_lora_scale and extra_lora_weights and len(extra_lora_scale) != len(extra_lora_weights):
+        raise RuntimeError("extra_lora_scale must match extra_lora_weights length")
+
+    params: Dict[str, Any] = {
+        "prompt": prompt,
+        "go_fast": True if go_fast is None else bool(go_fast),
+        "guidance": 3 if guidance is None else float(guidance),
+        "aspect_ratio": aspect_ratio or "16:9",
+        "image_size": image_size or "optimize_for_quality",
+        "lora_scale": 1 if lora_scale is None else float(lora_scale),
+        "output_format": output_format or "png",
+        "enhance_prompt": False if enhance_prompt is None else bool(enhance_prompt),
+        "output_quality": 80 if output_quality is None else int(output_quality),
+        "negative_prompt": " " if negative_prompt is None else str(negative_prompt),
+        "num_inference_steps": 30 if num_inference_steps is None else int(num_inference_steps),
+        "disable_safety_checker": False if disable_safety_checker is None else bool(disable_safety_checker),
+    }
+
+    if seed is not None:
+        params["seed"] = int(seed)
+    if has_input_image:
+        params["strength"] = 0.9 if strength is None else float(strength)
+    if lora_weights:
+        params["lora_weights"] = lora_weights
+    if extra_lora_weights:
+        params["extra_lora_weights"] = extra_lora_weights
+    if extra_lora_scale:
+        params["extra_lora_scale"] = [float(value) for value in extra_lora_scale]
+    return params
+
+
+_FAL_IMAGE_SIZE_ENUMS = {
+    "square_hd",
+    "square",
+    "portrait_4_3",
+    "portrait_16_9",
+    "landscape_4_3",
+    "landscape_16_9",
+}
+
+_FAL_IMAGE_SIZE_FROM_ASPECT_RATIO = {
+    "1:1": "square_hd",
+    "4:3": "landscape_4_3",
+    "3:4": "portrait_4_3",
+    "16:9": "landscape_16_9",
+    "9:16": "portrait_16_9",
+}
+
+
+def _resolve_fal_image_size(
+    *,
+    aspect_ratio: Optional[str],
+    image_size: Optional[str],
+) -> Optional[str]:
+    if image_size and image_size in _FAL_IMAGE_SIZE_ENUMS:
+        return image_size
+    if image_size and image_size not in {"optimize_for_quality", "optimize_for_speed"}:
+        raise RuntimeError(
+            "Fal image_size must be one of square_hd, square, portrait_4_3, portrait_16_9, landscape_4_3, or landscape_16_9"
+        )
+    if aspect_ratio:
+        mapped = _FAL_IMAGE_SIZE_FROM_ASPECT_RATIO.get(aspect_ratio)
+        if mapped:
+            return mapped
+        raise RuntimeError(
+            "Fal Qwen image currently supports aspect ratios 1:1, 4:3, 3:4, 16:9, and 9:16"
+        )
+    return None
+
+
+def _normalize_fal_output_format(output_format: Optional[str]) -> str:
+    if output_format in {None, "", "png"}:
+        return "png"
+    if output_format == "jpg":
+        return "jpeg"
+    if output_format == "jpeg":
+        return "jpeg"
+    raise RuntimeError("Fal Qwen image supports only png or jpg/jpeg output")
+
+
+def _build_fal_qwen_params(
+    *,
+    prompt: str,
+    requested_outputs: int,
+    seed: Optional[int],
+    guidance: Optional[float],
+    go_fast: Optional[bool],
+    aspect_ratio: Optional[str],
+    image_size: Optional[str],
+    lora_scale: Optional[float],
+    lora_weights: Optional[str],
+    output_format: Optional[str],
+    negative_prompt: Optional[str],
+    extra_lora_scale: Optional[List[float]],
+    extra_lora_weights: Optional[List[str]],
+    num_inference_steps: Optional[int],
+    disable_safety_checker: Optional[bool],
+) -> Dict[str, Any]:
+    if extra_lora_scale and extra_lora_weights and len(extra_lora_scale) != len(extra_lora_weights):
+        raise RuntimeError("extra_lora_scale must match extra_lora_weights length")
+
+    loras: List[Dict[str, Any]] = []
+    if lora_weights:
+        loras.append({"path": lora_weights, "scale": 1 if lora_scale is None else float(lora_scale)})
+    for index, path in enumerate(extra_lora_weights or []):
+        scale = 1.0
+        if extra_lora_scale and index < len(extra_lora_scale):
+            scale = float(extra_lora_scale[index])
+        loras.append({"path": path, "scale": scale})
+    if len(loras) > 3:
+        raise RuntimeError("Fal Qwen image supports at most 3 LoRAs total")
+
+    params: Dict[str, Any] = {
+        "prompt": prompt,
+        "num_images": int(requested_outputs),
+        "guidance_scale": 2.5 if guidance is None else float(guidance),
+        "output_format": _normalize_fal_output_format(output_format),
+        "negative_prompt": " " if negative_prompt is None else str(negative_prompt),
+        "num_inference_steps": 30 if num_inference_steps is None else int(num_inference_steps),
+        "enable_safety_checker": True if disable_safety_checker is None else (not bool(disable_safety_checker)),
+        # Inference from Fal docs: `regular` is the closest equivalent to a simple speed toggle.
+        "acceleration": "regular" if go_fast else "none",
+    }
+    resolved_image_size = _resolve_fal_image_size(aspect_ratio=aspect_ratio, image_size=image_size)
+    if resolved_image_size:
+        params["image_size"] = resolved_image_size
+    if seed is not None:
+        params["seed"] = int(seed)
+    if loras:
+        params["loras"] = loras
+    return params
+
+
+def _run_fal_image_model(
+    *,
+    model: str,
+    prompt: str,
+    resolved_inputs: List[Path],
+    requested_outputs: int,
+    output_dir: Optional[str],
+    label: Optional[str],
+    seed: Optional[int],
+    guidance: Optional[float],
+    go_fast: Optional[bool],
+    aspect_ratio: Optional[str],
+    image_size: Optional[str],
+    lora_scale: Optional[float],
+    lora_weights: Optional[str],
+    output_format: Optional[str],
+    negative_prompt: Optional[str],
+    extra_lora_scale: Optional[List[float]],
+    extra_lora_weights: Optional[List[str]],
+    num_inference_steps: Optional[int],
+    disable_safety_checker: Optional[bool],
+) -> Dict[str, Any]:
+    if resolved_inputs:
+        raise RuntimeError(
+            "Fal qwen-image is currently wired as text-to-image only in this repo; image input is not implemented yet"
+        )
+
+    root, out_dir = dated_output_dir(output_dir)
+    stem = slugify(label) if label else prompt_stem(prompt)
+    params = _build_fal_qwen_params(
+        prompt=prompt,
+        requested_outputs=requested_outputs,
+        seed=seed,
+        guidance=guidance,
+        go_fast=go_fast,
+        aspect_ratio=aspect_ratio,
+        image_size=image_size,
+        lora_scale=lora_scale,
+        lora_weights=lora_weights,
+        output_format=output_format,
+        negative_prompt=negative_prompt,
+        extra_lora_scale=extra_lora_scale,
+        extra_lora_weights=extra_lora_weights,
+        num_inference_steps=num_inference_steps,
+        disable_safety_checker=disable_safety_checker,
+    )
+    response = fal_min.generate(
+        model_ref=model,
+        params=params,
+        out_dir=out_dir,
+        base_name=f"{stem}_raw",
+    )
+    if not response.get("success"):
+        error = response.get("error") or {}
+        message = error.get("message") if isinstance(error, dict) else None
+        raise RuntimeError(f"FAL_ERROR: {message or 'unknown error'}")
+
+    raw_outputs = response.get("outputs") or []
+    if not raw_outputs:
+        raise RuntimeError("NO_IMAGE_RETURNED")
+
+    seq0 = _next_seq(out_dir, stem, suffix=None)
+    outputs: List[Dict[str, Any]] = []
+    for index, item in enumerate(raw_outputs):
+        raw_path = item.get("path") if isinstance(item, dict) else None
+        if not isinstance(raw_path, str):
+            continue
+        source_path = Path(raw_path)
+        ext = source_path.suffix.lower() or ".bin"
+        target_path = (out_dir / f"{stem}_{seq0 + index:03d}{ext}").resolve()
+        source_path.replace(target_path)
+        metadata = _record_output_file(target_path, root=root)
+        if isinstance(item, dict):
+            if item.get("width") is not None:
+                metadata["width"] = item.get("width")
+            if item.get("height") is not None:
+                metadata["height"] = item.get("height")
+            if item.get("content_type") is not None:
+                metadata["contentType"] = item.get("content_type")
+        outputs.append(metadata)
+
+    return {
+        "command": "edit",
+        "provider": "fal",
+        "prompt": prompt,
+        "model": model,
+        "input_count": 0,
+        "inputs": [],
+        "requested_outputs": requested_outputs,
+        "max_attempts": 1,
+        "attempts": 1,
+        "output_count": len(outputs),
+        "outputRoot": str(root),
+        "outputDir": str(out_dir),
+        "sdk": {"falClientVersion": _fal_version()},
+        "fal": {
+            "params": params,
+            "metrics": response.get("metrics") or {},
+        },
+        "outputs": outputs,
+    }
+
+
+def _run_replicate_image_model(
+    *,
+    model: str,
+    prompt: str,
+    resolved_inputs: List[Path],
+    requested_outputs: int,
+    output_dir: Optional[str],
+    label: Optional[str],
+    seed: Optional[int],
+    guidance: Optional[float],
+    strength: Optional[float],
+    go_fast: Optional[bool],
+    aspect_ratio: Optional[str],
+    image_size: Optional[str],
+    lora_scale: Optional[float],
+    lora_weights: Optional[str],
+    output_format: Optional[str],
+    enhance_prompt: Optional[bool],
+    output_quality: Optional[int],
+    negative_prompt: Optional[str],
+    extra_lora_scale: Optional[List[float]],
+    extra_lora_weights: Optional[List[str]],
+    num_inference_steps: Optional[int],
+    disable_safety_checker: Optional[bool],
+) -> Dict[str, Any]:
+    if len(resolved_inputs) > 1:
+        raise RuntimeError("Replicate image models currently support at most one input image")
+
+    root, out_dir = dated_output_dir(output_dir)
+    stem = slugify(label) if label else prompt_stem(prompt)
+    seq0 = _next_seq(out_dir, stem, suffix=None)
+    outputs: List[Dict[str, Any]] = []
+    run_metrics: List[Dict[str, Any]] = []
+
+    for request_index in range(requested_outputs):
+        effective_seed = None if seed is None else int(seed) + request_index
+        params = _build_qwen_image_params(
+            prompt=prompt,
+            has_input_image=bool(resolved_inputs),
+            seed=effective_seed,
+            guidance=guidance,
+            strength=strength,
+            go_fast=go_fast,
+            aspect_ratio=aspect_ratio,
+            image_size=image_size,
+            lora_scale=lora_scale,
+            lora_weights=lora_weights,
+            output_format=output_format,
+            enhance_prompt=enhance_prompt,
+            output_quality=output_quality,
+            negative_prompt=negative_prompt,
+            extra_lora_scale=extra_lora_scale,
+            extra_lora_weights=extra_lora_weights,
+            num_inference_steps=num_inference_steps,
+            disable_safety_checker=disable_safety_checker,
+        )
+        raw_base = f"{stem}_raw_{seq0 + request_index:03d}"
+        if resolved_inputs:
+            response = replicate_min.edit(
+                model_ref=model,
+                image=resolved_inputs[0],
+                params=params,
+                out_dir=out_dir,
+                base_name=raw_base,
+                timeout_s=900,
+            )
+        else:
+            response = replicate_min.generate(
+                model_ref=model,
+                params=params,
+                out_dir=out_dir,
+                base_name=raw_base,
+                timeout_s=900,
+            )
+
+        if not response.get("success"):
+            error = response.get("error") or {}
+            message = error.get("message") if isinstance(error, dict) else None
+            raise RuntimeError(f"REPLICATE_ERROR: {message or 'unknown error'}")
+
+        raw_outputs = response.get("outputs") or []
+        if not raw_outputs:
+            raise RuntimeError("NO_IMAGE_RETURNED")
+
+        run_metrics.append({
+            "requestIndex": request_index + 1,
+            "seed": effective_seed,
+            "metrics": response.get("metrics") or {},
+            "coldStart": response.get("cold_start"),
+        })
+
+        for subindex, item in enumerate(raw_outputs, start=1):
+            raw_path = item.get("path") if isinstance(item, dict) else None
+            if not isinstance(raw_path, str):
+                continue
+            source_path = Path(raw_path)
+            ext = source_path.suffix.lower() or ".bin"
+            if len(raw_outputs) == 1:
+                filename = f"{stem}_{seq0 + len(outputs):03d}{ext}"
+            else:
+                filename = f"{stem}_{seq0 + request_index:03d}_{subindex:02d}{ext}"
+            target_path = (out_dir / filename).resolve()
+            source_path.replace(target_path)
+            metadata = _record_output_file(target_path, root=root)
+            metadata["seed"] = effective_seed
+            outputs.append(metadata)
+
+    return {
+        "command": "edit",
+        "provider": "replicate",
+        "prompt": prompt,
+        "model": model,
+        "input_count": len(resolved_inputs),
+        "inputs": [path_record(path) for path in resolved_inputs],
+        "requested_outputs": requested_outputs,
+        "max_attempts": requested_outputs,
+        "attempts": requested_outputs,
+        "output_count": len(outputs),
+        "outputRoot": str(root),
+        "outputDir": str(out_dir),
+        "sdk": {"replicateVersion": _replicate_version()},
+        "replicate": {
+            "params": _build_qwen_image_params(
+                prompt=prompt,
+                has_input_image=bool(resolved_inputs),
+                seed=seed,
+                guidance=guidance,
+                strength=strength,
+                go_fast=go_fast,
+                aspect_ratio=aspect_ratio,
+                image_size=image_size,
+                lora_scale=lora_scale,
+                lora_weights=lora_weights,
+                output_format=output_format,
+                enhance_prompt=enhance_prompt,
+                output_quality=output_quality,
+                negative_prompt=negative_prompt,
+                extra_lora_scale=extra_lora_scale,
+                extra_lora_weights=extra_lora_weights,
+                num_inference_steps=num_inference_steps,
+                disable_safety_checker=disable_safety_checker,
+            ),
+            "runs": run_metrics,
+        },
+        "outputs": outputs,
+    }
 
 
 def _require_image_config_support(*, aspect_ratio: Optional[str], image_size: Optional[str]) -> None:
@@ -67,9 +557,9 @@ def _img_size(img: Any) -> Dict[str, int]:
         return {"width": 0, "height": 0}
 
 
-def _next_seq(out_dir: Path, stem: str, *, suffix: str = ".png") -> int:
+def _next_seq(out_dir: Path, stem: str, *, suffix: Optional[str] = ".png") -> int:
     max_value = 0
-    pattern = f"{stem}_*{suffix}"
+    pattern = f"{stem}_*{suffix}" if suffix else f"{stem}_*"
     for entry in out_dir.glob(pattern):
         name = entry.stem
         if not name.startswith(f"{stem}_"):
@@ -508,10 +998,25 @@ def edit_image(
     output_dir: Optional[str] = None,
     label: Optional[str] = None,
     model: str = "gemini-3.1-flash-image-preview",
+    provider: str = "auto",
     temperature: float = 0.7,
     system_prompt: str = "",
     aspect_ratio: Optional[str] = None,
     image_size: Optional[str] = None,
+    seed: Optional[int] = None,
+    guidance: Optional[float] = None,
+    strength: Optional[float] = None,
+    go_fast: Optional[bool] = None,
+    lora_scale: Optional[float] = None,
+    lora_weights: Optional[str] = None,
+    output_format: Optional[str] = None,
+    enhance_prompt: Optional[bool] = None,
+    output_quality: Optional[int] = None,
+    negative_prompt: Optional[str] = None,
+    extra_lora_scale: Optional[List[float]] = None,
+    extra_lora_weights: Optional[List[str]] = None,
+    num_inference_steps: Optional[int] = None,
+    disable_safety_checker: Optional[bool] = None,
 ) -> Dict[str, Any]:
     if not prompt.strip():
         raise RuntimeError("prompt is required")
@@ -520,14 +1025,94 @@ def edit_image(
     if Image is None:
         raise RuntimeError("Pillow not installed. `pip install pillow`.")
 
-    _require_image_config_support(aspect_ratio=aspect_ratio, image_size=image_size)
-    root, out_dir = dated_output_dir(output_dir)
-
     input_paths = image_paths or []
     resolved_inputs = [resolve_path(path) for path in input_paths]
     for path in resolved_inputs:
         if not path.is_file():
             raise RuntimeError(f"IMAGE_NOT_FOUND: {path}")
+
+    selected_provider = _select_image_provider(model=model, provider=provider)
+    normalized_model = (model or "").strip().lower()
+    if selected_provider == "fal" and not normalized_model.startswith("fal-ai/"):
+        raise RuntimeError("Fal provider requires a fal-ai/... model ref")
+    if selected_provider == "replicate" and "/" not in normalized_model:
+        raise RuntimeError("Replicate provider requires a provider/model style model ref")
+    if selected_provider == "replicate":
+        return _run_replicate_image_model(
+            model=model,
+            prompt=prompt,
+            resolved_inputs=resolved_inputs,
+            requested_outputs=num_outputs,
+            output_dir=output_dir,
+            label=label,
+            seed=seed,
+            guidance=guidance,
+            strength=strength,
+            go_fast=go_fast,
+            aspect_ratio=aspect_ratio,
+            image_size=image_size,
+            lora_scale=lora_scale,
+            lora_weights=lora_weights,
+            output_format=output_format,
+            enhance_prompt=enhance_prompt,
+            output_quality=output_quality,
+            negative_prompt=negative_prompt,
+            extra_lora_scale=extra_lora_scale,
+            extra_lora_weights=extra_lora_weights,
+            num_inference_steps=num_inference_steps,
+            disable_safety_checker=disable_safety_checker,
+        )
+    if selected_provider == "fal":
+        if strength is not None:
+            raise RuntimeError("Fal qwen-image does not currently support local img2img strength in this repo")
+        if enhance_prompt is not None:
+            raise RuntimeError("Fal qwen-image does not support --enhance-prompt in this repo")
+        if output_quality is not None:
+            raise RuntimeError("Fal qwen-image does not support --output-quality in this repo")
+        return _run_fal_image_model(
+            model=model,
+            prompt=prompt,
+            resolved_inputs=resolved_inputs,
+            requested_outputs=num_outputs,
+            output_dir=output_dir,
+            label=label,
+            seed=seed,
+            guidance=guidance,
+            go_fast=go_fast,
+            aspect_ratio=aspect_ratio,
+            image_size=image_size,
+            lora_scale=lora_scale,
+            lora_weights=lora_weights,
+            output_format=output_format,
+            negative_prompt=negative_prompt,
+            extra_lora_scale=extra_lora_scale,
+            extra_lora_weights=extra_lora_weights,
+            num_inference_steps=num_inference_steps,
+            disable_safety_checker=disable_safety_checker,
+        )
+
+    if _has_replicate_image_options(
+        seed=seed,
+        guidance=guidance,
+        strength=strength,
+        go_fast=go_fast,
+        lora_scale=lora_scale,
+        lora_weights=lora_weights,
+        output_format=output_format,
+        enhance_prompt=enhance_prompt,
+        output_quality=output_quality,
+        negative_prompt=negative_prompt,
+        extra_lora_scale=extra_lora_scale,
+        extra_lora_weights=extra_lora_weights,
+        num_inference_steps=num_inference_steps,
+        disable_safety_checker=disable_safety_checker,
+    ):
+        raise RuntimeError(
+            "Non-Gemini image options were supplied while using the Gemini image path"
+        )
+
+    _require_image_config_support(aspect_ratio=aspect_ratio, image_size=image_size)
+    root, out_dir = dated_output_dir(output_dir)
 
     contents: List[Any] = [prompt]
     if generate_images is None:
@@ -583,6 +1168,7 @@ def edit_image(
 
     return {
         "command": "edit",
+        "provider": "gemini",
         "prompt": prompt,
         "model": model,
         "input_count": len(resolved_inputs),

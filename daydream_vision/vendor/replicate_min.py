@@ -75,6 +75,20 @@ def _ext_from_url(url: Optional[str]) -> str:
     return ".bin"
 
 
+def _ext_from_bytes(data: bytes) -> str:
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return ".png"
+    if data.startswith(b"\xff\xd8\xff"):
+        return ".jpg"
+    if data.startswith((b"GIF87a", b"GIF89a")):
+        return ".gif"
+    if data.startswith(b"PK\x03\x04"):
+        return ".zip"
+    if len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return ".webp"
+    return ".bin"
+
+
 def _write_outputs(items: Iterable[Any], out_dir: Path, base_name: str) -> List[dict]:
     out_dir.mkdir(parents=True, exist_ok=True)
     outputs: List[dict] = []
@@ -82,10 +96,12 @@ def _write_outputs(items: Iterable[Any], out_dir: Path, base_name: str) -> List[
     for idx, item in enumerate(items):
         url = _get_url(item)
         ext = _ext_from_url(url)
+        data = _read_bytes(item)
+        if ext == ".bin":
+            ext = _ext_from_bytes(data)
         p = out_dir / f"{base_name}_{idx}{ext}"
         if p.exists():
             p = out_dir / f"{base_name}_{idx}_{int(time.time() * 1000) % 100000000}{ext}"
-        data = _read_bytes(item)
         p.write_bytes(data)
         outputs.append(
             {
@@ -221,4 +237,3 @@ def edit(
     safe_params["image"] = str(image)
     sidecar["resolved_params"] = safe_params
     return sidecar
-

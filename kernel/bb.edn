@@ -30,6 +30,9 @@
   graffito-miniworld-trace-100
   {:doc "Run the 100-cycle Graffito miniworld trace and render the debug canopy"
    :task (shell "clojure -M:trace -m daydreamer.export-trace --benchmark graffito-miniworld --cycles 100 --out out/graffito_miniworld_100.json --render-canopy --canopy-out out/graffito_miniworld_100_canopy.html --print-summary")}
+  typed-issue-entry
+  {:doc "Run the first bounded typed issue-entry experiment and print its summary"
+   :task (shell "clojure -M -e '(require (quote [daydreamer.benchmarks.typed-issue-entry :as tie])) (prn (:summary (tie/run-mock-issue-entry)))'")}
   dream
   {:doc "Alias for the autonomous Puppet Knows dream trace"
    :depends [puppet-knows-autonomous]}
