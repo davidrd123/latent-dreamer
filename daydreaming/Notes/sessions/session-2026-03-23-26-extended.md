@@ -155,10 +155,47 @@ present it.
 | `daydreaming/scripts/graffito_generate_arc_images.py` | Generate arc images with refs |
 | `kernel/src/playground/src/mini/ex01-05` | 5 Calva learning exercises |
 
+## Late session: demo recording and editing (03-26)
+
+- Recorded multiple screen recording attempts narrating over
+  graffito_demo_v3.html
+- Used daydream_vision analyze to get Gemini feedback on each take
+- Key feedback across takes: narration reached 9/10, visual match
+  9/10, but live scrolling was consistently judged 1-2/10 (too jerky)
+- Pivoted to Premiere editing: use narration audio from screen
+  recordings, stills from the HTML page on a timeline with smooth
+  transitions
+- Added SCROLL button (auto-scroll with spacebar toggle, arrow key
+  speed) and SKIP TO ARC button (smooth animated scroll) to the
+  HTML page
+- Produced Export_v2.mp4 (2:02) — strong overall, intro too dense
+- Produced Export_v3_1.mp4 (1:49) — intro improved, pacing good,
+  Gemini said "mostly yes, ready to send"
+- Quote options finalized (see narration-final-v2.md)
+- Codex provided quote options mentioning Scope and the program
+  specifically
+
+## Demo video status: DONE (v3.1)
+
+- Export_v3_1.mp4 at 1:49 — slightly over 90 sec target but
+  assessed as ready to send
+- Narration: 9/10 across multiple Gemini assessments
+- Story lands clearly for non-technical audience
+- Strongest moments: Cycle 6 first flip, final graph + closing
+- Minor note: intro architecture diagrams still slightly dense
+  but presenter moves through them quickly enough
+
+## Pending: send to Vibor
+
+- Video: Export_v3_1.mp4 (or further trimmed version)
+- Quote: pick from options in narration-final-v2.md or codex's
+  program-specific versions
+
 ## What to read on restart
 
-1. `daydreaming/Notes/steering-balance-2026-03-24.md` (current priority balance)
-2. `daydreaming/Notes/collaborative-pivot-synthesis-2026-03-24.md` (where the project is going)
-3. `daydreaming/Notes/project-page/demo-prep/narration-final-v2.md` (demo script)
-4. `daydreaming/Notes/current-sprint.md` (active work)
-5. `daydreaming/Notes/right-now.md` (shortest status)
+1. `daydreaming/Notes/right-now.md` (shortest status)
+2. `daydreaming/Notes/steering-balance-2026-03-24.md` (current priority balance)
+3. `daydreaming/Notes/collaborative-pivot-synthesis-2026-03-24.md` (where the project is going)
+4. `daydreaming/Notes/current-sprint.md` (active work — now includes typed issue entry pivot slice)
+5. `daydreaming/Notes/project-page/demo-prep/narration-final-v2.md` (demo script)
+6. `daydreaming/Notes/interest-map-2026-03-23.md` (broader interests)
